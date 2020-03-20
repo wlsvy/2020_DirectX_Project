@@ -1,6 +1,13 @@
 #include "WindowContainer.h"
 
-bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) {
+bool RenderWindow::Initialize(
+	WindowContainer * pWindowContainer, 
+	HINSTANCE hInstance, 
+	std::string window_title, 
+	std::string window_class, 
+	int width, 
+	int height) 
+{
 	this->hInstance = hInstance;
 	this->width = width;
 	this->height = height;
@@ -54,7 +61,12 @@ RenderWindow::~RenderWindow() {
 	}
 }
 
-LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK HandleMsgRedirect(
+	HWND hwnd, 
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam) 
+{
 	switch (uMsg) {
 		//all other messages
 	case WM_CLOSE:
@@ -71,7 +83,12 @@ LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 	}
 }
 
-LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT CALLBACK HandleMessageSetup(
+	HWND hwnd,
+	UINT uMsg, 
+	WPARAM wParam, 
+	LPARAM lParam) 
+{
 	switch (uMsg) { //메세지는 종류가 다양해서 스위치 활용. 예를 들면 ->키가 눌려졌을 때
 	case WM_NCCREATE: {
 		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);

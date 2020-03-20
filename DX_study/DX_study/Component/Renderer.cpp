@@ -57,7 +57,7 @@ Renderer::Renderer(const COMPONENT_INIT_DESC & desc) :
 	std::strcpy(mComponentName, "Renderer"); 
 }
 
-bool Renderer::Renderer_Initialize(Model * model_ptr,
+bool Renderer::Initialize(Model * model_ptr,
 	VertexShader* _vshader,
 	PixelShader* _pshader,
 	GeometryShader* _gshader,
@@ -75,27 +75,24 @@ bool Renderer::Renderer_Initialize(Model * model_ptr,
 	return true;
 }
 
-void Renderer::Renderer_Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
+void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 {
 	//예외 처리 필요
 	mDeviceContext->IASetInputLayout(mVshaderPtr->GetInputLayout()); //IA에 입력할 배치 적용
 	mDeviceContext->VSSetShader(mVshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
 	mDeviceContext->PSSetShader(mPshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
 
-	if (mGshaderPtr == nullptr) mDeviceContext->GSSetShader(NULL, NULL, 0);
-	else mDeviceContext->GSSetShader(mGshaderPtr->GetShader(), NULL, 0);
-
-	if(!drawSkinnedMesh)
-		mModelPtr->Draw(this->transform->worldMatrix, viewProjectionMatrix);
-	else
-		mModelPtr->Draw_skinnedMesh(this->transform->worldMatrix, viewProjectionMatrix, animator);
-	return;
-	if (!drawWireFrame) {
-
+	if (mGshaderPtr == nullptr) {
+		mDeviceContext->GSSetShader(NULL, NULL, 0);
 	}
-		
 	else {
-		
+		mDeviceContext->GSSetShader(mGshaderPtr->GetShader(), NULL, 0);
 	}
 
+	if (!drawSkinnedMesh) {
+		mModelPtr->Draw(this->transform->worldMatrix, viewProjectionMatrix);
+	}
+	else {
+		mModelPtr->Draw_skinnedMesh(this->transform->worldMatrix, viewProjectionMatrix, animator);
+	}
 }

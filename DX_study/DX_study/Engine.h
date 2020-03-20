@@ -12,12 +12,7 @@ class ScriptBehaviour;
 
 class Engine : WindowContainer{
 public:
-	Engine()
-		: graphicsManager(this, &timer.Time, &scriptBehaviourManager), 
-		sceneManager(this, &timer.Time, &physicsManager, &graphicsManager),
-		physicsManager(this, &timer.Time, &physicsBuffer2),
-		animationManager(this, &timer.Time, &animatorBuffer),
-		scriptBehaviourManager(this, &timer.Time, &scriptBuffer, &keyboard, &mouse, &physicsManager, &mKeyboardEvent, &mMouseEvent) {}
+	Engine();
 
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProcessMessage();
@@ -35,12 +30,13 @@ public:
 
 	std::vector<AnimationClip> * GetAnimClipBuffer();
 
+	inline static Engine& GetInstance() { return *s_Instance; }
 	~Engine();
 
 private:
+	static Engine* s_Instance;
 	Timer timer;
 	ScriptBehaviourManager scriptBehaviourManager;
-	GraphicsManager graphicsManager;
 	SceneManager sceneManager;
 	PhysicsManager physicsManager;
 	AnimationManager animationManager;

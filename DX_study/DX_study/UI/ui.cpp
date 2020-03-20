@@ -14,7 +14,7 @@ void UIspace::InitImGUI(ID3D11Device * _device, ID3D11DeviceContext * _deviceCon
 	ImGui::StyleColorsClassic();
 }
 
-void UIspace::EditorUI(ID3D11ShaderResourceView * _image, Engine * _engine)
+void UIspace::EditorUI(ID3D11ShaderResourceView * image)
 {
 	static bool show_editor = true;
 	static bool show_statistics = false;
@@ -65,7 +65,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * _image, Engine * _engine)
 
 	if (!show_editor)
 	{
-		ImGui::Image(_image, { io.DisplaySize.x, io.DisplaySize.y });
+		ImGui::Image(image, { io.DisplaySize.x, io.DisplaySize.y });
 		//cam->composer()->set_render_size({ io.DisplaySize.x, io.DisplaySize.y });
 		//cam->set_aspect(io.DisplaySize.x / io.DisplaySize.y);
 		//Engine::ref().camera()->set_render_to_screen(false);
@@ -88,7 +88,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * _image, Engine * _engine)
 	ImGui::Spacing();
 
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.6f, io.DisplaySize.y * 0.6f);
-	ImGui::Image(_image, scene_size);
+	ImGui::Image(image, scene_size);
 
 	ImGui::EndChild();
 
@@ -115,7 +115,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * _image, Engine * _engine)
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	_engine->getSceneManager()->OnGui();
+	Engine::GetInstance().getSceneManager()->OnGui();
 
 	ImGui::EndChild();
 	ImGui::SameLine();
@@ -125,7 +125,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * _image, Engine * _engine)
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	GameObject_v2 * selectedObj = _engine->getSceneManager()->getUIselectedObj();
+	GameObject_v2 * selectedObj = Engine::GetInstance().getSceneManager()->getUIselectedObj();
 	if (selectedObj != nullptr)
 	{
 		selectedObj->OnGui();

@@ -428,6 +428,12 @@
     <ClInclude Include="Graphics\Skybox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Uncopyable.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl">
@@ -472,5 +478,8 @@
     <FxCompile Include="hlsl\VertexShader\vertexshader_geo.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_skybox.hlsl" />
     <FxCompile Include="hlsl\VertexShader\vertexshader_skybox.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="memo.txt" />
   </ItemGroup>
 </Project>

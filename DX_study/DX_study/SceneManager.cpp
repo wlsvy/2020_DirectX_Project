@@ -17,12 +17,10 @@ using namespace DirectX;
 
 SceneManager::SceneManager(Engine * const engine_ptr,
 	TimeInfo * const timeInfo,
-	PhysicsManager * const _physcisManager,
-	GraphicsManager * const _graphicsManager)
+	PhysicsManager * const _physcisManager)
 	: engine(engine_ptr),
 	Time(timeInfo),
-	mPhysicsManager(_physcisManager),
-	mGraphicsManager(_graphicsManager)
+	mPhysicsManager(_physcisManager)
 {
 	COMPONENT_INIT_DESC desc;
 	Transform * worldTransform = new Transform(desc);
@@ -266,8 +264,8 @@ void SceneManager::UIrecursiveTransformCheck(Transform * _transform)
 
 VertexShader * SceneManager::getVshaderByName(const std::string & _str)
 {
-	auto iter = mGraphicsManager->mVShaderMap.find(_str);
-	if (iter != mGraphicsManager->mVShaderMap.end()) {
+	auto iter = GraphicsManager::GetInstance().mVShaderMap.find(_str);
+	if (iter != GraphicsManager::GetInstance().mVShaderMap.end()) {
 		return iter->second;
 	}
 
@@ -276,8 +274,8 @@ VertexShader * SceneManager::getVshaderByName(const std::string & _str)
 
 PixelShader * SceneManager::getPshaderByName(const std::string & _str)
 {
-	auto iter = mGraphicsManager->mPShaderMap.find(_str);
-	if (iter != mGraphicsManager->mPShaderMap.end()) {
+	auto iter = GraphicsManager::GetInstance().mPShaderMap.find(_str);
+	if (iter != GraphicsManager::GetInstance().mPShaderMap.end()) {
 		return iter->second;
 	}
 	return nullptr;
@@ -285,8 +283,8 @@ PixelShader * SceneManager::getPshaderByName(const std::string & _str)
 
 GeometryShader * SceneManager::getGshaderByName(const std::string & _str)
 {
-	auto iter = mGraphicsManager->mGShaderMap.find(_str);
-	if (iter != mGraphicsManager->mGShaderMap.end()) {
+	auto iter = GraphicsManager::GetInstance().mGShaderMap.find(_str);
+	if (iter != GraphicsManager::GetInstance().mGShaderMap.end()) {
 		return iter->second;
 	}
 	return nullptr;
@@ -294,8 +292,8 @@ GeometryShader * SceneManager::getGshaderByName(const std::string & _str)
 
 Model * SceneManager::getModelByName(const std::string & _str)
 {
-	auto iter = mGraphicsManager->mModelMap.find(_str);
-	if (iter != mGraphicsManager->mModelMap.end()) {
+	auto iter = GraphicsManager::GetInstance().mModelMap.find(_str);
+	if (iter != GraphicsManager::GetInstance().mModelMap.end()) {
 		return iter->second;
 	}
 	return nullptr;
@@ -314,17 +312,17 @@ PhysicsManager * SceneManager::getPhysicsManagerPtr()
 
 GraphicsManager * SceneManager::getGraphicsManagerPtr()
 {
-	return mGraphicsManager;
+	return &GraphicsManager::GetInstance();
 }
 
 ID3D11Device * SceneManager::getDevicePtr()
 {
-	return mGraphicsManager->device.Get();
+	return GraphicsManager::GetInstance().device.Get();
 }
 
 ID3D11DeviceContext * SceneManager::getDeviceContextPtr()
 {
-	return mGraphicsManager->deviceContext.Get();
+	return GraphicsManager::GetInstance().deviceContext.Get();
 }
 
 

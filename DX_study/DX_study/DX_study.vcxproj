@@ -298,6 +298,8 @@
     <ClInclude Include="Timer.h" />
     <ClInclude Include="Component\Transform.h" />
     <ClInclude Include="UI\ui.h" />
+    <ClInclude Include="Util\Singleton.h" />
+    <ClInclude Include="Util\Uncopyable.h" />
     <ClInclude Include="WindowContainer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -472,6 +474,9 @@
       <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</DisableOptimizations>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="memo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

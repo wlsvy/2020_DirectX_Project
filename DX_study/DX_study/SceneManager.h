@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include "Util/Singleton.h"
 
 class Engine; //include 정의 조심
 class PhysicsManager;
@@ -69,8 +70,7 @@ public:
 private:
 	SceneManager(Engine * const engine_ptr, 
 		TimeInfo * const timeInfo, 
-		PhysicsManager * const _physcisManager,
-		GraphicsManager * const _graphicsManager);
+		PhysicsManager * const _physcisManager);
 	void Custom_Test_Obj_Set();
 	~SceneManager();
 	GameObject_v2* AddGameObject(GAMEOBJECT_INIT_DESC & desc);
@@ -84,7 +84,6 @@ private:
 	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
 	Engine * const engine;
 	PhysicsManager * const mPhysicsManager;
-	GraphicsManager * const mGraphicsManager;
 	ModelBuffer modelBuffer;
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;

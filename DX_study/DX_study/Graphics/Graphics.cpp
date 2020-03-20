@@ -9,52 +9,7 @@
 #define Deg2Rad 0.0174533	// pi / 180
 #define Rad2Deg 57.2958		// 180 / pi
 
-#pragma region Miscellaneous
 
-DirectX::XMFLOAT4 EulerToQuat(float roll, float pitch, float yaw) {
-	// Abbreviations for the various angular functions
-	yaw *= Deg2Rad;
-	roll *= Deg2Rad;
-	pitch *= Deg2Rad;
-	double cy = cos(yaw * 0.5);
-	double sy = sin(yaw * 0.5);
-	double cp = cos(pitch * 0.5);
-	double sp = sin(pitch * 0.5);
-	double cr = cos(roll * 0.5);
-	double sr = sin(roll * 0.5);
-
-	DirectX::XMFLOAT4 q;
-	q.w = cy * cp * cr + sy * sp * sr;
-	q.x = cy * cp * sr - sy * sp * cr;
-	q.y = sy * cp * sr + cy * sp * cr;
-	q.z = sy * cp * cr - cy * sp * sr;
-	return q;
-}
-
-DirectX::XMFLOAT3 quatToEuler3(float x, float y, float z, float w)
-{
-	float roll, pitch, yaw;
-	// roll (x-axis rotation)
-	float sinr_cosp = +2.0 * (w * x + y * z);
-	float cosr_cosp = +1.0 - 2.0 * (x * x + y * y);
-	roll = atan2(sinr_cosp, cosr_cosp);
-
-	// pitch (y-axis rotation)
-	float sinp = +2.0 * (w * y - z * x);
-	if (fabs(sinp) >= 1)
-		pitch = copysign(DirectX::XM_PI / 2, sinp); // use 90 degrees if out of range
-	else
-		pitch = asin(sinp);
-
-	// yaw (z-axis rotation)
-	float siny_cosp = +2.0 * (w * z + x * y);
-	float cosy_cosp = +1.0 - 2.0 * (y * y + z * z);
-	yaw = atan2(siny_cosp, cosy_cosp);
-
-	return DirectX::XMFLOAT3(roll * Rad2Deg, pitch * Rad2Deg, yaw * Rad2Deg);
-}
-
-#pragma endregion
 
 GraphicsManager::~GraphicsManager() {
 	for (std::vector<VertexShader*>::iterator it = vert_Shader_Buffer.begin(); it != vert_Shader_Buffer.end(); it++) {
@@ -825,7 +780,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 	struct _finddata_t fd;
 	intptr_t handle;
 
-	std::vector<AnimationClip> * animClipBuffer = engine->GetAnimClipBuffer();
+	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
 
 	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
 		do {
@@ -1002,7 +957,7 @@ void GraphicsManager::RenderFrame()
 			bool Render_enable = (*it)->renderer.enabled;
 			bool GameObject_enable = (*it)->enabled;
 			if (GameObject_enable && Render_enable) {
-				(*it)->renderer.Renderer_Draw(viewProjectionMatrix);
+				(*it)->renderer.Draw(viewProjectionMatrix);
 			}
 		}
 	}
@@ -1022,7 +977,7 @@ void GraphicsManager::RenderFrame()
 	static float deltaTime;
 	static std::string fpsString = "FPS: None \ndeltaTime : None";
 
-	deltaTime = Time->GetDeltaTime();
+	//deltaTime = Time->GetDeltaTime();
 	fpsCounter += 1;
 	fpsTime -= deltaTime;
 
@@ -1041,53 +996,9 @@ void GraphicsManager::RenderFrame()
 
 }
 
-void GraphicsManager::RenderColliderDebug(std::vector<std::shared_ptr<Collider>> * physicsCompoBuffer)
-{
-	/*this->deviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
-	this->deviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
-	this->deviceContext->RSSetState(m_states->CullNone());
-
-	m_effect->DirectX::BasicEffect::SetView(Camera3D.GetViewMatrix());
-	m_effect->SetProjection(Camera3D.GetProjectionMatrix());
-
-	m_effect->Apply(deviceContext.Get());
-
-	this->deviceContext->IASetInputLayout(debug_layout.Get());
-
-	m_batch->Begin();
-
-	for (std::vector<std::shared_ptr<Collider>>::iterator it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
-		bool Component_valid = (*it)->enabled;
-		bool GameObject_valid = (*it)->gameObject->enabled;
-
-		if (Component_valid && GameObject_valid == false) continue;
-
-
-
-		COLLIDER_DEBUG_MODEL desc = (*it)->Get_DebugModelType();
-		switch (desc.typeNum) {
-		case 0:
-			Draw(m_batch.get(), *desc.aabbPtr, DirectX::Colors::White);
-			break;
-		case 1:
-			Draw(m_batch.get(), *desc.boxPtr, DirectX::Colors::White);
-			break;
-		case 2:
-			Draw(m_batch.get(), *desc.spherePtr, DirectX::Colors::White);
-			break;
-		}
-	}
-
-	m_batch->End();*/
-}
 
 void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collider_v2>>* physicsCompoBuffer)
 {
-	//this->deviceContext->OMSetRenderTargets(1, AUX_rtv.GetAddressOf(), depthStencilView.Get());
-	//float bgcolor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	//this->deviceContext->ClearRenderTargetView(AUX_rtv.Get(), bgcolor);
-
-
 	this->deviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	this->deviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	this->deviceContext->RSSetState(m_states->CullNone());
@@ -1190,13 +1101,12 @@ void GraphicsManager::DrawSkyBox()
 
 void GraphicsManager::ProcessUI()
 {
-#pragma region RENDER_ImGUI
 	//Start the Dear ImGui Frame
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	UIspace::EditorUI(AUX_srv.Get(), engine);
+	UIspace::EditorUI(AUX_srv.Get());
 	//Create ImGui Test Window
 	//UIspace::EditorUI();
 
@@ -1341,7 +1251,6 @@ void GraphicsManager::ProcessUI()
 	ImGui::Render();
 	//Render Draw Data
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-#pragma endregion
 }
 
 void GraphicsManager::DebugDrawTest()

@@ -21,6 +21,7 @@
 #include "Light.h"
 #include "Sprite.h"
 #include "Skybox.h"
+#include "../Util/Singleton.h"
 
 //XTK Library
 #include <Effects.h>
@@ -31,24 +32,11 @@
 
 class ScriptBehaviourManager;
 
-class GraphicsManager {
+class GraphicsManager : Singleton<GraphicsManager>{
 	friend class Engine;
 	friend class SceneManager;
 private:
-
-#pragma region Constructor & Destructor
-
-	GraphicsManager(Engine* _engine,
-		TimeInfo * _time,
-		ScriptBehaviourManager * const _scriptManager) :
-		engine(_engine),
-		Time(_time),
-		mScriptManager(_scriptManager) {}
-
 	~GraphicsManager();
-
-#pragma endregion
-
 #pragma region Method - Initialize
 
 	bool Initialize(HWND hwnd, int width, int height);
@@ -75,7 +63,6 @@ private:
 	void DrawSkyBox();
 	void ProcessUI();
 	void RenderFrame();
-	void RenderColliderDebug(std::vector<std::shared_ptr<Collider>> * physicsCompoBuffer);
 	void RenderCollider_v2Debug(std::vector<std::shared_ptr<Collider_v2>> * physicsCompoBuffer);
 	void DebugDrawTest();
 	void SwapBuffer();
@@ -83,10 +70,6 @@ private:
 #pragma endregion
 
 #pragma region Variable - Main
-
-	TimeInfo * const Time;
-	Engine * const engine;
-	ScriptBehaviourManager * const mScriptManager;
 
 	std::vector<std::shared_ptr<GameObject_v2>> * gameObjBuffer;
 	std::vector<std::shared_ptr<Light_ver2>> * lightBuffer;

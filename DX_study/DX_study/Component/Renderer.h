@@ -11,13 +11,13 @@ class Renderer : public Component {
 	friend class GraphicsManager;
 public:
 	Renderer(const COMPONENT_INIT_DESC & desc);
-	bool Renderer_Initialize(Model * model_ptr,
+	bool Initialize(Model * model_ptr,
 		VertexShader* _vshader,
 		PixelShader* _pshader,
 		GeometryShader* _gshader,
 		ID3D11Device* _device,
 		ID3D11DeviceContext* _deviceContext);
-	void Renderer_Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
+	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
 	void SetModel(Model * _model);
 
 	void OnGui() override;

@@ -17,7 +17,7 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 	transform(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, nullptr, nullptr)),
 	renderer(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, &transform, nullptr))
 {
-	renderer.Renderer_Initialize(desc.model, 
+	renderer.Initialize(desc.model, 
 		desc.vshaderPtr, 
 		desc.pshaderPtr, 
 		desc.gshaderPtr, 
