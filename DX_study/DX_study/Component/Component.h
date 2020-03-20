@@ -4,7 +4,6 @@
 class GameObject_v2; // include 컴파일 주의할것. 아직 포함 안시킨 상태
 class PhysicsManager;
 class GraphicsManager;
-struct TimeInfo;
 class Transform;
 class Renderer;
 struct ID3D11Device;
@@ -24,15 +23,13 @@ enum COMPONENT_TYPE {
 
 struct COMPONENT_INIT_DESC {
 	COMPONENT_INIT_DESC() {}
-	COMPONENT_INIT_DESC(GameObject_v2 * _gameObj, TimeInfo * _Time, Transform * _Transform, Renderer * _Renderer) {
-		mTime = _Time;
+	COMPONENT_INIT_DESC(GameObject_v2 * _gameObj, Transform * _Transform, Renderer * _Renderer) {
 		mGameObj = _gameObj;
 		mTransform = _Transform;
 		mRenderer = _Renderer;
 	}
 
 	GameObject_v2 * mGameObj = nullptr;
-	TimeInfo * mTime = nullptr;
 	Transform * mTransform = nullptr;
 	Renderer * mRenderer = nullptr;
 	ID3D11Device* mDevice = nullptr;
@@ -61,7 +58,6 @@ public:
 	
 	bool enabled = true;
 	GameObject_v2 * const gameObject;
-	TimeInfo * const Time;
 protected:
 	virtual void Start();
 	virtual void Update();
@@ -69,8 +65,6 @@ protected:
 
 	int mComponentID = -1;
 	COMPONENT_TYPE mComponentType;
-
-	
 };
 
 #include "BaseComponentInclude.h"

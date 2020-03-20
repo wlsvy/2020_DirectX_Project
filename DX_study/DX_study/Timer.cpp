@@ -1,67 +1,55 @@
 #include "Timer.h"
 
+float Timer::s_Time = -1.0f;
+float Timer::s_DeltaTime = 0.0f;
+
 Timer::Timer() {
 	startTime = std::chrono::high_resolution_clock::now();
 	stopTime = std::chrono::high_resolution_clock::now();
 }
 
-float Timer::GetMilisecondsElapsed() {
-	if (isrunning) {
-		auto elapsed = std::chrono::duration<float, std::milli>(std::chrono::high_resolution_clock::now() - startTime);
-		return elapsed.count();
-	}
-	else {
-		auto elapsed = std::chrono::duration<float, std::milli>(stopTime - startTime);
-		return elapsed.count();
-	}
-}
-
-void Timer::Restart() {
-	isrunning = true;
-	startTime = std::chrono::high_resolution_clock::now();
-	prevTime = startTime;
-}
-
 bool Timer::Stop() {
-	if (!isrunning) return false;
+	if (!m_IsRunning) {
+		return false;
+	}
 	else {
 		stopTime = std::chrono::high_resolution_clock::now();
-		isrunning = false;
+		m_IsRunning = false;
 		return true;
 	}
 }
 
 bool Timer::Start() {
-	if (isrunning) return false;
+	if (m_IsRunning) {
+		return false;
+	}
 	else {
 		startTime = std::chrono::high_resolution_clock::now();
 		prevTime = std::chrono::high_resolution_clock::now();
-		isrunning = true;
+		m_IsRunning = true;
 		return true;
 	}
 }
 
 void Timer::Tick()
 {
-	if (!isrunning) {
-		Time.deltaTime = 0.0f;
+	if (!m_IsRunning) {
+		s_DeltaTime = 0.0f;
 		return;
 	}
 
 	auto now = std::chrono::high_resolution_clock::now();
-	Time.time = std::chrono::duration<float>(now - startTime).count();
-	Time.deltaTime = std::chrono::duration<float>(now - prevTime).count();
+	s_Time = std::chrono::duration<float>(now - startTime).count();
+	s_DeltaTime = std::chrono::duration<float>(now - prevTime).count();
 	prevTime = now;
-
-	//assert("Time.deltaTime have minus value." && Time.deltaTime >= 0.0f);
 }
 
-float TimeInfo::GetTime()
+float Timer::GetTime()
 {
-	return time;
+	return s_Time;
 }
 
-float TimeInfo::GetDeltaTime()
+float Timer::GetDeltaTime()
 {
-	return deltaTime;
+	return s_DeltaTime;
 }

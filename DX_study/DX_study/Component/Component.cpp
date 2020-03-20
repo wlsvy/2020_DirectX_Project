@@ -1,6 +1,6 @@
 #include "Component.h"
 
-Component::Component(const COMPONENT_INIT_DESC & desc) : gameObject(desc.mGameObj), Time(desc.mTime) {}
+Component::Component(const COMPONENT_INIT_DESC & desc) : gameObject(desc.mGameObj) {}
 
 int Component::getComponentID() {return mComponentID;}
 

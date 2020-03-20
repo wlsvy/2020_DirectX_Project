@@ -3,7 +3,7 @@
 #include "../Component/BaseComponentInclude.h"
 #include "../Component/ScriptBehaviour.h"
 #include "BaseGeometry.h"
-#include "../Engine.h"
+#include "../Engine/Engine.h"
 #include "../UI/ui.h"
 
 #define Deg2Rad 0.0174533	// pi / 180

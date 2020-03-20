@@ -1,5 +1,5 @@
 #include "GroundedTest.h"
-#include "../PhysicsManager.h"
+#include "../Engine/PhysicsManager.h"
 #include <reactphysics3d/reactphysics3d.h>
 
 void GroundTest::Start()
@@ -12,7 +12,7 @@ void GroundTest::Update()
 	//movement = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 
 	isGrounded = chracterController->IsGrounded();
-	testTime += Time->GetDeltaTime();
+	testTime += Timer::GetDeltaTime();
 	testGrounded = GroundRayCast();
 
 	/*if (testTime > 5.0f) {
@@ -24,26 +24,26 @@ void GroundTest::Update()
 	
 	
 	//if (!isGrounded) {
-	//	movement.y -= 0.1f * Time->GetDeltaTime();
-	//		//gameObject->transform.translate(0.0f, -40.0f * Time->GetDeltaTime(), 0.0f);
+	//	movement.y -= 0.1f * Timer::GetDeltaTime();
+	//		//gameObject->transform.translate(0.0f, -40.0f * Timer::GetDeltaTime(), 0.0f);
 	//}
 	//else movement.y = 0.0f;
 
 	if (InputKeyboard->GetKeyDown('T')) {
-		movement.y += 4.0f * Time->GetDeltaTime();
-		//gameObject->transform.translate(0.0f, 20.0f * Time->GetDeltaTime(), 0.0f);
+		movement.y += 4.0f * Timer::GetDeltaTime();
+		//gameObject->transform.translate(0.0f, 20.0f * Timer::GetDeltaTime(), 0.0f);
 	}
 
 	if (InputKeyboard->GetKeyDown('J')) {
-		movement.x = 10.0f * Time->GetDeltaTime();
+		movement.x = 10.0f * Timer::GetDeltaTime();
 		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Time->GetDeltaTime(), 0.0f, 0.0f);
+		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
 	if (InputKeyboard->GetKeyDown('K')) {
-		movement.x = -10.0f * Time->GetDeltaTime();
+		movement.x = -10.0f * Timer::GetDeltaTime();
 		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Time->GetDeltaTime(), 0.0f, 0.0f);
+		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
 	if (!InputKeyboard->KeyIsPressed('J') && !InputKeyboard->KeyIsPressed('K')) {
@@ -51,15 +51,15 @@ void GroundTest::Update()
 	}
 
 	if (InputKeyboard->GetKeyDown('O')) {
-		movement.z = 10.0f * Time->GetDeltaTime();
+		movement.z = 10.0f * Timer::GetDeltaTime();
 		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Time->GetDeltaTime(), 0.0f, 0.0f);
+		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
 	if (InputKeyboard->GetKeyDown('L')) {
-		movement.z = -10.0f * Time->GetDeltaTime();
+		movement.z = -10.0f * Timer::GetDeltaTime();
 		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Time->GetDeltaTime(), 0.0f, 0.0f);
+		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
 	if (!InputKeyboard->KeyIsPressed('O') && !InputKeyboard->KeyIsPressed('L')) {

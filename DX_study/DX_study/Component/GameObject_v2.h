@@ -2,7 +2,7 @@
 #include <queue>
 #include "Object.h"
 #include "Component.h"
-#include "../SceneManager.h"
+#include "../Engine/SceneManager.h"
 #include <vector>
 #include <memory>
 
@@ -82,7 +82,6 @@ inline T* GameObject_v2::AddComponent()
 	COMPONENT_INIT_DESC compo_desc;
 	compo_desc.mGameObj = this;
 	compo_desc.mTransform = &transform;
-	compo_desc.mTime = sceneManager->Time;
 	compo_desc.mRenderer = &renderer;
 	compo_desc.mPhysicsManager = sceneManager->getPhysicsManagerPtr();
 	compo_desc.mGraphicsManager = sceneManager->getGraphicsManagerPtr();
