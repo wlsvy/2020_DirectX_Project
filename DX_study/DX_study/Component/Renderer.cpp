@@ -1,5 +1,8 @@
 #include "Renderer.h"
 #include "Animator.h"
+#include "../Graphics/Model.h"
+#include "../Graphics/Shaders.h"
+#include "../Engine/ModuleResource.h"
 
 void Renderer::SetModel(Model * _model)
 {
@@ -57,36 +60,32 @@ Renderer::Renderer(const COMPONENT_INIT_DESC & desc) :
 	std::strcpy(mComponentName, "Renderer"); 
 }
 
-bool Renderer::Initialize(Model * model_ptr,
+bool Renderer::Initialize(
+	Model * model_ptr,
 	VertexShader* _vshader,
 	PixelShader* _pshader,
-	GeometryShader* _gshader,
-	ID3D11Device* _device,
-	ID3D11DeviceContext* _deviceContext)
+	GeometryShader* _gshader)
 {
 	mModelPtr = model_ptr;
 	mVshaderPtr = _vshader;
 	mPshaderPtr = _pshader;
 	mGshaderPtr = _gshader;
-	mDevice = _device;
-	mDeviceContext = _deviceContext;
 
-	assert("Renderer Component has Null ptr Device or Device Context!!" && mDevice != nullptr && mDeviceContext != nullptr);
 	return true;
 }
 
 void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 {
 	//예외 처리 필요
-	mDeviceContext->IASetInputLayout(mVshaderPtr->GetInputLayout()); //IA에 입력할 배치 적용
-	mDeviceContext->VSSetShader(mVshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
-	mDeviceContext->PSSetShader(mPshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	Module::GetDeviceContext().IASetInputLayout(mVshaderPtr->GetInputLayout()); //IA에 입력할 배치 적용
+	Module::GetDeviceContext().VSSetShader(mVshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	Module::GetDeviceContext().PSSetShader(mPshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
 
 	if (mGshaderPtr == nullptr) {
-		mDeviceContext->GSSetShader(NULL, NULL, 0);
+		Module::GetDeviceContext().GSSetShader(NULL, NULL, 0);
 	}
 	else {
-		mDeviceContext->GSSetShader(mGshaderPtr->GetShader(), NULL, 0);
+		Module::GetDeviceContext().GSSetShader(mGshaderPtr->GetShader(), NULL, 0);
 	}
 
 	if (!drawSkinnedMesh) {

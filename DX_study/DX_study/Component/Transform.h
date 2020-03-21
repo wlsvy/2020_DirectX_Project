@@ -6,7 +6,7 @@
 //부모 설정 / 해제할 때 로컬 위치 월드 위치 변환하는 부분 추가할 것.
 
 class Transform : public Component{
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 	friend class SceneManager;
 public:
 	Transform(const COMPONENT_INIT_DESC & desc);

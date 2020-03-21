@@ -1,5 +1,6 @@
 #include "SceneManager.h"
 #include "Engine.h"
+#include "ModuleResource.h"
 #include "../CustomScript/CustomScriptInclude.h"
 #include "../Graphics/Model.h"
 #include "../Graphics/Shaders.h"
@@ -15,7 +16,7 @@
 using namespace DirectX;
 //여기에 커스텀 스크립트 헤더 include
 
-SceneManager::SceneManager(PhysicsManager * const _physcisManager) : mPhysicsManager(_physcisManager)
+SceneManager::SceneManager(PhysicsModule * const physcisManager) : m_PhysicsManager(physcisManager)
 {
 	COMPONENT_INIT_DESC desc;
 	Transform * worldTransform = new Transform(desc);
@@ -39,8 +40,8 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.model = modelBuffer.buffer[9];
 	desc.obj_name = "first Created";
 	desc.scene_manager = this;
-	desc.vshaderPtr = getVshaderByName("skinned_vertex");
-	desc.pshaderPtr = getPshaderByName("pixelshader");
+	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("skinned_vertex");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
 
 	GameObject_v2 *gameObj = AddGameObject(desc);
 	gameObj->AddComponent<Animator>();
@@ -48,8 +49,8 @@ void SceneManager::Custom_Test_Obj_Set()
 	
 
 	desc.model = modelBuffer.buffer[7];
-	desc.vshaderPtr = getVshaderByName("vertexshader");
-	desc.pshaderPtr = getPshaderByName("pixelshader");
+	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
 	desc.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	GameObject_v2 * tmp;
 	for (int i = 0; i < 4; i++) {
@@ -66,7 +67,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	}
 
 	//Simple Geometry Array
-	desc.pshaderPtr = getPshaderByName("PS_Camera");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("PS_Camera");
 	for (int i = 1; i < 6; i++) {
 		desc.pos = XMFLOAT3(20.0f + i * 5.0f, 5.0f, 10.0f);
 		desc.model = modelBuffer.buffer[i];
@@ -76,17 +77,17 @@ void SceneManager::Custom_Test_Obj_Set()
 	}
 
 	//billboard test
-	desc.vshaderPtr = getVshaderByName("vertexshader_geo");
-	desc.pshaderPtr = getPshaderByName("pixelshader");
-	desc.gshaderPtr = getGshaderByName("BillBoardSample");
+	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader_geo");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
+	desc.gshaderPtr = Module::GetGraphicsModule().GetGshader("BillBoardSample");
 	desc.pos = XMFLOAT3(0, 0.0f, 5.0f);
 	desc.model = modelBuffer.buffer[0];
 	desc.obj_name = "BillBoard Test";
 	gameObj = AddGameObject(desc);
 	gameObj->AddComponent<SphereCollider_ver2>();
-	desc.vshaderPtr = getVshaderByName("vertexshader");
-	desc.pshaderPtr = getPshaderByName("pixelshader");
-	desc.gshaderPtr = getGshaderByName("");
+	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
+	desc.gshaderPtr = Module::GetGraphicsModule().GetGshader("");
 
 	//billboard test 2
 	/*desc.gshaderID = 0;
@@ -145,7 +146,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->GetComponent<Terrain>()->heightFilePath = "Data\\Textures\\heightmap01.bmp";*/
 
 	//Light Obj
-	desc.pshaderPtr = getPshaderByName("pixelshader_nolight");
+	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader_nolight");
 	desc.model = modelBuffer.buffer[6];
 	desc.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	desc.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -257,38 +258,10 @@ void SceneManager::UIrecursiveTransformCheck(Transform * _transform)
 	}
 }
 
-VertexShader * SceneManager::getVshaderByName(const std::string & _str)
-{
-	auto iter = GraphicsManager::GetInstance().mVShaderMap.find(_str);
-	if (iter != GraphicsManager::GetInstance().mVShaderMap.end()) {
-		return iter->second;
-	}
-
-	return nullptr;
-}
-
-PixelShader * SceneManager::getPshaderByName(const std::string & _str)
-{
-	auto iter = GraphicsManager::GetInstance().mPShaderMap.find(_str);
-	if (iter != GraphicsManager::GetInstance().mPShaderMap.end()) {
-		return iter->second;
-	}
-	return nullptr;
-}
-
-GeometryShader * SceneManager::getGshaderByName(const std::string & _str)
-{
-	auto iter = GraphicsManager::GetInstance().mGShaderMap.find(_str);
-	if (iter != GraphicsManager::GetInstance().mGShaderMap.end()) {
-		return iter->second;
-	}
-	return nullptr;
-}
-
 Model * SceneManager::getModelByName(const std::string & _str)
 {
-	auto iter = GraphicsManager::GetInstance().mModelMap.find(_str);
-	if (iter != GraphicsManager::GetInstance().mModelMap.end()) {
+	auto iter = Module::GetGraphicsModule().mModelMap.find(_str);
+	if (iter != Module::GetGraphicsModule().mModelMap.end()) {
 		return iter->second;
 	}
 	return nullptr;
@@ -299,27 +272,6 @@ GameObject_v2 * SceneManager::getUIselectedObj()
 	if (mUI_Selectd_Transform_Ptr == nullptr) return nullptr;
 	return mUI_Selectd_Transform_Ptr->gameObject;
 }
-
-PhysicsManager * SceneManager::getPhysicsManagerPtr()
-{
-	return mPhysicsManager;
-}
-
-GraphicsManager * SceneManager::getGraphicsManagerPtr()
-{
-	return &GraphicsManager::GetInstance();
-}
-
-ID3D11Device * SceneManager::getDevicePtr()
-{
-	return GraphicsManager::GetInstance().device.Get();
-}
-
-ID3D11DeviceContext * SceneManager::getDeviceContextPtr()
-{
-	return GraphicsManager::GetInstance().deviceContext.Get();
-}
-
 
 SceneManager::~SceneManager()
 {

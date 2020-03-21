@@ -8,10 +8,10 @@ using DirectX::operator*;
 //Engine* Engine::s_Instance = nullptr;
 
 Engine::Engine() :
-	sceneManager(&physicsManager),
-	physicsManager(&physicsBuffer2),
-	animationManager(&animatorBuffer),
-	scriptBehaviourManager(&scriptBuffer, &keyboard, &mouse, &physicsManager, &mKeyboardEvent, &mMouseEvent) {}
+	m_SceneManager(&m_PhysicsManager),
+	m_PhysicsManager(&physicsBuffer2),
+	m_AnimationManager(&animatorBuffer),
+	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, &m_PhysicsManager, &mKeyboardEvent, &mMouseEvent) {}
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) 
 {
@@ -22,33 +22,33 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		
 
 	//그래픽스 초기화
-	if (!GraphicsManager::GetInstance().Initialize(this->render_window.GetHWND(), width, height)) {
+	if (!m_GraphicsManager.Initialize(this->render_window.GetHWND(), width, height)) {
 		return false;
 	}
 		
-	GraphicsManager::GetInstance().InitializeSimpleGeometry(sceneManager.modelBuffer);
-	GraphicsManager::GetInstance().InitializeModel(sceneManager.modelBuffer);
+	m_GraphicsManager.InitializeSimpleGeometry(m_SceneManager.modelBuffer);
+	m_GraphicsManager.InitializeModel(m_SceneManager.modelBuffer);
 	
 	//씬 매니저 초기화
-	sceneManager.Custom_Test_Obj_Set(); // 테스트용
-	physicsManager.Initialize();
+	m_SceneManager.Custom_Test_Obj_Set(); // 테스트용
+	m_PhysicsManager.Initialize();
 
-	GraphicsManager::GetInstance().gameObjBuffer = &sceneManager.gameObjectBuffer;
-	GraphicsManager::GetInstance().lightBuffer = &lightBuffer;
-	GraphicsManager::GetInstance().terrainBuffer = &terrainBuffer;
-	GraphicsManager::GetInstance().InitializeTerrain(sceneManager.terrainBuffer);
+	m_GraphicsManager.gameObjBuffer = &m_SceneManager.gameObjectBuffer;
+	m_GraphicsManager.lightBuffer = &lightBuffer;
+	m_GraphicsManager.terrainBuffer = &terrainBuffer;
+	m_GraphicsManager.InitializeTerrain(m_SceneManager.terrainBuffer);
 	
 	
 
 	//그래픽스 씬 초기화
-	if (!GraphicsManager::GetInstance().InitializeScene()) {
+	if (!m_GraphicsManager.InitializeScene()) {
 		MessageBoxA(NULL, "Initialize Scene Error", "Error", MB_ICONERROR);
 		return false;
 	}
 
-	scriptBehaviourManager.Start();
+	m_ScriptBehaviourManager.Start();
 
-	timer.Start();
+	m_Timer.Start();
 	return true;
 }
 
@@ -57,75 +57,75 @@ bool Engine::ProcessMessage() {
 }
 
 void Engine::Update() {
-	timer.Tick();
+	m_Timer.Tick();
 	float dt = Timer::GetDeltaTime();
-	fixedTimeCheck -= dt;
+	m_FixedTimeCheck -= dt;
 	//physicsManager.Update();
 	//fixedupdate
-	if (fixedTimeCheck < 0.0f) { 
+	if (m_FixedTimeCheck < 0.0f) { 
 		//physicsManager.PhysicsUpdate();
-		fixedTimeCheck += (float)0.02;
+		m_FixedTimeCheck += (float)0.02;
 	}
 	else {
 		//physicsManager.Update();
 	}
-	physicsManager.PhysicsUpdate();
+	m_PhysicsManager.PhysicsUpdate();
 
-	int gameObjSize = sceneManager.gameObjectBuffer.size();
+	int gameObjSize = m_SceneManager.gameObjectBuffer.size();
 	for (int i = 0; i < gameObjSize; i++) {
-		sceneManager.gameObjectBuffer[i]->transform.TRANSFORM_UPDATED = false;
+		m_SceneManager.gameObjectBuffer[i]->transform.TRANSFORM_UPDATED = false;
 	}
 
-	animationManager.Update();
-	scriptBehaviourManager.Update();
-	sceneManager.Update();
+	m_AnimationManager.Update();
+	m_ScriptBehaviourManager.Update();
+	m_SceneManager.Update();
 
 #pragma region Input Event
 	//키보드, 마우스 입력값 정보
-	keyboard.Update();
+	m_Keyboard.Update();
 
-	while (!mouse.EventBufferIsEmpty()) {
-		MouseEvent me = mouse.ReadEvent();
-		if (mouse.IsRightDown()) {//마우스 오른쪽 버튼 눌렀을 때 회전
+	while (!m_Mouse.EventBufferIsEmpty()) {
+		MouseEvent me = m_Mouse.ReadEvent();
+		if (m_Mouse.IsRightDown()) {//마우스 오른쪽 버튼 눌렀을 때 회전
 			if (me.GetType() == MouseEvent::EventType::Raw_MOVE) {
-				GraphicsManager::GetInstance().Camera3D.AdjustRotation((float)me.GetPosY() * 1.0f * dt, (float)me.GetPosX() * 1.0f * dt, 0.0f);
+				m_GraphicsManager.Camera3D.AdjustRotation((float)me.GetPosY() * 1.0f * dt, (float)me.GetPosX() * 1.0f * dt, 0.0f);
 			}
 		}
 	}
 	//1인칭 형식 카메라 이동 조작
 	float Camera3DSpeed = 6.0f;
 
-	if (keyboard.KeyIsPressed(VK_SHIFT)) {
+	if (m_Keyboard.KeyIsPressed(VK_SHIFT)) {
 		Camera3DSpeed = 30.0f;
 	}
 
-	if (keyboard.KeyIsPressed('W')) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(GraphicsManager::GetInstance().Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+	if (m_Keyboard.KeyIsPressed('W')) {
+		m_GraphicsManager.Camera3D.AdjustPosition(m_GraphicsManager.Camera3D.GetForwardVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('S')) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(GraphicsManager::GetInstance().Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+	if (m_Keyboard.KeyIsPressed('S')) {
+		m_GraphicsManager.Camera3D.AdjustPosition(m_GraphicsManager.Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('A')) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(GraphicsManager::GetInstance().Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+	if (m_Keyboard.KeyIsPressed('A')) {
+		m_GraphicsManager.Camera3D.AdjustPosition(m_GraphicsManager.Camera3D.GetLeftVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed('D')) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(GraphicsManager::GetInstance().Camera3D.GetRightVector() * Camera3DSpeed * dt);
+	if (m_Keyboard.KeyIsPressed('D')) {
+		m_GraphicsManager.Camera3D.AdjustPosition(m_GraphicsManager.Camera3D.GetRightVector() * Camera3DSpeed * dt);
 	}
-	if (keyboard.KeyIsPressed(VK_SPACE)) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
+	if (m_Keyboard.KeyIsPressed(VK_SPACE)) {
+		m_GraphicsManager.Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
 	}
-	if (keyboard.KeyIsPressed('Z')) {
-		GraphicsManager::GetInstance().Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
+	if (m_Keyboard.KeyIsPressed('Z')) {
+		m_GraphicsManager.Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
 	}
 
-	if (keyboard.KeyIsPressed('C')) {
-		DirectX::XMVECTOR lightPosition = GraphicsManager::GetInstance().Camera3D.GetPositionVector();
-		lightPosition += GraphicsManager::GetInstance().Camera3D.GetForwardVector();
-		GraphicsManager::GetInstance().light.SetPosition(lightPosition);
-		GraphicsManager::GetInstance().light.SetRotation(GraphicsManager::GetInstance().Camera3D.GetRotationFloat3());
+	if (m_Keyboard.KeyIsPressed('C')) {
+		DirectX::XMVECTOR lightPosition = m_GraphicsManager.Camera3D.GetPositionVector();
+		lightPosition += m_GraphicsManager.Camera3D.GetForwardVector();
+		m_GraphicsManager.light.SetPosition(lightPosition);
+		m_GraphicsManager.light.SetRotation(m_GraphicsManager.Camera3D.GetRotationFloat3());
 	}
 	static int ttttt = 0;
-	if (keyboard.KeyIsPressed('P') && ttttt == 0) {
+	if (m_Keyboard.KeyIsPressed('P') && ttttt == 0) {
 		/*delete scriptBuffer[1];
 		ttttt = 1;
 		sceneManager.gameObjectBuffer[0]->componentBuffer.erase(sceneManager.gameObjectBuffer[0]->componentBuffer.begin() + 1);
@@ -139,12 +139,12 @@ void Engine::Update() {
 void Engine::RenderFrame()
 {
 	
-	GraphicsManager::GetInstance().RenderFrame();
-	GraphicsManager::GetInstance().DrawSkyBox();
-	//GraphicsManager::GetInstance().DebugDrawTest();
-	GraphicsManager::GetInstance().RenderCollider_v2Debug(&physicsBuffer2);
-	GraphicsManager::GetInstance().ProcessUI();
-	GraphicsManager::GetInstance().SwapBuffer();
+	m_GraphicsManager.RenderFrame();
+	m_GraphicsManager.DrawSkyBox();
+	//m_GraphicsManager.DebugDrawTest();
+	m_GraphicsManager.RenderCollider_v2Debug(&physicsBuffer2);
+	m_GraphicsManager.ProcessUI();
+	m_GraphicsManager.SwapBuffer();
 }
 
 void Engine::InsertScriptComponent(ScriptBehaviour * _component, GameObject_v2 *_destination)
@@ -215,14 +215,34 @@ void Engine::Component_Valid_Test()
 	}
 }
 
-SceneManager * Engine::getSceneManager()
+GraphicsManager & Engine::GetGraphicsModule()
 {
-	return &sceneManager;
+	return m_GraphicsManager;
+}
+
+PhysicsModule & Engine::GetPhysicsManager()
+{
+	return m_PhysicsManager;
+}
+
+SceneManager& Engine::GetSceneManager()
+{
+	return m_SceneManager;
+}
+
+KeyboardClass & Engine::GetKeyboard()
+{
+	return m_Keyboard;
+}
+
+MouseClass & Engine::GetMouse()
+{
+	return m_Mouse;
 }
 
 std::vector<AnimationClip>* Engine::GetAnimClipBuffer()
 {
-	return &animationManager.mAnimClipBuffer;
+	return &m_AnimationManager.mAnimClipBuffer;
 }
 
 Engine::~Engine()

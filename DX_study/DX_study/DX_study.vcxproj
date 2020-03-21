@@ -174,6 +174,7 @@
     <ClCompile Include="Engine\AnimationManager.cpp" />
     <ClCompile Include="Component\Collider_v2.cpp" />
     <ClCompile Include="Component\Animator.cpp" />
+    <ClCompile Include="Engine\ModuleResource.cpp" />
     <ClCompile Include="Graphics\BaseGeometry.cpp" />
     <ClCompile Include="Component\Collider.cpp" />
     <ClCompile Include="Component\Behaviour.cpp" />
@@ -193,6 +194,8 @@
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Graphics\Skybox.cpp" />
+    <ClCompile Include="Input.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="UI\imGui\imgui.cpp" />
     <ClCompile Include="UI\imGui\imgui_draw.cpp" />
     <ClCompile Include="UI\imGui\imgui_impl_dx11.cpp" />
@@ -233,6 +236,7 @@
     <ClInclude Include="Component\CollisionInfo.h" />
     <ClInclude Include="Component\Collider_v2.h" />
     <ClInclude Include="Component\Animator.h" />
+    <ClInclude Include="Engine\ModuleResource.h" />
     <ClInclude Include="Graphics\BaseGeometry.h" />
     <ClInclude Include="Component\Collider.h" />
     <ClInclude Include="Component\BaseComponentInclude.h" />
@@ -261,6 +265,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="Graphics\Skybox.h" />
+    <ClInclude Include="Input.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="UI\imGui\imconfig.h" />
     <ClInclude Include="UI\imGui\imgui.h" />
     <ClInclude Include="UI\imGui\imgui_impl_dx11.h" />

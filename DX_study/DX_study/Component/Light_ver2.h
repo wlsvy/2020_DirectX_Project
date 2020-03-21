@@ -1,4 +1,6 @@
 #pragma once
+#include <DirectXMath.h>
+
 #include "Component.h"
 
 enum LIGHT_TYPE {DIRECTIONAL_LIGHT = 0, POINT_LIGHT = 1, SPOT_LIGHT = 2};

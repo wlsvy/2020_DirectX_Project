@@ -27,18 +27,23 @@ public:
 	void InsertAnimatorComponent(Animator * _component, GameObject_v2 *_destination);
 	void Component_Valid_Test();
 
-	SceneManager * getSceneManager();
+	GraphicsManager& GetGraphicsModule();
+	PhysicsModule& GetPhysicsManager();
+	SceneManager& GetSceneManager();
+	KeyboardClass& GetKeyboard();
+	MouseClass& GetMouse();
 
 	std::vector<AnimationClip> * GetAnimClipBuffer();
 
 	~Engine();
 
 private:
-	Timer timer;
-	ScriptBehaviourManager scriptBehaviourManager;
-	SceneManager sceneManager;
-	PhysicsManager physicsManager;
-	AnimationManager animationManager;
+	Timer m_Timer;
+	GraphicsManager m_GraphicsManager;
+	ScriptBehaviourManager m_ScriptBehaviourManager;
+	SceneManager m_SceneManager;
+	PhysicsModule m_PhysicsManager;
+	AnimationManager m_AnimationManager;
 
 	std::vector<std::shared_ptr<ScriptBehaviour>> scriptBuffer;
 	std::vector<std::shared_ptr<Light_ver2>> lightBuffer;
@@ -47,7 +52,7 @@ private:
 	std::vector<std::shared_ptr<Terrain>> terrainBuffer;
 	std::vector<std::shared_ptr<Animator>> animatorBuffer;
 
-	float fixedTimeCheck = -1.0f;
+	float m_FixedTimeCheck = -1.0f;
 	bool ESC_signal = false;
 };
 

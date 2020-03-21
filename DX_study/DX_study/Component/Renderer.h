@@ -1,22 +1,26 @@
-#ifndef RENDERER_H
-#define RENDERER_H
-#include "Component.h"
+#pragma once
 #include <string>
-#include "../Graphics/Model.h"
-#include "../Graphics/Shaders.h"
 
-class GraphicsManager;
+#include "Component.h"
+
+class Model;
+class VertexShader;
+class PixelShader;
+class GeometryShader;
+class Animator;
+namespace DirectX {
+	struct XMMATRIX;
+}
 
 class Renderer : public Component {
 	friend class GraphicsManager;
 public:
 	Renderer(const COMPONENT_INIT_DESC & desc);
-	bool Initialize(Model * model_ptr,
+	bool Initialize(
+		Model * model_ptr,
 		VertexShader* _vshader,
 		PixelShader* _pshader,
-		GeometryShader* _gshader,
-		ID3D11Device* _device,
-		ID3D11DeviceContext* _deviceContext);
+		GeometryShader* _gshader);
 	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
 	void SetModel(Model * _model);
 
@@ -32,15 +36,11 @@ public:
 	Animator * animator = nullptr;
 	const COMPONENT_TYPE mType = COMPONENT_RENDERER;
 private:
-	ID3D11Device * mDevice = nullptr;
-	ID3D11DeviceContext * mDeviceContext = nullptr;
-
 	Model*	mModelPtr = nullptr;
 	VertexShader*	mVshaderPtr = nullptr;
 	PixelShader*	mPshaderPtr = nullptr;
 	GeometryShader* mGshaderPtr = nullptr;
 	Transform * const transform;
-	GraphicsManager * mGraphicsManager;
 
 #pragma region Variable - GUI
 	bool mShowModelWindow = false;
@@ -49,5 +49,3 @@ private:
 	bool mShowGshaderWindow = false;
 #pragma endregion
 };
-
-#endif

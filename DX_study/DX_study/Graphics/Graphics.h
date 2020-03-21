@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
+#include <unordered_map>
 #include "Camera3D.h"
 #include "Camera2D.h"
 #include "..\\Timer.h"
@@ -21,7 +22,6 @@
 #include "Light.h"
 #include "Sprite.h"
 #include "Skybox.h"
-#include "../Util/Singleton.h"
 
 //XTK Library
 #include <Effects.h>
@@ -32,11 +32,19 @@
 
 class ScriptBehaviourManager;
 
-class GraphicsManager : Singleton<GraphicsManager>{
+class GraphicsManager {
 	friend class Engine;
 	friend class SceneManager;
+public:
+
+	VertexShader* GetVshader(const std::string & shaderName);
+	PixelShader* GetPshader(const std::string & shaderName);
+	GeometryShader* GetGshader(const std::string & shaderName);
+
+	ID3D11Device& GetDevice();
+	ID3D11DeviceContext& GetDeviceContext();
+
 private:
-	~GraphicsManager();
 #pragma region Method - Initialize
 
 	bool Initialize(HWND hwnd, int width, int height);
@@ -69,6 +77,8 @@ private:
 	
 #pragma endregion
 
+	
+
 #pragma region Variable - Main
 
 	std::vector<std::shared_ptr<GameObject_v2>> * gameObjBuffer;
@@ -87,13 +97,13 @@ private:
 
 #pragma region Variable - Rendering Pipeline 
 
-	Microsoft::WRL::ComPtr<ID3D11Device> device; //디바이스 인터페이스 : 기능 지원 점검과 자원 할당에 쓰임
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext; //디바이스 컨텍스트 인터페이스 : 렌더 대상을 설정하고 자원을 그래픽 파이프라인에 묶고 Gpu가 수행할 렌더링 명령들을 지시하는데 쓰인다.
-	Microsoft::WRL::ComPtr<IDXGIFactory> factory;
-	Microsoft::WRL::ComPtr<IDXGIDevice> dxgiDevice;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain; //프론트 버퍼 백 버퍼 바꿔치기
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Device>			m_Device; //디바이스 인터페이스 : 기능 지원 점검과 자원 할당에 쓰임
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext>		m_DeviceContext; //디바이스 컨텍스트 인터페이스 : 렌더 대상을 설정하고 자원을 그래픽 파이프라인에 묶고 Gpu가 수행할 렌더링 명령들을 지시하는데 쓰인다.
+	Microsoft::WRL::ComPtr<IDXGIFactory>			m_DxgiFactory;
+	Microsoft::WRL::ComPtr<IDXGIDevice>				m_DxgiDevice;
+	Microsoft::WRL::ComPtr<IDXGISwapChain>			m_SwapChain; //프론트 버퍼 백 버퍼 바꿔치기
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>	m_RenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D>			m_BackBuffer;
 
 	//렌더타겟 추가
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> AUX_rtv;
@@ -124,13 +134,13 @@ private:
 
 #pragma region Variable - Shader & Texture & Model 
 
-	std::vector<VertexShader*>				vert_Shader_Buffer;
+	std::vector<VertexShader*>				vert_Shader_Buffer;	//지우기
 	std::vector<PixelShader*>				pixel_Shader_Buffer;
 	std::vector<GeometryShader*>			Geo_Shader_Buffer;
 
-	std::map<std::string, VertexShader*>	mVShaderMap;
-	std::map<std::string, PixelShader*>		mPShaderMap;
-	std::map<std::string, GeometryShader*>	mGShaderMap;
+	std::unordered_map<std::string, std::shared_ptr<VertexShader>>		m_VshaderBuffer;
+	std::unordered_map<std::string, std::shared_ptr<PixelShader>>		m_PshaderBuffer;
+	std::unordered_map<std::string, std::shared_ptr<GeometryShader>>	m_GshaderBuffer;
 
 	std::vector<Texture>					mTextureBuffer;
 	std::map<std::string, int>				mTextureMap;

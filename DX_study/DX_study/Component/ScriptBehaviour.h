@@ -3,7 +3,7 @@
 #include "../Keyboard/KeyboardClass.h"
 #include "../Mouse/MouseClass.h"
 
-class PhysicsManager;
+class PhysicsModule;
 
 class ScriptBehaviour : public Behaviour {
 	friend class ScriptBehaviourManager;
@@ -18,7 +18,7 @@ public:
 protected:
 	KeyboardClass * InputKeyboard = nullptr;
 	MouseClass * InputMouse = nullptr;
-	PhysicsManager * Physics = nullptr;
+	PhysicsModule * Physics = nullptr;
 private:
 };
 

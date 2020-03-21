@@ -12,7 +12,8 @@
 reactphysics3d::Vector3 Dflot3ToRvec3(const DirectX::XMFLOAT3 & _src) { return reactphysics3d::Vector3(_src.x, _src.y, _src.z); }
 DirectX::XMFLOAT3 Rvec3ToDfloat3(const reactphysics3d::Vector3 & _src) { return DirectX::XMFLOAT3(_src.x, _src.y, _src.z); }
 
-
+using RPvector3 = reactphysics3d::Vector3;
+using RPray = reactphysics3d::Ray;
 
 class r3dCallback : public reactphysics3d::CollisionCallback {
 public:
@@ -130,39 +131,39 @@ public:
 
 
 
-PhysicsManager::~PhysicsManager()
+PhysicsModule::~PhysicsModule()
 {
-	delete mReactPhysics_DYNAMIC_WORLD;
-	delete mGravity;
+	delete m_World;
+	delete m_Gravity;
 }
 
-bool PhysicsManager::Initialize()
+bool PhysicsModule::Initialize()
 {
-	mGravity = new reactphysics3d::Vector3(0.0, -9.81, 0.0);
-	mReactPhysics_DYNAMIC_WORLD = new reactphysics3d::DynamicsWorld(*mGravity);
-	mReactPhysics_DYNAMIC_WORLD->setNbIterationsVelocitySolver(15);
-	mReactPhysics_DYNAMIC_WORLD->setNbIterationsPositionSolver(8);
+	m_Gravity = new reactphysics3d::Vector3(0.0, -9.81, 0.0);
+	m_World = new reactphysics3d::DynamicsWorld(*m_Gravity);
+	m_World->setNbIterationsVelocitySolver(15);
+	m_World->setNbIterationsPositionSolver(8);
 
 	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
-		reactphysics3d::CollisionBody* collisionBody  = (*it)->initialize_React3D(mReactPhysics_DYNAMIC_WORLD);
-		mBody_Collider_MAP.insert(std::make_pair(collisionBody, (*it).get()));
+		reactphysics3d::CollisionBody* collisionBody  = (*it)->initialize_React3D(m_World);
+		m_ColliderMap.insert(std::make_pair(collisionBody, (*it).get()));
 	}
 
 	return true;
 }
 
-void PhysicsManager::PhysicsCompoInit(std::shared_ptr<Collider_v2> _component)
+void PhysicsModule::PhysicsCompoInit(std::shared_ptr<Collider_v2> _component)
 {
-	reactphysics3d::CollisionBody* collisionBody = _component->initialize_React3D(mReactPhysics_DYNAMIC_WORLD);
-	mBody_Collider_MAP.insert(std::make_pair(collisionBody, _component.get()));
+	reactphysics3d::CollisionBody* collisionBody = _component->initialize_React3D(m_World);
+	m_ColliderMap.insert(std::make_pair(collisionBody, _component.get()));
 }
 
-void PhysicsManager::Update()
+void PhysicsModule::Update()
 {
 	UpdateComponent();
 }
 
-void PhysicsManager::PreUpdate()
+void PhysicsModule::PreUpdate()
 {
 	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
 		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
@@ -175,10 +176,10 @@ void PhysicsManager::PreUpdate()
 	}
 }
 
-void PhysicsManager::PhysicsUpdate()
+void PhysicsModule::PhysicsUpdate()
 {
 	PreUpdate();
-	mReactPhysics_DYNAMIC_WORLD->update(Timer::GetDeltaTime());
+	m_World->update(Timer::GetDeltaTime());
 	UpdateComponent();
 	CollisionTest_ver2();
 
@@ -187,7 +188,7 @@ void PhysicsManager::PhysicsUpdate()
 	//react3DCollisioinTest();
 }
 
-void PhysicsManager::UpdateCollider()
+void PhysicsModule::UpdateCollider()
 {
 	/*for (std::vector<std::shared_ptr<Collider>>::iterator it = colliderBuffer->begin(); it != colliderBuffer->end(); it++) {
 		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
@@ -200,7 +201,7 @@ void PhysicsManager::UpdateCollider()
 	}*/
 }
 
-void PhysicsManager::UpdateComponent()
+void PhysicsModule::UpdateComponent()
 {
 	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
 		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
@@ -213,7 +214,7 @@ void PhysicsManager::UpdateComponent()
 	}
 }
 
-void PhysicsManager::CollisionTest()
+void PhysicsModule::CollisionTest()
 {
 	/*typedef std::vector<std::shared_ptr<Collider>>::iterator ITERATOR;
 
@@ -245,7 +246,7 @@ void PhysicsManager::CollisionTest()
 	}*/
 }
 
-void PhysicsManager::CollisionTest_ver2()
+void PhysicsModule::CollisionTest_ver2()
 {
 	typedef std::vector<std::shared_ptr<Collider_v2>>::iterator ITERATOR;
 
@@ -263,99 +264,59 @@ void PhysicsManager::CollisionTest_ver2()
 	}
 }
 
-void PhysicsManager::react3DCollisioinTest()
+void PhysicsModule::react3DCollisioinTest()
 {
 	r3dCallback testCall;
 
-	mReactPhysics_DYNAMIC_WORLD->testCollision(&testCall);
+	m_World->testCollision(&testCall);
 	//mReactPhysics_DYNAMIC_WORLD->testCollision()
 }
 
-void PhysicsManager::react3DCollisioinTest(Collider_v2* _collider)
+void PhysicsModule::react3DCollisioinTest(Collider_v2* _collider)
 {
-	r3dCollisionCallback collisionCallback(_collider, &mBody_Collider_MAP);
+	r3dCollisionCallback collisionCallback(_collider, &m_ColliderMap);
 
 	reactphysics3d::CollisionBody * body = _collider->mRigidBody;
 
-	mReactPhysics_DYNAMIC_WORLD->testCollision(body, &collisionCallback);
+	m_World->testCollision(body, &collisionCallback);
 }
 
-//bool Physics::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to)
-//{
-//	bool isCollided;
-//
-//	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-//	reactphysics3d::Ray ray(from, to);
-//
-//	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
-//	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
-//
-//	return isCollided;
-//}
-//
-//bool Physics::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, RaycastResult & _rayinfo)
-//{
-//	bool isCollided;
-//
-//	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-//	reactphysics3d::Ray ray(from, to);
-//
-//	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
-//	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
-//	_rayinfo = rayCallback.getResult();
-//
-//	return isCollided;
-//}
-//
-//bool Physics::RaycastAll(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, std::list<RaycastResult>& _rayinfo)
-//{
-//	bool isCollided;
-//
-//	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-//	reactphysics3d::Ray ray(from, to);
-//
-//	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, &_rayinfo, isCollided);
-//	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
-//
-//	return isCollided;
-//}
-
-bool PhysicsManager::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to)
+bool PhysicsModule::Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to)
 {
 	bool isCollided;
 
-	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-	reactphysics3d::Ray ray(from, to);
+	reactphysics3d::Vector3 start(from.x, from.y, from.z), end(to.x, to.y, to.z);
+	reactphysics3d::Ray ray(start, end);
 
-	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
-	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
+	r3dRaycastCallback callBack(&m_ColliderMap, isCollided);
+	m_World->raycast(ray, &callBack);
 
 	return isCollided;
 }
 
-bool PhysicsManager::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, RaycastResult & _rayinfo)
+bool PhysicsModule::Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to, RaycastResult & rayInfo)
 {
 	bool isCollided;
 
-	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-	reactphysics3d::Ray ray(from, to);
+	reactphysics3d::Vector3 start(from.x, from.y, from.z), end(to.x, to.y, to.z);
+	reactphysics3d::Ray ray(start, end);
 
-	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
-	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
-	_rayinfo = rayCallback.getResult();
+	r3dRaycastCallback callBack(&m_ColliderMap, isCollided);
+	m_World->raycast(ray, &callBack);
+	rayInfo = callBack.getResult();
 
 	return isCollided;
 }
 
-bool PhysicsManager::RaycastAll(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, std::list<RaycastResult>& _rayinfo)
+bool PhysicsModule::RaycastAll(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to, std::list<RaycastResult>& rayInfo)
 {
 	bool isCollided;
 
-	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
-	reactphysics3d::Ray ray(from, to);
+	reactphysics3d::Vector3 start(from.x, from.y, from.z), end(to.x, to.y, to.z);
+	reactphysics3d::Ray ray(start, end);
 
-	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, &_rayinfo, isCollided);
-	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
+	r3dRaycastCallback callBack(&m_ColliderMap, &rayInfo, isCollided);
+	m_World->raycast(ray, &callBack);
 
 	return isCollided;
 }

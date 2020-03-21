@@ -11,17 +11,33 @@
 
 
 
-GraphicsManager::~GraphicsManager() {
-	for (std::vector<VertexShader*>::iterator it = vert_Shader_Buffer.begin(); it != vert_Shader_Buffer.end(); it++) {
-		delete *it;
+VertexShader* GraphicsManager::GetVshader(const std::string & shaderName)
+{
+	auto iter = m_VshaderBuffer.find(shaderName);
+	if (iter != m_VshaderBuffer.end()) {
+		return iter->second.get();
 	}
-	for (std::vector<PixelShader*>::iterator it = pixel_Shader_Buffer.begin(); it != pixel_Shader_Buffer.end(); it++) {
-		delete *it;
-	}
-	for (std::vector<GeometryShader*>::iterator it = Geo_Shader_Buffer.begin(); it != Geo_Shader_Buffer.end(); it++) {
-		delete *it;
-	}
+	return nullptr;
 }
+
+PixelShader* GraphicsManager::GetPshader(const std::string & shaderName)
+{
+	auto iter = m_PshaderBuffer.find(shaderName);
+	if (iter != m_PshaderBuffer.end()) {
+		return iter->second.get();
+	}
+	return nullptr;
+}
+
+GeometryShader* GraphicsManager::GetGshader(const std::string & shaderName)
+{
+	auto iter = m_GshaderBuffer.find(shaderName);
+	if (iter != m_GshaderBuffer.end()) {
+		return iter->second.get();
+	}
+	return nullptr;
+}
+
 
 #pragma region Method - Initialize
 
@@ -61,7 +77,7 @@ bool GraphicsManager::Initialize(HWND hwnd, int width, int height) {
 		
 	InitializeDebugDraw();
 
-	UIspace::InitImGUI(device.Get(), deviceContext.Get(), hwnd);
+	UIspace::InitImGUI(m_Device.Get(), m_DeviceContext.Get(), hwnd);
 
 	return true;
 }
@@ -120,16 +136,16 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 			0, //# OF FEATURE LEVELS IN ARRAY
 			D3D11_SDK_VERSION, //사용하는 버전, 무조건 D3D11_SDK_VERSION 사용
 			&scd, //Swapchain description
-			this->swapchain.GetAddressOf(), //Swapchain Address
-			this->device.GetAddressOf(), //Device Address
+			this->m_SwapChain.GetAddressOf(), //Swapchain Address
+			this->m_Device.GetAddressOf(), //Device Address
 			NULL, //Supported feature level
-			this->deviceContext.GetAddressOf()); //Device Context Address
+			this->m_DeviceContext.GetAddressOf()); //Device Context Address
 
 		COM_ERROR_IF_FAILED(hr, "Failed to create device and swapchain.");
 
 		//MSAA Multisample anti-aliasing 설정
 		UINT m4xMsaaQuality;
-		hr = this->device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality);
+		hr = this->m_Device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &m4xMsaaQuality);
 		//주어진 텍스쳐 형식의 표본개수의 조합에 대한 품질 수준들의 개수
 		COM_ERROR_IF_FAILED(hr, "Failed to set Msaa QualityLevel.");
 		/*다중표본화 관련 구조체
@@ -146,7 +162,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		//후면 버퍼를 파이프라인의 출력 병합기output merger 단계에 묶기 -> Direct3D가 버퍼에 뭔가를 그릴 수 있게 함
 
 		//Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer; //후면 버퍼
-		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
+		hr = this->m_SwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(m_BackBuffer.GetAddressOf()));
 		COM_ERROR_IF_FAILED(hr, "GetBuffer Failed.");
 
 		/* GetBuffer 메소드는 swapchain을 가리키는 포인터를 가져온다.
@@ -156,7 +172,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 			_COM_Outptr_  void **ppSurface) = 0;	//후면 버퍼를 가리키는 포인터를 돌려줌
 		*/
 
-		hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
+		hr = this->m_Device->CreateRenderTargetView(m_BackBuffer.Get(), NULL, this->m_RenderTargetView.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create render target view.");
 
 		/* 렌더 뷰를 생성하는 메소드
@@ -198,13 +214,13 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		} 	D3D11_TEXTURE2D_DESC;
 		*/
 
-		hr = this->device->CreateTexture2D(
+		hr = this->m_Device->CreateTexture2D(
 			&depthStencilDesc,							//생성할 텍스쳐를 서술하는 구조체
 			NULL,										//텍스쳐에 채울 초기 자료. 깊이/스텐실 버퍼에서는 따로 필요없음
 			this->depthStencilBuffer.GetAddressOf());	//깊이 스텐실 버퍼를 가리키는 포인터를 돌려준다.
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil buffer.");
 
-		hr = this->device->CreateDepthStencilView(
+		hr = this->m_Device->CreateDepthStencilView(
 			this->depthStencilBuffer.Get(),			//뷰를 생성하고자 하는 자원
 			NULL,									//D3D11_DEPTH_STENCIL_VIEW_DESC 구조체를 가리키는 포인터. 자원 자료형 서술. 따료 필요 없음
 			this->depthStencilView.GetAddressOf()); //깊이 스텐실 뷰를 돌려준다.
@@ -213,7 +229,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		//******************************
 		//후면 버퍼와 깊이스텐실 버퍼를 생성했으니, 뷰들을 파이프라인 출력 병합기에 묶기
 		//이 과정을 거쳐야 비로소 자원들이 파이프라인의 렌더 대상과 깊이.스텐실 버퍼로 작용
-		this->deviceContext->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
+		this->m_DeviceContext->OMSetRenderTargets(1, this->m_RenderTargetView.GetAddressOf(), this->depthStencilView.Get());
 		//첫번째 파라미터는 묶고자 하는 렌더 대상의 개수 ->여기에서는 하나.
 		//두번째 세번째는, 뷰 자원들.
 
@@ -221,7 +237,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
+		hr = this->m_Device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state.");
 
 		//스텐실 draw mask
@@ -239,7 +255,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		depthstencildesc_drawMask.FrontFace.StencilFailOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_KEEP;
 		depthstencildesc_drawMask.FrontFace.StencilPassOp = D3D11_STENCIL_OP::D3D11_STENCIL_OP_INCR_SAT;
 
-		hr = this->device->CreateDepthStencilState(&depthstencildesc_drawMask, this->depthStencilState_drawMask.GetAddressOf());
+		hr = this->m_Device->CreateDepthStencilState(&depthstencildesc_drawMask, this->depthStencilState_drawMask.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state for Drawing Mask.");
 
 		//스텐실 apply mask
@@ -263,7 +279,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		//**********************
 		//뷰포트 만들기 & 세팅
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(this->windowWidth), static_cast<float>(this->windowHeight));
-		this->deviceContext->RSSetViewports(1, &viewport); //패러미터 : 적용할 묶을 뷰포트 개수, 적용할 뷰포트 포인터,
+		this->m_DeviceContext->RSSetViewports(1, &viewport); //패러미터 : 적용할 묶을 뷰포트 개수, 적용할 뷰포트 포인터,
 		/* 뷰포트 구조체
 		typedef struct D3D11_VIEWPORT
 		{
@@ -280,7 +296,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		//래스터라이저 state 설정
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
 		//rasterizerDesc.CullMode = D3D11_CULL_NONE;
-		hr = this->device->CreateRasterizerState(&rasterizerDesc, this->rasterizerState.GetAddressOf()); 
+		hr = this->m_Device->CreateRasterizerState(&rasterizerDesc, this->rasterizerState.GetAddressOf()); 
 		//설정 구조체를 적용해서 결과 래스터라이저 스테이트를 돌려받음. 나중에 필요한 스테이트를 RSSetState 함수로 적용하면 된다.
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 		/*래스터라이저 desc
@@ -303,7 +319,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 		//cull front 래스터라이저 state 설정
 		CD3D11_RASTERIZER_DESC rasterizerDesc_CullFront(D3D11_DEFAULT);
 		rasterizerDesc_CullFront.CullMode = D3D11_CULL_MODE::D3D11_CULL_FRONT;
-		hr = this->device->CreateRasterizerState(&rasterizerDesc_CullFront, this->rasterizerState_CullFront.GetAddressOf());
+		hr = this->m_Device->CreateRasterizerState(&rasterizerDesc_CullFront, this->rasterizerState_CullFront.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
 
 		//**********************
@@ -332,7 +348,7 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 
 		blendDesc.RenderTarget[0] = rtbd;
 
-		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
+		hr = this->m_Device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
 		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
 		/* //블렌드인터페이스 생성 메소드
 		virtual HRESULT STDMETHODCALLTYPE CreateBlendState( 
@@ -340,15 +356,15 @@ bool GraphicsManager::InitializeDirectX(HWND hwnd)
 			_COM_Outptr_opt_  ID3D11BlendState **ppBlendState) = 0; //생성된 블렌딩 인터페이스를 돌려준다.
 		*/
 
-		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
-		spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
+		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->m_DeviceContext.Get());
+		spriteFont = std::make_unique<DirectX::SpriteFont>(this->m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
 
 		//Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
 		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf()); //Create sampler state
+		hr = this->m_Device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf()); //Create sampler state
 		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
 	}
 	catch (COMException & exception) {
@@ -388,55 +404,55 @@ bool GraphicsManager::InitializeShaders()
 
 	UINT numElements2D = ARRAYSIZE(layout2D);
 
-	if (!vertexshader_2d.Initialize(this->device, shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D, "vertexshader_2d"))
+	if (!vertexshader_2d.Initialize(this->m_Device, shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D, "vertexshader_2d"))
 		return false;
 
-	if (!pixelshader_2d.Initialize(this->device, shaderfolder + L"pixelshader_2d.cso", "pixelshader_2d"))
+	if (!pixelshader_2d.Initialize(this->m_Device, shaderfolder + L"pixelshader_2d.cso", "pixelshader_2d"))
 		return false;
 
-	if (!pixelshader_nolight.Initialize(this->device, shaderfolder + L"pixelshader_nolight.cso", "pixelshader_nolight"))
+	if (!pixelshader_nolight.Initialize(this->m_Device, shaderfolder + L"pixelshader_nolight.cso", "pixelshader_nolight"))
 		return false;
 
-	if (!pixelshader_2d_discard.Initialize(this->device, shaderfolder + L"pixelshader_2d_discard.cso", "pixelshader_2d_discard"))
+	if (!pixelshader_2d_discard.Initialize(this->m_Device, shaderfolder + L"pixelshader_2d_discard.cso", "pixelshader_2d_discard"))
 		return false;
 	try {
 		//상수 버퍼 초기화
 		HRESULT hr;
-		hr = this->cb_vs_vertexshader.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_vs_vertexshader.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize constant buffer.");
 
-		hr = this->cb_vs_vertexshader_2d.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_vs_vertexshader_2d.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize 2d constant buffer.");
 
-		hr = this->cb_vs_boneData.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_vs_boneData.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize bone constant buffer.");
 
-		hr = this->cb_ps_light.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_light.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize constant buffer.");
 
 		this->cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		this->cb_ps_light.data.ambientLightStrength = 1.0f;
 
-		hr = this->cb_ps_fog.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_fog.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize fog constant buffer.");
 
-		hr = this->cb_ps_simplelight.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_simplelight.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize simlight constant buffer.");
 
-		hr = this->cb_ps_cameraPos.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_cameraPos.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize cam constant buffer.");
 
-		hr = this->cb_ps_cameraPos.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_cameraPos.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize cam constant buffer.");
 
-		hr = this->cb_ps_light_array.Initialize(this->device.Get(), this->deviceContext.Get());
+		hr = this->cb_ps_light_array.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize light array constant buffer.");
 
-		deviceContext->PSSetConstantBuffers(0, 1, this->cb_ps_light.GetAddressOf());
-		deviceContext->PSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
-		deviceContext->PSSetConstantBuffers(2, 1, this->cb_ps_simplelight.GetAddressOf());
-		deviceContext->PSSetConstantBuffers(3, 1, this->cb_ps_fog.GetAddressOf());
-		deviceContext->PSSetConstantBuffers(5, 1, this->cb_ps_light_array.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(0, 1, this->cb_ps_light.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(2, 1, this->cb_ps_simplelight.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(3, 1, this->cb_ps_fog.GetAddressOf());
+		m_DeviceContext->PSSetConstantBuffers(5, 1, this->cb_ps_light_array.GetAddressOf());
 	}
 	catch (COMException exception) {
 		ErrorLogger::Log(exception);
@@ -448,22 +464,22 @@ bool GraphicsManager::InitializeShaders()
 
 bool GraphicsManager::InitializeTextures()
 {
-	mTextureBuffer.emplace_back(this->device.Get(), CustomColors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE);
+	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE);
 	mTextureBuffer.back().Name = "Unhandled Texture";
 	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
 	mTextureMap.insert(std::make_pair("Unhandled Texture", mTextureBuffer.back().ID));
 
-	mTextureBuffer.emplace_back(this->device.Get(), CustomColors::Black, aiTextureType::aiTextureType_DIFFUSE);
+	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::Black, aiTextureType::aiTextureType_DIFFUSE);
 	mTextureBuffer.back().Name = "Black Texture";
 	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
 	mTextureMap.insert(std::make_pair("Black Texture", mTextureBuffer.back().ID));
 
-	mTextureBuffer.emplace_back(this->device.Get(), CustomColors::White, aiTextureType::aiTextureType_DIFFUSE);
+	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::White, aiTextureType::aiTextureType_DIFFUSE);
 	mTextureBuffer.back().Name = "White Texture";
 	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
 	mTextureMap.insert(std::make_pair("White Texture", mTextureBuffer.back().ID));
 
-	mTextureBuffer.emplace_back(this->device.Get(), CustomColors::UnloadedTextureColor, aiTextureType::aiTextureType_DIFFUSE);
+	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::UnloadedTextureColor, aiTextureType::aiTextureType_DIFFUSE);
 	mTextureBuffer.back().Name = "Unloaded Texture";
 	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
 	mTextureMap.insert(std::make_pair("Unloaded Texture", mTextureBuffer.back().ID));
@@ -484,7 +500,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	Model *model;
 
 	model = new Model();
-	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -494,7 +510,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 
 
 	model = new Model();
-	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -503,7 +519,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	mModelMap.insert(std::make_pair(testbox.name, model));
 
 	model = new Model();
-	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -512,7 +528,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	mModelMap.insert(std::make_pair(testbox2.name, model));
 
 	model = new Model();
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -521,7 +537,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	mModelMap.insert(std::make_pair(testSphere.name, model));
 
 	model = new Model();
-	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -530,7 +546,7 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	mModelMap.insert(std::make_pair(testCylinder.name, model));
 
 	model = new Model();
-	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -599,7 +615,7 @@ bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer
 	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer->begin(); it != terrainBuffer->end(); it++) {
 		Model *model = new Model();
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
-		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
+		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
 		_terrainmodelBuffer.buffer.push_back(model);
 		(*it)->gameObject->renderer.SetModel(model);
 		//(*it)->gameObject->mGameObjectName = "";
@@ -609,10 +625,10 @@ bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer
 
 bool GraphicsManager::InitializeDebugDraw()
 {
-	m_states = std::make_unique<DirectX::CommonStates>(device.Get());
-	m_batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(deviceContext.Get());
+	m_states = std::make_unique<DirectX::CommonStates>(m_Device.Get());
+	m_batch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(m_DeviceContext.Get());
 
-	m_effect = std::make_unique<DirectX::BasicEffect>(device.Get());
+	m_effect = std::make_unique<DirectX::BasicEffect>(m_Device.Get());
 	m_effect->SetVertexColorEnabled(true);
 
 
@@ -621,7 +637,7 @@ bool GraphicsManager::InitializeDebugDraw()
 		size_t byteCodeLength;
 
 		m_effect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
-		HRESULT hr = device->CreateInputLayout(
+		HRESULT hr = m_Device->CreateInputLayout(
 			DirectX::VertexPositionColor::InputElements, DirectX::VertexPositionColor::InputElementCount,
 			shaderByteCode, byteCodeLength,
 			debug_layout.ReleaseAndGetAddressOf());
@@ -679,14 +695,18 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //나중에 쉐�
 		do {
 			shader_filename = StringHelper::EraseFileExtension(fd.name);
 
-			VertexShader *vs = new VertexShader;
-			if (!vs->Initialize(this->device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), layout3D_skinned, numElements_skinned, shader_filename))
+			std::shared_ptr<VertexShader> vs(new VertexShader);
+			if (!vs->Initialize(
+				this->m_Device,
+				_ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"),
+				layout3D_skinned,
+				numElements_skinned,
+				shader_filename))
+			{
 				MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
-			vert_Shader_Buffer.push_back(vs);
-			vs->shaderName = shader_filename;
-			mVShaderMap.insert(std::make_pair(shader_filename, vs));
-
-
+			}
+			vert_Shader_Buffer.push_back(vs.get());
+			m_VshaderBuffer.insert(std::make_pair(shader_filename, vs));
 		} while (_findnext(handle, &fd) == 0);
 	}
 
@@ -696,11 +716,17 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //나중에 쉐�
 			shader_filename = StringHelper::EraseFileExtension(fd.name);
 
 			PixelShader *ps = new PixelShader;
-			if (!ps->Initialize(this->device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), shader_filename))
+			if (!ps->Initialize(
+				this->m_Device,
+				_ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"),
+				shader_filename))
+			{
 				MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
+			}
+				
 			pixel_Shader_Buffer.push_back(ps);
 			ps->shaderName = shader_filename;
-			mPShaderMap.insert(std::make_pair(shader_filename, ps));
+			m_PshaderBuffer.insert(std::make_pair(shader_filename, ps));
 
 		} while (_findnext(handle, &fd) == 0);
 	}
@@ -711,11 +737,11 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //나중에 쉐�
 			shader_filename = StringHelper::EraseFileExtension(fd.name);
 
 			GeometryShader *gs = new GeometryShader;
-			if (!gs->Initialize(this->device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), shader_filename))
+			if (!gs->Initialize(this->m_Device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), shader_filename))
 				MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 			Geo_Shader_Buffer.push_back(gs);
 			gs->shaderName = shader_filename;
-			mGShaderMap.insert(std::make_pair(shader_filename, gs));
+			m_GshaderBuffer.insert(std::make_pair(shader_filename, gs));
 
 		} while (_findnext(handle, &fd) == 0);
 	}
@@ -756,7 +782,7 @@ void GraphicsManager::Load_Texture_File(const std::string & _TextureFolderPath)
 			if (!flag) continue;
 
 			std::string Texture_filename = _TextureFolderPath + fd.name;
-			mTextureBuffer.emplace_back(device.Get(), Texture_filename, aiTextureType::aiTextureType_DIFFUSE);
+			mTextureBuffer.emplace_back(m_Device.Get(), Texture_filename, aiTextureType::aiTextureType_DIFFUSE);
 			mTextureBuffer.back().Name = fd.name;
 			mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
 			mTextureMap.insert(std::make_pair(fd.name, mTextureBuffer.back().ID));
@@ -788,7 +814,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -800,7 +826,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -844,7 +870,7 @@ bool GraphicsManager::Initialize_MoreRenderTarget()
 		textureDesc.MiscFlags = 0;
 
 		// Create the texture
-		device->CreateTexture2D(&textureDesc, NULL, AUX_rt_Texture.GetAddressOf());
+		m_Device->CreateTexture2D(&textureDesc, NULL, AUX_rt_Texture.GetAddressOf());
 
 		/////////////////////// Map's Render Target
 		// Setup the description of the render target view.
@@ -853,7 +879,7 @@ bool GraphicsManager::Initialize_MoreRenderTarget()
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
 
 		// Create the render target view.
-		device->CreateRenderTargetView(AUX_rt_Texture.Get(), &renderTargetViewDesc, AUX_rtv.GetAddressOf());
+		m_Device->CreateRenderTargetView(AUX_rt_Texture.Get(), &renderTargetViewDesc, AUX_rtv.GetAddressOf());
 
 		/////////////////////// Map's Shader Resource View
 		// Setup the description of the shader resource view.
@@ -863,7 +889,7 @@ bool GraphicsManager::Initialize_MoreRenderTarget()
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
 		// Create the shader resource view.
-		device->CreateShaderResourceView(AUX_rt_Texture.Get(), &shaderResourceViewDesc, AUX_srv.GetAddressOf());
+		m_Device->CreateShaderResourceView(AUX_rt_Texture.Get(), &shaderResourceViewDesc, AUX_srv.GetAddressOf());
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);
@@ -886,12 +912,12 @@ bool GraphicsManager::Initialize_Skybox()
 
 	Study_DX::Sphere testSphere(30, 30);
 	Model * model = new Model();
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->device.Get(), this->deviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return false;
 	}
 
-	if (!mSkybox.Initialize(filename, device.Get(), deviceContext.Get(), model)) {
+	if (!mSkybox.Initialize(filename, m_Device.Get(), m_DeviceContext.Get(), model)) {
 		MessageBoxA(NULL, "Skybox Initialize error.", ERROR, MB_ICONERROR);
 		return false;
 	}
@@ -915,37 +941,37 @@ void GraphicsManager::RenderFrame()
 	SetConstantBuffer();
 
 
-	deviceContext->PSSetConstantBuffers(0, 1, this->cb_ps_light.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(2, 1, this->cb_ps_simplelight.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(3, 1, this->cb_ps_fog.GetAddressOf());
-	deviceContext->PSSetConstantBuffers(5, 1, this->cb_ps_light_array.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(0, 1, this->cb_ps_light.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(2, 1, this->cb_ps_simplelight.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(3, 1, this->cb_ps_fog.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(5, 1, this->cb_ps_light_array.GetAddressOf());
 	//deviceContext->GSSetConstantBuffers(0, 1, this->cb_vs_vertexshader.GetAddressOf());
-	deviceContext->GSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
+	m_DeviceContext->GSSetConstantBuffers(1, 1, this->cb_ps_cameraPos.GetAddressOf());
 
 	//this->deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 	float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	deviceContext->ClearRenderTargetView(this->renderTargetView.Get(), bgcolor); //화면 깨끗하게 만들기
-	this->deviceContext->OMSetRenderTargets(1, AUX_rtv.GetAddressOf(), depthStencilView.Get());
-	this->deviceContext->ClearRenderTargetView(AUX_rtv.Get(), bgcolor);
-	deviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_DeviceContext->ClearRenderTargetView(this->m_RenderTargetView.Get(), bgcolor); //화면 깨끗하게 만들기
+	this->m_DeviceContext->OMSetRenderTargets(1, AUX_rtv.GetAddressOf(), depthStencilView.Get());
+	this->m_DeviceContext->ClearRenderTargetView(AUX_rtv.Get(), bgcolor);
+	m_DeviceContext->ClearDepthStencilView(this->depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 
 
 
-	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); //도형 그리기 위상구조 설정. ->삼각형으로 그리겠다.
-	deviceContext->RSSetState(this->rasterizerState.Get());//래스터라이저 설정 적용
-	deviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST); //도형 그리기 위상구조 설정. ->삼각형으로 그리겠다.
+	m_DeviceContext->RSSetState(this->rasterizerState.Get());//래스터라이저 설정 적용
+	m_DeviceContext->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 
 	float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	deviceContext->OMSetBlendState(blendState.Get(), blendFactors, 0xFFFFFFFF);
+	m_DeviceContext->OMSetBlendState(blendState.Get(), blendFactors, 0xFFFFFFFF);
 	/* OM 단계에 블렌딩 스테이트 적용
 	virtual void STDMETHODCALLTYPE OMSetBlendState(
 		_In_opt_  ID3D11BlendState *pBlendState,	//장치에 적용할 혼합 상태 객체
 		_In_opt_  const FLOAT BlendFactor[4],		//부동소수점 값 네 개의 배열을 가리키는 포인터, RGBA색상 벡터 정의
 		_In_  UINT SampleMask) = 0;					//다중표본화로 취하는 최대 32개의 표본. 지금은 0xFFFFFFFF 사용
 	*/
-	deviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
+	m_DeviceContext->PSSetSamplers(0, 1, this->samplerState.GetAddressOf());
 
 
 
@@ -967,7 +993,7 @@ void GraphicsManager::RenderFrame()
 	//DebugDrawTest();
 
 	{
-		deviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
+		m_DeviceContext->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 #pragma region CheckFrame_
@@ -999,16 +1025,16 @@ void GraphicsManager::RenderFrame()
 
 void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collider_v2>>* physicsCompoBuffer)
 {
-	this->deviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
-	this->deviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
-	this->deviceContext->RSSetState(m_states->CullNone());
+	this->m_DeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	this->m_DeviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	this->m_DeviceContext->RSSetState(m_states->CullNone());
 
 	m_effect->DirectX::BasicEffect::SetView(Camera3D.GetViewMatrix());
 	m_effect->SetProjection(Camera3D.GetProjectionMatrix());
 
-	m_effect->Apply(deviceContext.Get());
+	m_effect->Apply(m_DeviceContext.Get());
 
-	this->deviceContext->IASetInputLayout(debug_layout.Get());
+	this->m_DeviceContext->IASetInputLayout(debug_layout.Get());
 
 	m_batch->Begin();
 
@@ -1047,7 +1073,7 @@ void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collide
 	}
 
 	m_batch->End();
-	this->deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
+	this->m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), depthStencilView.Get());
 
 }
 
@@ -1091,10 +1117,10 @@ void GraphicsManager::DrawSkyBox()
 	const DirectX::XMMATRIX vpMatrix = Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix();
 	const DirectX::XMMATRIX wMatrix = DirectX::XMMatrixTranslationFromVector(Camera3D.GetPositionVector());
 
-	deviceContext->IASetInputLayout(this->vert_Shader_Buffer[5]->GetInputLayout()); //IA에 입력할 배치 적용
-	deviceContext->VSSetShader(this->vert_Shader_Buffer[5]->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
-	deviceContext->PSSetShader(this->pixel_Shader_Buffer[6]->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
-	deviceContext->GSSetShader(NULL, NULL, 0);
+	m_DeviceContext->IASetInputLayout(this->vert_Shader_Buffer[5]->GetInputLayout()); //IA에 입력할 배치 적용
+	m_DeviceContext->VSSetShader(this->vert_Shader_Buffer[5]->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	m_DeviceContext->PSSetShader(this->pixel_Shader_Buffer[6]->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	m_DeviceContext->GSSetShader(NULL, NULL, 0);
 
 	mSkybox.Draw(wMatrix, vpMatrix);
 }
@@ -1171,19 +1197,19 @@ void GraphicsManager::ProcessUI()
 
 	ImGui::Begin("Shader load check");
 	ImGui::BeginChild("VShader", ImVec2(250, 150));
-	for (auto iter : mVShaderMap) {
+	for (auto iter : m_VshaderBuffer) {
 		ImGui::Text(iter.first.c_str());
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
 	ImGui::BeginChild("PShader", ImVec2(250, 150));
-	for (auto iter : mPShaderMap) {
+	for (auto iter : m_PshaderBuffer) {
 		ImGui::Text(iter.first.c_str());
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
 	ImGui::BeginChild("GShader", ImVec2(250, 150));
-	for (auto iter : mGShaderMap) {
+	for (auto iter : m_GshaderBuffer) {
 		ImGui::Text(iter.first.c_str());
 	}
 	ImGui::EndChild();
@@ -1255,16 +1281,16 @@ void GraphicsManager::ProcessUI()
 
 void GraphicsManager::DebugDrawTest()
 {
-	this->deviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
-	this->deviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
-	this->deviceContext->RSSetState(m_states->CullNone());
+	this->m_DeviceContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
+	this->m_DeviceContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	this->m_DeviceContext->RSSetState(m_states->CullNone());
 
 	m_effect->SetView(Camera3D.GetViewMatrix());
 	m_effect->SetProjection(Camera3D.GetProjectionMatrix());
 
-	m_effect->Apply(deviceContext.Get());
+	m_effect->Apply(m_DeviceContext.Get());
 
-	this->deviceContext->IASetInputLayout(debug_layout.Get());
+	this->m_DeviceContext->IASetInputLayout(debug_layout.Get());
 
 	m_batch->Begin();
 	Draw(m_batch.get(), boundingFrustum, DirectX::Colors::White); // BoundingFrustum
@@ -1277,7 +1303,17 @@ void GraphicsManager::DebugDrawTest()
 
 void GraphicsManager::SwapBuffer()
 {
-	this->swapchain->Present(1, NULL); //vsync 설정, 1이면 프레임 동기화, 0이면 프레임 최대
+	this->m_SwapChain->Present(1, NULL); //vsync 설정, 1이면 프레임 동기화, 0이면 프레임 최대
+}
+
+ID3D11Device & GraphicsManager::GetDevice()
+{
+	return *(m_Device.Get());
+}
+
+ID3D11DeviceContext & GraphicsManager::GetDeviceContext()
+{
+	return *(m_DeviceContext.Get());
 }
 
 #pragma endregion

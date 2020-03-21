@@ -1,10 +1,10 @@
 #pragma once
 #include <queue>
-#include "Object.h"
-#include "Component.h"
-#include "../Engine/SceneManager.h"
 #include <vector>
 #include <memory>
+
+#include "Component.h"
+#include "../Engine/SceneManager.h"
 
 class VertexShader;
 class PixelShader;
@@ -83,10 +83,6 @@ inline T* GameObject_v2::AddComponent()
 	compo_desc.mGameObj = this;
 	compo_desc.mTransform = &transform;
 	compo_desc.mRenderer = &renderer;
-	compo_desc.mPhysicsManager = sceneManager->getPhysicsManagerPtr();
-	compo_desc.mGraphicsManager = sceneManager->getGraphicsManagerPtr();
-	compo_desc.mDevice = sceneManager->getDevicePtr();
-	compo_desc.mDeviceContext = sceneManager->getDeviceContextPtr();
 
 	T* new_Component = new T(compo_desc);
 	Component* compo_ptr = dynamic_cast<Component*>(new_Component);

@@ -1,6 +1,12 @@
 #include "Shaders.h"
 
-bool VertexShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::wstring shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements, const std::string & filename) {
+bool VertexShader::Initialize(
+	Microsoft::WRL::ComPtr<ID3D11Device> &device, 
+	std::wstring shaderpath, 
+	D3D11_INPUT_ELEMENT_DESC * layoutDesc, 
+	UINT numElements, 
+	const std::string & filename) 
+{
 	shaderName = filename;
 	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf()); //컴파일된 셰이더 파일을 버퍼로 읽어들이고
 

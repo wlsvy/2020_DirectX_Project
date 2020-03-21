@@ -37,7 +37,7 @@ struct COLLIDER_DEBUG_MODEL_VER2 {
 };
 
 class Collider_v2 : public Component {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 public:
 	Collider_v2(const COMPONENT_INIT_DESC & desc);
 	virtual COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const abstract;
@@ -64,7 +64,7 @@ protected:
 };
 
 class BoxCollider_ver2 : public Collider_v2 {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 	friend class GraphicsManager;
 public:
 	BoxCollider_ver2(const COMPONENT_INIT_DESC & desc);
@@ -85,7 +85,7 @@ private:
 };
 
 class SphereCollider_ver2 : public Collider_v2 {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 public:
 	SphereCollider_ver2(const COMPONENT_INIT_DESC & desc);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
@@ -103,7 +103,7 @@ private:
 };
 
 class BoxRigidBody : public Collider_v2 {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:
@@ -127,7 +127,7 @@ private:
 };
 
 class SphereRigidBody : public Collider_v2 {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:
@@ -149,7 +149,7 @@ private:
 };
 
 class CharacterController : public Collider_v2 {
-	friend class PhysicsManager;
+	friend class PhysicsModule;
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:

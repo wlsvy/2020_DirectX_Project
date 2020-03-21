@@ -17,12 +17,11 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 	transform(COMPONENT_INIT_DESC(this, nullptr, nullptr)),
 	renderer(COMPONENT_INIT_DESC(this, &transform, nullptr))
 {
-	renderer.Initialize(desc.model, 
+	renderer.Initialize(
+		desc.model, 
 		desc.vshaderPtr, 
 		desc.pshaderPtr, 
-		desc.gshaderPtr, 
-		sceneManager->getDevicePtr(),
-		sceneManager->getDeviceContextPtr());
+		desc.gshaderPtr);
 
 	std::strcpy(mGameObjectName, desc.obj_name.c_str());
 

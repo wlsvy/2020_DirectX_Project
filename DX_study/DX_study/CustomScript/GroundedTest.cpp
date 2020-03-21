@@ -1,6 +1,6 @@
 #include "GroundedTest.h"
-#include "../Engine/PhysicsManager.h"
-#include <reactphysics3d/reactphysics3d.h>
+#include "../Physics.h"
+#include "../Input.h"
 
 void GroundTest::Start()
 {
@@ -9,60 +9,38 @@ void GroundTest::Start()
 
 void GroundTest::Update()
 {
-	//movement = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-
 	isGrounded = chracterController->IsGrounded();
 	testTime += Timer::GetDeltaTime();
 	testGrounded = GroundRayCast();
 
-	/*if (testTime > 5.0f) {
-		testTime = 0.0f;
-		
-		
-		testGrounded = GroundRayCast();
-	}*/
-	
-	
-	//if (!isGrounded) {
-	//	movement.y -= 0.1f * Timer::GetDeltaTime();
-	//		//gameObject->transform.translate(0.0f, -40.0f * Timer::GetDeltaTime(), 0.0f);
-	//}
-	//else movement.y = 0.0f;
-
-	if (InputKeyboard->GetKeyDown('T')) {
-		movement.y += 4.0f * Timer::GetDeltaTime();
-		//gameObject->transform.translate(0.0f, 20.0f * Timer::GetDeltaTime(), 0.0f);
+	if (Input::GetKeyDown('T')) {
+		movement.y = 4.0f * Timer::GetDeltaTime();
+	}
+	if (Input::GetKeyDown('Y')) {
+		movement.y = -4.0f * Timer::GetDeltaTime();
 	}
 
-	if (InputKeyboard->GetKeyDown('J')) {
+	if (Input::GetKeyDown('J')) {
 		movement.x = 10.0f * Timer::GetDeltaTime();
-		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
-	if (InputKeyboard->GetKeyDown('K')) {
+	if (Input::GetKeyDown('K')) {
 		movement.x = -10.0f * Timer::GetDeltaTime();
-		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
-	if (!InputKeyboard->KeyIsPressed('J') && !InputKeyboard->KeyIsPressed('K')) {
+	if (!Input::GetKey('J') && !Input::GetKey('K')) {
 		movement.x = 0.0f;
 	}
 
-	if (InputKeyboard->GetKeyDown('O')) {
+	if (Input::GetKeyDown('O')) {
 		movement.z = 10.0f * Timer::GetDeltaTime();
-		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
-	if (InputKeyboard->GetKeyDown('L')) {
+	if (Input::GetKeyDown('L')) {
 		movement.z = -10.0f * Timer::GetDeltaTime();
-		//InputKeyboard->
-		//gameObject->transform.translate(15.0f * Timer::GetDeltaTime(), 0.0f, 0.0f);
 	}
 
-	if (!InputKeyboard->KeyIsPressed('O') && !InputKeyboard->KeyIsPressed('L')) {
+	if (!Input::GetKey('O') && !Input::GetKey('L')) {
 		movement.z = 0.0f;
 	}
 
@@ -74,12 +52,7 @@ bool GroundTest::GroundRayCast()
 	DirectX::XMFLOAT3 downPos = gameObject->transform.position;
 	downPos.y -= GroundTest_Distance;
 
-	std::list<RaycastResult> testRayresultALL;
-	//RaycastResult testRayresult;
-	//Physics->Raycast(gameObject->transform.position, downPos, testRayresult);
-	Physics->RaycastAll(gameObject->transform.position, downPos, testRayresultALL);
-
-	return testRayresultALL.size() == 2;
+	return Physics::Raycast(gameObject->transform.position, downPos);
 }
 
 void GroundTest::OnGui()

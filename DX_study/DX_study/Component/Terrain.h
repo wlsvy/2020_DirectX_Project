@@ -1,11 +1,17 @@
 #pragma once
-#include "Component.h"
 #include <stdio.h>
 #include <fstream>
+#include <DirectXMath.h>
+#include <vector>
+
+#include "Component.h"
+#include "../Graphics/Vertex.h"
+
+struct Vertex3D;
 
 struct TERRAIN_INIT_DESC {
 	std::vector<Vertex3D> vertexBuffer;
-	std::vector<DWORD> indexBuffer;
+	std::vector<unsigned long> indexBuffer;
 };
 
 class Terrain : public Component {

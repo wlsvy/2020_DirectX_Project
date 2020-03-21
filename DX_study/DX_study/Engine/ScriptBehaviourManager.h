@@ -4,7 +4,7 @@
 #include <memory>
 
 class Engine; //include 정의 조심
-class PhysicsManager;
+class PhysicsModule;
 class GameObject_v2;
 class Component;
 class ScriptBehaviour;
@@ -23,7 +23,7 @@ private:
 		std::vector<std::shared_ptr<ScriptBehaviour>> * const _buffer, 
 		KeyboardClass * const _keyboard, 
 		MouseClass * const _mouse,
-		PhysicsManager * const _physicsManager,
+		PhysicsModule * const _physicsManager,
 		KeyboardEvent * const _keyboardEvent,
 		MouseEvent * const _mouseEvent)
 		:
@@ -38,7 +38,7 @@ private:
 	void Start();
 
 	std::vector<std::shared_ptr<ScriptBehaviour>> * const mScriptBuffer;
-	PhysicsManager * const mPhysicsManager;
+	PhysicsModule * const mPhysicsManager;
 	KeyboardClass * const keyboard;
 	MouseClass * const mouse;
 	KeyboardEvent * const mKeyboardEvent;

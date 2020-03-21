@@ -2,7 +2,7 @@
 #include "Object.h"
 
 class GameObject_v2; // include 컴파일 주의할것. 아직 포함 안시킨 상태
-class PhysicsManager;
+class PhysicsModule;
 class GraphicsManager;
 class Transform;
 class Renderer;
@@ -32,11 +32,6 @@ struct COMPONENT_INIT_DESC {
 	GameObject_v2 * mGameObj = nullptr;
 	Transform * mTransform = nullptr;
 	Renderer * mRenderer = nullptr;
-	ID3D11Device* mDevice = nullptr;
-	ID3D11DeviceContext* mDeviceContext = nullptr;
-	ConstantBuffer<CB_VS_boneData> * mBoneData = nullptr;
-	PhysicsManager * mPhysicsManager = nullptr;
-	GraphicsManager * mGraphicsManager = nullptr;
 	
 	//ConstantBuffer<CB_VS_vertexshader> * cb_vs_vertexshader = nullptr;
 };

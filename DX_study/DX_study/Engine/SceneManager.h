@@ -2,10 +2,9 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
-#include "../Util/Singleton.h"
 
 class Engine; //include 정의 조심
-class PhysicsManager;
+class PhysicsModule;
 class GraphicsManager;
 struct GAMEOBJECT_INIT_DESC;
 struct ID3D11Device;
@@ -54,18 +53,11 @@ public:
 	bool Destory_GameObject(GameObject_v2 * _gameObject);
 	void OnGui();
 	GameObject_v2 * getUIselectedObj();
-	PhysicsManager * getPhysicsManagerPtr();
-	GraphicsManager * getGraphicsManagerPtr();
-	ID3D11Device * getDevicePtr();
-	ID3D11DeviceContext * getDeviceContextPtr();
 
-	VertexShader * getVshaderByName(const std::string & _str);
-	PixelShader * getPshaderByName(const std::string & _str);
-	GeometryShader * getGshaderByName(const std::string & _str);
 	Model * getModelByName(const std::string & _str);
 
 private:
-	SceneManager(PhysicsManager * const _physcisManager);
+	SceneManager(PhysicsModule * const physcisManager);
 	void Custom_Test_Obj_Set();
 	~SceneManager();
 	GameObject_v2* AddGameObject(GAMEOBJECT_INIT_DESC & desc);
@@ -77,7 +69,7 @@ private:
 
 
 	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
-	PhysicsManager * const mPhysicsManager;
+	PhysicsModule * const m_PhysicsManager;
 	ModelBuffer modelBuffer;
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;

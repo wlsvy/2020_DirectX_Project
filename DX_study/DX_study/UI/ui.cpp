@@ -115,7 +115,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * image)
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	Engine::GetInstance().getSceneManager()->OnGui();
+	Engine::GetInstance().GetSceneManager().OnGui();
 
 	ImGui::EndChild();
 	ImGui::SameLine();
@@ -125,7 +125,7 @@ void UIspace::EditorUI(ID3D11ShaderResourceView * image)
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	GameObject_v2 * selectedObj = Engine::GetInstance().getSceneManager()->getUIselectedObj();
+	GameObject_v2 * selectedObj = Engine::GetInstance().GetSceneManager().getUIselectedObj();
 	if (selectedObj != nullptr)
 	{
 		selectedObj->OnGui();
