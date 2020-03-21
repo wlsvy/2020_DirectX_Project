@@ -6,58 +6,58 @@ bool RenderWindow::Initialize(
 	std::string window_title, 
 	std::string window_class, 
 	int width, 
-	int height) 
+	int m_Height) 
 {
-	this->hInstance = hInstance;
-	this->width = width;
-	this->height = height;
-	this->window_title = window_title;
-	this->window_title_wide = StringHelper::StringToWide(this->window_title);
-	this->window_class = window_class;
-	this->window_class_wide = StringHelper::StringToWide(this->window_class);
+	this->m_HInstance = hInstance;
+	this->m_Width = width;
+	this->m_Height = m_Height;
+	this->m_WindowTitle = window_title;
+	this->m_WideWindowTitle = StringHelper::StringToWide(this->m_WindowTitle);
+	this->m_WindowClass = window_class;
+	this->m_WideWindowClass = StringHelper::StringToWide(this->m_WindowClass);
 
-	//윈도우 창 크기는 위의 타이틀 바까지 포함해서 생성됨. 즉 타이틀 바를 제외한 크기의 윈도우 생성.
 	this->RegisterWindowClass();
 
-	int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - this->width / 2;
-	int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - this->height / 2;
+	int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - this->m_Width / 2;
+	int centerScreenY = GetSystemMetrics(SM_CYSCREEN) / 2 - this->m_Height / 2;
 
-	RECT wr; // Window rectangle
+	RECT wr; 
 	wr.left = centerScreenX;
 	wr.top = centerScreenY;
-	wr.right = wr.left + this->width;
-	wr.bottom = wr.top + this->height;
-	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE); // 윈도우 크기 조정
+	wr.right = wr.left + this->m_Width;
+	wr.bottom = wr.top + this->m_Height;
+	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE); 
 
-	this->handle = CreateWindowEx(0, //Extended Window style -> 0은 디폴트
-		this->window_class_wide.c_str(), //클래스 이름
-		this->window_title_wide.c_str(), //타이틀 이름
-		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //윈도우 스타일
-		wr.left, //윈도우 x 위치
-		wr.top, //윈도우 y 위치
-		wr.right - wr.left, //창 너비
-		wr.bottom - wr.top, //창 높이
-		NULL, //윈도우 parent, 현재 parent window 없음
-		NULL, //chile window 혹은 menu, 현재 child window 없음
-		this->hInstance,//윈도우 instance
-		pWindowContainer); //param to create window
+	this->m_Handle = CreateWindowEx(
+		0, 
+		this->m_WideWindowClass.c_str(), 
+		this->m_WideWindowTitle.c_str(), 
+		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, 
+		wr.left,
+		wr.top, 
+		wr.right - wr.left, 
+		wr.bottom - wr.top, 
+		NULL, 
+		NULL, 
+		this->m_HInstance,
+		pWindowContainer); 
 
-	if (this->handle == NULL) {
-		ErrorLogger::Log(GetLastError(), "CreateWindowEX Failed for window: " + this->window_title);
+	if (this->m_Handle == NULL) {
+		ErrorLogger::Log(GetLastError(), "CreateWindowEX Failed for window: " + this->m_WindowTitle);
 		return false;
 	}
 
-	ShowWindow(this->handle, SW_SHOW);
-	SetForegroundWindow(this->handle);
-	SetFocus(this->handle);
+	ShowWindow(this->m_Handle, SW_SHOW);
+	SetForegroundWindow(this->m_Handle);
+	SetFocus(this->m_Handle);
 
 	return true;
 }
 
 RenderWindow::~RenderWindow() {
-	if (this->handle != NULL) {
-		UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
-		DestroyWindow(handle);
+	if (this->m_Handle != NULL) {
+		UnregisterClass(this->m_WideWindowClass.c_str(), this->m_HInstance);
+		DestroyWindow(m_Handle);
 	}
 }
 
@@ -68,16 +68,13 @@ LRESULT CALLBACK HandleMsgRedirect(
 	LPARAM lParam) 
 {
 	switch (uMsg) {
-		//all other messages
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		return 0;
 
 	default:
 	{
-		//retrieve ptr to window class
 		WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-		//forward message to window class handler
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	}
@@ -89,11 +86,11 @@ LRESULT CALLBACK HandleMessageSetup(
 	WPARAM wParam, 
 	LPARAM lParam) 
 {
-	switch (uMsg) { //메세지는 종류가 다양해서 스위치 활용. 예를 들면 ->키가 눌려졌을 때
+	switch (uMsg) {
 	case WM_NCCREATE: {
 		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 		WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
-		if (pWindow == nullptr) //Sanity check
+		if (pWindow == nullptr) 
 		{
 			ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
 			exit(-1);
@@ -103,48 +100,47 @@ LRESULT CALLBACK HandleMessageSetup(
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam); //기본 윈도우 프로세스 셋업
+		return DefWindowProc(hwnd, uMsg, wParam, lParam); 
 	}
 	
 }
 
 void RenderWindow::RegisterWindowClass() {
-	WNDCLASSEX wc; //윈도우 클래스 확장 버전
+	WNDCLASSEX wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = HandleMessageSetup; //이게 되네?? 파라미터 안 붙였는데
+	wc.lpfnWndProc = HandleMessageSetup; 
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
-	wc.hInstance = this->hInstance;
+	wc.hInstance = this->m_HInstance;
 	wc.hIcon = NULL;
 	wc.hIconSm = NULL;
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wc.hbrBackground = NULL;
 	wc.lpszMenuName = NULL;
-	wc.lpszClassName = this->window_class_wide.c_str();
+	wc.lpszClassName = this->m_WideWindowClass.c_str();
 	wc.cbSize = sizeof(WNDCLASSEX);
 	RegisterClassEx(&wc);
 }
 
 bool RenderWindow::ProcessMessage() {
-	//Handling the Window Message
 	MSG msg;
-	ZeroMemory(&msg, sizeof(MSG));//메세지 구조 초기화
+	ZeroMemory(&msg, sizeof(MSG));
 
-	while (PeekMessage(&msg,//메세지 저장 장소
-		this->handle, //handle to window we are checking messages for
-		0, //Minimum Filter Msg Value - We are not filtering messages
-		0, //Maximm Filter Msg value
-		PM_REMOVE)) //Remove Message after capturing if via peekMessage
+	while (PeekMessage(
+		&msg,
+		this->m_Handle, 
+		0,
+		0,
+		PM_REMOVE)) 
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
 
-	//창이 닫혔는지 확인
 	if (msg.message == WM_NULL) {
-		if (!IsWindow(this->handle)) {
-			this->handle = NULL; //Message Processing loop takes care of destroying this window
-			UnregisterClass(this->window_class_wide.c_str(), this->hInstance);
+		if (!IsWindow(this->m_Handle)) {
+			this->m_Handle = NULL;
+			UnregisterClass(this->m_WideWindowClass.c_str(), this->m_HInstance);
 			return false;
 		}
 	}
@@ -154,5 +150,5 @@ bool RenderWindow::ProcessMessage() {
 
 HWND RenderWindow::GetHWND() const
 {
-	return this->handle;
+	return this->m_Handle;
 }

@@ -7,8 +7,6 @@
 #include "Component.h"
 #include "../Graphics/Vertex.h"
 
-struct Vertex3D;
-
 struct TERRAIN_INIT_DESC {
 	std::vector<Vertex3D> vertexBuffer;
 	std::vector<unsigned long> indexBuffer;
