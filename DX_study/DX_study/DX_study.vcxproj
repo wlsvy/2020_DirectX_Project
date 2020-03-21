@@ -175,8 +175,8 @@
     <ClCompile Include="Component\Collider_v2.cpp" />
     <ClCompile Include="Component\Animator.cpp" />
     <ClCompile Include="Engine\ModuleResource.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="Graphics\BaseGeometry.cpp" />
-    <ClCompile Include="Component\Collider.cpp" />
     <ClCompile Include="Component\Behaviour.cpp" />
     <ClCompile Include="Component\Component.cpp" />
     <ClCompile Include="Component\GameObject_v2.cpp" />
@@ -232,13 +232,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />
+    <ClInclude Include="Component\ComponentTypeTraits.h" />
     <ClInclude Include="Engine\AnimationManager.h" />
     <ClInclude Include="Component\CollisionInfo.h" />
     <ClInclude Include="Component\Collider_v2.h" />
     <ClInclude Include="Component\Animator.h" />
     <ClInclude Include="Engine\ModuleResource.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="Graphics\BaseGeometry.h" />
-    <ClInclude Include="Component\Collider.h" />
     <ClInclude Include="Component\BaseComponentInclude.h" />
     <ClInclude Include="Component\Behaviour.h" />
     <ClInclude Include="Component\Component.h" />

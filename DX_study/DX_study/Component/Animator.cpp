@@ -1,10 +1,10 @@
 #include "Animator.h"
 #include "../AnimationClip.h"
 
-Animator::Animator(const COMPONENT_INIT_DESC & desc) : Behaviour(desc)
+Animator::Animator(GameObject_v2 & obj) : Behaviour(desc)
 {
 	mComponentType = COMPONENT_ANIMATION;
-	std::strcpy(mComponentName, "Animator");
+	std::strcpy(Name, "Animator");
 	gameObject->renderer.animator = this;
 	gameObject->renderer.drawSkinnedMesh = false;
 }
@@ -20,14 +20,14 @@ void Animator::Update(float _deltaTime)
 
 void Animator::Play()
 {
-	mIsRunning = true;
+	m_IsRunning = true;
 	if (mClip != nullptr) gameObject->renderer.drawSkinnedMesh = true;
 	else gameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Stop()
 {
-	mIsRunning = false;
+	m_IsRunning = false;
 	gameObject->renderer.drawSkinnedMesh = false;
 }
 
@@ -46,12 +46,12 @@ AnimationClip * Animator::GetAnimClip()
 
 bool Animator::IsRunning()
 {
-	return mIsRunning;
+	return m_IsRunning;
 }
 
 void Animator::OnGui()
 {
-	if (mIsRunning) {
+	if (m_IsRunning) {
 		if (ImGui::Button("Stop", ImVec2(150, 0))) Stop();
 	} else if (ImGui::Button("Play", ImVec2(150, 0))) Play();
 	

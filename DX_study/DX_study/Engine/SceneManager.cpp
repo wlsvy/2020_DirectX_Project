@@ -16,10 +16,10 @@
 using namespace DirectX;
 //여기에 커스텀 스크립트 헤더 include
 
-SceneManager::SceneManager(PhysicsModule * const physcisManager) : m_PhysicsManager(physcisManager)
+SceneManager::SceneManager() :
+	m_RootGameObject(new GameObject_v2())
 {
-	COMPONENT_INIT_DESC desc;
-	Transform * worldTransform = new Transform(desc);
+	Transform * worldTransform = new Transform(null);
 
 	mWorldTransform = worldTransform;
 	mWorldMatrix = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f)
@@ -39,7 +39,6 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.scale = DirectX::XMFLOAT3(0.3f, 0.3f, 0.3f);
 	desc.model = modelBuffer.buffer[9];
 	desc.obj_name = "first Created";
-	desc.scene_manager = this;
 	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("skinned_vertex");
 	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
 
@@ -155,58 +154,11 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->AddComponent<DirectionalLight>();
 }
 
-void SceneManager::ClassifyComponent(Component * _component, GameObject_v2 * _destination)
+bool SceneManager::DestoryGameObject(GameObject_v2& gameObject)
 {
-	if (_component->mComponentID != -1) {
-		MessageBoxA(NULL, "This Component isn't new Component", "Error", MB_ICONERROR);
-		return;
-	}
-	_component->mComponentID = ComponentIDcontributor++;
-
-	ScriptBehaviour *scriptCompo_test = dynamic_cast<ScriptBehaviour*>(_component);
-	if (scriptCompo_test != NULL) {
-		Engine::GetInstance().InsertScriptComponent(scriptCompo_test, _destination);
-		return;
-	}
-
-	Light_ver2 *lightCompo_test = dynamic_cast<Light_ver2*>(_component);
-	if (lightCompo_test != NULL) {
-		Engine::GetInstance().InsertLightComponent(lightCompo_test, _destination);
-		return;
-	}
-
-	Terrain *terrain_test = dynamic_cast<Terrain*>(_component);
-	if (terrain_test != NULL) {
-		Engine::GetInstance().InsertTerrainComponent(terrain_test, _destination);
-		return;
-	}
-
-	Collider_v2 *colliderv2_test = dynamic_cast<Collider_v2*>(_component);
-	if (colliderv2_test != NULL) {
-		Engine::GetInstance().InsertCollider_v2Component(colliderv2_test, _destination);
-		return;
-	}
-
-	Animator *animator_test = dynamic_cast<Animator*>(_component);
-	if (animator_test != NULL) {
-		Engine::GetInstance().InsertAnimatorComponent(animator_test, _destination);
-		return;
-	}
-
-	assert("this component is impossible to classfiy." && 1 == 0);
-
-}
-
-void SceneManager::Component_Valid_Test()
-{
-	Engine::GetInstance().Component_Valid_Test();
-}
-
-bool SceneManager::Destory_GameObject(GameObject_v2 * _gameObject)
-{
-	for (auto iter = gameObjectBuffer.begin(); iter != gameObjectBuffer.end(); iter++) {
-		if (_gameObject == iter->get()) {
-			gameObjectBuffer.erase(iter);
+	for (auto iter = m_GameObjects.begin(); iter != m_GameObjects.end(); iter++) {
+		if (gameObject == (**iter)) {
+			m_GameObjects.erase(iter);
 			return true;
 		}
 	}
@@ -233,24 +185,24 @@ void SceneManager::OnGui()
 	ImGui::Spacing();
 }
 
-void SceneManager::UIrecursiveTransformCheck(Transform * _transform)
+void SceneManager::UIrecursiveTransformCheck(Transform * transform)
 {
 	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_OpenOnDoubleClick
-		| ((mUI_Selected_Transform_ID == _transform->getComponentID()) ? ImGuiTreeNodeFlags_Selected : 0)
-		| ((_transform->GetChildNum() == 0) ? ImGuiTreeNodeFlags_Leaf : 0)
+		| ((mUI_Selected_Transform_ID == transform->getComponentID()) ? ImGuiTreeNodeFlags_Selected : 0)
+		| ((transform->GetChildNum() == 0) ? ImGuiTreeNodeFlags_Leaf : 0)
 		| ImGuiTreeNodeFlags_DefaultOpen;
 
-	bool node_open = ImGui::TreeNodeEx(_transform->gameObject->mGameObjectName, node_flags);
+	bool node_open = ImGui::TreeNodeEx(transform->gameObject.Name, node_flags);
 	if (ImGui::IsItemClicked())
 	{
-		mUI_Selected_Transform_ID = _transform->getComponentID();
-		mUI_Selectd_Transform_Ptr = _transform;
+		mUI_Selected_Transform_ID = transform->getComponentID();
+		mUI_Selectd_Transform_Ptr = transform;
 	}
 
 	if (node_open)
 	{
-		for (auto child : _transform->mChildTransform)
+		for (auto child : transform->mChildTransform)
 		{
 			UIrecursiveTransformCheck(child);
 		}
@@ -270,13 +222,13 @@ Model * SceneManager::getModelByName(const std::string & _str)
 GameObject_v2 * SceneManager::getUIselectedObj()
 {
 	if (mUI_Selectd_Transform_Ptr == nullptr) return nullptr;
-	return mUI_Selectd_Transform_Ptr->gameObject;
+	return &mUI_Selectd_Transform_Ptr->gameObject;
 }
 
 SceneManager::~SceneManager()
 {
 	while (mWorldTransform->mChildTransform.size() != 0) {
-		mWorldTransform->mChildTransform[0]->gameObject->Destroy();
+		mWorldTransform->mChildTransform[0]->gameObject.Destroy();
 	}
 
 	delete mWorldTransform;
@@ -287,11 +239,11 @@ GameObject_v2* SceneManager::AddGameObject(GAMEOBJECT_INIT_DESC & desc)
 	desc.obj_id = ObjIDcontributor++;
 
 	GameObject_v2 * ptr = new GameObject_v2(desc);
-	gameObjectBuffer.emplace_back(ptr);
-	ptr->transform.mComponentID = ComponentIDcontributor++;
+	m_GameObjects.emplace_back(ptr);
+	ptr->transform.m_ID = ComponentIDcontributor++;
 	ptr->transform.mWorldTransform = mWorldTransform;
 	ptr->transform.SetParent(mWorldTransform);
-	ptr->renderer.mComponentID = ComponentIDcontributor++;
+	ptr->renderer.m_ID = ComponentIDcontributor++;
 
 	return ptr;
 }
@@ -303,12 +255,12 @@ void SceneManager::Update()
 	}
 }
 
-void SceneManager::RecursiveTransformUpdate(Transform * _transform, DirectX::XMMATRIX & _parentMatrix)
+void SceneManager::RecursiveTransformUpdate(Transform * transform, DirectX::XMMATRIX & _parentMatrix)
 {
-	_transform->UpdateMatrix(_parentMatrix);
-	DirectX::XMMATRIX parentMat = _transform->GetWorldMatrix();
+	transform->UpdateMatrix(_parentMatrix);
+	DirectX::XMMATRIX parentMat = transform->GetWorldMatrix();
 
-	for (auto child : _transform->mChildTransform) {
+	for (auto child : transform->mChildTransform) {
 		RecursiveTransformUpdate(child, parentMat);
 	}
 }

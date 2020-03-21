@@ -9,11 +9,11 @@ public:
 	WindowContainer();
 	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
-	RenderWindow render_window;
+	RenderWindow m_RenderWindow;
 	KeyboardClass m_Keyboard;
 	MouseClass m_Mouse;
-	KeyboardEvent mKeyboardEvent;
-	MouseEvent mMouseEvent;
+	KeyboardEvent m_KeyboardEvent;
+	MouseEvent m_MouseEvent;
 private:
 	
 };

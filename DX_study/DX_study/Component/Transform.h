@@ -9,7 +9,7 @@ class Transform : public Component{
 	friend class PhysicsModule;
 	friend class SceneManager;
 public:
-	Transform(const COMPONENT_INIT_DESC & desc);
+	Transform(GameObject_v2 & obj);
 	~Transform();
 	void OnGui() override;
 

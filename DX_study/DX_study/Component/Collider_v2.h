@@ -39,13 +39,15 @@ struct COLLIDER_DEBUG_MODEL_VER2 {
 class Collider_v2 : public Component {
 	friend class PhysicsModule;
 public:
-	Collider_v2(const COMPONENT_INIT_DESC & desc);
+	using ComponentTag = PhysicsComponentTag;
+
+	Collider_v2(GameObject_v2 & obj);
 	virtual COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const abstract;
 	MyCustom::COLLIDER_VER2 getColliderType();
 	
 	unsigned short CollisionMask = 0xffff;
 
-	Transform * const transform;
+	Transform& transform;
 	std::list<std::unique_ptr<CollisionInfo>> mCollisionInfo;
 protected:
 	virtual reactphysics3d::RigidBody* initialize_React3D(reactphysics3d::DynamicsWorld * _world) abstract;
@@ -67,7 +69,7 @@ class BoxCollider_ver2 : public Collider_v2 {
 	friend class PhysicsModule;
 	friend class GraphicsManager;
 public:
-	BoxCollider_ver2(const COMPONENT_INIT_DESC & desc);
+	BoxCollider_ver2(GameObject_v2 & obj);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
 	~BoxCollider_ver2();
 
@@ -87,7 +89,7 @@ private:
 class SphereCollider_ver2 : public Collider_v2 {
 	friend class PhysicsModule;
 public:
-	SphereCollider_ver2(const COMPONENT_INIT_DESC & desc);
+	SphereCollider_ver2(GameObject_v2 & obj);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
 	~SphereCollider_ver2();
 
@@ -107,7 +109,7 @@ class BoxRigidBody : public Collider_v2 {
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:
-	BoxRigidBody(const COMPONENT_INIT_DESC & desc);
+	BoxRigidBody(GameObject_v2 & obj);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
 	~BoxRigidBody();
 
@@ -131,7 +133,7 @@ class SphereRigidBody : public Collider_v2 {
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:
-	SphereRigidBody(const COMPONENT_INIT_DESC & desc);
+	SphereRigidBody(GameObject_v2 & obj);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
 	~SphereRigidBody();
 
@@ -153,7 +155,7 @@ class CharacterController : public Collider_v2 {
 	friend class GraphicsManager;
 	friend class SceneManager;
 public:
-	CharacterController(const COMPONENT_INIT_DESC & desc);
+	CharacterController(GameObject_v2 & obj);
 	COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const;
 	~CharacterController();
 

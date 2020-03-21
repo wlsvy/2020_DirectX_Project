@@ -43,23 +43,21 @@ public:
 };
 
 class SceneManager {
-	friend class Engine;
+	//friend class Engine;
 public:
-	//bool Initialize();
-	//void LoadObject_Info();
+	SceneManager();
+	~SceneManager();
 
-	void ClassifyComponent(Component * _component, GameObject_v2 *_destination); //똑같은 컴포넌트를 여러 번 분류하는 경우 조심.
-	void Component_Valid_Test();
-	bool Destory_GameObject(GameObject_v2 * _gameObject);
+	bool DestoryGameObject(GameObject_v2& gameObject);
 	void OnGui();
 	GameObject_v2 * getUIselectedObj();
 
 	Model * getModelByName(const std::string & _str);
 
 private:
-	SceneManager(PhysicsModule * const physcisManager);
+	
 	void Custom_Test_Obj_Set();
-	~SceneManager();
+	
 	GameObject_v2* AddGameObject(GAMEOBJECT_INIT_DESC & desc);
 	void Update();
 	void RecursiveTransformUpdate(Transform * _transform, DirectX::XMMATRIX & _parentMatrix);
@@ -67,9 +65,8 @@ private:
 	void UIrecursiveTransformCheck(Transform * _transform);
 	
 
-
-	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
-	PhysicsModule * const m_PhysicsManager;
+	std::shared_ptr<GameObject_v2> m_RootGameObject;
+	std::vector<std::shared_ptr<GameObject_v2>> m_GameObjects;
 	ModelBuffer modelBuffer;
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;

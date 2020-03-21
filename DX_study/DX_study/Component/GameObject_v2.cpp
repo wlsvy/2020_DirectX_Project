@@ -1,9 +1,10 @@
 #include "GameObject_v2.h"
+#include "../Engine/ModuleResource.h"
 
-GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
-	: sceneManager(sceneM),
-	transform(COMPONENT_INIT_DESC(this, nullptr, nullptr)),
-	renderer(COMPONENT_INIT_DESC(this, &transform, nullptr))
+GameObject_v2::GameObject_v2(Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
+	: 
+	transform(*this),
+	renderer(*this)
 {
 	//renderer.Renderer_Initialize(model, vshaderID, pshaderID);
 
@@ -12,10 +13,9 @@ GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const i
 }
 
 GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
-	sceneManager(desc.scene_manager),
 	mGameObjectID(desc.obj_id),
-	transform(COMPONENT_INIT_DESC(this, nullptr, nullptr)),
-	renderer(COMPONENT_INIT_DESC(this, &transform, nullptr))
+	transform(*this),
+	renderer(*this)
 {
 	renderer.Initialize(
 		desc.model, 
@@ -23,7 +23,7 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 		desc.pshaderPtr, 
 		desc.gshaderPtr);
 
-	std::strcpy(mGameObjectName, desc.obj_name.c_str());
+	std::strcpy(Name, desc.obj_name.c_str());
 
 	this->transform.SetPosition(desc.pos);
 	this->transform.SetRotation(desc.rot);
@@ -32,12 +32,17 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 
 GameObject_v2::~GameObject_v2()
 {
-	for (auto it = componentBuffer.begin(); it != componentBuffer.end(); it++) {
+	for (auto it = m_Components.begin(); it != m_Components.end(); it++) {
 		//delete it;
 	}
 }
 
-int GameObject_v2::getID()
+bool GameObject_v2::operator==(const GameObject_v2 & rhs) const
+{
+	return this == &rhs;
+}
+
+int GameObject_v2::getID() const
 {
 	return mGameObjectID;
 }
@@ -45,7 +50,7 @@ int GameObject_v2::getID()
 void GameObject_v2::OnGui()
 {
 	ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll;
-	ImGui::InputText("Name", mGameObjectName, flags);
+	ImGui::InputText("Name", Name, flags);
 	ImGui::SameLine();
 	ImGui::Text("(%d)", mGameObjectID);
 
@@ -67,20 +72,20 @@ void GameObject_v2::OnGui()
 		| ImGuiTreeNodeFlags_OpenOnDoubleClick
 		| ImGuiTreeNodeFlags_DefaultOpen;
 
-	if (ImGui::CollapsingHeader(transform.mComponentName, node_flags))
+	if (ImGui::CollapsingHeader(transform.Name, node_flags))
 	{
 		ImGui::Spacing();
 		transform.OnGui();
 	}
 	ImGui::Spacing();
 
-	for (auto ptr : componentBuffer)
+	for (auto ptr : m_Components)
 	{
 		if (ptr.get() != nullptr)
 		{
 			ImGui::Checkbox("", &ptr->enabled);
 			ImGui::SameLine();
-			if (ImGui::CollapsingHeader(ptr.get()->mComponentName, node_flags))
+			if (ImGui::CollapsingHeader(ptr.get()->Name, node_flags))
 			{
 				ImGui::Spacing();
 				ptr.get()->OnGui();
@@ -89,7 +94,7 @@ void GameObject_v2::OnGui()
 		}
 	}
 
-	if (ImGui::CollapsingHeader(renderer.mComponentName, node_flags))
+	if (ImGui::CollapsingHeader(renderer.Name, node_flags))
 	{
 		ImGui::Spacing();
 		renderer.OnGui();
@@ -103,7 +108,7 @@ void GameObject_v2::OnGui()
 
 void GameObject_v2::Destroy()
 {
-	sceneManager->Destory_GameObject(this);
+	Module::GetSceneManager().Destory_GameObject(this);
 }
 
 void GameObject_v2::Destroy(GameObject_v2 * _target)

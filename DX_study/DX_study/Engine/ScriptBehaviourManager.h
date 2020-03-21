@@ -16,31 +16,14 @@ class MouseEvent;
 class ScriptBehaviourManager {
 	friend class Engine;
 public:
-	void Script_INIT(ScriptBehaviour * _script);
+	void RegisterComponent(const std::shared_ptr<ScriptBehaviour>& compo);
+	void DeregisterComponent(const std::shared_ptr<ScriptBehaviour>& compo);
 
 private:
-	ScriptBehaviourManager(
-		std::vector<std::shared_ptr<ScriptBehaviour>> * const _buffer, 
-		KeyboardClass * const _keyboard, 
-		MouseClass * const _mouse,
-		PhysicsModule * const _physicsManager,
-		KeyboardEvent * const _keyboardEvent,
-		MouseEvent * const _mouseEvent)
-		:
-		mScriptBuffer(_buffer),
-		keyboard(_keyboard),
-		mouse(_mouse),
-		mPhysicsManager(_physicsManager),
-		mKeyboardEvent(_keyboardEvent),
-		mMouseEvent(_mouseEvent) {}
+	ScriptBehaviourManager() {}
 
 	void Update();
 	void Start();
 
-	std::vector<std::shared_ptr<ScriptBehaviour>> * const mScriptBuffer;
-	PhysicsModule * const mPhysicsManager;
-	KeyboardClass * const keyboard;
-	MouseClass * const mouse;
-	KeyboardEvent * const mKeyboardEvent;
-	MouseEvent * const mMouseEvent;
+	std::vector<std::shared_ptr<ScriptBehaviour>> m_ScriptBuffer;
 };

@@ -1,4 +1,5 @@
 #include "Graphics.h"
+#include <algorithm>
 
 #include "../Component/BaseComponentInclude.h"
 #include "../Component/ScriptBehaviour.h"
@@ -10,6 +11,34 @@
 #define Rad2Deg 57.2958		// 180 / pi
 
 
+
+void GraphicsManager::RegisterComponent(const std::shared_ptr<Terrain>& compo)
+{
+	m_Terrains.push_back(compo);
+}
+
+void GraphicsManager::RegisterComponent(const std::shared_ptr<Light_ver2>& compo)
+{
+	m_Lights.push_back(compo);
+}
+
+void GraphicsManager::DeregisterComponent(const std::shared_ptr<Terrain>& compo)
+{
+	auto iter = std::find(m_Terrains.begin(), m_Terrains.end(), compo);
+
+	if (iter != m_Terrains.end()) {
+		m_Terrains.erase(iter);
+	}
+}
+
+void GraphicsManager::DeregisterComponent(const std::shared_ptr<Light_ver2>& compo)
+{
+	auto iter = std::find(m_Lights.begin(), m_Lights.end(), compo);
+
+	if (iter != m_Lights.end()) {
+		m_Lights.erase(iter);
+	}
+}
 
 VertexShader* GraphicsManager::GetVshader(const std::string & shaderName)
 {
@@ -612,7 +641,7 @@ bool GraphicsManager::InitializeScene()
 
 bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer)
 {
-	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer->begin(); it != terrainBuffer->end(); it++) {
+	for (auto it = m_Terrains.begin(); it != m_Terrains.end(); it++) {
 		Model *model = new Model();
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
 		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
@@ -1094,8 +1123,8 @@ bool GraphicsManager::SetConstantBuffer()
 	cb_ps_simplelight.ApplyChanges();
 
 	//cb_ps_array.data.
-	if (lightBuffer->size() != 0) {
-		LIGHT_INFO_DESC lightDesc = lightBuffer->at(0)->GetInfoDesc();
+	if (m_Lights.size() != 0) {
+		LIGHT_INFO_DESC lightDesc = m_Lights[0]->GetInfoDesc();
 		cb_ps_light_array.data.directional_light[0].lightColor = *lightDesc.lightColor;
 		cb_ps_light_array.data.directional_light[0].lightStrength = *lightDesc.lightStrength;
 		cb_ps_light_array.data.directional_light[0].lightVec = *lightDesc.lightVec;

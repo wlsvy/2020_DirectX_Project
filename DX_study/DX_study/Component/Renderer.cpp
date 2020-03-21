@@ -53,11 +53,11 @@ void Renderer::OnGui()
 	//마테리얼(색상, 발광, 노말맵, 텍스쳐 등), 그림자 받기, 그림자 생성, 
 }
 
-Renderer::Renderer(const COMPONENT_INIT_DESC & desc) :
-	Component(desc),
-	transform(desc.mTransform)
+Renderer::Renderer(GameObject_v2 & obj) :
+	Component(obj),
+	transform(obj.transform)
 { 
-	std::strcpy(mComponentName, "Renderer"); 
+	std::strcpy(Name, "Renderer"); 
 }
 
 bool Renderer::Initialize(
@@ -74,7 +74,7 @@ bool Renderer::Initialize(
 	return true;
 }
 
-void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
+void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix) const
 {
 	//예외 처리 필요
 	Module::GetDeviceContext().IASetInputLayout(mVshaderPtr->GetInputLayout()); //IA에 입력할 배치 적용
@@ -89,9 +89,9 @@ void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 	}
 
 	if (!drawSkinnedMesh) {
-		mModelPtr->Draw(this->transform->worldMatrix, viewProjectionMatrix);
+		mModelPtr->Draw(this->transform.worldMatrix, viewProjectionMatrix);
 	}
 	else {
-		mModelPtr->Draw_skinnedMesh(this->transform->worldMatrix, viewProjectionMatrix, animator);
+		mModelPtr->Draw_skinnedMesh(this->transform.worldMatrix, viewProjectionMatrix, animator);
 	}
 }

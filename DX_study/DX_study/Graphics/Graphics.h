@@ -36,6 +36,10 @@ class GraphicsManager {
 	friend class Engine;
 	friend class SceneManager;
 public:
+	void RegisterComponent(const std::shared_ptr<Terrain>& compo);
+	void RegisterComponent(const std::shared_ptr<Light_ver2>& compo);
+	void DeregisterComponent(const std::shared_ptr<Terrain>& compo);
+	void DeregisterComponent(const std::shared_ptr<Light_ver2>& compo);
 
 	VertexShader* GetVshader(const std::string & shaderName);
 	PixelShader* GetPshader(const std::string & shaderName);
@@ -82,8 +86,8 @@ private:
 #pragma region Variable - Main
 
 	std::vector<std::shared_ptr<GameObject_v2>> * gameObjBuffer;
-	std::vector<std::shared_ptr<Light_ver2>> * lightBuffer;
-	std::vector<std::shared_ptr<Terrain>> * terrainBuffer;
+	std::vector<std::shared_ptr<Light_ver2>> m_Lights;
+	std::vector<std::shared_ptr<Terrain>> m_Terrains;
 
 	int gridDivision = 20;
 	float gridXval = 50.0f;

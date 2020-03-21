@@ -165,9 +165,6 @@
     <ClCompile Include="Graphics\DebugDraw.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Component\Collider.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="CustomScript\MemoryBOOM.cpp">
       <Filter>소스 파일\CustomScript</Filter>
     </ClCompile>
@@ -232,6 +229,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Engine\ModuleResource.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -368,9 +368,6 @@
     <ClInclude Include="Graphics\DebugDraw.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Component\Collider.h">
-      <Filter>헤더 파일\Component</Filter>
-    </ClInclude>
     <ClInclude Include="CustomScript\MemoryBOOM.h">
       <Filter>헤더 파일\CustomScript</Filter>
     </ClInclude>
@@ -450,6 +447,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Engine\ModuleResource.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\ComponentTypeTraits.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

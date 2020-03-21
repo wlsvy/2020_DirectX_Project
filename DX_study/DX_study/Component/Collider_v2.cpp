@@ -1,5 +1,8 @@
 #include "Collider_v2.h"
+
 #include <reactphysics3d/reactphysics3d.h>
+
+#include "GameObject_v2.h"
 
 using DirectX::operator +=;
 using DirectX::operator +;
@@ -23,9 +26,7 @@ std::string Float2String(const float _val) {
 
 #pragma region COLLIDER
 
-Collider_v2::Collider_v2(const COMPONENT_INIT_DESC & desc) : Component(desc), transform(desc.mTransform) {
-	mComponentType = COMPONENT_COLLISION;
-}
+Collider_v2::Collider_v2(GameObject_v2 & obj) : Component(obj), transform(obj.transform) {}
 
 MyCustom::COLLIDER_VER2 Collider_v2::getColliderType()
 {
@@ -34,8 +35,8 @@ MyCustom::COLLIDER_VER2 Collider_v2::getColliderType()
 
 void Collider_v2::ColliderUpdate()
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	DirectX::XMFLOAT4 D_quat = transform->GetQuaternionFloat4();
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	DirectX::XMFLOAT4 D_quat = transform.GetQuaternionFloat4();
 	reactphysics3d::Quaternion quat(D_quat.x, D_quat.y, D_quat.z, D_quat.w);
 	reactphysics3d::Transform t_form(pos, quat);
 	mRigidBody->setTransform(t_form);
@@ -51,30 +52,30 @@ void Collider_v2::TransformUpdate(reactphysics3d::Transform & _prevTrasnform)
 	reactphysics3d::Quaternion quat = lerpedTransform.getOrientation();
 	DirectX::XMVECTOR quatVec = DirectX::XMVectorSet(quat.x, quat.y, quat.z, quat.w);
 
-	transform->SetPosition(pos.x, pos.y, pos.z);
-	transform->SetRotation(quatVec);
+	transform.SetPosition(pos.x, pos.y, pos.z);
+	transform.SetRotation(quatVec);
 }
 
 void Collider_v2::BeforePhysicsUpdate()
 {
 	mCollisionInfo.clear();
-	//if (transform->TRANSFORM_UPDATED) ColliderUpdate();
+	//if (transform.TRANSFORM_UPDATED) ColliderUpdate();
 }
 
 #pragma endregion
 
 #pragma region BOX_COLLIDER
 
-BoxCollider_ver2::BoxCollider_ver2(const COMPONENT_INIT_DESC & desc) : Collider_v2(desc)
+BoxCollider_ver2::BoxCollider_ver2(GameObject_v2 & obj) : Collider_v2(obj)
 {
-	std::strcpy(mComponentName, "BoxCollider");
+	std::strcpy(Name, "BoxCollider");
 	colllisionTestOn = true;
 }
 
 reactphysics3d::RigidBody* BoxCollider_ver2::initialize_React3D(reactphysics3d::DynamicsWorld * _world)
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform->rotation.x, transform->rotation.y, transform->rotation.z);
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 	reactphysics3d::Transform t_form(pos, quat);
 
 	mRigidBody = _world->createRigidBody(t_form);
@@ -84,7 +85,7 @@ reactphysics3d::RigidBody* BoxCollider_ver2::initialize_React3D(reactphysics3d::
 	quat = reactphysics3d::Quaternion::fromEulerAngles(localRotation.x, localRotation.y, localRotation.z);
 	t_form = reactphysics3d::Transform(pos, quat);
 
-	DirectX::XMFLOAT3 _scale = transform->GetScaleFloat3();
+	DirectX::XMFLOAT3 _scale = transform.GetScaleFloat3();
 	mExtent = DirectX::XMFLOAT3(_scale.x * localScale.x, _scale.y * localScale.y, _scale.z * localScale.z);
 	reactphysics3d::Vector3 extent(mExtent.x, mExtent.y, mExtent.z);
 
@@ -132,8 +133,8 @@ void BoxCollider_ver2::OnGui()
 
 #pragma region SPHERE_COLLIDER
 
-SphereCollider_ver2::SphereCollider_ver2(const COMPONENT_INIT_DESC & desc) : Collider_v2(desc) {
-	std::strcpy(mComponentName, "Sphere Collider");
+SphereCollider_ver2::SphereCollider_ver2(GameObject_v2 & obj) : Collider_v2(obj) {
+	std::strcpy(Name, "Sphere Collider");
 	colllisionTestOn = true;
 }
 
@@ -169,8 +170,8 @@ void SphereCollider_ver2::OnGui()
 
 reactphysics3d::RigidBody* SphereCollider_ver2::initialize_React3D(reactphysics3d::DynamicsWorld * _world)
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform->rotation.x, transform->rotation.y, transform->rotation.z);
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 	reactphysics3d::Transform t_form(pos, quat);
 
 	mRigidBody = _world->createRigidBody(t_form);
@@ -180,7 +181,7 @@ reactphysics3d::RigidBody* SphereCollider_ver2::initialize_React3D(reactphysics3
 	quat = reactphysics3d::Quaternion::identity();
 	t_form = reactphysics3d::Transform(pos, quat);
 
-	DirectX::XMFLOAT3 _scale = transform->GetScaleFloat3();
+	DirectX::XMFLOAT3 _scale = transform.GetScaleFloat3();
 
 	mSphereShape = new reactphysics3d::SphereShape(Radius);
 	mProxyShape = mRigidBody->addCollisionShape(mSphereShape, t_form, 1.0f);
@@ -192,9 +193,9 @@ reactphysics3d::RigidBody* SphereCollider_ver2::initialize_React3D(reactphysics3
 
 #pragma region BOX_RIGIDBODY
 
-BoxRigidBody::BoxRigidBody(const COMPONENT_INIT_DESC & desc) : Collider_v2(desc)
+BoxRigidBody::BoxRigidBody(GameObject_v2 & obj) : Collider_v2(obj)
 {
-	std::strcpy(mComponentName, "Box RigidBody");
+	std::strcpy(Name, "Box RigidBody");
 }
 
 COLLIDER_DEBUG_MODEL_VER2 BoxRigidBody::Get_DebugModelType() const
@@ -248,8 +249,8 @@ void BoxRigidBody::OnGui()
 
 reactphysics3d::RigidBody* BoxRigidBody::initialize_React3D(reactphysics3d::DynamicsWorld * _world)
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform->rotation.x, transform->rotation.y, transform->rotation.z);
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 	reactphysics3d::Transform t_form(pos, quat);
 
 	mRigidBody = _world->createRigidBody(t_form);
@@ -261,7 +262,7 @@ reactphysics3d::RigidBody* BoxRigidBody::initialize_React3D(reactphysics3d::Dyna
 	quat = reactphysics3d::Quaternion::fromEulerAngles(localRotation.x, localRotation.y, localRotation.z);
 	t_form = reactphysics3d::Transform(pos, quat);
 
-	DirectX::XMFLOAT3 _scale = transform->GetScaleFloat3();
+	DirectX::XMFLOAT3 _scale = transform.GetScaleFloat3();
 	mExtent = DirectX::XMFLOAT3(_scale.x * localScale.x, _scale.y * localScale.y, _scale.z * localScale.z);
 	reactphysics3d::Vector3 extent(mExtent.x, mExtent.y, mExtent.z);
 
@@ -280,9 +281,9 @@ void BoxRigidBody::Update()
 
 #pragma region SPHERE_RIGIDBODY
 
-SphereRigidBody::SphereRigidBody(const COMPONENT_INIT_DESC & desc) : Collider_v2(desc)
+SphereRigidBody::SphereRigidBody(GameObject_v2 & obj) : Collider_v2(obj)
 {
-	std::strcpy(mComponentName, "Sphere RigidBody");
+	std::strcpy(Name, "Sphere RigidBody");
 }
 
 COLLIDER_DEBUG_MODEL_VER2 SphereRigidBody::Get_DebugModelType() const
@@ -329,8 +330,8 @@ void SphereRigidBody::OnGui()
 
 reactphysics3d::RigidBody* SphereRigidBody::initialize_React3D(reactphysics3d::DynamicsWorld * _world)
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform->rotation.x, transform->rotation.y, transform->rotation.z);
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 	reactphysics3d::Transform t_form(pos, quat);
 
 	mRigidBody = _world->createRigidBody(t_form);
@@ -342,7 +343,7 @@ reactphysics3d::RigidBody* SphereRigidBody::initialize_React3D(reactphysics3d::D
 	quat = reactphysics3d::Quaternion::identity();
 	t_form = reactphysics3d::Transform(pos, quat);
 
-	DirectX::XMFLOAT3 _scale = transform->GetScaleFloat3();
+	DirectX::XMFLOAT3 _scale = transform.GetScaleFloat3();
 
 	mSphereShape = new reactphysics3d::SphereShape(Radius);
 	mProxyShape = mRigidBody->addCollisionShape(mSphereShape, t_form, 1.0f);
@@ -359,9 +360,9 @@ void SphereRigidBody::Update()
 
 #pragma region CHRACTER_CONTROLLER
 
-CharacterController::CharacterController(const COMPONENT_INIT_DESC & desc) : Collider_v2(desc)
+CharacterController::CharacterController(GameObject_v2 & obj) : Collider_v2(obj)
 {
-	std::strcpy(mComponentName, "Character Controller");
+	std::strcpy(Name, "Character Controller");
 	colllisionTestOn = true;
 }
 
@@ -454,8 +455,8 @@ bool CharacterController::IsGrounded()
 
 reactphysics3d::RigidBody* CharacterController::initialize_React3D(reactphysics3d::DynamicsWorld * _world)
 {
-	reactphysics3d::Vector3 pos(transform->position.x, transform->position.y, transform->position.z);
-	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform->rotation.x, transform->rotation.y, transform->rotation.z);
+	reactphysics3d::Vector3 pos(transform.position.x, transform.position.y, transform.position.z);
+	reactphysics3d::Quaternion quat = reactphysics3d::Quaternion::fromEulerAngles(transform.rotation.x, transform.rotation.y, transform.rotation.z);
 	reactphysics3d::Transform t_form(pos, quat);
 
 	mRigidBody = _world->createRigidBody(t_form);
@@ -476,7 +477,7 @@ reactphysics3d::RigidBody* CharacterController::initialize_React3D(reactphysics3
 	quat = reactphysics3d::Quaternion::identity();
 	t_form = reactphysics3d::Transform(pos, quat);
 
-	DirectX::XMFLOAT3 _scale = transform->GetScaleFloat3();
+	DirectX::XMFLOAT3 _scale = transform.GetScaleFloat3();
 
 	mCapsuleShape = new reactphysics3d::CapsuleShape(Radius, Height);
 	mProxyShape = mRigidBody->addCollisionShape(mCapsuleShape, t_form, 1.0f);
@@ -490,7 +491,7 @@ void CharacterController::Update()
 	mRigidBody->setAngularVelocity(reactphysics3d::Vector3(0.0f, 0.0f, 0.0f));
 	//TransformUpdate(*mPrevTransform);
 
-	DirectX::XMFLOAT4 quat = transform->GetQuaternionFloat4();
+	DirectX::XMFLOAT4 quat = transform.GetQuaternionFloat4();
 
 	reactphysics3d::Transform t_form = mRigidBody->getTransform();
 	reactphysics3d::Transform lerpedTransform = reactphysics3d::Transform::interpolateTransforms(*mPrevTransform, t_form, 0.2);
@@ -500,7 +501,7 @@ void CharacterController::Update()
 
 	reactphysics3d::Vector3 pos = lerpedTransform.getPosition();
 
-	transform->SetPosition(pos.x, pos.y, pos.z);
+	transform.SetPosition(pos.x, pos.y, pos.z);
 }
 
 #pragma endregion

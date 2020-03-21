@@ -144,7 +144,7 @@ bool PhysicsModule::Initialize()
 	m_World->setNbIterationsVelocitySolver(15);
 	m_World->setNbIterationsPositionSolver(8);
 
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
+	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
 		reactphysics3d::CollisionBody* collisionBody  = (*it)->initialize_React3D(m_World);
 		m_ColliderMap.insert(std::make_pair(collisionBody, (*it).get()));
 	}
@@ -165,7 +165,7 @@ void PhysicsModule::Update()
 
 void PhysicsModule::PreUpdate()
 {
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
+	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
 		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
 
 		bool gameObjectValid = (*it)->gameObject->enabled;
@@ -203,7 +203,7 @@ void PhysicsModule::UpdateCollider()
 
 void PhysicsModule::UpdateComponent()
 {
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = collider_v2Buffer->begin(); it != collider_v2Buffer->end(); it++) {
+	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
 		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
 
 		bool gameObjectValid = (*it)->gameObject->enabled;
@@ -248,19 +248,16 @@ void PhysicsModule::CollisionTest()
 
 void PhysicsModule::CollisionTest_ver2()
 {
-	typedef std::vector<std::shared_ptr<Collider_v2>>::iterator ITERATOR;
-
-	ITERATOR begin = collider_v2Buffer->begin();
-	ITERATOR end = collider_v2Buffer->end();
-
 	//콜리더 갯수 n 에서 n*(n-1) / 2 번 계산
-	for (ITERATOR iter = begin + 1; iter != end; iter++) {
-		bool gameObjectValid = (*iter)->gameObject->enabled;
-		bool componentValid = (*iter)->enabled;
-		bool colllisionTestOn = (*iter)->colllisionTestOn;
-		if (gameObjectValid && componentValid && colllisionTestOn == false) continue;
-		
-		react3DCollisioinTest((*iter).get());
+
+	for (auto& ptr : m_Colliders) {
+		if (ptr->gameObject.enabled &&
+			ptr->enabled &&
+			ptr->colllisionTestOn == false)
+		{
+			continue;
+		}
+		react3DCollisioinTest(ptr.get());
 	}
 }
 
@@ -279,6 +276,20 @@ void PhysicsModule::react3DCollisioinTest(Collider_v2* _collider)
 	reactphysics3d::CollisionBody * body = _collider->mRigidBody;
 
 	m_World->testCollision(body, &collisionCallback);
+}
+
+void PhysicsModule::RegisterComponent(const std::shared_ptr<Collider_v2>& compo)
+{
+	m_Colliders.push_back(compo);
+}
+
+void PhysicsModule::DeregisterComponent(const std::shared_ptr<Collider_v2>& compo)
+{
+	auto iter = std::find(m_Colliders.begin(), m_Colliders.end(), compo);
+
+	if (iter != m_Colliders.end()) {
+		m_Colliders.erase(iter);
+	}
 }
 
 bool PhysicsModule::Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to)

@@ -7,4 +7,9 @@ class Object {
 public:
 	virtual void Destroy() {}
 	virtual void OnGui() {}
+
+	int GetObjectId() const;
+
+private:
+	int m_ObjectID;
 };

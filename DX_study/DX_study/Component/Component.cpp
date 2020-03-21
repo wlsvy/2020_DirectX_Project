@@ -1,10 +1,9 @@
 #include "Component.h"
+#include "GameObject_v2.h"
 
-Component::Component(const COMPONENT_INIT_DESC & desc) : gameObject(desc.mGameObj) {}
+Component::Component(GameObject_v2 & obj) : gameObject(obj) {}
 
-int Component::getComponentID() {return mComponentID;}
-
-COMPONENT_TYPE Component::getComponentType() {return mComponentType;}
+int Component::getComponentID() {return m_ID;}
 
 void Component::Start() {}
 
