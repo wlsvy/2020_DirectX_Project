@@ -37,10 +37,6 @@ public:
 	MouseClass& GetMouse();
 	Timer& GetTimer();
 
-	std::vector<AnimationClip> * GetAnimClipBuffer();
-
-	~Engine();
-
 private:
 	std::shared_ptr<Timer> m_Timer;
 	std::shared_ptr<GraphicsManager> m_GraphicsManager;

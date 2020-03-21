@@ -203,7 +203,3 @@ std::vector<AnimationClip>* Engine::GetAnimClipBuffer()
 {
 	return &m_AnimationManager->mAnimClipBuffer;
 }
-
-Engine::~Engine()
-{
-}

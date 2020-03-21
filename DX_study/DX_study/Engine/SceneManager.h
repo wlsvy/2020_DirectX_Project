@@ -43,7 +43,7 @@ public:
 };
 
 class SceneManager {
-	//friend class Engine;
+	friend class Engine;
 public:
 	SceneManager();
 	~SceneManager();

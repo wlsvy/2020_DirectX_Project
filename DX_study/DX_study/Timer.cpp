@@ -12,23 +12,21 @@ bool Timer::Stop() {
 	if (!m_IsRunning) {
 		return false;
 	}
-	else {
-		stopTime = std::chrono::high_resolution_clock::now();
-		m_IsRunning = false;
-		return true;
-	}
+	
+	stopTime = std::chrono::high_resolution_clock::now();
+	m_IsRunning = false;
+	return true;
 }
 
 bool Timer::Start() {
 	if (m_IsRunning) {
 		return false;
 	}
-	else {
-		startTime = std::chrono::high_resolution_clock::now();
-		prevTime = std::chrono::high_resolution_clock::now();
-		m_IsRunning = true;
-		return true;
-	}
+
+	startTime = std::chrono::high_resolution_clock::now();
+	prevTime = std::chrono::high_resolution_clock::now();
+	m_IsRunning = true;
+	return true;
 }
 
 void Timer::Tick()

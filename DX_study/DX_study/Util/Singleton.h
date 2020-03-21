@@ -9,7 +9,7 @@ public:
 	static T& GetInstance();
 
 protected:
-	inline explicit Singleton() {}
+	Singleton() {}
 	virtual ~Singleton() { s_Instance = nullptr; }
 
 private:

@@ -110,7 +110,6 @@ void GameObject_v2::RemoveComponent()
 
 	//없는 경우
 	MessageBoxA(NULL, "No Component To Remove", "Error", MB_ICONERROR);
-	return;
 }
 
 
