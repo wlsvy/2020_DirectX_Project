@@ -21,8 +21,8 @@ void AnimationManager::DeregisterComponent(const std::shared_ptr<Animator>& comp
 void AnimationManager::Update()
 {
 	for (auto iter : m_AnimatorBuffer) {
-		if (iter->enabled &&
-			iter->gameObject.enabled &&
+		if (iter->Enabled &&
+			iter->GameObject.enabled &&
 			iter->m_IsRunning) 
 		{
 			iter->Update(Timer::GetDeltaTime());

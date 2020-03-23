@@ -6,27 +6,29 @@
 class AnimationManager;
 
 struct PositionKey {
-	DirectX::XMFLOAT3 mPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	DirectX::XMFLOAT3 Position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float Time = 0.0f;
 };
 
 struct RotationKey {
-	DirectX::XMFLOAT4 mQuaternion = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	DirectX::XMFLOAT4 Quaternion = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+	float Time = 0.0f;
 };
 
 struct ScaleKey {
-	DirectX::XMFLOAT3 mScale = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	DirectX::XMFLOAT3 Scale = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	float Time = 0.0f;
 };
 
 struct BoneChannel {
-	//BoneChannel(const BoneChannel & _boneChannel);
 	void BoneUpdate();
+	void positionInterpolate(DirectX::XMVECTOR & _result, float _animTime);
+	void rotationInterpolate(DirectX::XMVECTOR & _result, float _animTime);
+	void scaleInterpolate(DirectX::XMVECTOR & _result, float _animTime);
 
-	std::string mChannelName = "";
-	int mChannelIndex = -1;
-	int mBoneIndex = -1;
+	std::string ChannelName = "";
+	int ChannelIndex = -1;
+	int BoneIndex = -1;
 
 	int mNumPositionKeys = 0;
 	int mNumRotationKeys = 0;
@@ -34,20 +36,17 @@ struct BoneChannel {
 
 	short mNumChildBone = 0;
 
-	std::vector<PositionKey> mPositionKeys;
-	std::vector<RotationKey> mRotationKeys;
-	std::vector<ScaleKey> mScaleKeys;
+	std::vector<PositionKey> PositionKeys;
+	std::vector<RotationKey> RotationKeys;
+	std::vector<ScaleKey> ScaleKeys;
 	
-	std::vector<int> mChildBoneIndex;
+	std::vector<int> ChildBoneIndices;
 
-	DirectX::XMMATRIX mParentNodeTransform; //좀 특별하게 다뤄야 함
-	DirectX::XMMATRIX mBoneOffset;
-	DirectX::XMMATRIX mGlobalInverseTransform;
+	DirectX::XMMATRIX ParentTransform; //좀 특별하게 다뤄야 함
+	DirectX::XMMATRIX BoneOffset;
+	DirectX::XMMATRIX GlobalInverseTransform;
 
-public:
-	void positionInterpolate(DirectX::XMVECTOR & _result, float _animTime);
-	void rotationInterpolate(DirectX::XMVECTOR & _result, float _animTime);
-	void scaleInterpolate(DirectX::XMVECTOR & _result, float _animTime);
+	
 };
 
 class AnimationClip {

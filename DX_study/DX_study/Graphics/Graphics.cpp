@@ -646,7 +646,7 @@ bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
 		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
 		_terrainmodelBuffer.buffer.push_back(model);
-		(*it)->gameObject->renderer.SetModel(model);
+		(*it)->GameObject.renderer.SetModel(model);
 		//(*it)->gameObject->mGameObjectName = "";
 	}
 	return true;
@@ -754,7 +754,7 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //³ªÁß¿¡ ½¦À
 			}
 				
 			pixel_Shader_Buffer.push_back(ps);
-			ps->shaderName = shader_filename;
+			ps->Name = shader_filename;
 			m_PshaderBuffer.insert(std::make_pair(shader_filename, ps));
 
 		} while (_findnext(handle, &fd) == 0);
@@ -769,7 +769,7 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //³ªÁß¿¡ ½¦À
 			if (!gs->Initialize(this->m_Device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), shader_filename))
 				MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 			Geo_Shader_Buffer.push_back(gs);
-			gs->shaderName = shader_filename;
+			gs->Name = shader_filename;
 			m_GshaderBuffer.insert(std::make_pair(shader_filename, gs));
 
 		} while (_findnext(handle, &fd) == 0);
@@ -1068,8 +1068,8 @@ void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collide
 	m_batch->Begin();
 
 	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
-		bool Component_valid = (*it)->enabled;
-		bool GameObject_valid = (*it)->gameObject->enabled;
+		bool Component_valid = (*it)->Enabled;
+		bool GameObject_valid = (*it)->GameObject->enabled;
 
 		if (Component_valid && GameObject_valid == false) continue;
 

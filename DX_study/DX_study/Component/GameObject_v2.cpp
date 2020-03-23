@@ -83,7 +83,7 @@ void GameObject_v2::OnGui()
 	{
 		if (ptr.get() != nullptr)
 		{
-			ImGui::Checkbox("", &ptr->enabled);
+			ImGui::Checkbox("", &ptr->Enabled);
 			ImGui::SameLine();
 			if (ImGui::CollapsingHeader(ptr.get()->Name, node_flags))
 			{

@@ -20,8 +20,8 @@ void ScriptBehaviourManager::DeregisterComponent(const std::shared_ptr<ScriptBeh
 void ScriptBehaviourManager::Update()
 {
 	for (auto& ptr : m_ScriptBuffer) {
-		if (ptr->enabled && 
-			ptr->gameObject.enabled) 
+		if (ptr->Enabled && 
+			ptr->GameObject.enabled) 
 		{
 			ptr->Update();
 		}
@@ -31,8 +31,8 @@ void ScriptBehaviourManager::Update()
 void ScriptBehaviourManager::Start()
 {
 	for (auto& ptr : m_ScriptBuffer) {
-		if (ptr->enabled &&
-			ptr->gameObject.enabled)
+		if (ptr->Enabled &&
+			ptr->GameObject.enabled)
 		{
 			ptr->Start();
 		}

@@ -40,7 +40,7 @@ Transform::Transform(GameObject_v2 & obj) : Component(obj)
 Transform::~Transform() {
 	for (auto child : mChildTransform) {
 		//삭제시 부모 물려받기 -> 나중에 싹 지우는 것으로 수정할것.
-		child->gameObject.Destroy();
+		child->GameObject.Destroy();
 	}
 
 	SetParent(nullptr);

@@ -6,7 +6,7 @@
 
 void Renderer::SetModel(Model * _model)
 {
-	mModelPtr = _model;
+	m_Model = _model;
 }
 
 void Renderer::OnGui()
@@ -24,25 +24,25 @@ void Renderer::OnGui()
 
 	ImGui::Text("Vertex Shader : ");
 	ImGui::SameLine();
-	if (ImGui::Button(mVshaderPtr->shaderName.c_str(), ButtonSize)) {
+	if (ImGui::Button(m_Vshader->Name.c_str(), ButtonSize)) {
 		mShowVshaderWindow = !mShowVshaderWindow;
 	}
 
 	ImGui::Text("Pixel Shader : ");
 	ImGui::SameLine();
-	if (ImGui::Button(mPshaderPtr->shaderName.c_str(), ButtonSize)) {
+	if (ImGui::Button(m_Pshader->Name.c_str(), ButtonSize)) {
 		mShowPshaderWindow = !mShowPshaderWindow;
 	}
 
 	ImGui::Text("Geometry Shader : ");
 	ImGui::SameLine();
-	if (mGshaderPtr == nullptr) {
+	if (m_Gshader == nullptr) {
 		if (ImGui::Button("Empty", ButtonSize)) {
 			mShowGshaderWindow = !mShowGshaderWindow;
 		}
 	}
 	else {
-		if (ImGui::Button(mGshaderPtr->shaderName.c_str(), ButtonSize)) {
+		if (ImGui::Button(m_Gshader->Name.c_str(), ButtonSize)) {
 			mShowGshaderWindow = !mShowGshaderWindow;
 		}
 	}
@@ -66,10 +66,10 @@ bool Renderer::Initialize(
 	PixelShader* _pshader,
 	GeometryShader* _gshader)
 {
-	mModelPtr = model_ptr;
-	mVshaderPtr = _vshader;
-	mPshaderPtr = _pshader;
-	mGshaderPtr = _gshader;
+	m_Model = model_ptr;
+	m_Vshader = _vshader;
+	m_Pshader = _pshader;
+	m_Gshader = _gshader;
 
 	return true;
 }
@@ -77,21 +77,21 @@ bool Renderer::Initialize(
 void Renderer::Draw(const DirectX::XMMATRIX & viewProjectionMatrix) const
 {
 	//예외 처리 필요
-	Module::GetDeviceContext().IASetInputLayout(mVshaderPtr->GetInputLayout()); //IA에 입력할 배치 적용
-	Module::GetDeviceContext().VSSetShader(mVshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
-	Module::GetDeviceContext().PSSetShader(mPshaderPtr->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	Module::GetDeviceContext().IASetInputLayout(m_Vshader->GetInputLayout()); //IA에 입력할 배치 적용
+	Module::GetDeviceContext().VSSetShader(m_Vshader->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	Module::GetDeviceContext().PSSetShader(m_Pshader->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
 
-	if (mGshaderPtr == nullptr) {
+	if (m_Gshader == nullptr) {
 		Module::GetDeviceContext().GSSetShader(NULL, NULL, 0);
 	}
 	else {
-		Module::GetDeviceContext().GSSetShader(mGshaderPtr->GetShader(), NULL, 0);
+		Module::GetDeviceContext().GSSetShader(m_Gshader->GetShader(), NULL, 0);
 	}
 
 	if (!drawSkinnedMesh) {
-		mModelPtr->Draw(this->transform.worldMatrix, viewProjectionMatrix);
+		m_Model->Draw(this->transform.worldMatrix, viewProjectionMatrix);
 	}
 	else {
-		mModelPtr->Draw_skinnedMesh(this->transform.worldMatrix, viewProjectionMatrix, animator);
+		m_Model->Draw_skinnedMesh(this->transform.worldMatrix, viewProjectionMatrix, animator);
 	}
 }

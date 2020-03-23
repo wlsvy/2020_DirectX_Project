@@ -27,8 +27,8 @@ public:
 	
 	char Name[40];
 	
-	bool enabled = true;
-	GameObject_v2& gameObject;
+	bool Enabled = true;
+	GameObject_v2& GameObject;
 protected:
 	virtual void Start();
 	virtual void Update();

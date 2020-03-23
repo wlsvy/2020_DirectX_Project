@@ -49,10 +49,10 @@ void GroundTest::Update()
 
 bool GroundTest::GroundRayCast()
 {
-	DirectX::XMFLOAT3 downPos = gameObject->transform.position;
+	DirectX::XMFLOAT3 downPos = GameObject->transform.position;
 	downPos.y -= GroundTest_Distance;
 
-	return Physics::Raycast(gameObject->transform.position, downPos);
+	return Physics::Raycast(GameObject->transform.position, downPos);
 }
 
 void GroundTest::OnGui()

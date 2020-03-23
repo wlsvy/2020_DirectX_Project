@@ -18,5 +18,5 @@ private:
 	void Update();
 
 	std::vector<std::shared_ptr<Animator>> m_AnimatorBuffer;
-	std::vector<AnimationClip> mAnimClipBuffer;
+	std::vector<AnimationClip> m_AnimClipBuffer;
 };

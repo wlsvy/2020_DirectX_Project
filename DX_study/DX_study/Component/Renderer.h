@@ -38,10 +38,10 @@ public:
 	Transform& transform;
 
 private:
-	Model*	mModelPtr = nullptr;
-	VertexShader*	mVshaderPtr = nullptr;
-	PixelShader*	mPshaderPtr = nullptr;
-	GeometryShader* mGshaderPtr = nullptr;
+	Model*	m_Model = nullptr;
+	VertexShader*	m_Vshader = nullptr;
+	PixelShader*	m_Pshader = nullptr;
+	GeometryShader* m_Gshader = nullptr;
 	
 
 #pragma region Variable - GUI

@@ -406,52 +406,52 @@ void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, st
 		aiNodeAnim *ainodeAnim = _aiAnim->mChannels[i];
 		BoneChannel channel;
 		
-		channel.mChannelName = ainodeAnim->mNodeName.data;
-		if (m_Bone_Name_Map.find(channel.mChannelName) != m_Bone_Name_Map.end()) {
-			channel.mBoneIndex = m_Bone_Name_Map[channel.mChannelName];
+		channel.ChannelName = ainodeAnim->mNodeName.data;
+		if (m_Bone_Name_Map.find(channel.ChannelName) != m_Bone_Name_Map.end()) {
+			channel.BoneIndex = m_Bone_Name_Map[channel.ChannelName];
 		}
 
 		channel.mNumPositionKeys = ainodeAnim->mNumPositionKeys;
 		channel.mNumRotationKeys = ainodeAnim->mNumRotationKeys;
 		channel.mNumScaleKeys = ainodeAnim->mNumScalingKeys;
-		channel.mBoneOffset = mBoneBuffer[channel.mBoneIndex].BoneOffset;
+		channel.BoneOffset = mBoneBuffer[channel.BoneIndex].BoneOffset;
 
 		for (int j = 0; j < channel.mNumPositionKeys; j++) {
 			aiVectorKey aiPosKey = ainodeAnim->mPositionKeys[j];
 			PositionKey positionkey;
 
-			positionkey.mTime = (float)aiPosKey.mTime;
-			positionkey.mPosition = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
+			positionkey.Time = (float)aiPosKey.mTime;
+			positionkey.Position = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
 
-			channel.mPositionKeys.push_back(positionkey);
+			channel.PositionKeys.push_back(positionkey);
 		}
 
 		for (int j = 0; j < channel.mNumRotationKeys; j++) {
 			aiQuatKey aiRotkey = ainodeAnim->mRotationKeys[j];
 			RotationKey rotationkey;
 
-			rotationkey.mTime = (float)aiRotkey.mTime;
-			rotationkey.mQuaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
+			rotationkey.Time = (float)aiRotkey.mTime;
+			rotationkey.Quaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
 
-			channel.mRotationKeys.push_back(rotationkey);
+			channel.RotationKeys.push_back(rotationkey);
 		}
 
 		for (int j = 0; j < channel.mNumScaleKeys; j++) {
 			aiVectorKey aiScaleKey = ainodeAnim->mScalingKeys[j];
 			ScaleKey scalekey;
 
-			scalekey.mTime = (float)aiScaleKey.mTime;
-			scalekey.mScale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
+			scalekey.Time = (float)aiScaleKey.mTime;
+			scalekey.Scale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
 
-			channel.mScaleKeys.push_back(scalekey);
+			channel.ScaleKeys.push_back(scalekey);
 		}
 		
 		DirectX::XMMATRIX globalInverseTransform = MyCustom::GetAiMatrixData(_aiScene->mRootNode->mTransformation);
 		globalInverseTransform = DirectX::XMMatrixTranspose(globalInverseTransform);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
 		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
-		channel.mGlobalInverseTransform = globalInverseTransform;
-		animationClip.mChannel[channel.mBoneIndex] = channel;
+		channel.GlobalInverseTransform = globalInverseTransform;
+		animationClip.mChannel[channel.BoneIndex] = channel;
 	}
 	
 	aiNode * ainode = _aiScene->mRootNode;
@@ -466,7 +466,7 @@ void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, st
 	animationClip.mNumChannel = (short)animationClip.mChannel.size();
 	for (int i = 0; i < animationClip.mChannel.size(); i++) {
 		//자식 개수 미리 계산해두기
-		animationClip.mChannel[i].mNumChildBone = (short)animationClip.mChannel[i].mChildBoneIndex.size();
+		animationClip.mChannel[i].mNumChildBone = (short)animationClip.mChannel[i].ChildBoneIndices.size();
 	}
 
 	_animClipDestination->push_back(animationClip);
@@ -494,9 +494,9 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, Bo
 
 	if (currentBoneChannel != nullptr) {
 		if(_parentBone != nullptr)
-		_parentBone->mChildBoneIndex.push_back(currentBoneChannel->mBoneIndex);
+		_parentBone->ChildBoneIndices.push_back(currentBoneChannel->BoneIndex);
 
-		currentBoneChannel->mParentNodeTransform = _parentTransform;
+		currentBoneChannel->ParentTransform = _parentTransform;
 		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
 
 		for (int i = 0; i < childNum; i++) {

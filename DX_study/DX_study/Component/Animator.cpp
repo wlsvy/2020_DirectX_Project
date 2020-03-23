@@ -5,8 +5,8 @@ Animator::Animator(GameObject_v2 & obj) : Behaviour(desc)
 {
 	mComponentType = COMPONENT_ANIMATION;
 	std::strcpy(Name, "Animator");
-	gameObject->renderer.animator = this;
-	gameObject->renderer.drawSkinnedMesh = false;
+	GameObject->renderer.animator = this;
+	GameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Update(float _deltaTime)
@@ -21,14 +21,14 @@ void Animator::Update(float _deltaTime)
 void Animator::Play()
 {
 	m_IsRunning = true;
-	if (mClip != nullptr) gameObject->renderer.drawSkinnedMesh = true;
-	else gameObject->renderer.drawSkinnedMesh = false;
+	if (mClip != nullptr) GameObject->renderer.drawSkinnedMesh = true;
+	else GameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Stop()
 {
 	m_IsRunning = false;
-	gameObject->renderer.drawSkinnedMesh = false;
+	GameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::SetAnimClip(AnimationClip * _clip)
@@ -62,6 +62,6 @@ void Animator::OnGui()
 
 Animator::~Animator()
 {
-	gameObject->renderer.animator = nullptr;
-	gameObject->renderer.drawSkinnedMesh = false;
+	GameObject->renderer.animator = nullptr;
+	GameObject->renderer.drawSkinnedMesh = false;
 }

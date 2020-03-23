@@ -1,7 +1,7 @@
 #include "Component.h"
 #include "GameObject_v2.h"
 
-Component::Component(GameObject_v2 & obj) : gameObject(obj) {}
+Component::Component(GameObject_v2 & obj) : GameObject(obj) {}
 
 int Component::getComponentID() {return m_ID;}
 

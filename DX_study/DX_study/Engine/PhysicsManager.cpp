@@ -50,7 +50,7 @@ public:
 		auto iter = mBody_Collider_MAP->find(_contactManifold->getBody2());
 		if (iter != mBody_Collider_MAP->end()) {
 			collision->mCollider = iter->second;
-			collision->mGameObject = collision->mCollider->gameObject;
+			collision->mGameObject = &collision->mCollider->GameObject;
 		}
 
 		reactphysics3d::Vector3 contactposition;
@@ -144,8 +144,8 @@ bool PhysicsModule::Initialize()
 	m_World->setNbIterationsVelocitySolver(15);
 	m_World->setNbIterationsPositionSolver(8);
 
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
-		reactphysics3d::CollisionBody* collisionBody  = (*it)->initialize_React3D(m_World);
+	for (auto it = m_Colliders.begin(); it != m_Colliders.end(); it++) {
+		reactphysics3d::CollisionBody* collisionBody = (*it)->initialize_React3D(m_World);
 		m_ColliderMap.insert(std::make_pair(collisionBody, (*it).get()));
 	}
 
@@ -165,14 +165,12 @@ void PhysicsModule::Update()
 
 void PhysicsModule::PreUpdate()
 {
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
-		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
-
-		bool gameObjectValid = (*it)->gameObject->enabled;
-		bool componentValid = (*it)->enabled;
-		if (gameObjectValid && componentValid == false) continue;
-
-		(*it)->BeforePhysicsUpdate();
+	for (auto it = m_Colliders.begin(); it != m_Colliders.end(); it++) {
+		if ((*it)->GameObject.enabled &&
+			(*it)->Enabled)
+		{
+			(*it)->BeforePhysicsUpdate();
+		}
 	}
 }
 
@@ -203,14 +201,12 @@ void PhysicsModule::UpdateCollider()
 
 void PhysicsModule::UpdateComponent()
 {
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = m_Colliders->begin(); it != m_Colliders->end(); it++) {
-		if ((*it) == nullptr) assert("collider buffer have nullptr" && 1 == 0);
-
-		bool gameObjectValid = (*it)->gameObject->enabled;
-		bool componentValid = (*it)->enabled;
-		if (gameObjectValid && componentValid == false) continue;
-
-		(*it)->Update();
+	for (auto it = m_Colliders.begin(); it != m_Colliders.end(); it++) {
+		if ((*it)->GameObject.enabled &&
+			(*it)->Enabled) 
+		{
+			(*it)->Update();
+		}
 	}
 }
 
@@ -251,8 +247,8 @@ void PhysicsModule::CollisionTest_ver2()
 	//콜리더 갯수 n 에서 n*(n-1) / 2 번 계산
 
 	for (auto& ptr : m_Colliders) {
-		if (ptr->gameObject.enabled &&
-			ptr->enabled &&
+		if (ptr->GameObject.enabled &&
+			ptr->Enabled &&
 			ptr->colllisionTestOn == false)
 		{
 			continue;

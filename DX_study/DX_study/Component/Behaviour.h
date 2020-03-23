@@ -21,11 +21,11 @@ protected:
 template<class T>
 inline T * Behaviour::AddComponent()
 {
-	return gameObject.AddComponent<T>();
+	return GameObject.AddComponent<T>();
 }
 
 template<class T>
 inline T * Behaviour::GetComponent()
 {
-	return gameObject.GetComponent<T>();
+	return GameObject.GetComponent<T>();
 }

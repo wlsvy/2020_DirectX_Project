@@ -13,11 +13,11 @@ public:
 	ID3D10Blob * GetBuffer();
 	ID3D11InputLayout * GetInputLayout();
 
-	std::string shaderName = "";
+	std::string Name;
 private:
-	Microsoft::WRL::ComPtr<ID3D11VertexShader> shader;
-	Microsoft::WRL::ComPtr<ID3D10Blob> shader_buffer;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> m_Shader;
+	Microsoft::WRL::ComPtr<ID3D10Blob> m_ShaderBuffer;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
 };
 
 class VertexInputLayout {
@@ -25,7 +25,7 @@ public:
 	bool Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements);
 	ID3D11InputLayout * GetInputLayout();
 private:
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_InputLayout;
 };
 
 class PixelShader {
@@ -34,10 +34,10 @@ public:
 	ID3D11PixelShader * GetShader();
 	ID3D10Blob * GetBuffer();
 
-	std::string shaderName = "";
+	std::string Name;
 private:
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> shader;
-	Microsoft::WRL::ComPtr<ID3D10Blob> shader_buffer;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> m_Shader;
+	Microsoft::WRL::ComPtr<ID3D10Blob> m_ShaderBuffer;
 
 };
 
@@ -47,9 +47,9 @@ public:
 	ID3D11GeometryShader * GetShader();
 	ID3D10Blob * GetBuffer();
 
-	std::string shaderName = "";
+	std::string Name;
 private:
-	Microsoft::WRL::ComPtr<ID3D11GeometryShader> shader;
-	Microsoft::WRL::ComPtr<ID3D10Blob> shader_buffer;
+	Microsoft::WRL::ComPtr<ID3D11GeometryShader> m_Shader;
+	Microsoft::WRL::ComPtr<ID3D10Blob> m_ShaderBuffer;
 
 };

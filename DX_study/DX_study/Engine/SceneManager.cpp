@@ -193,7 +193,7 @@ void SceneManager::UIrecursiveTransformCheck(Transform * transform)
 		| ((transform->GetChildNum() == 0) ? ImGuiTreeNodeFlags_Leaf : 0)
 		| ImGuiTreeNodeFlags_DefaultOpen;
 
-	bool node_open = ImGui::TreeNodeEx(transform->gameObject.Name, node_flags);
+	bool node_open = ImGui::TreeNodeEx(transform->GameObject.Name, node_flags);
 	if (ImGui::IsItemClicked())
 	{
 		mUI_Selected_Transform_ID = transform->getComponentID();
@@ -222,13 +222,13 @@ Model * SceneManager::getModelByName(const std::string & _str)
 GameObject_v2 * SceneManager::getUIselectedObj()
 {
 	if (mUI_Selectd_Transform_Ptr == nullptr) return nullptr;
-	return &mUI_Selectd_Transform_Ptr->gameObject;
+	return &mUI_Selectd_Transform_Ptr->GameObject;
 }
 
 SceneManager::~SceneManager()
 {
 	while (mWorldTransform->mChildTransform.size() != 0) {
-		mWorldTransform->mChildTransform[0]->gameObject.Destroy();
+		mWorldTransform->mChildTransform[0]->GameObject.Destroy();
 	}
 
 	delete mWorldTransform;
