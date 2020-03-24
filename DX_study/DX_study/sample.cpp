@@ -1,5 +1,5 @@
 #include "ErrorLogger.h"
-#include "Engine/Engine.h"
+#include "Engine.h"
 
 #include "psapi.h"
 #include "TCHAR.h"
@@ -12,14 +12,13 @@
 #endif
 
 void haveFun(HINSTANCE hInstance) {
-	Engine::GetInstance().Initialize(hInstance, "DirectX Study", "class", 1280, 768);
+	Engine engine;
+	engine.Initialize(hInstance, "DirectX Study", "class", 1280, 768);
 
-	while (Engine::GetInstance().ProcessMessage() == true) {
-		Engine::GetInstance().Update();
-		Engine::GetInstance().RenderFrame();
+	while (engine.ProcessMessage() == true) {
+		engine.Update();
+		engine.RenderFrame();
 	}
-
-	delete &Engine::GetInstance();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,

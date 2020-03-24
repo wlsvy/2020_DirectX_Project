@@ -1,22 +1,28 @@
 #pragma once
 #include <chrono>
 
-class Timer {
-	friend class Engine;
+struct TimeInfo {
+	friend class Timer;
 public:
-	static float GetTime();
-	static float GetDeltaTime();
-
+	float GetTime();
+	float GetDeltaTime();
 private:
+	float time = -1.0f;
+	float deltaTime;
+};
+
+class Timer {
+public:
 	Timer();
+	float GetMilisecondsElapsed();
+	void Restart();
 	bool Stop();
 	bool Start();
 	void Tick();
 
-	bool m_IsRunning = false;
-	static float s_Time;
-	static float s_DeltaTime;
-
+	TimeInfo Time;
+private:
+	bool isrunning = false;
 #ifdef _WIN32
 	std::chrono::time_point<std::chrono::steady_clock> startTime;
 	std::chrono::time_point<std::chrono::steady_clock> stopTime;

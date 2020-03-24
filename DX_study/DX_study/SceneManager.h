@@ -2,6 +2,10 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.h
+=======
+#include "Util/Singleton.h"
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.h
 
 class Engine; //include 정의 조심
 class PhysicsModule;
@@ -10,6 +14,7 @@ struct GAMEOBJECT_INIT_DESC;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 class GameObject_v2;
+struct TimeInfo;
 class Component;
 class Model;
 class PixelShader;
@@ -54,8 +59,16 @@ public:
 
 	Model * getModelByName(const std::string & _str);
 
+	TimeInfo * const Time;
+
 private:
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.h
 	
+=======
+	SceneManager(Engine * const engine_ptr, 
+		TimeInfo * const timeInfo, 
+		PhysicsManager * const _physcisManager);
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.h
 	void Custom_Test_Obj_Set();
 	
 	GameObject_v2* AddGameObject(GAMEOBJECT_INIT_DESC & desc);
@@ -65,8 +78,15 @@ private:
 	void UIrecursiveTransformCheck(Transform * _transform);
 	
 
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.h
 	std::shared_ptr<GameObject_v2> m_RootGameObject;
 	std::vector<std::shared_ptr<GameObject_v2>> m_GameObjects;
+=======
+
+	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
+	Engine * const engine;
+	PhysicsManager * const mPhysicsManager;
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.h
 	ModelBuffer modelBuffer;
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;

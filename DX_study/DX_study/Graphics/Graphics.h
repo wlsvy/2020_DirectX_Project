@@ -18,7 +18,7 @@
 #include "../UI/ImGui/imgui_impl_dx11.h"
 #include "RenderableGameObject.h"
 #include "../Component/GameObject_v2.h"
-#include "../Engine/SceneManager.h"
+#include "../SceneManager.h"
 #include "Light.h"
 #include "Sprite.h"
 #include "Skybox.h"

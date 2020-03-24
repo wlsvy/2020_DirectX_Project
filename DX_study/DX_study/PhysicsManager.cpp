@@ -1,7 +1,7 @@
 #include "PhysicsManager.h"
-#include "../Timer.h"
-#include "../Component/GameObject_v2.h"
-#include "../Component/CollisionInfo.h"
+#include "Timer.h"
+#include "Component/GameObject_v2.h"
+#include "Component/CollisionInfo.h"
 #include <cassert>
 
 //#pragma comment (lib, "reactphysics3d.lib")
@@ -12,9 +12,12 @@
 reactphysics3d::Vector3 Dflot3ToRvec3(const DirectX::XMFLOAT3 & _src) { return reactphysics3d::Vector3(_src.x, _src.y, _src.z); }
 DirectX::XMFLOAT3 Rvec3ToDfloat3(const reactphysics3d::Vector3 & _src) { return DirectX::XMFLOAT3(_src.x, _src.y, _src.z); }
 
+<<<<<<< HEAD:DX_study/DX_study/Engine/PhysicsManager.cpp
 using RPvector3 = reactphysics3d::Vector3;
 using RPray = reactphysics3d::Ray;
 
+=======
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/PhysicsManager.cpp
 class r3dCallback : public reactphysics3d::CollisionCallback {
 public:
 	int aa = 0;
@@ -129,7 +132,45 @@ public:
 	bool mCheckOnce, &mIsCollided;
 };
 
+bool PhysicsManager::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to)
+{
+	bool isCollided;
 
+	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
+	reactphysics3d::Ray ray(from, to);
+
+	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
+	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
+
+	return isCollided;
+}
+
+bool PhysicsManager::Raycast(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, RaycastResult & _rayinfo)
+{
+	bool isCollided;
+
+	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
+	reactphysics3d::Ray ray(from, to);
+
+	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, isCollided);
+	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
+	_rayinfo = rayCallback.getResult();
+
+	return isCollided;
+}
+
+bool PhysicsManager::RaycastAll(DirectX::XMFLOAT3 & _from, DirectX::XMFLOAT3 & _to, std::list<RaycastResult>& _rayinfo)
+{
+	bool isCollided;
+
+	reactphysics3d::Vector3 from(_from.x, _from.y, _from.z), to(_to.x, _to.y, _to.z);
+	reactphysics3d::Ray ray(from, to);
+
+	r3dRaycastCallback rayCallback(&mBody_Collider_MAP, &_rayinfo, isCollided);
+	mReactPhysics_DYNAMIC_WORLD->raycast(ray, &rayCallback);
+
+	return isCollided;
+}
 
 PhysicsModule::~PhysicsModule()
 {
@@ -177,7 +218,11 @@ void PhysicsModule::PreUpdate()
 void PhysicsModule::PhysicsUpdate()
 {
 	PreUpdate();
+<<<<<<< HEAD:DX_study/DX_study/Engine/PhysicsManager.cpp
 	m_World->update(Timer::GetDeltaTime());
+=======
+	mReactPhysics_DYNAMIC_WORLD->update(Time->GetDeltaTime());
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/PhysicsManager.cpp
 	UpdateComponent();
 	CollisionTest_ver2();
 
@@ -287,6 +332,7 @@ void PhysicsModule::DeregisterComponent(const std::shared_ptr<Collider_v2>& comp
 		m_Colliders.erase(iter);
 	}
 }
+<<<<<<< HEAD:DX_study/DX_study/Engine/PhysicsManager.cpp
 
 bool PhysicsModule::Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to)
 {
@@ -327,3 +373,5 @@ bool PhysicsModule::RaycastAll(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to,
 
 	return isCollided;
 }
+=======
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/PhysicsManager.cpp

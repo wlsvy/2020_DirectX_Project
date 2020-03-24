@@ -1,10 +1,17 @@
 #include "GameObject_v2.h"
 #include "../Engine/ModuleResource.h"
 
+<<<<<<< HEAD
 GameObject_v2::GameObject_v2(Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
 	: 
 	transform(*this),
 	renderer(*this)
+=======
+GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
+	: sceneManager(sceneM),
+	transform(COMPONENT_INIT_DESC(this, sceneM->Time, nullptr, nullptr)),
+	renderer(COMPONENT_INIT_DESC(this, sceneM->Time, &transform, nullptr))
+>>>>>>> parent of cb3481a... refactoring
 {
 	//renderer.Renderer_Initialize(model, vshaderID, pshaderID);
 
@@ -14,8 +21,13 @@ GameObject_v2::GameObject_v2(Model * model, const int & vshaderID, const int & p
 
 GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 	mGameObjectID(desc.obj_id),
+<<<<<<< HEAD
 	transform(*this),
 	renderer(*this)
+=======
+	transform(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, nullptr, nullptr)),
+	renderer(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, &transform, nullptr))
+>>>>>>> parent of cb3481a... refactoring
 {
 	renderer.Initialize(
 		desc.model, 
@@ -32,6 +44,12 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 
 GameObject_v2::~GameObject_v2()
 {
+<<<<<<< HEAD
+=======
+	for (std::vector<std::shared_ptr<Component>>::iterator it = componentBuffer.begin(); it != componentBuffer.end(); it++) {
+		//delete it;
+	}
+>>>>>>> parent of cb3481a... refactoring
 }
 
 bool GameObject_v2::operator==(const GameObject_v2 & rhs) const

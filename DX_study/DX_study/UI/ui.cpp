@@ -1,5 +1,5 @@
 #include "ui.h"
-#include "../Engine/Engine.h"
+#include "../Engine.h"
 
 void UIspace::InitImGUI(ID3D11Device * _device, ID3D11DeviceContext * _deviceContext, HWND _hwnd)
 {

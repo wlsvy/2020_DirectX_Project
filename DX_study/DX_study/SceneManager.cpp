@@ -1,11 +1,19 @@
 #include "SceneManager.h"
 #include "Engine.h"
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.cpp
 #include "ModuleResource.h"
 #include "../CustomScript/CustomScriptInclude.h"
 #include "../Graphics/Model.h"
 #include "../Graphics/Shaders.h"
 #include "../Graphics/Graphics.h"
 #include "../UI/imGui/imgui.h"
+=======
+#include "CustomScript/CustomScriptInclude.h"
+#include "Graphics/Model.h"
+#include "Graphics/Shaders.h"
+#include "Graphics/Graphics.h"
+#include "UI/imGui/imgui.h"
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.cpp
 
 #include <crtdbg.h>
 #if _DEBUG
@@ -16,7 +24,16 @@
 using namespace DirectX;
 //여기에 커스텀 스크립트 헤더 include
 
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.cpp
 SceneManager::SceneManager()
+=======
+SceneManager::SceneManager(Engine * const engine_ptr,
+	TimeInfo * const timeInfo,
+	PhysicsManager * const _physcisManager)
+	: engine(engine_ptr),
+	Time(timeInfo),
+	mPhysicsManager(_physcisManager)
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.cpp
 {
 	GAMEOBJECT_INIT_DESC desc;
 	desc.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -50,7 +67,12 @@ void SceneManager::Custom_Test_Obj_Set()
 
 	GameObject_v2 *gameObj = AddGameObject(desc);
 	gameObj->AddComponent<Animator>();
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.cpp
 	gameObj->GetComponent<Animator>()->SetAnimClip(gameObj->renderer.m_Model->m_AnimClip.get());
+=======
+	gameObj->GetComponent<Animator>()->SetAnimClip(&engine->GetAnimClipBuffer()->at(0));
+	
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.cpp
 
 	desc.model = modelBuffer.buffer[7];
 	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader");
@@ -159,7 +181,58 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->AddComponent<DirectionalLight>();
 }
 
+<<<<<<< HEAD:DX_study/DX_study/Engine/SceneManager.cpp
 bool SceneManager::DestoryGameObject(GameObject_v2& gameObject)
+=======
+void SceneManager::ClassifyComponent(Component * _component, GameObject_v2 * _destination)
+{
+	if (_component->mComponentID != -1) {
+		MessageBoxA(NULL, "This Component isn't new Component", "Error", MB_ICONERROR);
+		return;
+	}
+	_component->mComponentID = ComponentIDcontributor++;
+
+	ScriptBehaviour *scriptCompo_test = dynamic_cast<ScriptBehaviour*>(_component);
+	if (scriptCompo_test != NULL) {
+		engine->InsertScriptComponent(scriptCompo_test, _destination);
+		return;
+	}
+
+	Light_ver2 *lightCompo_test = dynamic_cast<Light_ver2*>(_component);
+	if (lightCompo_test != NULL) {
+		engine->InsertLightComponent(lightCompo_test, _destination);
+		return;
+	}
+
+	Terrain *terrain_test = dynamic_cast<Terrain*>(_component);
+	if (terrain_test != NULL) {
+		engine->InsertTerrainComponent(terrain_test, _destination);
+		return;
+	}
+
+	Collider_v2 *colliderv2_test = dynamic_cast<Collider_v2*>(_component);
+	if (colliderv2_test != NULL) {
+		engine->InsertCollider_v2Component(colliderv2_test, _destination);
+		return;
+	}
+
+	Animator *animator_test = dynamic_cast<Animator*>(_component);
+	if (animator_test != NULL) {
+		engine->InsertAnimatorComponent(animator_test, _destination);
+		return;
+	}
+
+	assert("this component is impossible to classfiy." && 1 == 0);
+
+}
+
+void SceneManager::Component_Valid_Test()
+{
+	engine->Component_Valid_Test();
+}
+
+bool SceneManager::Destory_GameObject(GameObject_v2 * _gameObject)
+>>>>>>> parent of cb3481a... refactoring:DX_study/DX_study/SceneManager.cpp
 {
 	for (auto iter = m_GameObjects.begin(); iter != m_GameObjects.end(); iter++) {
 		if (gameObject == (**iter)) {

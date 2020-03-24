@@ -171,7 +171,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AnimationClip.cpp" />
-    <ClCompile Include="Engine\AnimationManager.cpp" />
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="Component\Collider_v2.cpp" />
     <ClCompile Include="Component\Animator.cpp" />
     <ClCompile Include="Engine\ModuleResource.cpp" />
@@ -190,7 +190,7 @@
     <ClCompile Include="Graphics\GameObject.cpp" />
     <ClCompile Include="Graphics\Camera3D.cpp" />
     <ClCompile Include="Graphics\AdapterReader.cpp" />
-    <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="Graphics\Skybox.cpp" />
@@ -215,13 +215,13 @@
     <ClCompile Include="Graphics\RenderableGameObject.cpp" />
     <ClCompile Include="Component\Object.cpp" />
     <ClCompile Include="Component\Renderer.cpp" />
-    <ClCompile Include="Engine\PhysicsManager.cpp" />
+    <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="sample.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
-    <ClCompile Include="Engine\SceneManager.cpp" />
-    <ClCompile Include="Engine\ScriptBehaviourManager.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
+    <ClCompile Include="ScriptBehaviourManager.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Component\Terrain.cpp" />
@@ -232,8 +232,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />
+<<<<<<< HEAD
     <ClInclude Include="Component\ComponentTypeTraits.h" />
     <ClInclude Include="Engine\AnimationManager.h" />
+=======
+    <ClInclude Include="AnimationManager.h" />
+>>>>>>> parent of cb3481a... refactoring
     <ClInclude Include="Component\CollisionInfo.h" />
     <ClInclude Include="Component\Collider_v2.h" />
     <ClInclude Include="Component\Animator.h" />
@@ -256,7 +260,7 @@
     <ClInclude Include="Graphics\GameObject.h" />
     <ClInclude Include="Graphics\Camera3D.h" />
     <ClInclude Include="Graphics\AdapterReader.h" />
-    <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine.h" />
     <ClInclude Include="ErrorLogger.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
@@ -291,12 +295,12 @@
     <ClInclude Include="Graphics\RenderableGameObject.h" />
     <ClInclude Include="Component\Object.h" />
     <ClInclude Include="Component\Renderer.h" />
-    <ClInclude Include="Engine\PhysicsManager.h" />
+    <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="RenderWindow.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Graphics\Sprite.h" />
-    <ClInclude Include="Engine\SceneManager.h" />
-    <ClInclude Include="Engine\ScriptBehaviourManager.h" />
+    <ClInclude Include="SceneManager.h" />
+    <ClInclude Include="ScriptBehaviourManager.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="Graphics\Vertex.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />

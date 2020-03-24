@@ -1,5 +1,11 @@
 #pragma once
 #include <queue>
+<<<<<<< HEAD
+=======
+#include "Object.h"
+#include "Component.h"
+#include "../SceneManager.h"
+>>>>>>> parent of cb3481a... refactoring
 #include <vector>
 #include <memory>
 
@@ -86,12 +92,30 @@ T* GameObject_v2::AddComponent()
 		}
 	}
 
+<<<<<<< HEAD
 	std::shared_ptr<T> component(new T(*this));
 
 	RegisterComponent(component, typename T::ComponentTag());
 	this->m_Components.emplace_back(component);
 
 	return component.get();
+=======
+	COMPONENT_INIT_DESC compo_desc;
+	compo_desc.mGameObj = this;
+	compo_desc.mTransform = &transform;
+	compo_desc.mTime = sceneManager->Time;
+	compo_desc.mRenderer = &renderer;
+	compo_desc.mPhysicsManager = sceneManager->getPhysicsManagerPtr();
+	compo_desc.mGraphicsManager = sceneManager->getGraphicsManagerPtr();
+	compo_desc.mDevice = sceneManager->getDevicePtr();
+	compo_desc.mDeviceContext = sceneManager->getDeviceContextPtr();
+
+	T* new_Component = new T(compo_desc);
+	Component* compo_ptr = dynamic_cast<Component*>(new_Component);
+	sceneManager->ClassifyComponent(compo_ptr, this);
+	
+	return new_Component;
+>>>>>>> parent of cb3481a... refactoring
 }
 
 template<class T>
