@@ -1,0 +1,11 @@
+#git ignore
+
+#obj file path
+DX_study/DX_study/x64/
+DX_study/DX_study/Debug/
+DX_study/DX_study/Release/
+
+# Executables
+*.exe
+*.out
+*.app
