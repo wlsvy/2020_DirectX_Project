@@ -7,8 +7,8 @@ bool VertexShader::Initialize(
 	UINT numElements, 
 	const std::string & filename) 
 {
-	Name = filename;
-	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->m_ShaderBuffer.GetAddressOf()); //컴파일된 셰이더 파일을 버퍼로 읽어들이고
+	shaderName = filename;
+	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf()); //컴파일된 셰이더 파일을 버퍼로 읽어들이고
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + shaderpath;
@@ -17,7 +17,7 @@ bool VertexShader::Initialize(
 	}
 
 	//셰이더 버퍼로부터 셰이더 데이터를 생성
-	hr = device->CreateVertexShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
+	hr = device->CreateVertexShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create vertex shader: " + shaderpath;
 		ErrorLogger::Log(hr, errorMsg);
@@ -27,7 +27,7 @@ bool VertexShader::Initialize(
 	//SIZE_T testsize = shader_buffer->GetBufferSize();
 	
 
-	hr = device->CreateInputLayout(layoutDesc, numElements, this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), this->m_InputLayout.GetAddressOf());
+	hr = device->CreateInputLayout(layoutDesc, numElements, this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), this->inputLayout.GetAddressOf());
 	if (FAILED(hr)) {
 		ErrorLogger::Log(hr, "Failed to create input layer.");
 		return false;
@@ -45,21 +45,21 @@ bool VertexShader::Initialize(
 }
 
 ID3D11VertexShader * VertexShader::GetShader() {
-	return this->m_Shader.Get();
+	return this->shader.Get();
 }
 
 ID3D10Blob * VertexShader::GetBuffer() {
-	return this->m_ShaderBuffer.Get();
+	return this->shader_buffer.Get();
 }
 
 ID3D11InputLayout * VertexShader::GetInputLayout()
 {
-	return this->m_InputLayout.Get();
+	return this->inputLayout.Get();
 }
 
 bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::wstring shaderpath, const std::string & filename) {
-	Name = filename;
-	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->m_ShaderBuffer.GetAddressOf());
+	shaderName = filename;
+	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + shaderpath;
@@ -67,7 +67,7 @@ bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::
 		return false;
 	}
 
-	hr = device->CreatePixelShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
+	hr = device->CreatePixelShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create vertex shader: " + shaderpath;
 		ErrorLogger::Log(hr, errorMsg);
@@ -78,17 +78,17 @@ bool PixelShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::
 }
 
 ID3D11PixelShader * PixelShader::GetShader() {
-	return this->m_Shader.Get();
+	return this->shader.Get();
 }
 
 ID3D10Blob * PixelShader::GetBuffer() {
-	return this->m_ShaderBuffer.Get();
+	return this->shader_buffer.Get();
 }
 
 bool GeometryShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, std::wstring shaderpath, const std::string & filename)
 {
-	Name = filename;
-	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->m_ShaderBuffer.GetAddressOf());
+	shaderName = filename;
+	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + shaderpath;
@@ -96,7 +96,7 @@ bool GeometryShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, st
 		return false;
 	}
 
-	hr = device->CreateGeometryShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
+	hr = device->CreateGeometryShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create vertex shader: " + shaderpath;
 		ErrorLogger::Log(hr, errorMsg);
@@ -108,12 +108,12 @@ bool GeometryShader::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, st
 
 ID3D11GeometryShader * GeometryShader::GetShader()
 {
-	return this->m_Shader.Get();
+	return this->shader.Get();
 }
 
 ID3D10Blob * GeometryShader::GetBuffer()
 {
-	return this->m_ShaderBuffer.Get();
+	return this->shader_buffer.Get();
 }
 
 bool VertexInputLayout::Initialize(Microsoft::WRL::ComPtr<ID3D11Device>& device, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements)

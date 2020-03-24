@@ -20,18 +20,8 @@ WindowContainer::WindowContainer() {
 }
 
 //ImGui 함수 가져오기 -> win32 연계
-extern LRESULT ImGui_ImplWin32_WndProcHandler(
-	HWND hWnd, 
-	UINT msg, 
-	WPARAM wParam, 
-	LPARAM lParam);
-
-LRESULT WindowContainer::WindowProc(
-	HWND hwnd, 
-	UINT uMsg, 
-	WPARAM wParam, 
-	LPARAM lParam) 
-{
+extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)) return false;
 
 	switch (uMsg) {

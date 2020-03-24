@@ -1,17 +1,9 @@
 #include "GameObject_v2.h"
-#include "../Engine/ModuleResource.h"
 
-<<<<<<< HEAD
-GameObject_v2::GameObject_v2(Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
-	: 
-	transform(*this),
-	renderer(*this)
-=======
 GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
 	: sceneManager(sceneM),
-	transform(COMPONENT_INIT_DESC(this, sceneM->Time, nullptr, nullptr)),
-	renderer(COMPONENT_INIT_DESC(this, sceneM->Time, &transform, nullptr))
->>>>>>> parent of cb3481a... refactoring
+	transform(COMPONENT_INIT_DESC(this, nullptr, nullptr)),
+	renderer(COMPONENT_INIT_DESC(this, &transform, nullptr))
 {
 	//renderer.Renderer_Initialize(model, vshaderID, pshaderID);
 
@@ -20,14 +12,10 @@ GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const i
 }
 
 GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
+	sceneManager(desc.scene_manager),
 	mGameObjectID(desc.obj_id),
-<<<<<<< HEAD
-	transform(*this),
-	renderer(*this)
-=======
-	transform(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, nullptr, nullptr)),
-	renderer(COMPONENT_INIT_DESC(this, desc.scene_manager->Time, &transform, nullptr))
->>>>>>> parent of cb3481a... refactoring
+	transform(COMPONENT_INIT_DESC(this, nullptr, nullptr)),
+	renderer(COMPONENT_INIT_DESC(this, &transform, nullptr))
 {
 	renderer.Initialize(
 		desc.model, 
@@ -35,7 +23,7 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 		desc.pshaderPtr, 
 		desc.gshaderPtr);
 
-	std::strcpy(Name, desc.obj_name.c_str());
+	std::strcpy(mGameObjectName, desc.obj_name.c_str());
 
 	this->transform.SetPosition(desc.pos);
 	this->transform.SetRotation(desc.rot);
@@ -44,20 +32,12 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 
 GameObject_v2::~GameObject_v2()
 {
-<<<<<<< HEAD
-=======
-	for (std::vector<std::shared_ptr<Component>>::iterator it = componentBuffer.begin(); it != componentBuffer.end(); it++) {
+	for (auto it = componentBuffer.begin(); it != componentBuffer.end(); it++) {
 		//delete it;
 	}
->>>>>>> parent of cb3481a... refactoring
 }
 
-bool GameObject_v2::operator==(const GameObject_v2 & rhs) const
-{
-	return this == &rhs;
-}
-
-int GameObject_v2::getID() const
+int GameObject_v2::getID()
 {
 	return mGameObjectID;
 }
@@ -65,7 +45,7 @@ int GameObject_v2::getID() const
 void GameObject_v2::OnGui()
 {
 	ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll;
-	ImGui::InputText("Name", Name, flags);
+	ImGui::InputText("Name", mGameObjectName, flags);
 	ImGui::SameLine();
 	ImGui::Text("(%d)", mGameObjectID);
 
@@ -87,20 +67,20 @@ void GameObject_v2::OnGui()
 		| ImGuiTreeNodeFlags_OpenOnDoubleClick
 		| ImGuiTreeNodeFlags_DefaultOpen;
 
-	if (ImGui::CollapsingHeader(transform.Name, node_flags))
+	if (ImGui::CollapsingHeader(transform.mComponentName, node_flags))
 	{
 		ImGui::Spacing();
 		transform.OnGui();
 	}
 	ImGui::Spacing();
 
-	for (auto ptr : m_Components)
+	for (auto ptr : componentBuffer)
 	{
 		if (ptr.get() != nullptr)
 		{
-			ImGui::Checkbox("", &ptr->Enabled);
+			ImGui::Checkbox("", &ptr->enabled);
 			ImGui::SameLine();
-			if (ImGui::CollapsingHeader(ptr.get()->Name, node_flags))
+			if (ImGui::CollapsingHeader(ptr.get()->mComponentName, node_flags))
 			{
 				ImGui::Spacing();
 				ptr.get()->OnGui();
@@ -109,7 +89,7 @@ void GameObject_v2::OnGui()
 		}
 	}
 
-	if (ImGui::CollapsingHeader(renderer.Name, node_flags))
+	if (ImGui::CollapsingHeader(renderer.mComponentName, node_flags))
 	{
 		ImGui::Spacing();
 		renderer.OnGui();
@@ -123,60 +103,10 @@ void GameObject_v2::OnGui()
 
 void GameObject_v2::Destroy()
 {
-	Module::DestroyGameObject(*this);
+	sceneManager->Destory_GameObject(this);
 }
 
 void GameObject_v2::Destroy(GameObject_v2 * _target)
 {
 	_target->Destroy();
-}
-
-void GameObject_v2::RegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
-{
-	Module::RegisterComponent(compo);
-}
-
-void GameObject_v2::RegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
-{
-	Module::RegisterComponent(compo);
-}
-
-void GameObject_v2::RegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
-{
-	Module::RegisterComponent(compo);
-}
-
-void GameObject_v2::RegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
-{
-	Module::RegisterComponent(compo);
-}
-
-void GameObject_v2::RegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag)
-{
-	Module::RegisterComponent(compo);
-}
-
-void GameObject_v2::DeRegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
-{
-	Module::DeregisterComponent(compo);
-}
-
-void GameObject_v2::DeRegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
-{
-	Module::DeregisterComponent(compo);
-}
-
-void GameObject_v2::DeRegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
-{
-	Module::DeregisterComponent(compo);
-}
-
-void GameObject_v2::DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
-{
-	Module::DeregisterComponent(compo);
-}
-
-void GameObject_v2::DeRegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag)
-{
-	Module::DeregisterComponent(compo);
 }

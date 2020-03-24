@@ -1,45 +1,15 @@
 #include "Graphics.h"
-#include <algorithm>
 
-#include "../Engine/ModuleResource.h"
 #include "../Component/BaseComponentInclude.h"
 #include "../Component/ScriptBehaviour.h"
 #include "BaseGeometry.h"
-#include "../Engine.h"
+#include "../Engine/Engine.h"
 #include "../UI/ui.h"
 
 #define Deg2Rad 0.0174533	// pi / 180
 #define Rad2Deg 57.2958		// 180 / pi
 
 
-
-void GraphicsManager::RegisterComponent(const std::shared_ptr<Terrain>& compo)
-{
-	m_Terrains.push_back(compo);
-}
-
-void GraphicsManager::RegisterComponent(const std::shared_ptr<Light_ver2>& compo)
-{
-	m_Lights.push_back(compo);
-}
-
-void GraphicsManager::DeregisterComponent(const std::shared_ptr<Terrain>& compo)
-{
-	auto iter = std::find(m_Terrains.begin(), m_Terrains.end(), compo);
-
-	if (iter != m_Terrains.end()) {
-		m_Terrains.erase(iter);
-	}
-}
-
-void GraphicsManager::DeregisterComponent(const std::shared_ptr<Light_ver2>& compo)
-{
-	auto iter = std::find(m_Lights.begin(), m_Lights.end(), compo);
-
-	if (iter != m_Lights.end()) {
-		m_Lights.erase(iter);
-	}
-}
 
 VertexShader* GraphicsManager::GetVshader(const std::string & shaderName)
 {
@@ -642,12 +612,12 @@ bool GraphicsManager::InitializeScene()
 
 bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer)
 {
-	for (auto it = m_Terrains.begin(); it != m_Terrains.end(); it++) {
+	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer->begin(); it != terrainBuffer->end(); it++) {
 		Model *model = new Model();
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
 		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
 		_terrainmodelBuffer.buffer.push_back(model);
-		(*it)->GameObject.renderer.SetModel(model);
+		(*it)->gameObject->renderer.SetModel(model);
 		//(*it)->gameObject->mGameObjectName = "";
 	}
 	return true;
@@ -755,7 +725,7 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //³ªÁß¿¡ ½¦À
 			}
 				
 			pixel_Shader_Buffer.push_back(ps);
-			ps->Name = shader_filename;
+			ps->shaderName = shader_filename;
 			m_PshaderBuffer.insert(std::make_pair(shader_filename, ps));
 
 		} while (_findnext(handle, &fd) == 0);
@@ -770,7 +740,7 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //³ªÁß¿¡ ½¦À
 			if (!gs->Initialize(this->m_Device, _ExeFilePath + StringHelper::StringToWide(shader_filename + ".cso"), shader_filename))
 				MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 			Geo_Shader_Buffer.push_back(gs);
-			gs->Name = shader_filename;
+			gs->shaderName = shader_filename;
 			m_GshaderBuffer.insert(std::make_pair(shader_filename, gs));
 
 		} while (_findnext(handle, &fd) == 0);
@@ -836,13 +806,15 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 	struct _finddata_t fd;
 	intptr_t handle;
 
+	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
+
 	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
 		do {
 			if (StringHelper::GetFileExtension(fd.name) == "fbx") {
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -854,7 +826,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -1066,40 +1038,39 @@ void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collide
 
 	m_batch->Begin();
 
-	//auto& pm = Module::GetPhysicsModule().Get;
-	//for (auto it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
-	//	bool Component_valid = (*it)->Enabled;
-	//	bool GameObject_valid = (*it)->GameObject.enabled;
+	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
+		bool Component_valid = (*it)->enabled;
+		bool GameObject_valid = (*it)->gameObject->enabled;
 
-	//	if (Component_valid && GameObject_valid == false) continue;
-
+		if (Component_valid && GameObject_valid == false) continue;
 
 
-	//	COLLIDER_DEBUG_MODEL_VER2 desc = (*it)->Get_DebugModelType();
-	//	switch (desc.typeNum) {
-	//	case 0:
-	//		//Draw(m_batch.get(), *desc.aabbPtr, DirectX::Colors::White);
-	//		break;
-	//	case 1:
-	//		Draw(m_batch.get(), desc.mDeubgBox, DirectX::Colors::White);
-	//		break;
-	//	case 2:
-	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-	//		break;
-	//	case 3:
-	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-	//		desc.mDebugSphere.Center.x = desc.auxVal.x;
-	//		desc.mDebugSphere.Center.y = desc.auxVal.y;
-	//		desc.mDebugSphere.Center.z = desc.auxVal.z;
-	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-	//		desc.mDebugSphere.Center.x = desc.auxVal2.x;
-	//		desc.mDebugSphere.Center.y = desc.auxVal2.y;
-	//		desc.mDebugSphere.Center.z = desc.auxVal2.z;
-	//		desc.mDebugSphere.Radius = 0.1f;
-	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::Yellow);
-	//		break;
-	//	}
-	//}
+
+		COLLIDER_DEBUG_MODEL_VER2 desc = (*it)->Get_DebugModelType();
+		switch (desc.typeNum) {
+		case 0:
+			//Draw(m_batch.get(), *desc.aabbPtr, DirectX::Colors::White);
+			break;
+		case 1:
+			Draw(m_batch.get(), desc.mDeubgBox, DirectX::Colors::White);
+			break;
+		case 2:
+			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+			break;
+		case 3:
+			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+			desc.mDebugSphere.Center.x = desc.auxVal.x;
+			desc.mDebugSphere.Center.y = desc.auxVal.y;
+			desc.mDebugSphere.Center.z = desc.auxVal.z;
+			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+			desc.mDebugSphere.Center.x = desc.auxVal2.x;
+			desc.mDebugSphere.Center.y = desc.auxVal2.y;
+			desc.mDebugSphere.Center.z = desc.auxVal2.z;
+			desc.mDebugSphere.Radius = 0.1f;
+			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::Yellow);
+			break;
+		}
+	}
 
 	m_batch->End();
 	this->m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), depthStencilView.Get());
@@ -1123,8 +1094,8 @@ bool GraphicsManager::SetConstantBuffer()
 	cb_ps_simplelight.ApplyChanges();
 
 	//cb_ps_array.data.
-	if (m_Lights.size() != 0) {
-		LIGHT_INFO_DESC lightDesc = m_Lights[0]->GetInfoDesc();
+	if (lightBuffer->size() != 0) {
+		LIGHT_INFO_DESC lightDesc = lightBuffer->at(0)->GetInfoDesc();
 		cb_ps_light_array.data.directional_light[0].lightColor = *lightDesc.lightColor;
 		cb_ps_light_array.data.directional_light[0].lightStrength = *lightDesc.lightStrength;
 		cb_ps_light_array.data.directional_light[0].lightVec = *lightDesc.lightVec;

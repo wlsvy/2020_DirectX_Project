@@ -80,3 +80,22 @@ protected:
 
 	bool hasBone = false;
 };
+
+//class SkinnedMesh : public Mesh {
+//public:
+//	SkinnedMesh(ID3D11Device * _device, ID3D11DeviceContext * _deviceContext,
+//		std::vector<Vertex3D> & _vertices, 
+//		std::vector<DWORD> & _indices,
+//		std::vector<Texture> & _textures,
+//		const DirectX::XMMATRIX & _transformMatrix);
+//
+//	SkinnedMesh(ID3D11Device * _device, ID3D11DeviceContext * _deviceContext, 
+//		Vertex3D * _vertices, const UINT _vertexSize, 
+//		DWORD * _indices, const UINT _indexSize, 
+//		std::vector<Texture>& _textures, 
+//		const DirectX::XMMATRIX & _transformMatrix);
+//
+//	void Draw() override;
+//
+//private:
+//};

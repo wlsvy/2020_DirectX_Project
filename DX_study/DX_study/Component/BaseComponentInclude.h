@@ -14,4 +14,5 @@ class Collider_v2;
 #include "Transform.h"
 #include "Light_ver2.h"
 #include "Terrain.h"
+#include "Collider.h"
 #include "Collider_v2.h"

@@ -9,3 +9,5 @@ DX_study/DX_study/Release/
 *.exe
 *.out
 *.app
+
+*.obj

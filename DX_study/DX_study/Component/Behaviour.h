@@ -7,7 +7,7 @@ class Behaviour : public Component {
 public:
 	
 protected:
-	Behaviour(GameObject_v2 & obj);
+	Behaviour(const COMPONENT_INIT_DESC & desc);
 
 	template<class T>
 	T* AddComponent();
@@ -21,11 +21,11 @@ protected:
 template<class T>
 inline T * Behaviour::AddComponent()
 {
-	return GameObject.AddComponent<T>();
+	return gameObject->AddComponent<T>();
 }
 
 template<class T>
 inline T * Behaviour::GetComponent()
 {
-	return GameObject.GetComponent<T>();
+	return gameObject->GetComponent<T>();
 }

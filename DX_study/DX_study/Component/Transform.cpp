@@ -32,15 +32,12 @@ DirectX::XMFLOAT3 QuatenionToEuler(float x, float y, float z, float w) {
 	return DirectX::XMFLOAT3(roll * Rad2Deg, pitch * Rad2Deg, yaw * Rad2Deg);
 }
 
-Transform::Transform(GameObject_v2 & obj) : Component(obj) 
-{ 
-	std::strcpy(Name, "Transform"); 
-}
+Transform::Transform(const COMPONENT_INIT_DESC & desc) : Component(desc) { std::strcpy(mComponentName, "Transform"); }
 
 Transform::~Transform() {
 	for (auto child : mChildTransform) {
 		//삭제시 부모 물려받기 -> 나중에 싹 지우는 것으로 수정할것.
-		child->GameObject.Destroy();
+		child->gameObject->Destroy();
 	}
 
 	SetParent(nullptr);

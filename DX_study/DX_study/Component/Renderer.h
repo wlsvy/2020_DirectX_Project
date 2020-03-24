@@ -15,13 +15,13 @@ namespace DirectX {
 class Renderer : public Component {
 	friend class GraphicsManager;
 public:
-	Renderer(GameObject_v2 & obj);
+	Renderer(const COMPONENT_INIT_DESC & desc);
 	bool Initialize(
 		Model * model_ptr,
 		VertexShader* _vshader,
 		PixelShader* _pshader,
 		GeometryShader* _gshader);
-	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix) const;
+	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
 	void SetModel(Model * _model);
 
 	void OnGui() override;
@@ -34,15 +34,13 @@ public:
 	bool drawWireFrame = false;
 	bool drawSkinnedMesh = false;
 	Animator * animator = nullptr;
-
-	Transform& transform;
-
-	Model*	m_Model = nullptr;
+	const COMPONENT_TYPE mType = COMPONENT_RENDERER;
 private:
-	VertexShader*	m_Vshader = nullptr;
-	PixelShader*	m_Pshader = nullptr;
-	GeometryShader* m_Gshader = nullptr;
-	
+	Model*	mModelPtr = nullptr;
+	VertexShader*	mVshaderPtr = nullptr;
+	PixelShader*	mPshaderPtr = nullptr;
+	GeometryShader* mGshaderPtr = nullptr;
+	Transform * const transform;
 
 #pragma region Variable - GUI
 	bool mShowModelWindow = false;

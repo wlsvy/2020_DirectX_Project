@@ -8,7 +8,7 @@
 
 //±âº» ÄÄÆ÷³ÍÆ® »ðÀÔ
 #include "../Component/BaseComponentInclude.h"
-#define NEVER_USE_CONSTRUCTOR(classname) classname(GameObject_v2 & obj) : ScriptBehaviour(obj) { std::strcpy(Name, #classname);}
+#define NEVER_USE_CONSTRUCTOR(classname) classname(const COMPONENT_INIT_DESC & desc) : ScriptBehaviour(desc) { std::strcpy(mComponentName, #classname);}
 
 class cstest;
 class cstest02;

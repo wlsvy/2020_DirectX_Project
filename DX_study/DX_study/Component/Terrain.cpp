@@ -1,15 +1,13 @@
 #include "Terrain.h"
-#include "GameObject_v2.h"
 
 #define TERRAIN_MUL 1
 
-Terrain::Terrain(GameObject_v2 & obj) : 
-	Component(obj), 
-	transform(obj.transform), 
-	renderer(obj.renderer) 
-{ 
-	std::strcpy(Name, "Terrain"); 
+Terrain::~Terrain()
+{
+	
 }
+
+Terrain::Terrain(const COMPONENT_INIT_DESC & desc) : Component(desc), transform(desc.mTransform), renderer(desc.mRenderer) { std::strcpy(mComponentName, "Terrain"); }
 
 TERRAIN_INIT_DESC Terrain::TerrainProcess(const char * HeightMapPath)
 {

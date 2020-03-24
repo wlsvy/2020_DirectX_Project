@@ -14,7 +14,6 @@ struct TERRAIN_INIT_DESC {
 
 class Terrain : public Component {
 private:
-	using ComponentTag = terrainComponentTag;
 
 	struct HeightMapType {
 		float x, y, z;
@@ -33,7 +32,8 @@ private:
 	};
 
 public:
-	Terrain(GameObject_v2 & obj);
+	Terrain(const COMPONENT_INIT_DESC & desc);
+	~Terrain();
 	
 	TERRAIN_INIT_DESC TerrainProcess(const char * HeightMapPath);
 	void Shutdown();
@@ -47,7 +47,7 @@ public:
 
 	int GetIndexCount();
 
-	Transform& transform;
+	Transform * const transform;
 	int Texture_Repeat_Count = 8;
 	const char * heightFilePath;
 
@@ -58,5 +58,5 @@ private:
 	int m_indexCount = 0;
 	HeightMapType * m_heightMap = nullptr;
 
-	Renderer& renderer;
+	Renderer * const renderer;
 };

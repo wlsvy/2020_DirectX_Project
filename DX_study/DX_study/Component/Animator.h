@@ -7,9 +7,7 @@ class Animator : public Behaviour {
 	friend class Engine;
 	friend class AnimationManager;
 public:
-	using ComponentTag = AnimationComponentTag;
-
-	Animator(GameObject_v2 & obj);
+	Animator(const COMPONENT_INIT_DESC & desc);
 	void Update(float _deltaTime);
 	void Play();
 	void Stop();
@@ -24,6 +22,6 @@ public:
 	float mPlayTime = 0.0f;
 	std::vector<DirectX::XMMATRIX> mAnimResult;
 private:
-	AnimationClip * m_Clip = nullptr;
-	bool m_IsRunning = false;
+	AnimationClip * mClip = nullptr;
+	bool mIsRunning = false;
 };

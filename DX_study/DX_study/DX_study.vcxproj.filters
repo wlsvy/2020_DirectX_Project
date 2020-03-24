@@ -66,9 +66,6 @@
     <ClCompile Include="RenderWindow.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="WindowContainer.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -150,9 +147,6 @@
     <ClCompile Include="Component\GameObject_v2.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="SceneManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Component\ScriptBehaviour.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
@@ -171,15 +165,9 @@
     <ClCompile Include="Graphics\DebugDraw.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-<<<<<<< HEAD
-=======
     <ClCompile Include="Component\Collider.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="PhysicsManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
->>>>>>> parent of cb3481a... refactoring
     <ClCompile Include="CustomScript\MemoryBOOM.cpp">
       <Filter>소스 파일\CustomScript</Filter>
     </ClCompile>
@@ -189,13 +177,7 @@
     <ClCompile Include="Component\Animator.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationManager.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="AnimationClip.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="ScriptBehaviourManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Component\Collider_v2.cpp">
@@ -228,7 +210,6 @@
     <ClCompile Include="Graphics\Skybox.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="Engine\ScriptBehaviourManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -253,20 +234,12 @@
     <ClCompile Include="Engine\ModuleResource.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Time.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-=======
->>>>>>> parent of cb3481a... refactoring
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErrorLogger.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="RenderWindow.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="WindowContainer.h">
@@ -371,9 +344,6 @@
     <ClInclude Include="Component\Transform.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
-    <ClInclude Include="SceneManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Component\ScriptBehaviour.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
@@ -398,15 +368,9 @@
     <ClInclude Include="Graphics\DebugDraw.h">
       <Filter>헤더 파일\Graphics</Filter>
     </ClInclude>
-<<<<<<< HEAD
-=======
     <ClInclude Include="Component\Collider.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
-    <ClInclude Include="PhysicsManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
->>>>>>> parent of cb3481a... refactoring
     <ClInclude Include="CustomScript\MemoryBOOM.h">
       <Filter>헤더 파일\CustomScript</Filter>
     </ClInclude>
@@ -417,12 +381,6 @@
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
     <ClInclude Include="AnimationClip.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ScriptBehaviourManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Component\Collider_v2.h">
@@ -470,7 +428,6 @@
     <ClInclude Include="Util\Uncopyable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="Engine\ScriptBehaviourManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -495,14 +452,6 @@
     <ClInclude Include="Engine\ModuleResource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\ComponentTypeTraits.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-=======
->>>>>>> parent of cb3481a... refactoring
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl">

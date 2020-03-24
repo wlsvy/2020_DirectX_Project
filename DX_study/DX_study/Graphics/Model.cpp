@@ -2,7 +2,6 @@
 
 #include "../AnimationClip.h"
 #include "../Component/Animator.h"
-#include "../Engine/ModuleResource.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -13,6 +12,7 @@ bool Model::Initialize(
 	ID3D11DeviceContext * deviceContext, 
 	ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, 
 	ConstantBuffer<CB_VS_boneData>& cb_vs_boneData, 
+	std::vector<AnimationClip>* _animClipDestination, 
 	std::map<std::string, int>& _textureMap, 
 	std::vector<Texture>& _textureVec)
 {
@@ -23,7 +23,7 @@ bool Model::Initialize(
 
 	try
 	{
-		if (!this->LoadModel(filePath, _textureMap, _textureVec))
+		if (!this->LoadModel(filePath, _animClipDestination, _textureMap, _textureVec))
 			return false;
 	}
 	catch (COMException & exception)
@@ -178,8 +178,28 @@ void Model::Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX
 	}
 }
 
-bool Model::LoadModel(
-	const std::string & filePath,
+bool Model::LoadModel(const std::string & filePath,
+	std::map<std::string, int> & _textureMap,
+	std::vector<Texture> & _textureVec)
+{
+	this->directory = StringHelper::GetDirectoryFromPath(filePath);
+
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile(filePath,
+		aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded);
+
+	if (pScene == nullptr)
+		return false;
+
+	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity(), _textureMap, _textureVec);
+
+	return true;
+}
+
+bool Model::LoadModel(const std::string & filePath,
+	std::vector<AnimationClip> * _animClipDestination,
 	std::map<std::string, int> & _textureMap,
 	std::vector<Texture> & _textureVec)
 {
@@ -206,7 +226,7 @@ bool Model::LoadModel(
 	
 	for (int i = 0; i < animationNum; i++) {
 		aiAnimation *pAnimation = pScene->mAnimations[i];
-		ProcessAnimation(pAnimation, pScene);
+		ProcessAnimation(pAnimation, pScene, _animClipDestination);
 	}
 		
 	return true;
@@ -373,82 +393,86 @@ Mesh Model::ProcessMesh(Vertex3D * _vertex, std::map<std::string, int> & _textur
 	return Mesh(this->device, this->deviceContext, *_vertex, textures, DirectX::XMMatrixIdentity());
 }
 
-void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene)
+void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination)
 {
-	m_AnimClip = std::shared_ptr<AnimationClip>(new AnimationClip);
-	m_AnimClip->mClipName = _aiAnim->mName.data;
-	m_AnimClip->mChannel.resize(m_Bone_Name_Map.size());
-	m_AnimClip->mTickPerSecond = (float)(_aiAnim->mTicksPerSecond != 0 ? _aiAnim->mTicksPerSecond : 25.0f);
-	m_AnimClip->mDuration = (float)_aiAnim->mDuration;
+	AnimationClip animationClip;
+	animationClip.mClipName = _aiAnim->mName.data;
+	animationClip.mChannel.resize(m_Bone_Name_Map.size());
+	animationClip.mTickPerSecond = (float)(_aiAnim->mTicksPerSecond != 0 ? _aiAnim->mTicksPerSecond : 25.0f);
+	animationClip.mDuration = (float)_aiAnim->mDuration;
 
 	int numChannel = _aiAnim->mNumChannels;
 	for (int i = 0; i < numChannel; i++) {
 		aiNodeAnim *ainodeAnim = _aiAnim->mChannels[i];
 		BoneChannel channel;
 		
-		channel.ChannelName = ainodeAnim->mNodeName.data;
-		if (m_Bone_Name_Map.find(channel.ChannelName) != m_Bone_Name_Map.end()) {
-			channel.BoneIndex = m_Bone_Name_Map[channel.ChannelName];
+		channel.mChannelName = ainodeAnim->mNodeName.data;
+		if (m_Bone_Name_Map.find(channel.mChannelName) != m_Bone_Name_Map.end()) {
+			channel.mBoneIndex = m_Bone_Name_Map[channel.mChannelName];
 		}
 
 		channel.mNumPositionKeys = ainodeAnim->mNumPositionKeys;
 		channel.mNumRotationKeys = ainodeAnim->mNumRotationKeys;
 		channel.mNumScaleKeys = ainodeAnim->mNumScalingKeys;
-		channel.BoneOffset = mBoneBuffer[channel.BoneIndex].BoneOffset;
+		channel.mBoneOffset = mBoneBuffer[channel.mBoneIndex].BoneOffset;
 
 		for (int j = 0; j < channel.mNumPositionKeys; j++) {
 			aiVectorKey aiPosKey = ainodeAnim->mPositionKeys[j];
 			PositionKey positionkey;
 
-			positionkey.Time = (float)aiPosKey.mTime;
-			positionkey.Position = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
+			positionkey.mTime = (float)aiPosKey.mTime;
+			positionkey.mPosition = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
 
-			channel.PositionKeys.push_back(positionkey);
+			channel.mPositionKeys.push_back(positionkey);
 		}
 
 		for (int j = 0; j < channel.mNumRotationKeys; j++) {
 			aiQuatKey aiRotkey = ainodeAnim->mRotationKeys[j];
 			RotationKey rotationkey;
 
-			rotationkey.Time = (float)aiRotkey.mTime;
-			rotationkey.Quaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
+			rotationkey.mTime = (float)aiRotkey.mTime;
+			rotationkey.mQuaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
 
-			channel.RotationKeys.push_back(rotationkey);
+			channel.mRotationKeys.push_back(rotationkey);
 		}
 
 		for (int j = 0; j < channel.mNumScaleKeys; j++) {
 			aiVectorKey aiScaleKey = ainodeAnim->mScalingKeys[j];
 			ScaleKey scalekey;
 
-			scalekey.Time = (float)aiScaleKey.mTime;
-			scalekey.Scale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
+			scalekey.mTime = (float)aiScaleKey.mTime;
+			scalekey.mScale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
 
-			channel.ScaleKeys.push_back(scalekey);
+			channel.mScaleKeys.push_back(scalekey);
 		}
 		
 		DirectX::XMMATRIX globalInverseTransform = MyCustom::GetAiMatrixData(_aiScene->mRootNode->mTransformation);
 		globalInverseTransform = DirectX::XMMatrixTranspose(globalInverseTransform);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
 		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
-		channel.GlobalInverseTransform = globalInverseTransform;
-		m_AnimClip->mChannel[channel.BoneIndex] = channel;
+		channel.mGlobalInverseTransform = globalInverseTransform;
+		animationClip.mChannel[channel.mBoneIndex] = channel;
 	}
 	
 	aiNode * ainode = _aiScene->mRootNode;
 
-	ProcessBoneHierarchy(ainode, m_AnimClip, nullptr, DirectX::XMMatrixIdentity());
+#pragma region test
+	std::vector<std::string> ddd;
+	nodeName(&ddd, ainode);
+#pragma endregion
 
-	m_AnimClip->mNumChannel = (short)m_AnimClip->mChannel.size();
-	for (int i = 0; i < m_AnimClip->mChannel.size(); i++) {
+	ProcessBoneHierarchy(ainode, &animationClip, nullptr, DirectX::XMMatrixIdentity());
+
+	animationClip.mNumChannel = (short)animationClip.mChannel.size();
+	for (int i = 0; i < animationClip.mChannel.size(); i++) {
 		//자식 개수 미리 계산해두기
-		m_AnimClip->mChannel[i].mNumChildBone = (short)m_AnimClip->mChannel[i].ChildBoneIndices.size();
+		animationClip.mChannel[i].mNumChildBone = (short)animationClip.mChannel[i].mChildBoneIndex.size();
 	}
 
-	
-	Module::RegisterAnimClip(m_AnimClip);
+	_animClipDestination->push_back(animationClip);
 }
 
-void Model::ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<AnimationClip>& animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform)
+void Model::ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform)
 {
 	std::string nodeName = _aiNode->mName.data;
 	int nodeIndex = -1;
@@ -463,16 +487,16 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<Animati
 
 	if (m_Bone_Name_Map.find(nodeName) != m_Bone_Name_Map.end()) {
 		nodeIndex = m_Bone_Name_Map[nodeName];
-		currentBoneChannel = &animClip->mChannel[nodeIndex];
+		currentBoneChannel = &_animClip->mChannel[nodeIndex];
 	}
 
 	int childNum = _aiNode->mNumChildren;
 
 	if (currentBoneChannel != nullptr) {
 		if(_parentBone != nullptr)
-		_parentBone->ChildBoneIndices.push_back(currentBoneChannel->BoneIndex);
+		_parentBone->mChildBoneIndex.push_back(currentBoneChannel->mBoneIndex);
 
-		currentBoneChannel->ParentTransform = _parentTransform;
+		currentBoneChannel->mParentNodeTransform = _parentTransform;
 		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
 
 		for (int i = 0; i < childNum; i++) {
@@ -480,7 +504,7 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<Animati
 			std::string childName = childNode->mName.data;
 
 			if (m_Bone_Name_Map.find(childName) == m_Bone_Name_Map.end()) {
-				ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
+				ProcessBoneHierarchy(childNode, _animClip, currentBoneChannel, globalTransform);
 				continue;
 			}
 
@@ -488,7 +512,7 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<Animati
 			BoneChannel * childPtr = &_animClip->mChannel[childIndex];
 			currentBoneChannel->mChildBoneIndex.push_back(childPtr);*/
 
-			ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
+			ProcessBoneHierarchy(childNode, _animClip, currentBoneChannel, globalTransform);
 		}
 		
 	}
@@ -499,7 +523,7 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<Animati
 			aiNode * childNode = _aiNode->mChildren[i];
 			
 
-			ProcessBoneHierarchy(childNode, animClip, _parentBone, globalTransform);
+			ProcessBoneHierarchy(childNode, _animClip, _parentBone, globalTransform);
 		}
 	}
 

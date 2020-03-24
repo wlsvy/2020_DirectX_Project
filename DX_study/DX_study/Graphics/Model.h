@@ -1,8 +1,6 @@
 #pragma once
-#include <map>
-#include <memory>
-
 #include "Mesh.h"
+#include <map>
 
 struct ASSIMP_API aiNode;
 struct aiScene;
@@ -23,12 +21,12 @@ public:
 		ID3D11DeviceContext * deviceContext, 
 		ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, 
 		ConstantBuffer<CB_VS_boneData>& cb_vs_boneData, 
+		std::vector<AnimationClip> * _animClipDestination,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
 	//일반 파일
-	bool Initialize(
-		const std::string & filePath, 
+	bool Initialize(const std::string & filePath, 
 		ID3D11Device * device, 
 		ID3D11DeviceContext * deviceContext, 
 		ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,
@@ -36,8 +34,7 @@ public:
 		std::vector<Texture> & _textureVec);
 
 	////------------------직접 만든 정점/색인 배열로 모델 생성
-	bool Initialize(
-		std::vector<Vertex3D> * VertexBuffer, 
+	bool Initialize(std::vector<Vertex3D> * VertexBuffer, 
 		std::vector<DWORD> * IndexBuffer, 
 		ID3D11Device * device, 
 		ID3D11DeviceContext * deviceContext, 
@@ -45,8 +42,7 @@ public:
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
-	bool Initialize(
-		Vertex3D * _VertexBuffer, 
+	bool Initialize(Vertex3D * _VertexBuffer, 
 		const UINT _vertexSize, 
 		DWORD * _IndexBuffer, 
 		const UINT _indexSize, 
@@ -71,11 +67,13 @@ public:
 	void Draw_skinnedMesh(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix, Animator * _animator);
 	void Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX::XMMATRIX & _viewProjectionMatrix, float _height, float _width);
 
-	std::shared_ptr<AnimationClip> m_AnimClip;
-
 protected:
-	bool LoadModel(
-		const std::string & filePath, 
+	
+	bool LoadModel(const std::string & filePath,
+		std::map<std::string, int> & _textureMap,
+		std::vector<Texture> & _textureVec);
+	bool LoadModel(const std::string & filePath, 
+		std::vector<AnimationClip> * _animClipDestination,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 	void ProcessNode(aiNode * node, 
@@ -93,8 +91,8 @@ protected:
 	Mesh ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::vector<DWORD>* _indexBuffer, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec);
 	Mesh ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD * _indexBuffer, const int _indexSize, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec);
 	Mesh ProcessMesh(Vertex3D * _vertex, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec); //점 하나
-	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene);
-	void ProcessBoneHierarchy(aiNode * _aiNode, const std::shared_ptr<AnimationClip>& animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
+	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination);
+	void ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
 	Mesh ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vector<DWORD> * terrainIndexBuffer);
 

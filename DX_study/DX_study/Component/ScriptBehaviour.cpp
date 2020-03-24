@@ -1,6 +1,6 @@
 #include "ScriptBehaviour.h"
 
-ScriptBehaviour::ScriptBehaviour(GameObject_v2 & obj) : Behaviour(obj) {}
+ScriptBehaviour::ScriptBehaviour(const COMPONENT_INIT_DESC & desc) : Behaviour(desc) {}
 
 void ScriptBehaviour::Start() {}
 

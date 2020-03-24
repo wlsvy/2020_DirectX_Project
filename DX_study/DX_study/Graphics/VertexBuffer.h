@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VertexBuffer_h__
+#define VertexBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <memory>
@@ -117,3 +118,5 @@ public:
 		return hr;
 	}
 };
+
+#endif // VertexBuffer_h__

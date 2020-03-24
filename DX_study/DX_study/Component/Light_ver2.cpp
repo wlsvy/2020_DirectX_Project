@@ -1,10 +1,6 @@
 #include "Light_ver2.h"
-#include "GameObject_v2.h"
 
-DirectionalLight::DirectionalLight(GameObject_v2 & obj) : Light_ver2(obj) 
-{ 
-	std::strcpy(Name, "Directional Light"); 
-}
+DirectionalLight::DirectionalLight(const COMPONENT_INIT_DESC & desc) : Light_ver2(desc) { std::strcpy(mComponentName, "Directional Light"); }
 
 LIGHT_INFO_DESC DirectionalLight::GetInfoDesc()
 {
@@ -22,10 +18,7 @@ LIGHT_INFO_DESC DirectionalLight::GetInfoDesc()
 	return lightDesc;
 }
 
-SpotLight::SpotLight(GameObject_v2 & obj) : Light_ver2(obj) 
-{
-	std::strcpy(Name, "Spot Light");
-}
+SpotLight::SpotLight(const COMPONENT_INIT_DESC & desc) : Light_ver2(desc) { std::strcpy(mComponentName, "Spot Light"); }
 
 LIGHT_INFO_DESC  SpotLight::GetInfoDesc()
 {
@@ -43,10 +36,7 @@ LIGHT_INFO_DESC  SpotLight::GetInfoDesc()
 	return lightDesc;
 }
 
-PointLight::PointLight(GameObject_v2 & obj) : Light_ver2(obj) 
-{ 
-	std::strcpy(Name, "Point Light"); 
-}
+PointLight::PointLight(const COMPONENT_INIT_DESC & desc) : Light_ver2(desc) { std::strcpy(mComponentName, "Point Light"); }
 
 LIGHT_INFO_DESC  PointLight::GetInfoDesc()
 {
@@ -64,4 +54,4 @@ LIGHT_INFO_DESC  PointLight::GetInfoDesc()
 	return lightDesc;
 }
 
-Light_ver2::Light_ver2(GameObject_v2 & obj) : Component(obj), transform(&obj.transform) {}
+Light_ver2::Light_ver2(const COMPONENT_INIT_DESC & desc) : Component(desc), transform(desc.mTransform) {}

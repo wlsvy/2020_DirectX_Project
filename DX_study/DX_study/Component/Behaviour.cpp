@@ -1,3 +1,3 @@
 #include "Behaviour.h"
 
-Behaviour::Behaviour(GameObject_v2 & obj) : Component(obj) {}
+Behaviour::Behaviour(const COMPONENT_INIT_DESC & desc) : Component(desc) {}
