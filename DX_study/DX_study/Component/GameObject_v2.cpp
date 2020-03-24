@@ -32,9 +32,6 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 
 GameObject_v2::~GameObject_v2()
 {
-	for (auto it = m_Components.begin(); it != m_Components.end(); it++) {
-		//delete it;
-	}
 }
 
 bool GameObject_v2::operator==(const GameObject_v2 & rhs) const

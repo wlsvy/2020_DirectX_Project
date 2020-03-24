@@ -30,7 +30,6 @@ struct RaycastResult {
 class PhysicsModule {
 	friend class Engine;
 public:
-	PhysicsModule() {}
 	~PhysicsModule();
 
 	void RegisterComponent(const std::shared_ptr<Collider_v2>& compo);
@@ -41,7 +40,7 @@ public:
 	bool RaycastAll(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to, std::list<RaycastResult> & rayInfo);
 
 private:
-	
+	PhysicsModule() {}
 
 	bool Initialize();
 	void PhysicsCompoInit(std::shared_ptr<Collider_v2> _component);

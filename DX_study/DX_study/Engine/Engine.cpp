@@ -20,10 +20,7 @@ Engine::Engine() :
 	m_SceneManager(new SceneManager()),
 	m_PhysicsManager(new PhysicsModule()),
 	m_AnimationManager(new AnimationManager())
-{
-	//std::shared_ptr<PhysicsModule>(new PhysicsModule);
-	//m_PhysicsManager = std::shared_ptr<PhysicsModule>(new PhysicsModule);
-}
+{}
 
 bool Engine::Initialize(
 	HINSTANCE hInstance, 

@@ -19,7 +19,12 @@ using namespace DirectX;
 SceneManager::SceneManager()
 {
 	GAMEOBJECT_INIT_DESC desc;
-	m_RootGameObject = std::shared_ptr<GameObject_v2>(AddGameObject(desc));
+	desc.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	desc.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	desc.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	desc.model = nullptr;
+	desc.obj_name = "worldTransform";
+	m_RootGameObject = std::shared_ptr<GameObject_v2>(new GameObject_v2(desc));
 	Transform * worldTransform = &m_RootGameObject->transform;;
 
 	mWorldTransform = worldTransform;
