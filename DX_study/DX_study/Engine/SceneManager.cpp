@@ -16,10 +16,11 @@
 using namespace DirectX;
 //여기에 커스텀 스크립트 헤더 include
 
-SceneManager::SceneManager() :
-	m_RootGameObject(new GameObject_v2())
+SceneManager::SceneManager()
 {
-	Transform * worldTransform = new Transform(null);
+	GAMEOBJECT_INIT_DESC desc;
+	m_RootGameObject = std::shared_ptr<GameObject_v2>(AddGameObject(desc));
+	Transform * worldTransform = &m_RootGameObject->transform;;
 
 	mWorldTransform = worldTransform;
 	mWorldMatrix = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f)
@@ -44,8 +45,7 @@ void SceneManager::Custom_Test_Obj_Set()
 
 	GameObject_v2 *gameObj = AddGameObject(desc);
 	gameObj->AddComponent<Animator>();
-	gameObj->GetComponent<Animator>()->SetAnimClip(&Engine::GetInstance().GetAnimClipBuffer()->at(0));
-	
+	gameObj->GetComponent<Animator>()->SetAnimClip(gameObj->renderer.m_Model->m_AnimClip.get());
 
 	desc.model = modelBuffer.buffer[7];
 	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader");

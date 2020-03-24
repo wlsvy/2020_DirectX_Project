@@ -1,19 +1,18 @@
 #include "Animator.h"
 #include "../AnimationClip.h"
 
-Animator::Animator(GameObject_v2 & obj) : Behaviour(desc)
+Animator::Animator(GameObject_v2 & obj) : Behaviour(obj)
 {
-	mComponentType = COMPONENT_ANIMATION;
 	std::strcpy(Name, "Animator");
-	GameObject->renderer.animator = this;
-	GameObject->renderer.drawSkinnedMesh = false;
+	GameObject.renderer.animator = this;
+	GameObject.renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Update(float _deltaTime)
 {
-	if (mClip == nullptr) return;
+	if (m_Clip == nullptr) return;
 
-	mClip->GetResultInTime(mPlayTime, &mAnimResult);
+	m_Clip->GetResultInTime(mPlayTime, &mAnimResult);
 
 	mPlayTime += _deltaTime / 10;
 }
@@ -21,27 +20,27 @@ void Animator::Update(float _deltaTime)
 void Animator::Play()
 {
 	m_IsRunning = true;
-	if (mClip != nullptr) GameObject->renderer.drawSkinnedMesh = true;
-	else GameObject->renderer.drawSkinnedMesh = false;
+	if (m_Clip != nullptr) GameObject.renderer.drawSkinnedMesh = true;
+	else GameObject.renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Stop()
 {
 	m_IsRunning = false;
-	GameObject->renderer.drawSkinnedMesh = false;
+	GameObject.renderer.drawSkinnedMesh = false;
 }
 
 void Animator::SetAnimClip(AnimationClip * _clip)
 {
-	mClip = _clip;
-	if (mClip == nullptr) Stop();
+	m_Clip = _clip;
+	if (m_Clip == nullptr) Stop();
 	else Play();
 		
 }
 
 AnimationClip * Animator::GetAnimClip()
 {
-	return mClip;
+	return m_Clip;
 }
 
 bool Animator::IsRunning()
@@ -62,6 +61,6 @@ void Animator::OnGui()
 
 Animator::~Animator()
 {
-	GameObject->renderer.animator = nullptr;
-	GameObject->renderer.drawSkinnedMesh = false;
+	GameObject.renderer.animator = nullptr;
+	GameObject.renderer.drawSkinnedMesh = false;
 }

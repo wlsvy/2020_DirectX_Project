@@ -1,6 +1,7 @@
 #include "Graphics.h"
 #include <algorithm>
 
+#include "../Engine/ModuleResource.h"
 #include "../Component/BaseComponentInclude.h"
 #include "../Component/ScriptBehaviour.h"
 #include "BaseGeometry.h"
@@ -835,15 +836,13 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 	struct _finddata_t fd;
 	intptr_t handle;
 
-	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
-
 	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
 		do {
 			if (StringHelper::GetFileExtension(fd.name) == "fbx") {
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -855,7 +854,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				debug_string += (std::string)fd.name + ", ";
 
 				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -1067,39 +1066,40 @@ void GraphicsManager::RenderCollider_v2Debug(std::vector<std::shared_ptr<Collide
 
 	m_batch->Begin();
 
-	for (std::vector<std::shared_ptr<Collider_v2>>::iterator it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
-		bool Component_valid = (*it)->Enabled;
-		bool GameObject_valid = (*it)->GameObject->enabled;
+	//auto& pm = Module::GetPhysicsModule().Get;
+	//for (auto it = physicsCompoBuffer->begin(); it != physicsCompoBuffer->end(); it++) {
+	//	bool Component_valid = (*it)->Enabled;
+	//	bool GameObject_valid = (*it)->GameObject.enabled;
 
-		if (Component_valid && GameObject_valid == false) continue;
+	//	if (Component_valid && GameObject_valid == false) continue;
 
 
 
-		COLLIDER_DEBUG_MODEL_VER2 desc = (*it)->Get_DebugModelType();
-		switch (desc.typeNum) {
-		case 0:
-			//Draw(m_batch.get(), *desc.aabbPtr, DirectX::Colors::White);
-			break;
-		case 1:
-			Draw(m_batch.get(), desc.mDeubgBox, DirectX::Colors::White);
-			break;
-		case 2:
-			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-			break;
-		case 3:
-			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-			desc.mDebugSphere.Center.x = desc.auxVal.x;
-			desc.mDebugSphere.Center.y = desc.auxVal.y;
-			desc.mDebugSphere.Center.z = desc.auxVal.z;
-			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
-			desc.mDebugSphere.Center.x = desc.auxVal2.x;
-			desc.mDebugSphere.Center.y = desc.auxVal2.y;
-			desc.mDebugSphere.Center.z = desc.auxVal2.z;
-			desc.mDebugSphere.Radius = 0.1f;
-			Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::Yellow);
-			break;
-		}
-	}
+	//	COLLIDER_DEBUG_MODEL_VER2 desc = (*it)->Get_DebugModelType();
+	//	switch (desc.typeNum) {
+	//	case 0:
+	//		//Draw(m_batch.get(), *desc.aabbPtr, DirectX::Colors::White);
+	//		break;
+	//	case 1:
+	//		Draw(m_batch.get(), desc.mDeubgBox, DirectX::Colors::White);
+	//		break;
+	//	case 2:
+	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+	//		break;
+	//	case 3:
+	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+	//		desc.mDebugSphere.Center.x = desc.auxVal.x;
+	//		desc.mDebugSphere.Center.y = desc.auxVal.y;
+	//		desc.mDebugSphere.Center.z = desc.auxVal.z;
+	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::White);
+	//		desc.mDebugSphere.Center.x = desc.auxVal2.x;
+	//		desc.mDebugSphere.Center.y = desc.auxVal2.y;
+	//		desc.mDebugSphere.Center.z = desc.auxVal2.z;
+	//		desc.mDebugSphere.Radius = 0.1f;
+	//		Draw(m_batch.get(), desc.mDebugSphere, DirectX::Colors::Yellow);
+	//		break;
+	//	}
+	//}
 
 	m_batch->End();
 	this->m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetView.GetAddressOf(), depthStencilView.Get());

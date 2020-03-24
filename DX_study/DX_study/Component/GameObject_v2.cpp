@@ -108,10 +108,60 @@ void GameObject_v2::OnGui()
 
 void GameObject_v2::Destroy()
 {
-	Module::GetSceneManager().Destory_GameObject(this);
+	Module::DestroyGameObject(*this);
 }
 
 void GameObject_v2::Destroy(GameObject_v2 * _target)
 {
 	_target->Destroy();
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
+{
+	Module::RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
+{
+	Module::RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
+{
+	Module::RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
+{
+	Module::RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag)
+{
+	Module::RegisterComponent(compo);
+}
+
+void GameObject_v2::DeRegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
+{
+	Module::DeregisterComponent(compo);
+}
+
+void GameObject_v2::DeRegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
+{
+	Module::DeregisterComponent(compo);
+}
+
+void GameObject_v2::DeRegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
+{
+	Module::DeregisterComponent(compo);
+}
+
+void GameObject_v2::DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
+{
+	Module::DeregisterComponent(compo);
+}
+
+void GameObject_v2::DeRegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag)
+{
+	Module::DeregisterComponent(compo);
 }

@@ -59,6 +59,16 @@ public:
 	Transform transform;
 	Renderer renderer;
 private:
+	void RegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag);
+	void RegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag);
+	void RegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag);
+	void RegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag);
+	void RegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag);
+	void DeRegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Terrain> compo, terrainComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag);
 
 	std::vector<std::shared_ptr<Component>> m_Components;
 
@@ -77,9 +87,10 @@ T* GameObject_v2::AddComponent()
 	}
 
 	std::shared_ptr<T> component(new T(*this));
-	//Module::RegisterComponent<T>(component);
-	Module::RegisterCompo<T>(component);
+
+	RegisterComponent(component, typename T::ComponentTag());
 	this->m_Components.emplace_back(component);
+
 	return component.get();
 }
 
@@ -99,11 +110,11 @@ T* GameObject_v2::GetComponent()
 template<class T>
 void GameObject_v2::RemoveComponent()
 {
-	for (auto& ptr : m_Components) {
-		T *target = dynamic_cast<T*>(ptr.get());
+	for (auto iter = m_Components.begin(); iter != m_Components.end(); iter++) {
+		T *target = dynamic_cast<T*>(iter->get());
 		if (target != nullptr) {
-			m_Components.erase(ptr);
-			sceneManager->Component_Valid_Test();
+			//DeRegisterComponent((*iter), typename T::ComponentTag());
+			m_Components.erase(iter);
 			return;
 		}
 	}

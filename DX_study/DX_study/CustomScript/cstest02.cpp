@@ -7,5 +7,5 @@ void cstest02::Start()
 
 void cstest02::Update()
 {
-	GameObject->transform.rotate(0.0f, Timer::GetDeltaTime() * tmpcs->speed, 0.0f);
+	GameObject.transform.rotate(0.0f, Timer::GetDeltaTime() * tmpcs->speed, 0.0f);
 }

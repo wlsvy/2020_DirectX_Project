@@ -14,11 +14,16 @@ using DirectX::operator*;
 //Engine* Engine::s_Instance = nullptr;
 
 Engine::Engine() :
+	m_Timer(new Timer()),
+	m_GraphicsManager(new GraphicsManager()),
+	m_ScriptBehaviourManager(new ScriptBehaviourManager()),
 	m_SceneManager(new SceneManager()),
 	m_PhysicsManager(new PhysicsModule()),
-	m_AnimationManager(new AnimationManager()),
-	m_ScriptBehaviourManager(new ScriptBehaviourManager()) 
-{}
+	m_AnimationManager(new AnimationManager())
+{
+	//std::shared_ptr<PhysicsModule>(new PhysicsModule);
+	//m_PhysicsManager = std::shared_ptr<PhysicsModule>(new PhysicsModule);
+}
 
 bool Engine::Initialize(
 	HINSTANCE hInstance, 
@@ -152,7 +157,7 @@ void Engine::RenderFrame()
 	m_GraphicsManager->RenderFrame();
 	m_GraphicsManager->DrawSkyBox();
 	//m_GraphicsManager->DebugDrawTest();
-	m_GraphicsManager->RenderCollider_v2Debug(&physicsBuffer2);
+	//m_GraphicsManager->RenderCollider_v2Debug(&physicsBuffer2);
 	m_GraphicsManager->ProcessUI();
 	m_GraphicsManager->SwapBuffer();
 }
@@ -197,9 +202,4 @@ MouseClass & Engine::GetMouse()
 Timer & Engine::GetTimer()
 {
 	return *(m_Timer.get());
-}
-
-std::vector<AnimationClip>* Engine::GetAnimClipBuffer()
-{
-	return &m_AnimationManager->mAnimClipBuffer;
 }

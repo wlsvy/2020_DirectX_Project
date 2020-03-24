@@ -64,4 +64,4 @@ LIGHT_INFO_DESC  PointLight::GetInfoDesc()
 	return lightDesc;
 }
 
-Light_ver2::Light_ver2(GameObject_v2 & obj) : Component(obj), transform(obj.transform) {}
+Light_ver2::Light_ver2(GameObject_v2 & obj) : Component(obj), transform(&obj.transform) {}

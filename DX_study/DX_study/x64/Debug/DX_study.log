@@ -1,19 +1,36 @@
 ﻿  Engine.cpp
   ModuleResource.cpp
-  SceneManager.cpp
-  Graphics.cpp
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\engine\engine.cpp(74): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\graphics\graphics.cpp(469): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\graphics\graphics.cpp(474): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\graphics\graphics.cpp(479): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\graphics\graphics.cpp(484): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\graphics\graphics.cpp(787): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  Input.cpp
+  PhysicsManager.cpp
   Physics.cpp
-  RenderWindow.cpp
-  ui.cpp
-  WindowContainer.cpp
-  sample.cpp
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\ui\ui.cpp(85): warning C4244: '인수': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\windowcontainer.cpp(122): warning C4715: 'WindowContainer::WindowProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\engine\dynamicsworld.h(387): warning C4267: 'return': 'size_t'에서 'reactphysics3d::uint'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\engine\dynamicsworld.h(395): warning C4267: 'return': 'size_t'에서 'reactphysics3d::uint'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\halfedgestructure.h(135): warning C4267: 'return': 'size_t'에서 'reactphysics3d::uint'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\shapes\heightfieldshape.h(256): warning C4244: 'return': 'double'에서 'reactphysics3d::decimal'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\shapes\heightfieldshape.h(264): warning C4244: 'return': 'reactphysics3d::decimal'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\trianglemesh.h(95): warning C4267: 'return': 'size_t'에서 'reactphysics3d::uint'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\engine\engine.cpp(89): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\engine\physicsmanager.cpp(142): warning C4305: '인수': 'double'에서 'reactphysics3d::decimal'(으)로 잘립니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\containers\set.h(502): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+  c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\containers\set.h(449): note: 클래스 템플릿 멤버 함수 'void reactphysics3d::Set<reactphysics3d::bodyindexpair>::add(const V &)'을(를) 컴파일하고 있습니다.
+          with
+          [
+              V=reactphysics3d::bodyindexpair
+          ] (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+  c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\collisiondetection.h(265): note: 컴파일 중인 함수 템플릿 인스턴스화 'void reactphysics3d::Set<reactphysics3d::bodyindexpair>::add(const V &)'에 대한 참조를 확인하십시오.
+          with
+          [
+              V=reactphysics3d::bodyindexpair
+          ] (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+  c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\include\reactphysics3d\collision\collisiondetection.h(89): note: 컴파일 중인 클래스 템플릿 인스턴스화 'reactphysics3d::Set<reactphysics3d::bodyindexpair>'에 대한 참조를 확인하세요. (소스 파일 컴파일 중 Engine\PhysicsManager.cpp)
+DirectXTK.lib(BasicEffect.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BasicEffect.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(CommonStates.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(DDSTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(DDSTextureLoader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(BinaryReader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BinaryReader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(EffectCommon.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(EffectCommon.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(pch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(pch.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteBatch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteBatch.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(PrimitiveBatch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(PrimitiveBatch.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteFont.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteFont.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(VertexTypes.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(VertexTypes.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(WICTextureLoader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
   DX_study.vcxproj -> C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DX_study.exe

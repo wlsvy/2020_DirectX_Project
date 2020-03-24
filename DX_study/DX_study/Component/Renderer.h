@@ -37,8 +37,8 @@ public:
 
 	Transform& transform;
 
-private:
 	Model*	m_Model = nullptr;
+private:
 	VertexShader*	m_Vshader = nullptr;
 	PixelShader*	m_Pshader = nullptr;
 	GeometryShader* m_Gshader = nullptr;

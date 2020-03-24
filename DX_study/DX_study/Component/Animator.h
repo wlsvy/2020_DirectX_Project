@@ -24,6 +24,6 @@ public:
 	float mPlayTime = 0.0f;
 	std::vector<DirectX::XMMATRIX> mAnimResult;
 private:
-	AnimationClip * mClip = nullptr;
+	AnimationClip * m_Clip = nullptr;
 	bool m_IsRunning = false;
 };

@@ -217,11 +217,11 @@ void Study_DX::calculateNormal(Vertex3D * _vertexBuffer, const UINT _vertexNum, 
 	XMVECTOR *vertexNormal = new XMVECTOR[_vertexNum];
 	XMFLOAT3 zero = XMFLOAT3(0.0f, 0.0f, 0.0f);
 
-	for (int i = 0; i < _vertexNum; i++) {
+	for (UINT i = 0; i < _vertexNum; i++) {
 		vertexNormal[i] = XMLoadFloat3(&zero);
 	}
 
-	for (int i = 0; i < triangleNum; i++) {
+	for (UINT i = 0; i < triangleNum; i++) {
 		int index0 = _indexBuffer[i * 3 + 0];
 		int index1 = _indexBuffer[i * 3 + 1];
 		int index2 = _indexBuffer[i * 3 + 2];
@@ -239,7 +239,7 @@ void Study_DX::calculateNormal(Vertex3D * _vertexBuffer, const UINT _vertexNum, 
 		vertexNormal[index2] = XMVectorAdd(vertexNormal[index2], faceNormal);
 	}
 
-	for (int i = 0; i < _vertexNum; i++) {
+	for (UINT i = 0; i < _vertexNum; i++) {
 		XMStoreFloat3(&_vertexBuffer[i].normal, XMVector3Normalize(vertexNormal[i]));
 	}
 
