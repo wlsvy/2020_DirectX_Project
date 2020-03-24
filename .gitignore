@@ -4,10 +4,9 @@
 DX_study/DX_study/x64/
 DX_study/DX_study/Debug/
 DX_study/DX_study/Release/
+abcd/
 
 # Executables
 *.exe
 *.out
 *.app
-
-*.obj
