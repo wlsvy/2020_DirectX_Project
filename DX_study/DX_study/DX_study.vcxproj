@@ -176,7 +176,6 @@
     <ClCompile Include="Component\Animator.cpp" />
     <ClCompile Include="Engine\ModuleResource.cpp" />
     <ClCompile Include="Graphics\BaseGeometry.cpp" />
-    <ClCompile Include="Component\Collider.cpp" />
     <ClCompile Include="Component\Behaviour.cpp" />
     <ClCompile Include="Component\Component.cpp" />
     <ClCompile Include="Component\GameObject_v2.cpp" />
@@ -239,7 +238,6 @@
     <ClInclude Include="Component\Animator.h" />
     <ClInclude Include="Engine\ModuleResource.h" />
     <ClInclude Include="Graphics\BaseGeometry.h" />
-    <ClInclude Include="Component\Collider.h" />
     <ClInclude Include="Component\BaseComponentInclude.h" />
     <ClInclude Include="Component\Behaviour.h" />
     <ClInclude Include="Component\Component.h" />

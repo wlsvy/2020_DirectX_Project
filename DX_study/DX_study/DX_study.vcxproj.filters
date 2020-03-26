@@ -165,9 +165,6 @@
     <ClCompile Include="Graphics\DebugDraw.cpp">
       <Filter>소스 파일\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Component\Collider.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="CustomScript\MemoryBOOM.cpp">
       <Filter>소스 파일\CustomScript</Filter>
     </ClCompile>
@@ -367,9 +364,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\DebugDraw.h">
       <Filter>헤더 파일\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Component\Collider.h">
-      <Filter>헤더 파일\Component</Filter>
     </ClInclude>
     <ClInclude Include="CustomScript\MemoryBOOM.h">
       <Filter>헤더 파일\CustomScript</Filter>
