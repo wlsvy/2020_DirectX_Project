@@ -8,10 +8,10 @@ using DirectX::operator*;
 //Engine* Engine::s_Instance = nullptr;
 
 Engine::Engine() :
-	m_SceneManager(&m_PhysicsManager),
-	m_PhysicsManager(),
+	m_SceneManager(m_PhysicsManager.get()),
+	m_PhysicsManager(new PhysicsModule),
 	m_AnimationManager(&animatorBuffer),
-	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, &m_PhysicsManager, &mKeyboardEvent, &mMouseEvent) {}
+	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, m_PhysicsManager.get(), &mKeyboardEvent, &mMouseEvent) {}
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) 
 {
@@ -31,7 +31,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	
 	//씬 매니저 초기화
 	m_SceneManager.Custom_Test_Obj_Set(); // 테스트용
-	m_PhysicsManager.Initialize();
+	m_PhysicsManager->Initialize();
 
 	m_GraphicsManager.gameObjBuffer = &m_SceneManager.gameObjectBuffer;
 	m_GraphicsManager.lightBuffer = &lightBuffer;
@@ -69,7 +69,7 @@ void Engine::Update() {
 	else {
 		//physicsManager.Update();
 	}
-	m_PhysicsManager.PhysicsUpdate();
+	m_PhysicsManager->PhysicsUpdate();
 
 	int gameObjSize = m_SceneManager.gameObjectBuffer.size();
 	for (int i = 0; i < gameObjSize; i++) {
@@ -142,7 +142,7 @@ void Engine::RenderFrame()
 	m_GraphicsManager.RenderFrame();
 	m_GraphicsManager.DrawSkyBox();
 	//m_GraphicsManager.DebugDrawTest();
-	m_GraphicsManager.RenderCollider_v2Debug(&m_PhysicsManager.m_Colliders);
+	m_GraphicsManager.RenderCollider_v2Debug(&m_PhysicsManager->m_Colliders);
 	m_GraphicsManager.ProcessUI();
 	m_GraphicsManager.SwapBuffer();
 }
@@ -159,7 +159,7 @@ void Engine::RegisterComponent(const std::shared_ptr<Light_ver2> & compo)
 
 void Engine::RegisterComponent(const std::shared_ptr<Collider_v2> & compo)
 {
-	m_PhysicsManager.RegisterComponent(compo);
+	m_PhysicsManager->RegisterComponent(compo);
 }
 
 void Engine::RegisterComponent(const std::shared_ptr<Animator> & compo)
@@ -211,7 +211,7 @@ GraphicsManager & Engine::GetGraphicsModule()
 
 PhysicsModule & Engine::GetPhysicsManager()
 {
-	return m_PhysicsManager;
+	return *(m_PhysicsManager.get());
 }
 
 SceneManager& Engine::GetSceneManager()

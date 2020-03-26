@@ -43,13 +43,13 @@ private:
 	GraphicsManager m_GraphicsManager;
 	ScriptBehaviourManager m_ScriptBehaviourManager;
 	SceneManager m_SceneManager;
-	PhysicsModule m_PhysicsManager;
+	//PhysicsModule m_PhysicsManager;
 	AnimationManager m_AnimationManager;
+
+	std::shared_ptr<PhysicsModule>			m_PhysicsManager;
 
 	std::vector<std::shared_ptr<ScriptBehaviour>> scriptBuffer;
 	std::vector<std::shared_ptr<Light_ver2>> lightBuffer;
-	//std::vector<std::shared_ptr<Collider>> physicsBuffer;
-	std::vector<std::shared_ptr<Collider_v2>> physicsBuffer2;
 	std::vector<std::shared_ptr<Terrain>> terrainBuffer;
 	std::vector<std::shared_ptr<Animator>> animatorBuffer;
 
