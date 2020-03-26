@@ -452,6 +452,9 @@
     <ClInclude Include="Engine\ModuleResource.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Component\ComponentTypeTraits.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl">

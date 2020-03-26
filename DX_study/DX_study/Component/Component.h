@@ -1,5 +1,6 @@
 #pragma once
 #include "Object.h"
+#include "ComponentTypeTraits.h"
 
 class GameObject_v2; // include 컴파일 주의할것. 아직 포함 안시킨 상태
 class PhysicsModule;

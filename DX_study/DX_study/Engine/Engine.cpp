@@ -151,28 +151,28 @@ void Engine::InsertScriptComponent(ScriptBehaviour * _component, GameObject_v2 *
 {
 	assert("component is null ptr & add component." && _component != nullptr);
 	scriptBuffer.push_back(std::shared_ptr<ScriptBehaviour>(_component));
-	_destination->componentBuffer.push_back(std::shared_ptr<Component>(scriptBuffer[scriptBuffer.size() - 1]));
+	_destination->m_Components.push_back(std::shared_ptr<Component>(scriptBuffer[scriptBuffer.size() - 1]));
 }
 
 void Engine::InsertLightComponent(Light_ver2 * _component, GameObject_v2 *_destination)
 {
 	assert("component is null ptr & add component." && _component != nullptr);
 	lightBuffer.push_back(std::shared_ptr<Light_ver2>(_component));
-	_destination->componentBuffer.push_back(std::shared_ptr<Component>(lightBuffer[lightBuffer.size() - 1]));
+	_destination->m_Components.push_back(std::shared_ptr<Component>(lightBuffer[lightBuffer.size() - 1]));
 }
 
 void Engine::InsertTerrainComponent(Terrain * _component, GameObject_v2 *_destination)
 {
 	assert("component is null ptr & add component." && _component != nullptr);
 	terrainBuffer.push_back(std::shared_ptr<Terrain>(_component));
-	_destination->componentBuffer.push_back(std::shared_ptr<Component>(terrainBuffer[terrainBuffer.size() - 1]));
+	_destination->m_Components.push_back(std::shared_ptr<Component>(terrainBuffer[terrainBuffer.size() - 1]));
 }
 
 void Engine::InsertCollider_v2Component(Collider_v2 * _component, GameObject_v2 * _destination)
 {
 	assert("component is null ptr & add component." && _component != nullptr);
 	physicsBuffer2.push_back(std::shared_ptr<Collider_v2>(_component));
-	_destination->componentBuffer.push_back(std::shared_ptr<Component>(physicsBuffer2[physicsBuffer2.size() - 1]));
+	_destination->m_Components.push_back(std::shared_ptr<Component>(physicsBuffer2[physicsBuffer2.size() - 1]));
 }
 
 void Engine::InsertAnimatorComponent(Animator * _component, GameObject_v2 *_destination) 
@@ -180,7 +180,7 @@ void Engine::InsertAnimatorComponent(Animator * _component, GameObject_v2 *_dest
 	assert("component is null ptr & add component." && _component != nullptr);
 	//animatorBuffer.push_back(std::shared_ptr<Animator>(_component));
 	animatorBuffer.push_back(std::shared_ptr<Animator>(_component));
-	_destination->componentBuffer.push_back(std::shared_ptr<Component>(animatorBuffer[animatorBuffer.size() - 1]));
+	_destination->m_Components.push_back(std::shared_ptr<Component>(animatorBuffer[animatorBuffer.size() - 1]));
 }
 
 void Engine::Component_Valid_Test()

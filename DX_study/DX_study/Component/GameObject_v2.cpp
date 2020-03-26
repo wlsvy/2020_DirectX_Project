@@ -32,7 +32,7 @@ GameObject_v2::GameObject_v2(const GAMEOBJECT_INIT_DESC & desc) :
 
 GameObject_v2::~GameObject_v2()
 {
-	for (auto it = componentBuffer.begin(); it != componentBuffer.end(); it++) {
+	for (auto it = m_Components.begin(); it != m_Components.end(); it++) {
 		//delete it;
 	}
 }
@@ -74,7 +74,7 @@ void GameObject_v2::OnGui()
 	}
 	ImGui::Spacing();
 
-	for (auto ptr : componentBuffer)
+	for (auto ptr : m_Components)
 	{
 		if (ptr.get() != nullptr)
 		{

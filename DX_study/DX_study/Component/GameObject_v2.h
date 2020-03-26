@@ -53,7 +53,7 @@ public:
 	Transform transform;
 	Renderer renderer;
 private:
-	std::vector<std::shared_ptr<Component>> componentBuffer;
+	std::vector<std::shared_ptr<Component>> m_Components;
 	SceneManager * const sceneManager;
 
 	int mGameObjectID;
@@ -65,8 +65,8 @@ inline T* GameObject_v2::AddComponent()
 	sceneManager->Component_Valid_Test();
 
 	typedef std::vector<std::shared_ptr<Component>>::iterator Component_Iterator;
-	Component_Iterator begin = componentBuffer.begin();
-	Component_Iterator end = componentBuffer.end();
+	Component_Iterator begin = m_Components.begin();
+	Component_Iterator end = m_Components.end();
 
 	//이미 해당 컴포넌트를 가지고 있는지 확인
 	for (Component_Iterator iter = begin; iter != end;) {
@@ -92,25 +92,15 @@ inline T* GameObject_v2::AddComponent()
 }
 
 template<class T>
-inline T* GameObject_v2::GetComponent()
+T* GameObject_v2::GetComponent()
 {
-	sceneManager->Component_Valid_Test();
-
-	typedef std::vector<std::shared_ptr<Component>>::iterator Component_Iterator;
-	Component_Iterator begin = componentBuffer.begin();
-	Component_Iterator end = componentBuffer.end();
-
-	//해당 컴포넌트를 가지고 있는지 확인
-	for (Component_Iterator iter = begin; iter != end;) {
-		T *target_component = dynamic_cast<T*>(iter->get());
-		if (target_component != NULL) {
-			return target_component;
+	for (auto& ptr : m_Components) {
+		T *target = dynamic_cast<T*>(ptr.get());
+		if (target != nullptr) {
+			return target;
 		}
-
-		iter++;
 	}
 
-	assert("GetComponent have Failed. : This Component Doesn't Exists!" && 1 == 0); //여기서 에러 던지니까 아래 코드는 실행x
 	return nullptr;
 }
 
@@ -118,14 +108,14 @@ template<class T>
 inline void GameObject_v2::RemoveComponent()
 {
 	typedef std::vector<std::shared_ptr<Component>>::iterator Component_Iterator;
-	Component_Iterator begin = componentBuffer.begin();
-	Component_Iterator end = componentBuffer.end();
+	Component_Iterator begin = m_Components.begin();
+	Component_Iterator end = m_Components.end();
 
 	//해당 컴포넌트를 가지고 있는지 확인
 	for (Component_Iterator iter = begin; iter != end;) {
 		T *target_component = dynamic_cast<T*>(iter->get());
 		if (target_component != NULL) {
-			componentBuffer.erase(iter);
+			m_Components.erase(iter);
 			sceneManager->Component_Valid_Test();
 			return;
 		}

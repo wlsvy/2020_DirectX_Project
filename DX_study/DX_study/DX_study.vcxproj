@@ -232,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimationClip.h" />
+    <ClInclude Include="Component\ComponentTypeTraits.h" />
     <ClInclude Include="Engine\AnimationManager.h" />
     <ClInclude Include="Component\CollisionInfo.h" />
     <ClInclude Include="Component\Collider_v2.h" />

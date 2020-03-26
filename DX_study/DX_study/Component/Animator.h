@@ -7,6 +7,8 @@ class Animator : public Behaviour {
 	friend class Engine;
 	friend class AnimationManager;
 public:
+	using ComponentTag = AnimationComponentTag;
+
 	Animator(const COMPONENT_INIT_DESC & desc);
 	void Update(float _deltaTime);
 	void Play();
