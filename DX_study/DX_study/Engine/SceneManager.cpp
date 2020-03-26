@@ -155,48 +155,6 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->AddComponent<DirectionalLight>();
 }
 
-void SceneManager::ClassifyComponent(Component * _component, GameObject_v2 * _destination)
-{
-	if (_component->mComponentID != -1) {
-		MessageBoxA(NULL, "This Component isn't new Component", "Error", MB_ICONERROR);
-		return;
-	}
-	_component->mComponentID = ComponentIDcontributor++;
-
-	ScriptBehaviour *scriptCompo_test = dynamic_cast<ScriptBehaviour*>(_component);
-	if (scriptCompo_test != NULL) {
-		Engine::GetInstance().InsertScriptComponent(scriptCompo_test, _destination);
-		return;
-	}
-
-	Light_ver2 *lightCompo_test = dynamic_cast<Light_ver2*>(_component);
-	if (lightCompo_test != NULL) {
-		Engine::GetInstance().InsertLightComponent(lightCompo_test, _destination);
-		return;
-	}
-
-	Terrain *terrain_test = dynamic_cast<Terrain*>(_component);
-	if (terrain_test != NULL) {
-		Engine::GetInstance().InsertTerrainComponent(terrain_test, _destination);
-		return;
-	}
-
-	Collider_v2 *colliderv2_test = dynamic_cast<Collider_v2*>(_component);
-	if (colliderv2_test != NULL) {
-		Engine::GetInstance().InsertCollider_v2Component(colliderv2_test, _destination);
-		return;
-	}
-
-	Animator *animator_test = dynamic_cast<Animator*>(_component);
-	if (animator_test != NULL) {
-		Engine::GetInstance().InsertAnimatorComponent(animator_test, _destination);
-		return;
-	}
-
-	assert("this component is impossible to classfiy." && 1 == 0);
-
-}
-
 void SceneManager::Component_Valid_Test()
 {
 	Engine::GetInstance().Component_Valid_Test();

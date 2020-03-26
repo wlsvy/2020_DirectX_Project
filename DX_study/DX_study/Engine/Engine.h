@@ -20,11 +20,12 @@ public:
 	void Update();
 	void RenderFrame();
 
-	void InsertScriptComponent(ScriptBehaviour * _component, GameObject_v2 *_destination);
-	void InsertLightComponent(Light_ver2 * _component, GameObject_v2 *_destination);
-	void InsertTerrainComponent(Terrain * _component, GameObject_v2 *_destination);
-	void InsertCollider_v2Component(Collider_v2 * _component, GameObject_v2 *_destination);
-	void InsertAnimatorComponent(Animator * _component, GameObject_v2 *_destination);
+	void RegisterComponent(const std::shared_ptr<ScriptBehaviour>& compo);
+	void RegisterComponent(const std::shared_ptr<Light_ver2> & compo);
+	void RegisterComponent(const std::shared_ptr<Collider_v2> & compo);
+	void RegisterComponent(const std::shared_ptr<Animator> & compo);
+	void RegisterComponent(const std::shared_ptr<Terrain> & compo);
+
 	void Component_Valid_Test();
 
 	GraphicsManager& GetGraphicsModule();

@@ -1,5 +1,0 @@
-﻿C:\Users\USER\source\repos\DX_study\DX_study\pixelshader.hlsl(13,25-76): warning X3206: 'Sample': implicit truncation of vector type
-C:\Users\USER\source\repos\DX_study\DX_study\pixelshader.hlsl(13,12-76): warning X3206: implicit truncation of vector type
-C:\Users\USER\source\repos\DX_study\DX_study\pixelshader.hlsl(11,29-39): error X4502: invalid vs_2_0 output semantic 'SV_TARGET'
-  
-  compilation failed; no code produced

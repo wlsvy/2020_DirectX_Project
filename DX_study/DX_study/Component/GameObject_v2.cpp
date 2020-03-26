@@ -1,4 +1,6 @@
 #include "GameObject_v2.h"
+#include "../Engine/ModuleResource.h"
+#include "../Engine/Engine.h"
 
 GameObject_v2::GameObject_v2(SceneManager * const sceneM, Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot)
 	: sceneManager(sceneM),
@@ -110,3 +112,53 @@ void GameObject_v2::Destroy(GameObject_v2 * _target)
 {
 	_target->Destroy();
 }
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
+{
+	Module::GetEngine().RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
+{
+	Module::GetEngine().RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
+{
+	Module::GetEngine().RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
+{
+	Module::GetEngine().RegisterComponent(compo);
+}
+
+void GameObject_v2::RegisterComponent(std::shared_ptr<Terrain> compo, TerrainComponentTag)
+{
+	Module::GetEngine().RegisterComponent(compo);
+}
+
+//void GameObject_v2::DeRegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag)
+//{
+//	Module::DeregisterComponent(compo);
+//}
+//
+//void GameObject_v2::DeRegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag)
+//{
+//	Module::DeregisterComponent(compo);
+//}
+//
+//void GameObject_v2::DeRegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag)
+//{
+//	Module::DeregisterComponent(compo);
+//}
+//
+//void GameObject_v2::DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag)
+//{
+//	Module::DeregisterComponent(compo);
+//}
+//
+//void GameObject_v2::DeRegisterComponent(std::shared_ptr<Terrain> compo, TerrainComponentTag)
+//{
+//	Module::DeregisterComponent(compo);
+//}

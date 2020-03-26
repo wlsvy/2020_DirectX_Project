@@ -53,6 +53,17 @@ public:
 	Transform transform;
 	Renderer renderer;
 private:
+	void RegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag);
+	void RegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag);
+	void RegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag);
+	void RegisterComponent(std::shared_ptr<Terrain> compo, TerrainComponentTag);
+	void RegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag);
+	void DeRegisterComponent(std::shared_ptr<ScriptBehaviour> compo, ScriptComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Light_ver2> compo, LigthComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Collider_v2> compo, PhysicsComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Terrain> compo, TerrainComponentTag);
+	void DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag);
+
 	std::vector<std::shared_ptr<Component>> m_Components;
 	SceneManager * const sceneManager;
 
@@ -84,11 +95,11 @@ inline T* GameObject_v2::AddComponent()
 	compo_desc.mTransform = &transform;
 	compo_desc.mRenderer = &renderer;
 
-	T* new_Component = new T(compo_desc);
-	Component* compo_ptr = dynamic_cast<Component*>(new_Component);
-	sceneManager->ClassifyComponent(compo_ptr, this);
+	std::shared_ptr<T> ptr(new T(compo_desc));
+	RegisterComponent(ptr, typename T::ComponentTag());
+	m_Components.emplace_back(ptr);
 	
-	return new_Component;
+	return ptr.get();
 }
 
 template<class T>

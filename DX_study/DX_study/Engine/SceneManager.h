@@ -48,7 +48,6 @@ public:
 	//bool Initialize();
 	//void LoadObject_Info();
 
-	void ClassifyComponent(Component * _component, GameObject_v2 *_destination); //똑같은 컴포넌트를 여러 번 분류하는 경우 조심.
 	void Component_Valid_Test();
 	bool Destory_GameObject(GameObject_v2 * _gameObject);
 	void OnGui();

@@ -31,6 +31,9 @@ struct RaycastResult {
 class PhysicsModule {
 	friend class Engine;
 public:
+	void RegisterComponent(const std::shared_ptr<Collider_v2>& compo);
+	void DeregisterComponent(const std::shared_ptr<Collider_v2>& compo);
+
 	bool Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to);
 	bool Raycast(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to, RaycastResult & rayInfo);
 	bool RaycastAll(DirectX::XMFLOAT3 & from, DirectX::XMFLOAT3 & to, std::list<RaycastResult> & rayInfo);
@@ -39,7 +42,7 @@ private:
 	PhysicsModule(
 		std::vector<std::shared_ptr<Collider_v2>> * buffer2
 	) :
-		collider_v2Buffer(buffer2){}
+		m_Colliders(buffer2){}
 
 	~PhysicsModule();
 
@@ -56,7 +59,7 @@ private:
 	void react3DCollisioinTest(Collider_v2* _collider);
 
 	//std::vector<std::shared_ptr<Collider>> * const colliderBuffer;
-	std::vector<std::shared_ptr<Collider_v2>> * const collider_v2Buffer;
+	std::vector<std::shared_ptr<Collider_v2>> * const m_Colliders;
 
 	reactphysics3d::DynamicsWorld* m_World;
 	std::map< reactphysics3d::CollisionBody *, Collider_v2*> m_ColliderMap;

@@ -147,40 +147,29 @@ void Engine::RenderFrame()
 	m_GraphicsManager.SwapBuffer();
 }
 
-void Engine::InsertScriptComponent(ScriptBehaviour * _component, GameObject_v2 *_destination)
+void Engine::RegisterComponent(const std::shared_ptr<ScriptBehaviour> & compo)
 {
-	assert("component is null ptr & add component." && _component != nullptr);
-	scriptBuffer.push_back(std::shared_ptr<ScriptBehaviour>(_component));
-	_destination->m_Components.push_back(std::shared_ptr<Component>(scriptBuffer[scriptBuffer.size() - 1]));
+	scriptBuffer.push_back(compo);
 }
 
-void Engine::InsertLightComponent(Light_ver2 * _component, GameObject_v2 *_destination)
+void Engine::RegisterComponent(const std::shared_ptr<Light_ver2> & compo)
 {
-	assert("component is null ptr & add component." && _component != nullptr);
-	lightBuffer.push_back(std::shared_ptr<Light_ver2>(_component));
-	_destination->m_Components.push_back(std::shared_ptr<Component>(lightBuffer[lightBuffer.size() - 1]));
+	lightBuffer.push_back(compo);
 }
 
-void Engine::InsertTerrainComponent(Terrain * _component, GameObject_v2 *_destination)
+void Engine::RegisterComponent(const std::shared_ptr<Collider_v2> & compo)
 {
-	assert("component is null ptr & add component." && _component != nullptr);
-	terrainBuffer.push_back(std::shared_ptr<Terrain>(_component));
-	_destination->m_Components.push_back(std::shared_ptr<Component>(terrainBuffer[terrainBuffer.size() - 1]));
+	m_PhysicsManager.RegisterComponent(compo);
 }
 
-void Engine::InsertCollider_v2Component(Collider_v2 * _component, GameObject_v2 * _destination)
+void Engine::RegisterComponent(const std::shared_ptr<Animator> & compo)
 {
-	assert("component is null ptr & add component." && _component != nullptr);
-	physicsBuffer2.push_back(std::shared_ptr<Collider_v2>(_component));
-	_destination->m_Components.push_back(std::shared_ptr<Component>(physicsBuffer2[physicsBuffer2.size() - 1]));
+	animatorBuffer.push_back(compo);
 }
 
-void Engine::InsertAnimatorComponent(Animator * _component, GameObject_v2 *_destination) 
+void Engine::RegisterComponent(const std::shared_ptr<Terrain> & compo)
 {
-	assert("component is null ptr & add component." && _component != nullptr);
-	//animatorBuffer.push_back(std::shared_ptr<Animator>(_component));
-	animatorBuffer.push_back(std::shared_ptr<Animator>(_component));
-	_destination->m_Components.push_back(std::shared_ptr<Component>(animatorBuffer[animatorBuffer.size() - 1]));
+	terrainBuffer.push_back(compo);
 }
 
 void Engine::Component_Valid_Test()
