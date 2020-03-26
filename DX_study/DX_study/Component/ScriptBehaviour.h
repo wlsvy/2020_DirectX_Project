@@ -8,6 +8,8 @@ class PhysicsModule;
 class ScriptBehaviour : public Behaviour {
 	friend class ScriptBehaviourManager;
 public:
+	using ComponentTag = ScriptComponentTag;
+
 	ScriptBehaviour(const COMPONENT_INIT_DESC & desc);
 
 	virtual void Start() override;

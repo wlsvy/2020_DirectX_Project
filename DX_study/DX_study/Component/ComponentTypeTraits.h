@@ -3,5 +3,5 @@
 struct ScriptComponentTag {};
 struct LigthComponentTag {};
 struct PhysicsComponentTag {};
-struct terrainComponentTag {};
+struct TerrainComponentTag {};
 struct AnimationComponentTag {};

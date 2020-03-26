@@ -18,6 +18,8 @@ struct LIGHT_INFO_DESC {
 
 class Light_ver2 : public Component {
 public:
+	using ComponentTag = LigthComponentTag;
+
 	Light_ver2(const COMPONENT_INIT_DESC & desc);
 	virtual LIGHT_INFO_DESC GetInfoDesc() abstract;
 

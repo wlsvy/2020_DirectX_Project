@@ -13,6 +13,8 @@ struct TERRAIN_INIT_DESC {
 };
 
 class Terrain : public Component {
+public:
+	using ComponentTag = TerrainComponentTag;
 private:
 
 	struct HeightMapType {

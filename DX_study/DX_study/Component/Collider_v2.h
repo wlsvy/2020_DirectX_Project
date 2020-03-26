@@ -39,6 +39,8 @@ struct COLLIDER_DEBUG_MODEL_VER2 {
 class Collider_v2 : public Component {
 	friend class PhysicsModule;
 public:
+	using ComponentTag = PhysicsComponentTag;
+
 	Collider_v2(const COMPONENT_INIT_DESC & desc);
 	virtual COLLIDER_DEBUG_MODEL_VER2 Get_DebugModelType() const abstract;
 	MyCustom::COLLIDER_VER2 getColliderType();
