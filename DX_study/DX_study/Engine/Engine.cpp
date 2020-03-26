@@ -9,7 +9,7 @@ using DirectX::operator*;
 
 Engine::Engine() :
 	m_SceneManager(&m_PhysicsManager),
-	m_PhysicsManager(&physicsBuffer2),
+	m_PhysicsManager(),
 	m_AnimationManager(&animatorBuffer),
 	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, &m_PhysicsManager, &mKeyboardEvent, &mMouseEvent) {}
 
@@ -142,7 +142,7 @@ void Engine::RenderFrame()
 	m_GraphicsManager.RenderFrame();
 	m_GraphicsManager.DrawSkyBox();
 	//m_GraphicsManager.DebugDrawTest();
-	m_GraphicsManager.RenderCollider_v2Debug(&physicsBuffer2);
+	m_GraphicsManager.RenderCollider_v2Debug(&m_PhysicsManager.m_Colliders);
 	m_GraphicsManager.ProcessUI();
 	m_GraphicsManager.SwapBuffer();
 }
