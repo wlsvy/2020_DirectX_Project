@@ -79,7 +79,6 @@ inline T* GameObject_v2::AddComponent()
 	Component_Iterator begin = m_Components.begin();
 	Component_Iterator end = m_Components.end();
 
-	//이미 해당 컴포넌트를 가지고 있는지 확인
 	for (Component_Iterator iter = begin; iter != end;) {
 		T *component_tester = dynamic_cast<T*>(iter->get());
 		if (component_tester != NULL) {

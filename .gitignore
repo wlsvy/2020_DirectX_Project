@@ -4,6 +4,8 @@
 DX_study/DX_study/Debug/
 DX_study/DX_study/Release/
 DX_study/DX_study/x64/
+DX_study/x64/
+DX_study/.vs/
 
 # Executables
 *.exe
