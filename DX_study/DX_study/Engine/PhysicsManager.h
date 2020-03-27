@@ -57,7 +57,6 @@ private:
 	void react3DCollisioinTest();
 	void react3DCollisioinTest(Collider_v2* _collider);
 
-	//std::vector<std::shared_ptr<Collider>> * const colliderBuffer;
 	std::vector<std::shared_ptr<Collider_v2>>  m_Colliders;
 
 	reactphysics3d::DynamicsWorld* m_World;

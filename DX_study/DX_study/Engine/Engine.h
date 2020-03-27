@@ -42,10 +42,9 @@ private:
 	Timer m_Timer;
 	GraphicsManager m_GraphicsManager;
 	ScriptBehaviourManager m_ScriptBehaviourManager;
-	SceneManager m_SceneManager;
-	//PhysicsModule m_PhysicsManager;
 	AnimationManager m_AnimationManager;
 
+	std::shared_ptr<SceneManager>			m_SceneManager;
 	std::shared_ptr<PhysicsModule>			m_PhysicsManager;
 
 	std::vector<std::shared_ptr<ScriptBehaviour>> scriptBuffer;

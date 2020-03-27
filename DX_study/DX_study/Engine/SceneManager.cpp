@@ -16,7 +16,7 @@
 using namespace DirectX;
 //여기에 커스텀 스크립트 헤더 include
 
-SceneManager::SceneManager(PhysicsModule * const physcisManager) : m_PhysicsManager(physcisManager)
+SceneManager::SceneManager()
 {
 	COMPONENT_INIT_DESC desc;
 	Transform * worldTransform = new Transform(desc);

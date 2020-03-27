@@ -8,7 +8,7 @@ using DirectX::operator*;
 //Engine* Engine::s_Instance = nullptr;
 
 Engine::Engine() :
-	m_SceneManager(m_PhysicsManager.get()),
+	m_SceneManager(new SceneManager),
 	m_PhysicsManager(new PhysicsModule),
 	m_AnimationManager(&animatorBuffer),
 	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, m_PhysicsManager.get(), &mKeyboardEvent, &mMouseEvent) {}
@@ -26,17 +26,17 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 		
-	m_GraphicsManager.InitializeSimpleGeometry(m_SceneManager.modelBuffer);
-	m_GraphicsManager.InitializeModel(m_SceneManager.modelBuffer);
+	m_GraphicsManager.InitializeSimpleGeometry(m_SceneManager->modelBuffer);
+	m_GraphicsManager.InitializeModel(m_SceneManager->modelBuffer);
 	
 	//씬 매니저 초기화
-	m_SceneManager.Custom_Test_Obj_Set(); // 테스트용
+	m_SceneManager->Custom_Test_Obj_Set(); // 테스트용
 	m_PhysicsManager->Initialize();
 
-	m_GraphicsManager.gameObjBuffer = &m_SceneManager.gameObjectBuffer;
+	m_GraphicsManager.gameObjBuffer = &m_SceneManager->gameObjectBuffer;
 	m_GraphicsManager.lightBuffer = &lightBuffer;
 	m_GraphicsManager.terrainBuffer = &terrainBuffer;
-	m_GraphicsManager.InitializeTerrain(m_SceneManager.terrainBuffer);
+	m_GraphicsManager.InitializeTerrain(m_SceneManager->terrainBuffer);
 	
 	
 
@@ -71,14 +71,14 @@ void Engine::Update() {
 	}
 	m_PhysicsManager->PhysicsUpdate();
 
-	int gameObjSize = m_SceneManager.gameObjectBuffer.size();
+	int gameObjSize = m_SceneManager->gameObjectBuffer.size();
 	for (int i = 0; i < gameObjSize; i++) {
-		m_SceneManager.gameObjectBuffer[i]->transform.TRANSFORM_UPDATED = false;
+		m_SceneManager->gameObjectBuffer[i]->transform.TRANSFORM_UPDATED = false;
 	}
 
 	m_AnimationManager.Update();
 	m_ScriptBehaviourManager.Update();
-	m_SceneManager.Update();
+	m_SceneManager->Update();
 
 #pragma region Input Event
 	//키보드, 마우스 입력값 정보
@@ -216,7 +216,7 @@ PhysicsModule & Engine::GetPhysicsManager()
 
 SceneManager& Engine::GetSceneManager()
 {
-	return m_SceneManager;
+	return *(m_SceneManager.get());
 }
 
 KeyboardClass & Engine::GetKeyboard()

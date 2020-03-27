@@ -45,8 +45,7 @@ public:
 class SceneManager {
 	friend class Engine;
 public:
-	//bool Initialize();
-	//void LoadObject_Info();
+	~SceneManager();
 
 	void Component_Valid_Test();
 	bool Destory_GameObject(GameObject_v2 * _gameObject);
@@ -56,9 +55,9 @@ public:
 	Model * getModelByName(const std::string & _str);
 
 private:
-	SceneManager(PhysicsModule * const physcisManager);
+	SceneManager();
 	void Custom_Test_Obj_Set();
-	~SceneManager();
+	
 	GameObject_v2* AddGameObject(GAMEOBJECT_INIT_DESC & desc);
 	void Update();
 	void RecursiveTransformUpdate(Transform * _transform, DirectX::XMMATRIX & _parentMatrix);
@@ -68,7 +67,6 @@ private:
 
 
 	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
-	PhysicsModule * const m_PhysicsManager;
 	ModelBuffer modelBuffer;
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;

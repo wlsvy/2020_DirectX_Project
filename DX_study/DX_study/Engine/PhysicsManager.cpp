@@ -273,7 +273,6 @@ void PhysicsModule::react3DCollisioinTest()
 	r3dCallback testCall;
 
 	m_World->testCollision(&testCall);
-	//mReactPhysics_DYNAMIC_WORLD->testCollision()
 }
 
 void PhysicsModule::react3DCollisioinTest(Collider_v2* _collider)
