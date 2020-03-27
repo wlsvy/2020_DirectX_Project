@@ -155,11 +155,6 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->AddComponent<DirectionalLight>();
 }
 
-void SceneManager::Component_Valid_Test()
-{
-	Engine::GetInstance().Component_Valid_Test();
-}
-
 bool SceneManager::DestoryGameObject(GameObject_v2 * _gameObject)
 {
 	for (auto iter = m_GameObjects.begin(); iter != m_GameObjects.end(); iter++) {

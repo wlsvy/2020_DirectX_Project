@@ -5,6 +5,7 @@
 class Engine;
 class GraphicsManager;
 class PhysicsModule;
+class SceneManager;
 class AnimationManager;
 struct ID3D11Device;
 struct ID3D11DeviceContext;
@@ -20,6 +21,7 @@ namespace Module {
 	Engine& GetEngine();
 	GraphicsManager& GetGraphicsModule();
 	AnimationManager& GetAnimationManager();
+	SceneManager& GetSceneManager();
 
 	ID3D11Device& GetDevice();
 	ID3D11DeviceContext& GetDeviceContext();

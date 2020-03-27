@@ -18,6 +18,11 @@ AnimationManager & Module::GetAnimationManager()
 	return Engine::GetInstance().GetAnimationManager();
 }
 
+SceneManager & Module::GetSceneManager()
+{
+	return Engine::GetInstance().GetSceneManager();
+}
+
 ID3D11Device & Module::GetDevice()
 {
 	return Engine::GetInstance().GetGraphicsModule().GetDevice();

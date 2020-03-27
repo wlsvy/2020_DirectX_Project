@@ -4,12 +4,17 @@
 #include <memory>
 
 #include "Component.h"
-#include "../Engine/SceneManager.h"
 
 class VertexShader;
 class PixelShader;
 class GeometryShader;
 struct ID3D11DeviceContext;
+
+class ScriptBehaviour;
+class Light_ver2;
+class Collider_v2;
+class Terrain;
+class Animator;
 
 struct GAMEOBJECT_INIT_DESC {
 	std::string obj_name = "GameObject";
@@ -31,9 +36,9 @@ class GameObject_v2 : public Object {
 	friend class SceneManager;
 	friend class GraphicsManager;
 public:
-	GameObject_v2(SceneManager * const sceneM,  Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot);
+	GameObject_v2(Model * model, const int & vshaderID, const int & pshaderID, const DirectX::XMFLOAT3 & pos, const DirectX::XMFLOAT3 & rot);
 	GameObject_v2(const GAMEOBJECT_INIT_DESC & desc);
-	~GameObject_v2();
+	~GameObject_v2() {}
 	int getID();
 	void OnGui();
 
@@ -65,7 +70,6 @@ private:
 	void DeRegisterComponent(std::shared_ptr<Animator> compo, AnimationComponentTag);
 
 	std::vector<std::shared_ptr<Component>> m_Components;
-	SceneManager * const sceneManager;
 
 	int mGameObjectID;
 };
@@ -73,8 +77,6 @@ private:
 template<class T>
 inline T* GameObject_v2::AddComponent()
 {
-	sceneManager->Component_Valid_Test();
-
 	typedef std::vector<std::shared_ptr<Component>>::iterator Component_Iterator;
 	Component_Iterator begin = m_Components.begin();
 	Component_Iterator end = m_Components.end();
@@ -126,7 +128,6 @@ inline void GameObject_v2::RemoveComponent()
 		T *target_component = dynamic_cast<T*>(iter->get());
 		if (target_component != NULL) {
 			m_Components.erase(iter);
-			sceneManager->Component_Valid_Test();
 			return;
 		}
 

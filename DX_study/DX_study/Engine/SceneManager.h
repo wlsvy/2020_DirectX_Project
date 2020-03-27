@@ -47,7 +47,6 @@ class SceneManager {
 public:
 	~SceneManager();
 
-	void Component_Valid_Test();
 	bool DestoryGameObject(GameObject_v2 * _gameObject);
 	void OnGui();
 	GameObject_v2 * getUIselectedObj();

@@ -26,8 +26,6 @@ public:
 	void RegisterComponent(const std::shared_ptr<Animator> & compo);
 	void RegisterComponent(const std::shared_ptr<Terrain> & compo);
 
-	void Component_Valid_Test();
-
 	GraphicsManager& GetGraphicsModule();
 	PhysicsModule& GetPhysicsManager();
 	SceneManager& GetSceneManager();
@@ -40,15 +38,13 @@ private:
 	Timer m_Timer;
 	GraphicsManager m_GraphicsManager;
 	ScriptBehaviourManager m_ScriptBehaviourManager;
-	AnimationManager m_AnimationManager;
-
+	std::shared_ptr<AnimationManager>		m_AnimationManager;
 	std::shared_ptr<SceneManager>			m_SceneManager;
 	std::shared_ptr<PhysicsModule>			m_PhysicsManager;
 
 	std::vector<std::shared_ptr<ScriptBehaviour>> scriptBuffer;
 	std::vector<std::shared_ptr<Light_ver2>> lightBuffer;
 	std::vector<std::shared_ptr<Terrain>> terrainBuffer;
-	std::vector<std::shared_ptr<Animator>> animatorBuffer;
 
 	float m_FixedTimeCheck = -1.0f;
 	bool ESC_signal = false;

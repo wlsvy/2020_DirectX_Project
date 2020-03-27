@@ -10,7 +10,7 @@ using DirectX::operator*;
 Engine::Engine() :
 	m_SceneManager(new SceneManager),
 	m_PhysicsManager(new PhysicsModule),
-	m_AnimationManager(),
+	m_AnimationManager(new AnimationManager),
 	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, m_PhysicsManager.get(), &mKeyboardEvent, &mMouseEvent) {}
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) 
@@ -77,7 +77,7 @@ void Engine::Update() {
 		m_SceneManager->m_GameObjects[i]->transform.TRANSFORM_UPDATED = false;
 	}
 
-	m_AnimationManager.Update();
+	m_AnimationManager->Update();
 	m_ScriptBehaviourManager.Update();
 	m_SceneManager->Update();
 
@@ -165,44 +165,12 @@ void Engine::RegisterComponent(const std::shared_ptr<Collider_v2> & compo)
 
 void Engine::RegisterComponent(const std::shared_ptr<Animator> & compo)
 {
-	m_AnimationManager.RegisterComponent(compo);
+	m_AnimationManager->RegisterComponent(compo);
 }
 
 void Engine::RegisterComponent(const std::shared_ptr<Terrain> & compo)
 {
 	terrainBuffer.push_back(compo);
-}
-
-void Engine::Component_Valid_Test()
-{
-	for (std::vector<std::shared_ptr<ScriptBehaviour>>::iterator it = scriptBuffer.begin(); it != scriptBuffer.end();) {
-		if (it->unique()) {
-			it = scriptBuffer.erase(it);
-			continue;
-		}
-		it++;
-	}
-	for (std::vector<std::shared_ptr<Light_ver2>>::iterator it = lightBuffer.begin(); it != lightBuffer.end();) {
-		if (it->unique()) {
-			it = lightBuffer.erase(it);
-			continue;
-		}
-		it++;
-	}
-	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer.begin(); it != terrainBuffer.end();) {
-		if (it->unique()) {
-			it = terrainBuffer.erase(it);
-			continue;
-		}
-		it++;
-	}
-	for (std::vector<std::shared_ptr<Animator>>::iterator it = animatorBuffer.begin(); it != animatorBuffer.end();) {
-		if (it->unique()) {
-			it = animatorBuffer.erase(it);
-			continue;
-		}
-		it++;
-	}
 }
 
 GraphicsManager & Engine::GetGraphicsModule()
@@ -222,7 +190,7 @@ SceneManager& Engine::GetSceneManager()
 
 AnimationManager & Engine::GetAnimationManager()
 {
-	return m_AnimationManager;
+	return *(m_AnimationManager.get());
 }
 
 KeyboardClass & Engine::GetKeyboard()
