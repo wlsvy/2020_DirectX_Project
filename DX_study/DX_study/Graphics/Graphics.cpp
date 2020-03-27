@@ -792,8 +792,6 @@ void GraphicsManager::LoadModel(const std::string & filePath)
 	struct _finddata_t fd;
 	intptr_t handle;
 
-	//std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
-
 	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
 		do {
 			if (fd.attrib & _A_SUBDIR && 
@@ -812,7 +810,7 @@ void GraphicsManager::LoadModel(const std::string & filePath)
 				debug_string += (std::string)fd.name + ", ";
 
 				std::shared_ptr<Model> model(new Model);
-				if (!model->Initialize(filePath + fd.name, nullptr)) {
+				if (!model->Initialize(filePath + fd.name)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}

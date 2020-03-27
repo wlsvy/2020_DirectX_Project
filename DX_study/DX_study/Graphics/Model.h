@@ -14,12 +14,6 @@ class Model {
 	friend class GraphicsManager;
 public:
 	//------------------fbx 파일로 모델 생성
-	//애니메이션 포함 파일
-	bool Initialize(
-		const std::string & filePath, 
-		std::vector<AnimationClip> * _animClipDestination);
-
-	//일반 파일
 	bool Initialize(const std::string & filePath);
 
 	////------------------직접 만든 정점/색인 배열로 모델 생성
@@ -44,9 +38,6 @@ public:
 protected:
 	
 	bool LoadModel(const std::string & filePath);
-	bool LoadModel(
-		const std::string & filePath, 
-		std::vector<AnimationClip> * _animClipDestination);
 	void ProcessNode(
 		aiNode * node, 
 		const aiScene * scene, 
@@ -59,7 +50,7 @@ protected:
 	Mesh ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::vector<DWORD>* _indexBuffer);
 	Mesh ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD * _indexBuffer, const int _indexSize);
 	Mesh ProcessMesh(Vertex3D * _vertex); //점 하나
-	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination);
+	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene);
 	void ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
 	Mesh ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vector<DWORD> * terrainIndexBuffer);

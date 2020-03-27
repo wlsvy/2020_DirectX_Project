@@ -9,24 +9,6 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
-bool Model::Initialize(
-	const std::string & filePath, 
-	std::vector<AnimationClip>* _animClipDestination)
-{
-	try
-	{
-		if (!this->LoadModel(filePath, _animClipDestination))
-			return false;
-	}
-	catch (COMException & exception)
-	{
-		ErrorLogger::Log(exception);
-		return false;
-	}
-
-	return true;
-}
-
 bool Model::Initialize(const std::string & filePath)
 {
 	try
@@ -140,25 +122,6 @@ void Model::Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX
 bool Model::LoadModel(const std::string & filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
-
-	Assimp::Importer importer;
-
-	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
-
-	if (pScene == nullptr)
-		return false;
-
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
-
-	return true;
-}
-
-bool Model::LoadModel(const std::string & filePath,
-	std::vector<AnimationClip> * _animClipDestination)
-{
-	this->directory = StringHelper::GetDirectoryFromPath(filePath);
 	
 	Assimp::Importer importer;
 
@@ -174,14 +137,10 @@ bool Model::LoadModel(const std::string & filePath,
 
 	if (!pScene->HasAnimations()) return true; //애니메이션 없을 때 함수 종료
 
-
-	//추가 애니메이션 처리
 	int animationNum = pScene->mNumAnimations;
-
-	
 	for (int i = 0; i < animationNum; i++) {
 		aiAnimation *pAnimation = pScene->mAnimations[i];
-		ProcessAnimation(pAnimation, pScene, _animClipDestination);
+		ProcessAnimation(pAnimation, pScene);
 	}
 		
 	return true;
@@ -346,7 +305,7 @@ Mesh Model::ProcessMesh(Vertex3D * _vertex)
 	return Mesh(*_vertex, textures, DirectX::XMMatrixIdentity());
 }
 
-void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination)
+void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene)
 {
 	std::shared_ptr<AnimationClip> clip = std::make_shared<AnimationClip>();
 	clip->Name = _aiAnim->mName.data;
