@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 #include "Behaviour.h"
 
 class AnimationClip;
@@ -13,8 +15,12 @@ public:
 	void Update(float _deltaTime);
 	void Play();
 	void Stop();
-	void SetAnimClip(AnimationClip * _clip);
+
+	void SetClip(AnimationClip * _clip);
+	void SetClip(const std::string & clipName);
+
 	AnimationClip * GetAnimClip();
+
 	bool IsRunning();
 
 	void OnGui() override;
@@ -25,5 +31,5 @@ public:
 	std::vector<DirectX::XMMATRIX> mAnimResult;
 private:
 	AnimationClip * mClip = nullptr;
-	bool mIsRunning = false;
+	bool m_IsRunning = false;
 };

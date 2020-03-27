@@ -311,7 +311,7 @@ Mesh Model::ProcessMesh(
 	std::vector<DWORD>* _indexBuffer)
 {
 	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture")->get());
+	textures.push_back(Module::GetTexture("White Texture").get());
 
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
@@ -321,7 +321,7 @@ Mesh Model::ProcessMesh(
 	std::vector<DWORD>* _indexBuffer)
 {
 	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture")->get());
+	textures.push_back(Module::GetTexture("White Texture").get());
 
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
 }
@@ -333,7 +333,7 @@ Mesh Model::ProcessMesh(
 	const int _indexSize)
 {
 	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture")->get());
+	textures.push_back(Module::GetTexture("White Texture").get());
 
 	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
@@ -341,18 +341,18 @@ Mesh Model::ProcessMesh(
 Mesh Model::ProcessMesh(Vertex3D * _vertex)
 {
 	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture")->get());
+	textures.push_back(Module::GetTexture("White Texture").get());
 
 	return Mesh(*_vertex, textures, DirectX::XMMatrixIdentity());
 }
 
 void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination)
 {
-	AnimationClip animationClip;
-	animationClip.mClipName = _aiAnim->mName.data;
-	animationClip.mChannel.resize(m_Bone_Name_Map.size());
-	animationClip.mTickPerSecond = (float)(_aiAnim->mTicksPerSecond != 0 ? _aiAnim->mTicksPerSecond : 25.0f);
-	animationClip.mDuration = (float)_aiAnim->mDuration;
+	std::shared_ptr<AnimationClip> clip = std::make_shared<AnimationClip>();
+	clip->Name = _aiAnim->mName.data;
+	clip->mChannel.resize(m_Bone_Name_Map.size());
+	clip->mTickPerSecond = (float)(_aiAnim->mTicksPerSecond != 0 ? _aiAnim->mTicksPerSecond : 25.0f);
+	clip->mDuration = (float)_aiAnim->mDuration;
 
 	int numChannel = _aiAnim->mNumChannels;
 	for (int i = 0; i < numChannel; i++) {
@@ -404,7 +404,7 @@ void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, st
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
 		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
 		channel.mGlobalInverseTransform = globalInverseTransform;
-		animationClip.mChannel[channel.mBoneIndex] = channel;
+		clip->mChannel[channel.mBoneIndex] = channel;
 	}
 	
 	aiNode * ainode = _aiScene->mRootNode;
@@ -414,15 +414,15 @@ void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, st
 	nodeName(&ddd, ainode);
 #pragma endregion
 
-	ProcessBoneHierarchy(ainode, &animationClip, nullptr, DirectX::XMMatrixIdentity());
+	ProcessBoneHierarchy(ainode, clip.get(), nullptr, DirectX::XMMatrixIdentity());
 
-	animationClip.mNumChannel = (short)animationClip.mChannel.size();
-	for (int i = 0; i < animationClip.mChannel.size(); i++) {
+	clip->mNumChannel = (short)clip->mChannel.size();
+	for (int i = 0; i < clip->mChannel.size(); i++) {
 		//자식 개수 미리 계산해두기
-		animationClip.mChannel[i].mNumChildBone = (short)animationClip.mChannel[i].mChildBoneIndex.size();
+		clip->mChannel[i].mNumChildBone = (short)clip->mChannel[i].mChildBoneIndex.size();
 	}
 
-	_animClipDestination->push_back(animationClip);
+	Module::RegisterAnimClip(clip);
 }
 
 void Model::ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform)
@@ -540,7 +540,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 				pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 				if (aiColor.IsBlack()) //If color = black, just use grey
 				{
-					texturePtrVec.push_back(Module::GetTexture("Black Texture")->get());
+					texturePtrVec.push_back(Module::GetTexture("Black Texture").get());
 				}
 				else {
 					std::shared_ptr<Texture> texture(new Texture(
@@ -608,7 +608,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 
 	if (texturePtrVec.size() == 0)
 	{
-		texturePtrVec.push_back(Module::GetTexture("Unhandled Texture")->get());
+		texturePtrVec.push_back(Module::GetTexture("Unhandled Texture").get());
 	}
 	return texturePtrVec;
 

@@ -41,7 +41,7 @@ public:
 	PixelShader* GetPshader(const std::string & shaderName);
 	GeometryShader* GetGshader(const std::string & shaderName);
 	Model* GetModel(const std::string & name);
-	std::shared_ptr<Texture>* GetTexture(const std::string & name);
+	std::shared_ptr<Texture> GetTexture(const std::string & name);
 
 	ID3D11Device& GetDevice();
 	ID3D11DeviceContext& GetDeviceContext();

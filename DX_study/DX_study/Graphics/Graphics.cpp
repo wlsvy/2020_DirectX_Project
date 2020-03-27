@@ -47,13 +47,13 @@ Model * GraphicsManager::GetModel(const std::string & name)
 	return nullptr;
 }
 
-std::shared_ptr<Texture>* GraphicsManager::GetTexture(const std::string & name)
+std::shared_ptr<Texture> GraphicsManager::GetTexture(const std::string & name)
 {
 	auto iter = m_TextureMap.find(name);
 	if (iter != m_TextureMap.end()) {
-		return &iter->second;
+		return iter->second;
 	}
-	return nullptr;
+	return std::shared_ptr<Texture>();
 }
 
 
@@ -657,10 +657,8 @@ bool GraphicsManager::InitializeDebugDraw()
 	return true;
 }
 
-void GraphicsManager::LoadShader(std::wstring & _ExeFilePath) //나중에 쉐이더 초기화 함수와 합칠 것
+void GraphicsManager::LoadShader(std::wstring & _ExeFilePath)
 {
-	//폴더 안에 hlsl파일 확인 후 
-	//std::string path = "hlsl\\*.hlsl"; // hlsl 파일 경로. 현재 프로젝트 파일과 같은 폴더 안에 있다고 가정.
 	std::string pixelShader_path = "hlsl\\PixelShader\\*.hlsl";
 	std::string vertexShader_path = "hlsl\\VertexShader\\*.hlsl";
 	std::string geometryShader_path = "hlsl\\GeometryShader\\*.hlsl";
@@ -673,20 +671,7 @@ void GraphicsManager::LoadShader(std::wstring & _ExeFilePath) //나중에 쉐이더 초
 		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
 		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
-		//{"COLOR", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
 	};
-	/* 입력 배치 객체, 정점 정보를 direct3d에게 전달
-	typedef struct D3D11_INPUT_ELEMENT_DESC
-	{
-	LPCSTR SemanticName;				//성분에 부여된 문자열 이름
-	UINT SemanticIndex;					//semantic에 부여된 색인, 정점 하나에 텍스쳐 좌표가 여러개일 때 색인으로 구분
-	DXGI_FORMAT Format;					//정점 성분의 자료 형식
-	UINT InputSlot;						//이 성분의 자료가 공급될 정점 버퍼 슬롯의 색인
-	UINT AlignedByteOffset;				//입력 슬롯을 하나만 사용하는 경우. 정점 구조체의 시작 위치와 이 정점 성분의 시작위치의 오프셋(바이트 단위)
-	D3D11_INPUT_CLASSIFICATION InputSlotClass;
-	UINT InstanceDataStepRate;
-	} 	D3D11_INPUT_ELEMENT_DESC;
-	*/
 
 	//skinned mesh vertex
 	D3D11_INPUT_ELEMENT_DESC layout3D_skinned[] = {
@@ -807,7 +792,7 @@ void GraphicsManager::LoadModel(const std::string & filePath)
 	struct _finddata_t fd;
 	intptr_t handle;
 
-	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
+	//std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
 
 	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
 		do {
@@ -827,7 +812,7 @@ void GraphicsManager::LoadModel(const std::string & filePath)
 				debug_string += (std::string)fd.name + ", ";
 
 				std::shared_ptr<Model> model(new Model);
-				if (!model->Initialize(filePath + fd.name, animClipBuffer)) {
+				if (!model->Initialize(filePath + fd.name, nullptr)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}

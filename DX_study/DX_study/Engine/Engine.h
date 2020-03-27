@@ -31,13 +31,11 @@ public:
 	GraphicsManager& GetGraphicsModule();
 	PhysicsModule& GetPhysicsManager();
 	SceneManager& GetSceneManager();
+	AnimationManager& GetAnimationManager();
 	KeyboardClass& GetKeyboard();
 	MouseClass& GetMouse();
 
-	std::vector<AnimationClip> * GetAnimClipBuffer();
-
 	~Engine();
-
 private:
 	Timer m_Timer;
 	GraphicsManager m_GraphicsManager;

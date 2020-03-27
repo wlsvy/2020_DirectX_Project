@@ -55,7 +55,7 @@ class AnimationClip {
 public:
 	void GetResultInTime(float _time, std::vector<DirectX::XMMATRIX> * _result);
 
-	std::string mClipName;
+	std::string Name;
 
 	short mNumChannel;
 	std::vector<BoneChannel> mChannel;

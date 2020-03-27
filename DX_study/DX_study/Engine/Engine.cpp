@@ -10,7 +10,7 @@ using DirectX::operator*;
 Engine::Engine() :
 	m_SceneManager(new SceneManager),
 	m_PhysicsManager(new PhysicsModule),
-	m_AnimationManager(&animatorBuffer),
+	m_AnimationManager(),
 	m_ScriptBehaviourManager(&scriptBuffer, &m_Keyboard, &m_Mouse, m_PhysicsManager.get(), &mKeyboardEvent, &mMouseEvent) {}
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height) 
@@ -165,7 +165,7 @@ void Engine::RegisterComponent(const std::shared_ptr<Collider_v2> & compo)
 
 void Engine::RegisterComponent(const std::shared_ptr<Animator> & compo)
 {
-	animatorBuffer.push_back(compo);
+	m_AnimationManager.RegisterComponent(compo);
 }
 
 void Engine::RegisterComponent(const std::shared_ptr<Terrain> & compo)
@@ -220,6 +220,11 @@ SceneManager& Engine::GetSceneManager()
 	return *(m_SceneManager.get());
 }
 
+AnimationManager & Engine::GetAnimationManager()
+{
+	return m_AnimationManager;
+}
+
 KeyboardClass & Engine::GetKeyboard()
 {
 	return m_Keyboard;
@@ -228,11 +233,6 @@ KeyboardClass & Engine::GetKeyboard()
 MouseClass & Engine::GetMouse()
 {
 	return m_Mouse;
-}
-
-std::vector<AnimationClip>* Engine::GetAnimClipBuffer()
-{
-	return &m_AnimationManager.mAnimClipBuffer;
 }
 
 Engine::~Engine()

@@ -45,7 +45,7 @@ void SceneManager::Custom_Test_Obj_Set()
 
 	GameObject_v2 *gameObj = AddGameObject(desc);
 	gameObj->AddComponent<Animator>();
-	gameObj->GetComponent<Animator>()->SetAnimClip(&Engine::GetInstance().GetAnimClipBuffer()->at(0));
+	gameObj->GetComponent<Animator>()->SetClip("mixamo.com");
 	
 
 	desc.model = Module::GetGraphicsModule().GetModel("nanosuit.obj");
