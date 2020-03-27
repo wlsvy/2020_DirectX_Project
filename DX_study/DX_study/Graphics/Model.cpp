@@ -2,25 +2,17 @@
 
 #include "../AnimationClip.h"
 #include "../Component/Animator.h"
+#include "../Engine/ModuleResource.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
 bool Model::Initialize(
 	const std::string & filePath, 
-	ID3D11Device * device, 
-	ID3D11DeviceContext * deviceContext, 
-	ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader, 
-	ConstantBuffer<CB_VS_boneData>& cb_vs_boneData, 
 	std::vector<AnimationClip>* _animClipDestination, 
 	std::map<std::string, int>& _textureMap, 
 	std::vector<Texture>& _textureVec)
 {
-	this->device = device;
-	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
-	this->cb_vs_boneData = &cb_vs_boneData;
-
 	try
 	{
 		if (!this->LoadModel(filePath, _animClipDestination, _textureMap, _textureVec))
@@ -36,16 +28,9 @@ bool Model::Initialize(
 }
 
 bool Model::Initialize(const std::string & filePath,
-	ID3D11Device * device,
-	ID3D11DeviceContext * deviceContext,
-	ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,
 	std::map<std::string, int> & _textureMap,
 	std::vector<Texture> & _textureVec)
 {
-	this->device = device;
-	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
-
 	try
 	{
 		if (!this->LoadModel(filePath, _textureMap, _textureVec))
@@ -62,16 +47,9 @@ bool Model::Initialize(const std::string & filePath,
 
 bool Model::Initialize(std::vector<Vertex3D> * VertexBuffer,
 	std::vector<DWORD> * IndexBuffer,
-	ID3D11Device * device,
-	ID3D11DeviceContext * deviceContext,
-	ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,
 	std::map<std::string, int> & _textureMap,
 	std::vector<Texture> & _textureVec)
 {
-	this->device = device;
-	this->deviceContext = deviceContext;
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
-
 	meshes.push_back(ProcessMesh(VertexBuffer, IndexBuffer, _textureMap, _textureVec));
 	return true;
 }
@@ -80,32 +58,18 @@ bool Model::Initialize(Vertex3D * _VertexBuffer,
 	const UINT _vertexSize,
 	DWORD * _IndexBuffer,
 	const UINT _indexSize,
-	ID3D11Device * _device,
-	ID3D11DeviceContext * _deviceContext,
-	ConstantBuffer<CB_VS_vertexshader> & _cb_vs_vertexshader,
 	std::map<std::string, int> & _textureMap,
 	std::vector<Texture> & _textureVec)
 {
-	this->device = _device;
-	this->deviceContext = _deviceContext;
-	this->cb_vs_vertexshader = &_cb_vs_vertexshader;
-
 	meshes.push_back(ProcessMesh(_VertexBuffer, _vertexSize, _IndexBuffer, _indexSize, _textureMap, _textureVec));
 	return true;
 }
 
 bool Model::Initialize(Vertex3D * _VertexBuffer,
 	const UINT _vertexSize,
-	ID3D11Device * _device,
-	ID3D11DeviceContext * _deviceContext,
-	ConstantBuffer<CB_VS_vertexshader> & _cb_vs_vertexshader,
 	std::map<std::string, int> & _textureMap,
 	std::vector<Texture> & _textureVec)
 {
-	this->device = _device;
-	this->deviceContext = _deviceContext;
-	this->cb_vs_vertexshader = &_cb_vs_vertexshader;
-
 	meshes.push_back(ProcessMesh(_VertexBuffer, _textureMap, _textureVec));
 
 	return true;
@@ -113,67 +77,67 @@ bool Model::Initialize(Vertex3D * _VertexBuffer,
 
 void Model::Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
-	this->deviceContext->GSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
+	Module::GetDeviceContext().GSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
-		this->cb_vs_vertexshader->data.vpMatrix = viewProjectionMatrix;
-		this->cb_vs_vertexshader->ApplyChanges();
+		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.vpMatrix = viewProjectionMatrix;
+		Module::GetVertexCB().ApplyChanges();
 		meshes[i].Draw();
 	}
 }
 
 void Model::Draw_WireFrame(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
-	this->deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
-
+	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
+	Module::GetDeviceContext().IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
+	
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
-		this->cb_vs_vertexshader->data.vpMatrix = viewProjectionMatrix;
-		this->cb_vs_vertexshader->ApplyChanges();
+		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.vpMatrix = viewProjectionMatrix;
+		Module::GetVertexCB().ApplyChanges();
 		meshes[i].Draw();
 	}
 }
 
 void Model::Draw_skinnedMesh(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix, Animator * _animator)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
-
+	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
+	
 	if (_animator != nullptr) {
-		CopyMemory(this->cb_vs_boneData->data.boneTransform, _animator->mAnimResult.data(), _animator->mAnimResult.size() * sizeof(DirectX::XMMATRIX));
-		this->cb_vs_boneData->ApplyChanges();
+		CopyMemory(Module::GetModelBoneCB().data.boneTransform, _animator->mAnimResult.data(), _animator->mAnimResult.size() * sizeof(DirectX::XMMATRIX));
+		Module::GetModelBoneCB().ApplyChanges();
 
-		this->deviceContext->VSSetConstantBuffers(1, 1, this->cb_vs_boneData->GetAddressOf());
+		Module::GetDeviceContext().VSSetConstantBuffers(1, 1, Module::GetModelBoneCB().GetAddressOf());
 	}
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
-		this->cb_vs_vertexshader->ApplyChanges();
+		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().ApplyChanges();
 		meshes[i].Draw();
 	}
 }
 
 void Model::Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX::XMMATRIX & _viewProjectionMatrix, float _height, float _width)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * _worldMatrix * _viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * _worldMatrix; //Calculate World Matrix
-		this->cb_vs_vertexshader->ApplyChanges();
+		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * _worldMatrix * _viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * _worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().ApplyChanges();
 		meshes[i].Draw();
 	}
 }
@@ -309,7 +273,7 @@ Mesh Model::ProcessMesh(
 									_textureVec);
 
 	if(!mesh->HasBones())
-	return Mesh(this->device, this->deviceContext, vertices, indices, textures, transformMatrix, MyCustom::DEFAULT);
+	return Mesh(vertices, indices, textures, transformMatrix, MyCustom::DEFAULT);
 
 	//Get Bones
 	UINT BoneIndex = 0;
@@ -354,7 +318,7 @@ Mesh Model::ProcessMesh(
 		vertices_skinned.push_back(vertex);
 	}
 
-	return Mesh(this->device, this->deviceContext, vertices_skinned, indices, textures, transformMatrix);
+	return Mesh(vertices_skinned, indices, textures, transformMatrix);
 }
 
 Mesh Model::ProcessMesh(std::vector<Vertex3D>* _vertexBuffer, std::vector<DWORD>* _indexBuffer, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
@@ -363,7 +327,7 @@ Mesh Model::ProcessMesh(std::vector<Vertex3D>* _vertexBuffer, std::vector<DWORD>
 	int TextureID = _textureMap["White Texture"];
 	textures.push_back(&_textureVec[TextureID]);
 
-	return Mesh(this->device, this->deviceContext, *_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
 
 Mesh Model::ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::vector<DWORD>* _indexBuffer, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
@@ -372,7 +336,7 @@ Mesh Model::ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::ve
 	int TextureID = _textureMap["White Texture"];
 	textures.push_back(&_textureVec[TextureID]);
 
-	return Mesh(this->device, this->deviceContext, *_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
+	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
 }
 
 Mesh Model::ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD * _indexBuffer, const int _indexSize, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
@@ -381,7 +345,7 @@ Mesh Model::ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD *
 	int TextureID = _textureMap["White Texture"];
 	textures.push_back(&_textureVec[TextureID]);
 
-	return Mesh(this->device, this->deviceContext, _vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
 
 Mesh Model::ProcessMesh(Vertex3D * _vertex, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
@@ -390,7 +354,7 @@ Mesh Model::ProcessMesh(Vertex3D * _vertex, std::map<std::string, int> & _textur
 	int TextureID = _textureMap["White Texture"];
 	textures.push_back(&_textureVec[TextureID]);
 
-	return Mesh(this->device, this->deviceContext, *_vertex, textures, DirectX::XMMatrixIdentity());
+	return Mesh(*_vertex, textures, DirectX::XMMatrixIdentity());
 }
 
 void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene, std::vector<AnimationClip> * _animClipDestination)
@@ -535,7 +499,7 @@ Mesh Model::ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vec
 {
 	std::vector<Texture*> textures;
 
-	return Mesh(this->device, this->deviceContext, *terrainVertexBuffer, *terrainIndexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(*terrainVertexBuffer, *terrainIndexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -608,7 +572,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 			}
 
 			std::string textureName = "Material Color" + std::to_string(_TextureVec.size());
-			_TextureVec.emplace_back(this->device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType);
+			_TextureVec.emplace_back(&Module::GetDevice(), Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType);
 			_TextureVec.back().Name = textureName;
 			_TextureVec.back().ID = _TextureVec.size() - 1;
 			_textureMap.insert(std::make_pair(textureName, _TextureVec.back().ID));
@@ -628,7 +592,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 			case TextureStorageType::EmbeddedIndexCompressed:
 			{
 				int index = GetTextureIndex(&path);
-				Texture embeddedIndexedTexture(this->device,
+				Texture embeddedIndexedTexture(&Module::GetDevice(),
 												reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
 												pScene->mTextures[index]->mWidth,
 												textureType);
@@ -643,7 +607,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 			case TextureStorageType::EmbeddedCompressed:
 			{
 				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				Texture embeddedTexture(this->device,
+				Texture embeddedTexture(&Module::GetDevice(),
 										reinterpret_cast<uint8_t*>(pTexture->pcData),
 										pTexture->mWidth,
 										textureType);
@@ -658,7 +622,7 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 			case TextureStorageType::Disk:
 			{
 				std::string filename = this->directory + '\\' + path.C_Str();
-				Texture diskTexture(this->device, filename, textureType);
+				Texture diskTexture(&Module::GetDevice(), filename, textureType);
 				std::string textureName = std::string(path.C_Str());
 				_TextureVec.push_back(std::move(diskTexture));
 				_TextureVec.back().Name = textureName;

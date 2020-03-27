@@ -427,13 +427,13 @@ bool GraphicsManager::InitializeShaders()
 	try {
 		//상수 버퍼 초기화
 		HRESULT hr;
-		hr = this->cb_vs_vertexshader.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
+		hr = this->m_CbVertexInfo.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize constant buffer.");
 
 		hr = this->cb_vs_vertexshader_2d.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize 2d constant buffer.");
 
-		hr = this->cb_vs_boneData.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
+		hr = this->m_CbBoneInfo.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
 		COM_ERROR_IF_FAILED(hr, "Failed to Initialize bone constant buffer.");
 
 		hr = this->cb_ps_light.Initialize(this->m_Device.Get(), this->m_DeviceContext.Get());
@@ -509,7 +509,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	std::shared_ptr<Model> model;
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -518,7 +518,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -526,7 +526,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testbox.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -534,7 +534,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testbox2.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -542,7 +542,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testSphere.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -550,7 +550,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testCylinder.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -618,7 +618,7 @@ bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer
 	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer->begin(); it != terrainBuffer->end(); it++) {
 		Model *model = new Model();
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
-		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer);
+		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, mTextureMap, mTextureBuffer);
 		_terrainmodelBuffer.buffer.push_back(model);
 		(*it)->gameObject->renderer.SetModel(model);
 		//(*it)->gameObject->mGameObjectName = "";
@@ -829,64 +829,12 @@ void GraphicsManager::InitializeModel(const std::string & filePath)
 				debug_string += (std::string)fd.name + ", ";
 
 				std::shared_ptr<Model> model(new Model);
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, animClipBuffer, mTextureMap, mTextureBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
 				model->mName = fd.name;
 				m_ModelMap.insert(std::make_pair(fd.name, model));
-			}
-
-		} while (_findnext(handle, &fd) == 0);
-	}
-	_findclose(handle);
-}
-
-void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer)
-{
-	std::string filePath = "Data\\Objects\\";
-	InitializeModel(modelBuffer, filePath);
-}
-
-void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & filePath)
-{
-	std::string path = filePath + "*.*";
-	static std::string debug_string = "";
-
-	struct _finddata_t fd;
-	intptr_t handle;
-
-	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
-
-	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
-		do {
-			if (StringHelper::GetFileExtension(fd.name) == "fbx") {
-				debug_string += (std::string)fd.name + ", ";
-
-				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
-					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
-					return;
-				}
-				model->mName = fd.name;
-				modelBuffer.buffer.push_back(model);
-				m_ModelMap.insert(std::make_pair(fd.name, model));
-			}
-			else if (StringHelper::GetFileExtension(fd.name) == "obj") {
-				debug_string += (std::string)fd.name + ", ";
-
-				Model *model = new Model();
-				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
-					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
-					return;
-				}
-				model->mName = fd.name;
-				modelBuffer.buffer.push_back(model);
-				m_ModelMap.insert(std::make_pair(fd.name, model));
-			}
-			else if (fd.attrib & _A_SUBDIR && (fd.name != std::string(".")) && (fd.name != std::string(".."))) {
-				std::string childPath = filePath + fd.name + "\\";
-				InitializeModel(modelBuffer, childPath);
 			}
 
 		} while (_findnext(handle, &fd) == 0);
@@ -962,7 +910,7 @@ bool GraphicsManager::Initialize_Skybox()
 
 	Study_DX::Sphere testSphere(30, 30);
 	Model * model = new Model();
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return false;
 	}
@@ -1366,6 +1314,16 @@ ID3D11Device & GraphicsManager::GetDevice()
 ID3D11DeviceContext & GraphicsManager::GetDeviceContext()
 {
 	return *(m_DeviceContext.Get());
+}
+
+ConstantBuffer<CB_VS_vertexshader>& GraphicsManager::GetCbVertexShader()
+{
+	return m_CbVertexInfo;
+}
+
+ConstantBuffer<CB_VS_boneData>& GraphicsManager::GetCbBoneInfo()
+{
+	return m_CbBoneInfo;
 }
 
 #pragma endregion

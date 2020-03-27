@@ -21,3 +21,13 @@ ID3D11DeviceContext & Module::GetDeviceContext()
 {
 	return Engine::GetInstance().GetGraphicsModule().GetDeviceContext();
 }
+
+ConstantBuffer<CB_VS_vertexshader>& Module::GetVertexCB()
+{
+	return Engine::GetInstance().GetGraphicsModule().GetCbVertexShader();
+}
+
+ConstantBuffer<CB_VS_boneData>& Module::GetModelBoneCB()
+{
+	return Engine::GetInstance().GetGraphicsModule().GetCbBoneInfo();
+}

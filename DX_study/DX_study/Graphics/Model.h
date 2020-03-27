@@ -17,28 +17,18 @@ public:
 	//애니메이션 포함 파일
 	bool Initialize(
 		const std::string & filePath, 
-		ID3D11Device * device, 
-		ID3D11DeviceContext * deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader, 
-		ConstantBuffer<CB_VS_boneData>& cb_vs_boneData, 
 		std::vector<AnimationClip> * _animClipDestination,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
 	//일반 파일
 	bool Initialize(const std::string & filePath, 
-		ID3D11Device * device, 
-		ID3D11DeviceContext * deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
 	////------------------직접 만든 정점/색인 배열로 모델 생성
 	bool Initialize(std::vector<Vertex3D> * VertexBuffer, 
 		std::vector<DWORD> * IndexBuffer, 
-		ID3D11Device * device, 
-		ID3D11DeviceContext * deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
@@ -46,18 +36,12 @@ public:
 		const UINT _vertexSize, 
 		DWORD * _IndexBuffer, 
 		const UINT _indexSize, 
-		ID3D11Device * _device, 
-		ID3D11DeviceContext * _deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader> & _cb_vs_vertexshader,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 
 	////------------------빌보드용 모델 생성
 	bool Initialize(Vertex3D * _VertexBuffer, 
 		const UINT _vertexSize, 
-		ID3D11Device * _device, 
-		ID3D11DeviceContext * _deviceContext, 
-		ConstantBuffer<CB_VS_vertexshader> & _cb_vs_vertexshader,
 		std::map<std::string, int> & _textureMap,
 		std::vector<Texture> & _textureVec);
 	
@@ -108,10 +92,6 @@ protected:
 
 	std::vector<Mesh> meshes;
 	std::string mName = "";
-	ID3D11Device * device = nullptr;
-	ID3D11DeviceContext * deviceContext = nullptr;
-	ConstantBuffer<CB_VS_vertexshader> * cb_vs_vertexshader = nullptr;
-	ConstantBuffer<CB_VS_boneData> * cb_vs_boneData = nullptr;
 	std::string directory = "";
 
 #pragma region Animation Variable

@@ -28,14 +28,14 @@ namespace MyCustom {
 
 class Mesh {
 public:
-	Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext,
+	Mesh(
 		std::vector<Vertex3D> & vertices, 
 		std::vector<DWORD> & indices, 
 		std::vector<Texture*> & textures, 
 		const DirectX::XMMATRIX & transformMatrix,
 		MyCustom::DRAW_FLAG _drawflag);
 
-	Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext, 
+	Mesh(
 		Vertex3D * _vertices, const UINT _vertexSize, 
 		DWORD * _indices, const UINT _indexSize, 
 		std::vector<Texture*> & textures, 
@@ -43,14 +43,14 @@ public:
 		MyCustom::DRAW_FLAG _drawflag);
 
 	//skinned mesh 전용
-	Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext,
+	Mesh(
 		std::vector<Vertex3D_BoneWeight> & _vert_bones,
 		std::vector<DWORD> & indices,
 		std::vector<Texture*> & textures,
 		const DirectX::XMMATRIX & transformMatrix);
 
 	//빌보드 메시
-	Mesh(ID3D11Device * device, ID3D11DeviceContext * deviceContext,
+	Mesh(
 		Vertex3D & _vertex,
 		std::vector<Texture*> & textures,
 		const DirectX::XMMATRIX & transformMatrix);
@@ -67,7 +67,7 @@ public:
 
 	std::vector<Texture*> textures;
 protected:
-	Mesh(ID3D11DeviceContext * deviceContext,
+	Mesh(
 		std::vector<Texture*> & textures,
 		const DirectX::XMMATRIX & transformMatrix);
 
@@ -75,27 +75,7 @@ protected:
 	VertexBuffer<Vertex3D_BoneWeight> vertex_BoneWeight_buffer;
 	IndexBuffer indexbuffer;
 
-	ID3D11DeviceContext * deviceContext;
 	DirectX::XMMATRIX transformMatrix;
 
 	bool hasBone = false;
 };
-
-//class SkinnedMesh : public Mesh {
-//public:
-//	SkinnedMesh(ID3D11Device * _device, ID3D11DeviceContext * _deviceContext,
-//		std::vector<Vertex3D> & _vertices, 
-//		std::vector<DWORD> & _indices,
-//		std::vector<Texture> & _textures,
-//		const DirectX::XMMATRIX & _transformMatrix);
-//
-//	SkinnedMesh(ID3D11Device * _device, ID3D11DeviceContext * _deviceContext, 
-//		Vertex3D * _vertices, const UINT _vertexSize, 
-//		DWORD * _indices, const UINT _indexSize, 
-//		std::vector<Texture>& _textures, 
-//		const DirectX::XMMATRIX & _transformMatrix);
-//
-//	void Draw() override;
-//
-//private:
-//};

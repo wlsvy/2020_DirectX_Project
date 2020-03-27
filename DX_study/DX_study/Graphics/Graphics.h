@@ -44,6 +44,9 @@ public:
 
 	ID3D11Device& GetDevice();
 	ID3D11DeviceContext& GetDeviceContext();
+	ConstantBuffer<CB_VS_vertexshader>& GetCbVertexShader();
+	ConstantBuffer<CB_VS_boneData>& GetCbBoneInfo();
+
 
 private:
 #pragma region Method - Initialize
@@ -59,8 +62,6 @@ private:
 	bool Initialize_Skybox();
 	void InitializeModel();
 	void InitializeModel(const std::string & filePath);
-	void InitializeModel(ModelBuffer & modelBuffer);
-	void InitializeModel(ModelBuffer & modelBuffer, std::string & path);
 	bool InitializeScene();
 	bool InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer);
 	bool InitializeDebugDraw();
@@ -141,14 +142,14 @@ private:
 
 	std::vector<Texture>					mTextureBuffer;
 	std::map<std::string, int>				mTextureMap;
-	std::unordered_map<std::string, std::shared_ptr<Model>>			m_ModelMap;
+	std::unordered_map<std::string, std::shared_ptr<Model>>		m_ModelMap;
 
 	//std::vector<std::shared_ptr<Model>> m_Models;
 	std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;
 
 	ConstantBuffer<CB_VS_vertexshader_2d>	cb_vs_vertexshader_2d;
-	ConstantBuffer<CB_VS_vertexshader>		cb_vs_vertexshader;
-	ConstantBuffer<CB_VS_boneData>			cb_vs_boneData;
+	ConstantBuffer<CB_VS_vertexshader>		m_CbVertexInfo;
+	ConstantBuffer<CB_VS_boneData>			m_CbBoneInfo;
 	ConstantBuffer<CB_PS_light>				cb_ps_light;
 	ConstantBuffer<CB_PS_simpleLight>		cb_ps_simplelight;
 	ConstantBuffer<CB_PS_Fog>				cb_ps_fog;
