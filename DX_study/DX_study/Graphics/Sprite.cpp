@@ -10,7 +10,7 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 
 	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
 
-	texture = std::make_unique<Texture>(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
+	texture = std::make_unique<Texture>(spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
 	std::vector<Vertex2D> vertexData = {
 		Vertex2D(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f), //TopLeft
@@ -65,5 +65,8 @@ float Sprite::GetHeight()
 
 void Sprite::UpdateMatrix()
 {
-	worldMatrix = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) * DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * DirectX::XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
+	worldMatrix = 
+		DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) * 
+		DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * 
+		DirectX::XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
 }

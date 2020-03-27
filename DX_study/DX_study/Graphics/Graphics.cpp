@@ -47,6 +47,15 @@ Model * GraphicsManager::GetModel(const std::string & name)
 	return nullptr;
 }
 
+std::shared_ptr<Texture>* GraphicsManager::GetTexture(const std::string & name)
+{
+	auto iter = m_TextureMap.find(name);
+	if (iter != m_TextureMap.end()) {
+		return &iter->second;
+	}
+	return nullptr;
+}
+
 
 #pragma region Method - Initialize
 
@@ -403,7 +412,7 @@ bool GraphicsManager::InitializeShaders()
 #endif
 #endif
 
-	Load_Shader_File(shaderfolder);
+	LoadShader(shaderfolder);
 
 	//2D shader
 	D3D11_INPUT_ELEMENT_DESC layout2D[] = {
@@ -473,27 +482,25 @@ bool GraphicsManager::InitializeShaders()
 
 bool GraphicsManager::InitializeTextures()
 {
-	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE);
-	mTextureBuffer.back().Name = "Unhandled Texture";
-	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
-	mTextureMap.insert(std::make_pair("Unhandled Texture", mTextureBuffer.back().ID));
+	std::shared_ptr<Texture> texture;
 
-	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::Black, aiTextureType::aiTextureType_DIFFUSE);
-	mTextureBuffer.back().Name = "Black Texture";
-	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
-	mTextureMap.insert(std::make_pair("Black Texture", mTextureBuffer.back().ID));
+	texture = std::shared_ptr<Texture>(new Texture(CustomColors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+	texture->Name = "Unhandled Texture";
+	m_TextureMap.insert(std::make_pair(texture->Name, texture));
 
-	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::White, aiTextureType::aiTextureType_DIFFUSE);
-	mTextureBuffer.back().Name = "White Texture";
-	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
-	mTextureMap.insert(std::make_pair("White Texture", mTextureBuffer.back().ID));
+	texture = std::shared_ptr<Texture>(new Texture(CustomColors::Black, aiTextureType::aiTextureType_DIFFUSE));
+	texture->Name = "Black Texture";
+	m_TextureMap.insert(std::make_pair(texture->Name, texture));
 
-	mTextureBuffer.emplace_back(this->m_Device.Get(), CustomColors::UnloadedTextureColor, aiTextureType::aiTextureType_DIFFUSE);
-	mTextureBuffer.back().Name = "Unloaded Texture";
-	mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
-	mTextureMap.insert(std::make_pair("Unloaded Texture", mTextureBuffer.back().ID));
+	texture = std::shared_ptr<Texture>(new Texture(CustomColors::White, aiTextureType::aiTextureType_DIFFUSE));
+	texture->Name = "White Texture";
+	m_TextureMap.insert(std::make_pair(texture->Name, texture));
 
-	Load_Texture_File("Data\\Textures\\");
+	texture = std::shared_ptr<Texture>(new Texture(CustomColors::UnloadedTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+	texture->Name = "Unloaded Texture";
+	m_TextureMap.insert(std::make_pair(texture->Name, texture));
+
+	LoadTexture("Data\\Textures\\");
 	return true;
 }
 
@@ -509,7 +516,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	std::shared_ptr<Model> model;
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -518,7 +525,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -526,7 +533,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testbox.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -534,7 +541,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testbox2.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -542,7 +549,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testSphere.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -550,7 +557,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testCylinder.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -618,7 +625,7 @@ bool GraphicsManager::InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer
 	for (std::vector<std::shared_ptr<Terrain>>::iterator it = terrainBuffer->begin(); it != terrainBuffer->end(); it++) {
 		Model *model = new Model();
 		TERRAIN_INIT_DESC desc = (*it)->TerrainProcess((*it)->heightFilePath);
-		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer, mTextureMap, mTextureBuffer);
+		model->Initialize(&desc.vertexBuffer, &desc.indexBuffer);
 		_terrainmodelBuffer.buffer.push_back(model);
 		(*it)->gameObject->renderer.SetModel(model);
 		//(*it)->gameObject->mGameObjectName = "";
@@ -650,7 +657,7 @@ bool GraphicsManager::InitializeDebugDraw()
 	return true;
 }
 
-void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //나중에 쉐이더 초기화 함수와 합칠 것
+void GraphicsManager::LoadShader(std::wstring & _ExeFilePath) //나중에 쉐이더 초기화 함수와 합칠 것
 {
 	//폴더 안에 hlsl파일 확인 후 
 	//std::string path = "hlsl\\*.hlsl"; // hlsl 파일 경로. 현재 프로젝트 파일과 같은 폴더 안에 있다고 가정.
@@ -752,44 +759,35 @@ void GraphicsManager::Load_Shader_File(std::wstring & _ExeFilePath) //나중에 쉐�
 	_findclose(handle);
 }
 
-void GraphicsManager::Load_Texture_File(const std::string & _TextureFolderPath)
+void GraphicsManager::LoadTexture(const std::string & dirPath)
 {
 	struct _finddata_t fd;
 	intptr_t handle;
 
-	std::string Texture_FileExtension[3] = { "jpg", "png", "bmp" }; //png, jpg, bmp 파일 검사
-	std::string Texture_filePath = _TextureFolderPath + "*.*";
+	std::string filePath = dirPath + "*.*";
 
-	int ExtensionArraySize = ARRAYSIZE(Texture_FileExtension);
-
-	if ((handle = _findfirst(Texture_filePath.c_str(), &fd)) != -1L) {
+	if ((handle = _findfirst(filePath.c_str(), &fd)) != -1L) {
 		do {
-			//검사 파일이 폴더일때, 하위 디렉토리 검사
-			if (fd.attrib & _A_SUBDIR && (fd.name != std::string(".")) && (fd.name != std::string(".."))) {
-				std::string childPath = _TextureFolderPath + fd.name + "\\";
-				Load_Texture_File(childPath);
+			if (fd.attrib & _A_SUBDIR && 
+				(fd.name != std::string(".")) && 
+				(fd.name != std::string(".."))) 
+			{
+				std::string subDirPath = dirPath + fd.name + "\\";
+				LoadTexture(subDirPath);
 				continue;
 			}
 
-			std::string fileExtension = StringHelper::GetFileExtension(fd.name);
-			bool flag = false;
+			std::string ext = StringHelper::GetFileExtension(fd.name);
+			if (ext == "jpg" ||
+				ext == "png" ||
+				ext == "bmp") 
+			{
+				std::shared_ptr<Texture> texture;
 
-			//확장자 일치 여부 검사
-			for (int Index = 0; Index < ExtensionArraySize; Index++) {
-				if (fileExtension == Texture_FileExtension[Index]) {
-					flag = true;
-					break;
-				}
+				texture = std::shared_ptr<Texture>(new Texture(dirPath + fd.name, aiTextureType::aiTextureType_DIFFUSE));
+				texture->Name = fd.name;
+				m_TextureMap.insert(std::make_pair(texture->Name, texture));
 			}
-			//일치하는 확장자 없으면 다음 파일 검사
-			if (!flag) continue;
-
-			std::string Texture_filename = _TextureFolderPath + fd.name;
-			mTextureBuffer.emplace_back(m_Device.Get(), Texture_filename, aiTextureType::aiTextureType_DIFFUSE);
-			mTextureBuffer.back().Name = fd.name;
-			mTextureBuffer.back().ID = mTextureBuffer.size() - 1;
-			mTextureMap.insert(std::make_pair(fd.name, mTextureBuffer.back().ID));
-
 		} while (_findnext(handle, &fd) == 0);
 	}
 	_findclose(handle);
@@ -798,10 +796,10 @@ void GraphicsManager::Load_Texture_File(const std::string & _TextureFolderPath)
 void GraphicsManager::InitializeModel()
 {
 	std::string filePath = "Data\\Objects\\";
-	InitializeModel(filePath);
+	LoadModel(filePath);
 }
 
-void GraphicsManager::InitializeModel(const std::string & filePath)
+void GraphicsManager::LoadModel(const std::string & filePath)
 {
 	std::string path = filePath + "*.*";
 	static std::string debug_string = "";
@@ -818,7 +816,7 @@ void GraphicsManager::InitializeModel(const std::string & filePath)
 				(fd.name != std::string(".."))) 
 			{
 				std::string subDirPath = filePath + fd.name + "\\";
-				InitializeModel(subDirPath);
+				LoadModel(subDirPath);
 				continue;
 			}
 
@@ -829,7 +827,7 @@ void GraphicsManager::InitializeModel(const std::string & filePath)
 				debug_string += (std::string)fd.name + ", ";
 
 				std::shared_ptr<Model> model(new Model);
-				if (!model->Initialize(filePath + fd.name, animClipBuffer, mTextureMap, mTextureBuffer)) {
+				if (!model->Initialize(filePath + fd.name, animClipBuffer)) {
 					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 					return;
 				}
@@ -910,7 +908,7 @@ bool GraphicsManager::Initialize_Skybox()
 
 	Study_DX::Sphere testSphere(30, 30);
 	Model * model = new Model();
-	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, mTextureMap, mTextureBuffer)) {
+	if (!model->Initialize(&testSphere.vertices, &testSphere.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return false;
 	}
@@ -1173,27 +1171,24 @@ void GraphicsManager::ProcessUI()
 	if (ImGui::Button("Anim stop")) gameObjPick->GetComponent<Animator>()->Stop();
 	ImGui::End();
 
-
-	if (mTextureBuffer.size() >= 1) {
-		ImGui::Begin("Texture load Test");
-		static int textureindex = 0;
-		ImGui::DragInt("texture index", &textureindex, 1.0f, 0, (int)mTextureBuffer.size() - 1);
+	if (m_TextureMap.size() >= 1) {
+		ImGui::Begin("Model load Test");
 		ImVec2 scene_size = ImVec2(128.0f, 96.0f);
-		if (textureindex < mTextureBuffer.size()) {
-			ImGui::Image(mTextureBuffer[textureindex].GetTextureResourceView(), scene_size);
-			ImGui::Text(mTextureBuffer[textureindex].Name.c_str());
-		}
 
+		for (auto iter : m_TextureMap) {
+			ImGui::Text(iter.first.c_str());
+			ImGui::Image(iter.second->GetTextureResourceView(), scene_size);
+		}
 		ImGui::End();
 	}
 
-	/*if (m_ModelMap.size() >= 1) {
+	if (m_ModelMap.size() >= 1) {
 		ImGui::Begin("Model load Test");
 		for (auto iter : m_ModelMap) {
 			ImGui::Text(iter.first.c_str());
 		}
 		ImGui::End();
-	}*/
+	}
 
 	ImGui::Begin("Shader load check");
 	ImGui::BeginChild("VShader", ImVec2(250, 150));
@@ -1324,6 +1319,11 @@ ConstantBuffer<CB_VS_vertexshader>& GraphicsManager::GetCbVertexShader()
 ConstantBuffer<CB_VS_boneData>& GraphicsManager::GetCbBoneInfo()
 {
 	return m_CbBoneInfo;
+}
+
+void GraphicsManager::RegisterTexture(const std::shared_ptr<Texture>& texture)
+{
+	m_TextureMap.insert(std::make_pair(texture->Name, texture));
 }
 
 #pragma endregion

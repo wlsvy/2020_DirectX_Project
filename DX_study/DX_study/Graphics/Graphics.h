@@ -41,11 +41,14 @@ public:
 	PixelShader* GetPshader(const std::string & shaderName);
 	GeometryShader* GetGshader(const std::string & shaderName);
 	Model* GetModel(const std::string & name);
+	std::shared_ptr<Texture>* GetTexture(const std::string & name);
 
 	ID3D11Device& GetDevice();
 	ID3D11DeviceContext& GetDeviceContext();
 	ConstantBuffer<CB_VS_vertexshader>& GetCbVertexShader();
 	ConstantBuffer<CB_VS_boneData>& GetCbBoneInfo();
+
+	void RegisterTexture(const std::shared_ptr<Texture>& texture);
 
 
 private:
@@ -55,13 +58,13 @@ private:
 	bool InitializeDirectX(HWND hwnd);
 	bool InitializeShaders();
 	bool InitializeTextures();
-	void Load_Shader_File(std::wstring & _ExeFilePath);
-	void Load_Texture_File(const std::string & _TextureFolderPath);
+	void LoadShader(std::wstring & _ExeFilePath);
+	void LoadTexture(const std::string & dirPath);
 	void InitializeSimpleGeometry();
 	bool Initialize_MoreRenderTarget();
 	bool Initialize_Skybox();
 	void InitializeModel();
-	void InitializeModel(const std::string & filePath);
+	void LoadModel(const std::string & filePath);
 	bool InitializeScene();
 	bool InitializeTerrain(TerrainModelBuffer & _terrainmodelBuffer);
 	bool InitializeDebugDraw();
@@ -140,9 +143,10 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<PixelShader>>		m_PshaderBuffer;
 	std::unordered_map<std::string, std::shared_ptr<GeometryShader>>	m_GshaderBuffer;
 
-	std::vector<Texture>					mTextureBuffer;
-	std::map<std::string, int>				mTextureMap;
+	//std::vector<Texture>					mTextureBuffer;
+	//std::map<std::string, int>				mTextureMap;
 	std::unordered_map<std::string, std::shared_ptr<Model>>		m_ModelMap;
+	std::unordered_map<std::string, std::shared_ptr<Texture>>	m_TextureMap;
 
 	//std::vector<std::shared_ptr<Model>> m_Models;
 	std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;

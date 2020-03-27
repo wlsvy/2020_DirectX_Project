@@ -31,3 +31,13 @@ ConstantBuffer<CB_VS_boneData>& Module::GetModelBoneCB()
 {
 	return Engine::GetInstance().GetGraphicsModule().GetCbBoneInfo();
 }
+
+std::shared_ptr<Texture>* Module::GetTexture(const std::string & name)
+{
+	return Engine::GetInstance().GetGraphicsModule().GetTexture(name);
+}
+
+void Module::RegisterTexture(const std::shared_ptr<Texture>& texture)
+{
+	Engine::GetInstance().GetGraphicsModule().RegisterTexture(texture);
+}

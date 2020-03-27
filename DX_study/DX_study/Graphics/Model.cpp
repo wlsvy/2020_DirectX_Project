@@ -1,5 +1,7 @@
 #include "Model.h"
 
+#include <string>
+
 #include "../AnimationClip.h"
 #include "../Component/Animator.h"
 #include "../Engine/ModuleResource.h"
@@ -9,13 +11,11 @@
 
 bool Model::Initialize(
 	const std::string & filePath, 
-	std::vector<AnimationClip>* _animClipDestination, 
-	std::map<std::string, int>& _textureMap, 
-	std::vector<Texture>& _textureVec)
+	std::vector<AnimationClip>* _animClipDestination)
 {
 	try
 	{
-		if (!this->LoadModel(filePath, _animClipDestination, _textureMap, _textureVec))
+		if (!this->LoadModel(filePath, _animClipDestination))
 			return false;
 	}
 	catch (COMException & exception)
@@ -27,13 +27,11 @@ bool Model::Initialize(
 	return true;
 }
 
-bool Model::Initialize(const std::string & filePath,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+bool Model::Initialize(const std::string & filePath)
 {
 	try
 	{
-		if (!this->LoadModel(filePath, _textureMap, _textureVec))
+		if (!this->LoadModel(filePath))
 			return false;
 	}
 	catch (COMException & exception)
@@ -45,32 +43,29 @@ bool Model::Initialize(const std::string & filePath,
 	return true;
 }
 
-bool Model::Initialize(std::vector<Vertex3D> * VertexBuffer,
-	std::vector<DWORD> * IndexBuffer,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+bool Model::Initialize(
+	std::vector<Vertex3D> * VertexBuffer,
+	std::vector<DWORD> * IndexBuffer)
 {
-	meshes.push_back(ProcessMesh(VertexBuffer, IndexBuffer, _textureMap, _textureVec));
+	m_Meshes.push_back(ProcessMesh(VertexBuffer, IndexBuffer));
 	return true;
 }
 
-bool Model::Initialize(Vertex3D * _VertexBuffer,
+bool Model::Initialize(
+	Vertex3D * _VertexBuffer,
 	const UINT _vertexSize,
 	DWORD * _IndexBuffer,
-	const UINT _indexSize,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+	const UINT _indexSize)
 {
-	meshes.push_back(ProcessMesh(_VertexBuffer, _vertexSize, _IndexBuffer, _indexSize, _textureMap, _textureVec));
+	m_Meshes.push_back(ProcessMesh(_VertexBuffer, _vertexSize, _IndexBuffer, _indexSize));
 	return true;
 }
 
-bool Model::Initialize(Vertex3D * _VertexBuffer,
-	const UINT _vertexSize,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+bool Model::Initialize(
+	Vertex3D * _VertexBuffer,
+	const UINT _vertexSize)
 {
-	meshes.push_back(ProcessMesh(_VertexBuffer, _textureMap, _textureVec));
+	m_Meshes.push_back(ProcessMesh(_VertexBuffer));
 
 	return true;
 }
@@ -80,14 +75,14 @@ void Model::Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX 
 	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 	Module::GetDeviceContext().GSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < m_Meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
 		Module::GetVertexCB().data.vpMatrix = viewProjectionMatrix;
 		Module::GetVertexCB().ApplyChanges();
-		meshes[i].Draw();
+		m_Meshes[i].Draw();
 	}
 }
 
@@ -96,14 +91,14 @@ void Model::Draw_WireFrame(const DirectX::XMMATRIX & worldMatrix, const DirectX:
 	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 	Module::GetDeviceContext().IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP);
 	
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < m_Meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
 		Module::GetVertexCB().data.vpMatrix = viewProjectionMatrix;
 		Module::GetVertexCB().ApplyChanges();
-		meshes[i].Draw();
+		m_Meshes[i].Draw();
 	}
 }
 
@@ -118,13 +113,13 @@ void Model::Draw_skinnedMesh(const DirectX::XMMATRIX & worldMatrix, const Direct
 		Module::GetDeviceContext().VSSetConstantBuffers(1, 1, Module::GetModelBoneCB().GetAddressOf());
 	}
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < m_Meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
 		Module::GetVertexCB().ApplyChanges();
-		meshes[i].Draw();
+		m_Meshes[i].Draw();
 	}
 }
 
@@ -132,19 +127,17 @@ void Model::Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX
 {
 	Module::GetDeviceContext().VSSetConstantBuffers(0, 1, Module::GetVertexCB().GetAddressOf());
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < m_Meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		Module::GetVertexCB().data.wvpMatrix = meshes[i].GetTransformMatrix() * _worldMatrix * _viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Module::GetVertexCB().data.worldMatrix = meshes[i].GetTransformMatrix() * _worldMatrix; //Calculate World Matrix
+		Module::GetVertexCB().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * _worldMatrix * _viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Module::GetVertexCB().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * _worldMatrix; //Calculate World Matrix
 		Module::GetVertexCB().ApplyChanges();
-		meshes[i].Draw();
+		m_Meshes[i].Draw();
 	}
 }
 
-bool Model::LoadModel(const std::string & filePath,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+bool Model::LoadModel(const std::string & filePath)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
 
@@ -157,15 +150,13 @@ bool Model::LoadModel(const std::string & filePath,
 	if (pScene == nullptr)
 		return false;
 
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity(), _textureMap, _textureVec);
+	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
 
 	return true;
 }
 
 bool Model::LoadModel(const std::string & filePath,
-	std::vector<AnimationClip> * _animClipDestination,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+	std::vector<AnimationClip> * _animClipDestination)
 {
 	this->directory = StringHelper::GetDirectoryFromPath(filePath);
 	
@@ -179,7 +170,7 @@ bool Model::LoadModel(const std::string & filePath,
 	if (pScene == nullptr)
 		return false;
 
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity(), _textureMap, _textureVec);
+	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
 
 	if (!pScene->HasAnimations()) return true; //애니메이션 없을 때 함수 종료
 
@@ -198,30 +189,26 @@ bool Model::LoadModel(const std::string & filePath,
 
 void Model::ProcessNode(aiNode * node,
 	const aiScene * scene,
-	const DirectX::XMMATRIX & parentTransformMatrix,
-	std::map<std::string, int> & _textureMap,
-	std::vector<Texture> & _textureVec)
+	const DirectX::XMMATRIX & parentTransformMatrix)
 {
 	DirectX::XMMATRIX nodeTransformMatrix = DirectX::XMMatrixTranspose(DirectX::XMMATRIX(&node->mTransformation.a1)) * parentTransformMatrix;
 
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix, _textureMap, _textureVec));
+		m_Meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
-		this->ProcessNode(node->mChildren[i], scene, nodeTransformMatrix, _textureMap, _textureVec);
+		this->ProcessNode(node->mChildren[i], scene, nodeTransformMatrix);
 	}
 }
 
 Mesh Model::ProcessMesh(
 	aiMesh * mesh, 
 	const aiScene * scene, 
-	const DirectX::XMMATRIX & transformMatrix,
-	std::map<std::string, int>& _textureMap,
-	std::vector<Texture>& _textureVec)
+	const DirectX::XMMATRIX & transformMatrix)
 {
 	// Data to fill
 	std::vector<Vertex3D> vertices;
@@ -268,9 +255,7 @@ Mesh Model::ProcessMesh(
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	textures = LoadMaterialTextures(material,
 									aiTextureType::aiTextureType_DIFFUSE,
-									scene, 
-									_textureMap,
-									_textureVec);
+									scene);
 
 	if(!mesh->HasBones())
 	return Mesh(vertices, indices, textures, transformMatrix, MyCustom::DEFAULT);
@@ -321,38 +306,42 @@ Mesh Model::ProcessMesh(
 	return Mesh(vertices_skinned, indices, textures, transformMatrix);
 }
 
-Mesh Model::ProcessMesh(std::vector<Vertex3D>* _vertexBuffer, std::vector<DWORD>* _indexBuffer, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
+Mesh Model::ProcessMesh(
+	std::vector<Vertex3D>* _vertexBuffer, 
+	std::vector<DWORD>* _indexBuffer)
 {
 	std::vector<Texture*> textures;
-	int TextureID = _textureMap["White Texture"];
-	textures.push_back(&_textureVec[TextureID]);
+	textures.push_back(Module::GetTexture("White Texture")->get());
 
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
 
-Mesh Model::ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::vector<DWORD>* _indexBuffer, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
+Mesh Model::ProcessMesh(
+	std::vector<Vertex3D_BoneWeight>* _vertexBuffer, 
+	std::vector<DWORD>* _indexBuffer)
 {
 	std::vector<Texture*> textures;
-	int TextureID = _textureMap["White Texture"];
-	textures.push_back(&_textureVec[TextureID]);
+	textures.push_back(Module::GetTexture("White Texture")->get());
 
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
 }
 
-Mesh Model::ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD * _indexBuffer, const int _indexSize, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
+Mesh Model::ProcessMesh(
+	Vertex3D * _vertexBuffer, 
+	const int _vertexSize, 
+	DWORD * _indexBuffer, 
+	const int _indexSize)
 {
 	std::vector<Texture*> textures;
-	int TextureID = _textureMap["White Texture"];
-	textures.push_back(&_textureVec[TextureID]);
+	textures.push_back(Module::GetTexture("White Texture")->get());
 
 	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
 }
 
-Mesh Model::ProcessMesh(Vertex3D * _vertex, std::map<std::string, int> & _textureMap, std::vector<Texture> & _textureVec)
+Mesh Model::ProcessMesh(Vertex3D * _vertex)
 {
 	std::vector<Texture*> textures;
-	int TextureID = _textureMap["White Texture"];
-	textures.push_back(&_textureVec[TextureID]);
+	textures.push_back(Module::GetTexture("White Texture")->get());
 
 	return Mesh(*_vertex, textures, DirectX::XMMatrixIdentity());
 }
@@ -443,10 +432,6 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, Bo
 	DirectX::XMMATRIX nodeTransform = MyCustom::GetAiMatrixData(_aiNode->mTransformation);
 	nodeTransform = DirectX::XMMatrixTranspose(nodeTransform);
 
-#pragma region test
-	//DirectX::XMFLOAT4X4 tmat; DirectX::XMStoreFloat4x4(&tmat, nodeTransform);
-#pragma endregion
-
 	BoneChannel * currentBoneChannel = nullptr;
 
 	if (m_Bone_Name_Map.find(nodeName) != m_Bone_Name_Map.end()) {
@@ -472,27 +457,18 @@ void Model::ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, Bo
 				continue;
 			}
 
-			/*int childIndex = m_Bone_Name_Map[childName];
-			BoneChannel * childPtr = &_animClip->mChannel[childIndex];
-			currentBoneChannel->mChildBoneIndex.push_back(childPtr);*/
-
 			ProcessBoneHierarchy(childNode, _animClip, currentBoneChannel, globalTransform);
 		}
-		
 	}
 	else {
 		DirectX::XMMATRIX globalTransform = nodeTransform * _parentTransform;
 
 		for (int i = 0; i < childNum; i++) {
 			aiNode * childNode = _aiNode->mChildren[i];
-			
 
 			ProcessBoneHierarchy(childNode, _animClip, _parentBone, globalTransform);
 		}
 	}
-
-
-
 }
 
 Mesh Model::ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vector<DWORD> * terrainIndexBuffer)
@@ -548,36 +524,38 @@ TextureStorageType Model::DetermineTextureStorageType(const aiScene * pScene, ai
 std::vector<Texture*> Model::LoadMaterialTextures(
 	aiMaterial * pMaterial, 
 	aiTextureType textureType, 
-	const aiScene * pScene,
-	std::map<std::string, int>& _textureMap,
-	std::vector<Texture> & _TextureVec)
+	const aiScene * pScene)
 {
 	std::vector<Texture*> texturePtrVec;
-	TextureStorageType storetype = TextureStorageType::Invalid;
 	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
 
 	if (textureCount == 0) //If there are no textures
 	{
-		storetype = TextureStorageType::None;
+		TextureStorageType storetype = TextureStorageType::None;
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
 		switch (textureType)
 		{
-		case aiTextureType_DIFFUSE:
-			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			if (aiColor.IsBlack()) //If color = black, just use grey
+			case aiTextureType_DIFFUSE:
 			{
-				int TextureID = _textureMap["Black Texture"];
-				texturePtrVec.push_back(&_TextureVec[TextureID]);
+				pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+				if (aiColor.IsBlack()) //If color = black, just use grey
+				{
+					texturePtrVec.push_back(Module::GetTexture("Black Texture")->get());
+				}
+				else {
+					std::shared_ptr<Texture> texture(new Texture(
+						Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255),
+						textureType));
+					texture->Name = "Material Color : " + 
+						std::to_string(aiColor.r * 255) + " " + 
+						std::to_string(aiColor.g * 255) + " " +
+						std::to_string(aiColor.b * 255);
+					Module::RegisterTexture(texture);
+					texturePtrVec.push_back(texture.get());
+				}
+
 				return texturePtrVec;
 			}
-
-			std::string textureName = "Material Color" + std::to_string(_TextureVec.size());
-			_TextureVec.emplace_back(&Module::GetDevice(), Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType);
-			_TextureVec.back().Name = textureName;
-			_TextureVec.back().ID = _TextureVec.size() - 1;
-			_textureMap.insert(std::make_pair(textureName, _TextureVec.back().ID));
-			texturePtrVec.push_back(&_TextureVec.back());
-			return texturePtrVec;
 		}
 	}
 	else
@@ -586,59 +564,51 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 		{
 			aiString path;
 			pMaterial->GetTexture(textureType, i, &path);
+
 			TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, i, textureType);
 			switch (storetype)
 			{
-			case TextureStorageType::EmbeddedIndexCompressed:
-			{
-				int index = GetTextureIndex(&path);
-				Texture embeddedIndexedTexture(&Module::GetDevice(),
-												reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
-												pScene->mTextures[index]->mWidth,
-												textureType);
-				std::string textureName = std::string(pScene->mTextures[index]->mFilename.C_Str());
-				_TextureVec.push_back(std::move(embeddedIndexedTexture));
-				_TextureVec.back().Name = textureName;
-				_TextureVec.back().ID = _TextureVec.size() - 1;
-				_textureMap.insert(std::make_pair(textureName, _TextureVec.back().ID));
-				texturePtrVec.push_back(&_TextureVec.back());
-				break;
-			}
-			case TextureStorageType::EmbeddedCompressed:
-			{
-				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				Texture embeddedTexture(&Module::GetDevice(),
-										reinterpret_cast<uint8_t*>(pTexture->pcData),
-										pTexture->mWidth,
-										textureType);
-				std::string textureName = std::string(pTexture->mFilename.C_Str());
-				_TextureVec.push_back(std::move(embeddedTexture));
-				_TextureVec.back().Name = textureName;
-				_TextureVec.back().ID = _TextureVec.size() - 1;
-				_textureMap.insert(std::make_pair(textureName, _TextureVec.back().ID));
-				texturePtrVec.push_back(&_TextureVec.back());
-				break;
-			}
-			case TextureStorageType::Disk:
-			{
-				std::string filename = this->directory + '\\' + path.C_Str();
-				Texture diskTexture(&Module::GetDevice(), filename, textureType);
-				std::string textureName = std::string(path.C_Str());
-				_TextureVec.push_back(std::move(diskTexture));
-				_TextureVec.back().Name = textureName;
-				_TextureVec.back().ID = _TextureVec.size() - 1;
-				_textureMap.insert(std::make_pair(textureName, _TextureVec.back().ID));
-				texturePtrVec.push_back(&_TextureVec.back());
-				break;
-			}
+				case TextureStorageType::EmbeddedIndexCompressed:
+				{
+					auto pTexture = pScene->mTextures[GetTextureIndex(&path)];
+					std::shared_ptr<Texture> texture(new Texture(
+							reinterpret_cast<uint8_t*>(pTexture->pcData),
+							pTexture->mWidth,
+							textureType));
+					texture->Name = std::string(pTexture->mFilename.C_Str());
+					Module::RegisterTexture(texture);
+					texturePtrVec.push_back(texture.get());
+					break;
+				}
+				case TextureStorageType::EmbeddedCompressed:
+				{
+					const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
+					std::shared_ptr<Texture> texture(new Texture(
+							reinterpret_cast<uint8_t*>(pTexture->pcData),
+							pTexture->mWidth,
+							textureType));
+					texture->Name = std::string(pTexture->mFilename.C_Str());
+					Module::RegisterTexture(texture);
+					texturePtrVec.push_back(texture.get());
+					break;
+				}
+				case TextureStorageType::Disk:
+				{
+					std::string filename = this->directory + '\\' + path.C_Str();
+					std::shared_ptr<Texture> texture(new Texture(filename, textureType));
+					Texture diskTexture(filename, textureType);
+					texture->Name = std::string(path.C_Str());
+					Module::RegisterTexture(texture);
+					texturePtrVec.push_back(texture.get());
+					break;
+				}
 			}
 		}
 	}
 
 	if (texturePtrVec.size() == 0)
 	{
-		int TextureID = _textureMap["Unhandled Texture"];
-		texturePtrVec.push_back(&_TextureVec[TextureID]);
+		texturePtrVec.push_back(Module::GetTexture("Unhandled Texture")->get());
 	}
 	return texturePtrVec;
 
