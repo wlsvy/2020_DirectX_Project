@@ -38,6 +38,15 @@ GeometryShader* GraphicsManager::GetGshader(const std::string & shaderName)
 	return nullptr;
 }
 
+Model * GraphicsManager::GetModel(const std::string & name)
+{
+	auto iter = m_ModelMap.find(name);
+	if (iter != m_ModelMap.end()) {
+		return iter->second.get();
+	}
+	return nullptr;
+}
+
 
 #pragma region Method - Initialize
 
@@ -488,7 +497,7 @@ bool GraphicsManager::InitializeTextures()
 	return true;
 }
 
-void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
+void GraphicsManager::InitializeSimpleGeometry()
 {
 	Study_DX::Point geometryPoint;
 	Study_DX::Box testbox;
@@ -497,62 +506,56 @@ void GraphicsManager::InitializeSimpleGeometry(ModelBuffer & _modelBuffer)
 	Study_DX::Cylinder testCylinder;
 	Study_DX::Plane testplane;
 
-	Model *model;
+	std::shared_ptr<Model> model;
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = geometryPoint.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(geometryPoint.name, model));
+	m_ModelMap.insert(std::make_pair(geometryPoint.name, model));
 
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = testbox.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(testbox.name, model));
+	m_ModelMap.insert(std::make_pair(testbox.name, model));
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = testbox2.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(testbox2.name, model));
+	m_ModelMap.insert(std::make_pair(testbox2.name, model));
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(&testSphere.vertices, &testSphere.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = testSphere.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(testSphere.name, model));
+	m_ModelMap.insert(std::make_pair(testSphere.name, model));
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(&testCylinder.vertices, &testCylinder.indices, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = testCylinder.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(testCylinder.name, model));
+	m_ModelMap.insert(std::make_pair(testCylinder.name, model));
 
-	model = new Model();
+	model = std::shared_ptr<Model>(new Model);
 	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, mTextureMap, mTextureBuffer)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
 	model->mName = testplane.name;
-	_modelBuffer.buffer.push_back(model);
-	mModelMap.insert(std::make_pair(testplane.name, model));
+	m_ModelMap.insert(std::make_pair(testplane.name, model));
 }
 
 bool GraphicsManager::InitializeScene()
@@ -571,7 +574,7 @@ bool GraphicsManager::InitializeScene()
 
 
 		//광원 데이터 초기화
-		if (!light.Initialize(mModelMap["light.fbx"])) {
+		if (!light.Initialize(m_ModelMap["light.fbx"].get())) {
 			MessageBoxA(NULL, "Initialize light Error", "Error", MB_ICONERROR);
 			return false;
 		}
@@ -792,6 +795,53 @@ void GraphicsManager::Load_Texture_File(const std::string & _TextureFolderPath)
 	_findclose(handle);
 }
 
+void GraphicsManager::InitializeModel()
+{
+	std::string filePath = "Data\\Objects\\";
+	InitializeModel(filePath);
+}
+
+void GraphicsManager::InitializeModel(const std::string & filePath)
+{
+	std::string path = filePath + "*.*";
+	static std::string debug_string = "";
+
+	struct _finddata_t fd;
+	intptr_t handle;
+
+	std::vector<AnimationClip> * animClipBuffer = Engine::GetInstance().GetAnimClipBuffer();
+
+	if ((handle = _findfirst(path.c_str(), &fd)) != -1L) {
+		do {
+			if (fd.attrib & _A_SUBDIR && 
+				(fd.name != std::string(".")) && 
+				(fd.name != std::string(".."))) 
+			{
+				std::string subDirPath = filePath + fd.name + "\\";
+				InitializeModel(subDirPath);
+				continue;
+			}
+
+			auto ext = StringHelper::GetFileExtension(fd.name);
+			if (ext == "fbx" ||
+				ext == "obj") 
+			{
+				debug_string += (std::string)fd.name + ", ";
+
+				std::shared_ptr<Model> model(new Model);
+				if (!model->Initialize(filePath + fd.name, this->m_Device.Get(), this->m_DeviceContext.Get(), this->cb_vs_vertexshader, this->cb_vs_boneData, animClipBuffer, mTextureMap, mTextureBuffer)) {
+					MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
+					return;
+				}
+				model->mName = fd.name;
+				m_ModelMap.insert(std::make_pair(fd.name, model));
+			}
+
+		} while (_findnext(handle, &fd) == 0);
+	}
+	_findclose(handle);
+}
+
 void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer)
 {
 	std::string filePath = "Data\\Objects\\";
@@ -820,7 +870,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				}
 				model->mName = fd.name;
 				modelBuffer.buffer.push_back(model);
-				mModelMap.insert(std::make_pair(fd.name, model));
+				m_ModelMap.insert(std::make_pair(fd.name, model));
 			}
 			else if (StringHelper::GetFileExtension(fd.name) == "obj") {
 				debug_string += (std::string)fd.name + ", ";
@@ -832,7 +882,7 @@ void GraphicsManager::InitializeModel(ModelBuffer & modelBuffer, std::string & f
 				}
 				model->mName = fd.name;
 				modelBuffer.buffer.push_back(model);
-				mModelMap.insert(std::make_pair(fd.name, model));
+				m_ModelMap.insert(std::make_pair(fd.name, model));
 			}
 			else if (fd.attrib & _A_SUBDIR && (fd.name != std::string(".")) && (fd.name != std::string(".."))) {
 				std::string childPath = filePath + fd.name + "\\";
@@ -923,6 +973,8 @@ bool GraphicsManager::Initialize_Skybox()
 	}
 	return true;
 }
+
+
 
 #pragma endregion
 
@@ -1187,13 +1239,13 @@ void GraphicsManager::ProcessUI()
 		ImGui::End();
 	}
 
-	if (mModelMap.size() >= 1) {
+	/*if (m_ModelMap.size() >= 1) {
 		ImGui::Begin("Model load Test");
-		for (auto iter : mModelMap) {
+		for (auto iter : m_ModelMap) {
 			ImGui::Text(iter.first.c_str());
 		}
 		ImGui::End();
-	}
+	}*/
 
 	ImGui::Begin("Shader load check");
 	ImGui::BeginChild("VShader", ImVec2(250, 150));

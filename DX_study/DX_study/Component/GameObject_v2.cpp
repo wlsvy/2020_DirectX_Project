@@ -105,7 +105,7 @@ void GameObject_v2::OnGui()
 
 void GameObject_v2::Destroy()
 {
-	sceneManager->Destory_GameObject(this);
+	sceneManager->DestoryGameObject(this);
 }
 
 void GameObject_v2::Destroy(GameObject_v2 * _target)

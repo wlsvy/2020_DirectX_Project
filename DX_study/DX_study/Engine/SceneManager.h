@@ -48,11 +48,9 @@ public:
 	~SceneManager();
 
 	void Component_Valid_Test();
-	bool Destory_GameObject(GameObject_v2 * _gameObject);
+	bool DestoryGameObject(GameObject_v2 * _gameObject);
 	void OnGui();
 	GameObject_v2 * getUIselectedObj();
-
-	Model * getModelByName(const std::string & _str);
 
 private:
 	SceneManager();
@@ -66,8 +64,8 @@ private:
 	
 
 
-	std::vector<std::shared_ptr<GameObject_v2>> gameObjectBuffer;
-	ModelBuffer modelBuffer;
+	std::vector<std::shared_ptr<GameObject_v2>> m_GameObjects;
+	
 	ShaderBuffer shaderBuffer;
 	TerrainModelBuffer terrainBuffer;
 

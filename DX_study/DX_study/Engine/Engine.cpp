@@ -26,14 +26,15 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 		
-	m_GraphicsManager.InitializeSimpleGeometry(m_SceneManager->modelBuffer);
-	m_GraphicsManager.InitializeModel(m_SceneManager->modelBuffer);
+	m_GraphicsManager.InitializeSimpleGeometry();
+	//m_GraphicsManager.InitializeModel(m_SceneManager->modelBuffer);
+	m_GraphicsManager.InitializeModel();
 	
 	//씬 매니저 초기화
 	m_SceneManager->Custom_Test_Obj_Set(); // 테스트용
 	m_PhysicsManager->Initialize();
 
-	m_GraphicsManager.gameObjBuffer = &m_SceneManager->gameObjectBuffer;
+	m_GraphicsManager.gameObjBuffer = &m_SceneManager->m_GameObjects;
 	m_GraphicsManager.lightBuffer = &lightBuffer;
 	m_GraphicsManager.terrainBuffer = &terrainBuffer;
 	m_GraphicsManager.InitializeTerrain(m_SceneManager->terrainBuffer);
@@ -71,9 +72,9 @@ void Engine::Update() {
 	}
 	m_PhysicsManager->PhysicsUpdate();
 
-	int gameObjSize = m_SceneManager->gameObjectBuffer.size();
+	int gameObjSize = m_SceneManager->m_GameObjects.size();
 	for (int i = 0; i < gameObjSize; i++) {
-		m_SceneManager->gameObjectBuffer[i]->transform.TRANSFORM_UPDATED = false;
+		m_SceneManager->m_GameObjects[i]->transform.TRANSFORM_UPDATED = false;
 	}
 
 	m_AnimationManager.Update();

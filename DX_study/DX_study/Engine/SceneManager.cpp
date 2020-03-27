@@ -37,7 +37,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.pos = XMFLOAT3(0.0f, -30.0f, 0.0f);
 	desc.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	desc.scale = DirectX::XMFLOAT3(0.3f, 0.3f, 0.3f);
-	desc.model = modelBuffer.buffer[9];
+	desc.model = Module::GetGraphicsModule().GetModel("Walking.fbx");
 	desc.obj_name = "first Created";
 	desc.scene_manager = this;
 	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("skinned_vertex");
@@ -48,7 +48,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->GetComponent<Animator>()->SetAnimClip(&Engine::GetInstance().GetAnimClipBuffer()->at(0));
 	
 
-	desc.model = modelBuffer.buffer[7];
+	desc.model = Module::GetGraphicsModule().GetModel("nanosuit.obj");
 	desc.vshaderPtr = Module::GetGraphicsModule().GetVshader("vertexshader");
 	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
 	desc.scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -70,7 +70,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("PS_Camera");
 	for (int i = 1; i < 6; i++) {
 		desc.pos = XMFLOAT3(20.0f + i * 5.0f, 5.0f, 10.0f);
-		desc.model = modelBuffer.buffer[i];
+		desc.model = Module::GetGraphicsModule().GetModel("Box(Vertex8)"); 
 		desc.obj_name = "Simple Geometry" + std::to_string(i);
 		gameObj = AddGameObject(desc);
 		gameObj->AddComponent<SphereCollider_ver2>();
@@ -81,7 +81,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader");
 	desc.gshaderPtr = Module::GetGraphicsModule().GetGshader("BillBoardSample");
 	desc.pos = XMFLOAT3(0, 0.0f, 5.0f);
-	desc.model = modelBuffer.buffer[0];
+	desc.model = Module::GetGraphicsModule().GetModel("Point");
 	desc.obj_name = "BillBoard Test";
 	gameObj = AddGameObject(desc);
 	gameObj->AddComponent<SphereCollider_ver2>();
@@ -101,7 +101,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	desc.vshaderID = 1;*/
 
 	//Character Controller
-	desc.model = modelBuffer.buffer[3];
+	desc.model = Module::GetGraphicsModule().GetModel("Sphere");
 	desc.pos = XMFLOAT3(15.0f, 20.0f, 10.0f);
 	desc.obj_name = "Character Controller";
 	gameObj = AddGameObject(desc);
@@ -109,7 +109,7 @@ void SceneManager::Custom_Test_Obj_Set()
 	gameObj->AddComponent<GroundTest>();
 
 	//RigidBody
-	desc.model = modelBuffer.buffer[1];
+	desc.model = Module::GetGraphicsModule().GetModel("Box(Vertex8)");
 	desc.pos = XMFLOAT3(23.3f, 15.0f, 10.0f);
 	desc.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	desc.obj_name = "GameObject";
@@ -147,7 +147,7 @@ void SceneManager::Custom_Test_Obj_Set()
 
 	//Light Obj
 	desc.pshaderPtr = Module::GetGraphicsModule().GetPshader("pixelshader_nolight");
-	desc.model = modelBuffer.buffer[6];
+	desc.model = Module::GetGraphicsModule().GetModel("light.fbx");
 	desc.pos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	desc.rot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	desc.scale = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -160,11 +160,11 @@ void SceneManager::Component_Valid_Test()
 	Engine::GetInstance().Component_Valid_Test();
 }
 
-bool SceneManager::Destory_GameObject(GameObject_v2 * _gameObject)
+bool SceneManager::DestoryGameObject(GameObject_v2 * _gameObject)
 {
-	for (auto iter = gameObjectBuffer.begin(); iter != gameObjectBuffer.end(); iter++) {
+	for (auto iter = m_GameObjects.begin(); iter != m_GameObjects.end(); iter++) {
 		if (_gameObject == iter->get()) {
-			gameObjectBuffer.erase(iter);
+			m_GameObjects.erase(iter);
 			return true;
 		}
 	}
@@ -193,7 +193,8 @@ void SceneManager::OnGui()
 
 void SceneManager::UIrecursiveTransformCheck(Transform * _transform)
 {
-	ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow
+	ImGuiTreeNodeFlags node_flags = 
+		ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_OpenOnDoubleClick
 		| ((mUI_Selected_Transform_ID == _transform->getComponentID()) ? ImGuiTreeNodeFlags_Selected : 0)
 		| ((_transform->GetChildNum() == 0) ? ImGuiTreeNodeFlags_Leaf : 0)
@@ -216,15 +217,6 @@ void SceneManager::UIrecursiveTransformCheck(Transform * _transform)
 	}
 }
 
-Model * SceneManager::getModelByName(const std::string & _str)
-{
-	auto iter = Module::GetGraphicsModule().mModelMap.find(_str);
-	if (iter != Module::GetGraphicsModule().mModelMap.end()) {
-		return iter->second;
-	}
-	return nullptr;
-}
-
 GameObject_v2 * SceneManager::getUIselectedObj()
 {
 	if (mUI_Selectd_Transform_Ptr == nullptr) return nullptr;
@@ -245,7 +237,7 @@ GameObject_v2* SceneManager::AddGameObject(GAMEOBJECT_INIT_DESC & desc)
 	desc.obj_id = ObjIDcontributor++;
 
 	GameObject_v2 * ptr = new GameObject_v2(desc);
-	gameObjectBuffer.emplace_back(ptr);
+	m_GameObjects.emplace_back(ptr);
 	ptr->transform.mComponentID = ComponentIDcontributor++;
 	ptr->transform.mWorldTransform = mWorldTransform;
 	ptr->transform.SetParent(mWorldTransform);

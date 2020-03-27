@@ -40,6 +40,7 @@ public:
 	VertexShader* GetVshader(const std::string & shaderName);
 	PixelShader* GetPshader(const std::string & shaderName);
 	GeometryShader* GetGshader(const std::string & shaderName);
+	Model* GetModel(const std::string & name);
 
 	ID3D11Device& GetDevice();
 	ID3D11DeviceContext& GetDeviceContext();
@@ -53,9 +54,11 @@ private:
 	bool InitializeTextures();
 	void Load_Shader_File(std::wstring & _ExeFilePath);
 	void Load_Texture_File(const std::string & _TextureFolderPath);
-	void InitializeSimpleGeometry(ModelBuffer & _modelBuffer);
+	void InitializeSimpleGeometry();
 	bool Initialize_MoreRenderTarget();
 	bool Initialize_Skybox();
+	void InitializeModel();
+	void InitializeModel(const std::string & filePath);
 	void InitializeModel(ModelBuffer & modelBuffer);
 	void InitializeModel(ModelBuffer & modelBuffer, std::string & path);
 	bool InitializeScene();
@@ -85,13 +88,7 @@ private:
 	std::vector<std::shared_ptr<Light_ver2>> * lightBuffer;
 	std::vector<std::shared_ptr<Terrain>> * terrainBuffer;
 
-	int gridDivision = 20;
-	float gridXval = 50.0f;
-	float gridYval = 50.0f;
-	VertexBuffer<Vertex3D> gvBuffer;
-	IndexBuffer giBuffer;
-	ConstantBuffer<CB_VS_vertexshader> grid_CB_VS_Buffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> gridv;
+	
 
 #pragma endregion
 
@@ -144,7 +141,10 @@ private:
 
 	std::vector<Texture>					mTextureBuffer;
 	std::map<std::string, int>				mTextureMap;
-	std::map<std::string, Model*>			mModelMap;
+	std::unordered_map<std::string, std::shared_ptr<Model>>			m_ModelMap;
+
+	//std::vector<std::shared_ptr<Model>> m_Models;
+	std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;
 
 	ConstantBuffer<CB_VS_vertexshader_2d>	cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader>		cb_vs_vertexshader;

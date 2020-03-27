@@ -117,7 +117,7 @@ protected:
 #pragma region Animation Variable
 	std::map<std::string, UINT> m_Bone_Name_Map;
 	std::vector<MyCustom::Bone> mBoneBuffer;
-	UINT mBoneCount;
+	UINT mBoneCount = 0;
 
 	void nodeName(std::vector<std::string> * na, aiNode* node);
 #pragma endregion
