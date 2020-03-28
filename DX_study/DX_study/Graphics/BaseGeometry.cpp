@@ -1,11 +1,85 @@
 #include "BaseGeometry.h"
 
+#include <memory>
+#include <array>
+
 using namespace Study_DX;
 using namespace DirectX;
 
+void calculateNormal(std::vector<Vertex3D>& vertices, std::vector<DWORD> indices) {
+	int vSize = vertices.size();
+	int triangleNum = indices.size() / 3;
+
+	//auto vertexNormal = std::make_shared<std::array<XMVECTOR, vSize>>();
+	XMVECTOR *vertexNormal = new XMVECTOR[vSize];
+	XMFLOAT3 zero = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	for (int i = 0; i < vSize; i++) {
+		vertexNormal[i] = XMLoadFloat3(&zero);
+	}
+
+	for (int i = 0; i < triangleNum; i++) {
+		int index0 = indices[i * 3 + 0];
+		int index1 = indices[i * 3 + 1];
+		int index2 = indices[i * 3 + 2];
+
+		XMVECTOR pos0 = XMLoadFloat3(&vertices[index0].pos);
+		XMVECTOR pos1 = XMLoadFloat3(&vertices[index1].pos);
+		XMVECTOR pos2 = XMLoadFloat3(&vertices[index2].pos);
+
+		XMVECTOR edge0 = XMVectorSubtract(pos1, pos0);
+		XMVECTOR edge1 = XMVectorSubtract(pos2, pos0);
+		XMVECTOR faceNormal = XMVector3Cross(edge0, edge1);
+
+		vertexNormal[index0] = XMVectorAdd(vertexNormal[index0], faceNormal);
+		vertexNormal[index1] = XMVectorAdd(vertexNormal[index1], faceNormal);
+		vertexNormal[index2] = XMVectorAdd(vertexNormal[index2], faceNormal);
+	}
+
+	for (int i = 0; i < vSize; i++) {
+		XMStoreFloat3(&vertices[i].normal, XMVector3Normalize(vertexNormal[i]));
+	}
+	delete[] vertexNormal;
+}
+void calculateNormal(Vertex3D * _vertexBuffer, const UINT _vertexNum, const DWORD * _indexBuffer, const UINT _indexNum)
+{
+	int triangleNum = _indexNum / 3;
+
+	//auto vn = std::make_shared<XMVECTOR[]>(_vertexNum);
+	XMVECTOR *vertexNormal = new XMVECTOR[_vertexNum];
+	XMFLOAT3 zero = XMFLOAT3(0.0f, 0.0f, 0.0f);
+
+	for (int i = 0; i < _vertexNum; i++) {
+		vertexNormal[i] = XMLoadFloat3(&zero);
+	}
+
+	for (int i = 0; i < triangleNum; i++) {
+		int index0 = _indexBuffer[i * 3 + 0];
+		int index1 = _indexBuffer[i * 3 + 1];
+		int index2 = _indexBuffer[i * 3 + 2];
+
+		XMVECTOR pos0 = XMLoadFloat3(&_vertexBuffer[index0].pos);
+		XMVECTOR pos1 = XMLoadFloat3(&_vertexBuffer[index1].pos);
+		XMVECTOR pos2 = XMLoadFloat3(&_vertexBuffer[index2].pos);
+
+		XMVECTOR edge0 = XMVectorSubtract(pos1, pos0);
+		XMVECTOR edge1 = XMVectorSubtract(pos2, pos0);
+		XMVECTOR faceNormal = XMVector3Cross(edge0, edge1);
+
+		vertexNormal[index0] = XMVectorAdd(vertexNormal[index0], faceNormal);
+		vertexNormal[index1] = XMVectorAdd(vertexNormal[index1], faceNormal);
+		vertexNormal[index2] = XMVectorAdd(vertexNormal[index2], faceNormal);
+	}
+
+	for (int i = 0; i < _vertexNum; i++) {
+		XMStoreFloat3(&_vertexBuffer[i].normal, XMVector3Normalize(vertexNormal[i]));
+	}
+	delete[] vertexNormal;
+}
+
 Box::Box()
 {
-	Study_DX::calculateNormal(vertices, vertexSize, indices, indexSize);
+	calculateNormal(vertices, indices);
 }
 
 Box_Strange::Box_Strange() {
@@ -210,40 +284,7 @@ void Study_DX::Cylinder::BuildCylinderBottomCap(float bottomRadius, float topRad
 	}
 }
 
-void Study_DX::calculateNormal(Vertex3D * _vertexBuffer, const UINT _vertexNum, const DWORD * _indexBuffer, const UINT _indexNum)
-{
-	int triangleNum = _indexNum / 3;
 
-	XMVECTOR *vertexNormal = new XMVECTOR[_vertexNum];
-	XMFLOAT3 zero = XMFLOAT3(0.0f, 0.0f, 0.0f);
-
-	for (int i = 0; i < _vertexNum; i++) {
-		vertexNormal[i] = XMLoadFloat3(&zero);
-	}
-
-	for (int i = 0; i < triangleNum; i++) {
-		int index0 = _indexBuffer[i * 3 + 0];
-		int index1 = _indexBuffer[i * 3 + 1];
-		int index2 = _indexBuffer[i * 3 + 2];
-
-		XMVECTOR pos0 = XMLoadFloat3(&_vertexBuffer[index0].pos);
-		XMVECTOR pos1 = XMLoadFloat3(&_vertexBuffer[index1].pos);
-		XMVECTOR pos2 = XMLoadFloat3(&_vertexBuffer[index2].pos);
-
-		XMVECTOR edge0 = XMVectorSubtract(pos1, pos0);
-		XMVECTOR edge1 = XMVectorSubtract(pos2, pos0);
-		XMVECTOR faceNormal = XMVector3Cross(edge0, edge1);
-
-		vertexNormal[index0] = XMVectorAdd(vertexNormal[index0], faceNormal);
-		vertexNormal[index1] = XMVectorAdd(vertexNormal[index1], faceNormal);
-		vertexNormal[index2] = XMVectorAdd(vertexNormal[index2], faceNormal);
-	}
-
-	for (int i = 0; i < _vertexNum; i++) {
-		XMStoreFloat3(&_vertexBuffer[i].normal, XMVector3Normalize(vertexNormal[i]));
-	}
-
-}
 
 
 

@@ -1,5 +1,12 @@
 #pragma once
-#include "Model.h"
+#include <vector>
+
+#include "Vertex.h"
+
+class GraphicsManager;
+
+using UINT = unsigned int;
+using DWORD = unsigned long;
 
 namespace Study_DX {
 	struct Point {
@@ -20,8 +27,7 @@ namespace Study_DX {
 		friend class GraphicsManager;
 	private:
 		Box();
-		
-		Vertex3D vertices[8] = {//position	//texcoord		//normal
+		std::vector<Vertex3D> vertices = { //position, texcoord, normal
 			{ -1.0f, -1.0f, -1.0f,     0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
 			{ -1.0f, +1.0f, -1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f},
 			{ +1.0f, +1.0f, -1.0f,     1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
@@ -31,7 +37,7 @@ namespace Study_DX {
 			{ +1.0f, +1.0f, +1.0f,     0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
 			{ +1.0f, -1.0f, +1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f}
 		};
-		DWORD indices[36] = {
+		std::vector<DWORD> indices = {
 			// front face
 			0, 1, 2,
 			0, 2, 3,
@@ -161,6 +167,4 @@ namespace Study_DX {
 		std::vector<Vertex3D> vertices;
 		std::vector<DWORD> indices;
 	};
-
-	void calculateNormal(Vertex3D * _vertexBuffer, const UINT _vertexNum, const DWORD * _indexBuffer, const UINT _indexNum);
 }

@@ -506,9 +506,9 @@ std::vector<Texture*> Model::LoadMaterialTextures(
 						Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255),
 						textureType));
 					texture->Name = "Material Color : " + 
-						std::to_string(aiColor.r * 255) + " " + 
-						std::to_string(aiColor.g * 255) + " " +
-						std::to_string(aiColor.b * 255);
+						std::to_string((int)(aiColor.r * 255)) + " " + 
+						std::to_string((int)(aiColor.g * 255)) + " " +
+						std::to_string((int)(aiColor.b * 255));
 					Module::RegisterTexture(texture);
 					texturePtrVec.push_back(texture.get());
 				}

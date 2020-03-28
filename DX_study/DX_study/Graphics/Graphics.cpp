@@ -525,7 +525,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox.vertices, testbox.vertexSize, testbox.indices, testbox.indexSize)) {
+	if (!model->Initialize(&testbox.vertices, &testbox.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}

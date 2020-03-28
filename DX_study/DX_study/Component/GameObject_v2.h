@@ -48,7 +48,7 @@ public:
 	T* GetComponent();
 	template<class T>
 	void RemoveComponent();
-	//void CustomSendMessage();
+
 	void Destroy() override;
 	void Destroy(GameObject_v2 * _target);
 
