@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 
+#include "Model.h"
 #include "Vertex.h"
 
 class GraphicsManager;

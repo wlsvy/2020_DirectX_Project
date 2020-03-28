@@ -8,9 +8,6 @@
 #define NUM_BONES_PER_VERTEX 4
 
 namespace MyCustom {
-	//class aiMatrix4x4;
-	enum DRAW_FLAG {DEFAULT = 0, SKINNED_MESH = 1, WITHOUT_TEXTURE = 2};
-
 	struct Bone {
 		DirectX::XMMATRIX BoneOffset;
 		DirectX::XMMATRIX FinalTransform;
@@ -28,19 +25,27 @@ namespace MyCustom {
 
 class Mesh {
 public:
+	enum DrawFlag
+	{
+		Default = 0,
+		SkinnedMesh = 1,
+		NoTexture = 2,
+		BillBoard = 3
+	};
+
 	Mesh(
 		std::vector<Vertex3D> & vertices, 
 		std::vector<DWORD> & indices, 
 		std::vector<Texture*> & textures, 
 		const DirectX::XMMATRIX & transformMatrix,
-		MyCustom::DRAW_FLAG _drawflag);
+		DrawFlag _drawflag);
 
 	Mesh(
 		Vertex3D * _vertices, const UINT _vertexSize, 
 		DWORD * _indices, const UINT _indexSize, 
 		std::vector<Texture*> & textures, 
 		const DirectX::XMMATRIX & transformMatrix,
-		MyCustom::DRAW_FLAG _drawflag);
+		DrawFlag _drawflag);
 
 	//skinned mesh Àü¿ë
 	Mesh(
@@ -78,4 +83,5 @@ protected:
 	DirectX::XMMATRIX transformMatrix;
 
 	bool hasBone = false;
+	DrawFlag m_DrawFlag = Default;
 };

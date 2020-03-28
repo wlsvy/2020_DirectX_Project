@@ -217,7 +217,7 @@ Mesh Model::ProcessMesh(
 									scene);
 
 	if(!mesh->HasBones())
-	return Mesh(vertices, indices, textures, transformMatrix, MyCustom::DEFAULT);
+	return Mesh(vertices, indices, textures, transformMatrix, Mesh::Default);
 
 	//Get Bones
 	UINT BoneIndex = 0;
@@ -272,7 +272,7 @@ Mesh Model::ProcessMesh(
 	std::vector<Texture*> textures;
 	textures.push_back(Module::GetTexture("White Texture").get());
 
-	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
 }
 
 Mesh Model::ProcessMesh(
@@ -294,7 +294,7 @@ Mesh Model::ProcessMesh(
 	std::vector<Texture*> textures;
 	textures.push_back(Module::GetTexture("White Texture").get());
 
-	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
 }
 
 Mesh Model::ProcessMesh(Vertex3D * _vertex)
@@ -434,7 +434,7 @@ Mesh Model::ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vec
 {
 	std::vector<Texture*> textures;
 
-	return Mesh(*terrainVertexBuffer, *terrainIndexBuffer, textures, DirectX::XMMatrixIdentity(), MyCustom::WITHOUT_TEXTURE);
+	return Mesh(*terrainVertexBuffer, *terrainIndexBuffer, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)

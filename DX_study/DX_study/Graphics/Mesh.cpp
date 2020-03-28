@@ -5,12 +5,13 @@
 
 #include "../Engine/ModuleResource.h"
 
-Mesh::Mesh(std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture*> & textures, const DirectX::XMMATRIX & transformMatrix, MyCustom::DRAW_FLAG _drawflag)
+Mesh::Mesh(std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture*> & textures, const DirectX::XMMATRIX & transformMatrix, DrawFlag _drawflag)
 {
 	this->textures = textures;
 	this->transformMatrix = transformMatrix;
 	hasBone = false;
 
+	m_DrawFlag = _drawflag == 0 ? Default : NoTexture;
 	DRAW_MESH = _drawflag == 0 ? &Mesh::Draw_Default : &Mesh::Draw_NoTexture;
 
 	try {
@@ -27,11 +28,13 @@ Mesh::Mesh(std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::ve
 	
 }
 
-Mesh::Mesh(Vertex3D * _vertices, const UINT _vertexSize, DWORD * _indices, const UINT _indexSize, std::vector<Texture*>& textures, const DirectX::XMMATRIX & transformMatrix, MyCustom::DRAW_FLAG _drawflag)
+Mesh::Mesh(Vertex3D * _vertices, const UINT _vertexSize, DWORD * _indices, const UINT _indexSize, std::vector<Texture*>& textures, const DirectX::XMMATRIX & transformMatrix, DrawFlag _drawflag)
 {
 	this->textures = textures;
 	this->transformMatrix = transformMatrix;
 	hasBone = false;
+
+	m_DrawFlag = _drawflag == 0 ? Default : NoTexture;
 	DRAW_MESH = _drawflag == 0 ? &Mesh::Draw_Default : &Mesh::Draw_NoTexture;
 
 	try {
@@ -52,6 +55,8 @@ Mesh::Mesh(std::vector<Vertex3D_BoneWeight>& _vert_bones, std::vector<DWORD>& in
 	this->textures = textures;
 	this->transformMatrix = transformMatrix;
 	hasBone = true;
+
+	m_DrawFlag = SkinnedMesh;
 	DRAW_MESH = &Mesh::Draw_SkinnedMesh;
 
 	try {
@@ -72,6 +77,8 @@ Mesh::Mesh(Vertex3D & _vertex, std::vector<Texture*>& textures, const DirectX::X
 	this->textures = textures;
 	this->transformMatrix = transformMatrix;
 	hasBone = false;
+
+	m_DrawFlag = BillBoard;
 	DRAW_MESH = &Mesh::Draw_Billboard;
 
 	try {
@@ -92,12 +99,17 @@ Mesh::Mesh(const Mesh & mesh)
 	this->textures = mesh.textures;
 	this->transformMatrix = mesh.transformMatrix;
 	this->hasBone = mesh.hasBone;
-	this->DRAW_MESH = mesh.DRAW_MESH;
+	this->m_DrawFlag = mesh.m_DrawFlag;
 }
 
 void Mesh::Draw()
 {
-	(this->*DRAW_MESH)();
+	switch (m_DrawFlag) {
+	case Default: Draw_Default(); break;
+	case NoTexture: Draw_NoTexture(); break;
+	case SkinnedMesh: Draw_SkinnedMesh(); break;
+	case BillBoard: Draw_Billboard(); break;
+	}
 }
 
 void Mesh::Draw_Default()
@@ -128,9 +140,7 @@ void Mesh::Draw_SkinnedMesh()
 	}
 
 	Module::GetDeviceContext().IASetVertexBuffers(0, 1, this->vertex_BoneWeight_buffer.GetAddressOf(), this->vertex_BoneWeight_buffer.StridePtr(), &offset);
-
 	Module::GetDeviceContext().IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	//Module::GetDeviceContext().Draw(1, 0);
 	Module::GetDeviceContext().DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
 }
 
@@ -140,7 +150,6 @@ void Mesh::Draw_NoTexture()
 
 	Module::GetDeviceContext().IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
 	Module::GetDeviceContext().IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-
 	Module::GetDeviceContext().DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
 }
 
@@ -158,7 +167,6 @@ void Mesh::Draw_Billboard()
 	Module::GetDeviceContext().IASetVertexBuffers(0, 1, this->vertex_BoneWeight_buffer.GetAddressOf(), this->vertex_BoneWeight_buffer.StridePtr(), &offset);
 	Module::GetDeviceContext().IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 	Module::GetDeviceContext().Draw(3, 0);
-
 	Module::GetDeviceContext().IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
