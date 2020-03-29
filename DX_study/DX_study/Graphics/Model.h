@@ -35,13 +35,13 @@ protected:
 		const aiScene * scene, 
 		const DirectX::XMMATRIX & parentTransformMatrix);
 
-	Mesh ProcessMesh(
+	Mesh ProcessMesh(	
 		const aiMesh * mesh,
 		const aiScene * scene,
 		const DirectX::XMMATRIX & transformMatrix);
 	Mesh ProcessMesh(
 		const std::vector<Vertex3D> * _vertexBuffer, 
-		const std::vector<DWORD> * _indexBuffer);
+		const std::vector<DWORD> * _indexBuffer) const;
 	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene);
 	void ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);

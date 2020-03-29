@@ -185,7 +185,7 @@ Mesh Model::ProcessMesh(
 	//Get indices
 	for (UINT i = 0; i < mesh->mNumFaces; i++)
 	{
-		aiFace face = mesh->mFaces[i];
+		aiFace& face = mesh->mFaces[i];
 
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
@@ -247,25 +247,15 @@ Mesh Model::ProcessMesh(
 	return Mesh(vertices_skinned, indices, textures, transformMatrix);
 }
 
-Mesh Model::ProcessMesh(
+Mesh Model::ProcessMesh (
 	const std::vector<Vertex3D>* _vertexBuffer, 
-	const std::vector<DWORD>* _indexBuffer)
+	const std::vector<DWORD>* _indexBuffer) const
 {
 	std::vector<Texture*> textures;
 	textures.push_back(Module::GetTexture("White Texture").get());
 
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
 }
-
-//Mesh Model::ProcessMesh(
-//	std::vector<Vertex3D_BoneWeight>* _vertexBuffer, 
-//	std::vector<DWORD>* _indexBuffer)
-//{
-//	std::vector<Texture*> textures;
-//	textures.push_back(Module::GetTexture("White Texture").get());
-//
-//	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
-//}
 
 void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene)
 {

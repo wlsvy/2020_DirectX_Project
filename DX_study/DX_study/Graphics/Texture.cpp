@@ -87,6 +87,7 @@ void Texture::InitializeColorTexture(const Color * colorData, UINT width, UINT h
 
 	CD3D11_TEXTURE2D_DESC textureDesc(DXGI_FORMAT_R8G8B8A8_UNORM, width, height); //텍스쳐생성
 	ID3D11Texture2D * p2DTexture = nullptr;
+	ID3D11ShaderResourceView* srvPtr = nullptr;
 	D3D11_SUBRESOURCE_DATA initialData{};
 	initialData.pSysMem = colorData;
 	initialData.SysMemPitch = width * sizeof(Color);
@@ -94,11 +95,11 @@ void Texture::InitializeColorTexture(const Color * colorData, UINT width, UINT h
 	HRESULT hr = Module::GetDevice().CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize texture from color data.");
 
-	texture = static_cast<ID3D11Texture2D*>(p2DTexture);
+	texture = Microsoft::WRL::ComPtr<ID3D11Resource>(static_cast<ID3D11Texture2D*>(p2DTexture));
 	CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format); //텍스쳐로부터 셰이더 리소스 뷰 생성
 	
-	hr = Module::GetDevice().CreateShaderResourceView(texture.Get(), &srvDesc, textureView.GetAddressOf());
+	hr = Module::GetDevice().CreateShaderResourceView(texture.Get(), &srvDesc, &srvPtr);
 	COM_ERROR_IF_FAILED(hr, "Failed to create shader resource view from texture generated from color data.");
 
-	//여기 메모리 해재 안함/??
+	textureView = Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>(srvPtr);
 }

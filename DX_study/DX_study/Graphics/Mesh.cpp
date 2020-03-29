@@ -85,14 +85,20 @@ void Mesh::Draw()
 void Mesh::Draw_Default()
 {
 	UINT offset = 0;
-
-	for (int i = 0; i < textures.size(); i++) {//여기 나중에 최적화
-		if (textures[i]->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			auto addr = textures[i]->GetTextureResourceViewAddress();
-			Module::GetDeviceContext().PSSetShaderResources(i, 1, addr); //픽셀 셰이더에 텍스쳐 적용
+	auto dc = &Module::GetDeviceContext();
+	for (auto texture : textures) {
+		if (texture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			dc->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress()); //픽셀 셰이더에 텍스쳐 적용
 			break;
 		}
 	}
+
+	//for (int i = 0; i < textures.size(); i++) {//여기 나중에 최적화
+	//	if (textures[i]->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+	//		Module::GetDeviceContext().PSSetShaderResources(i, 1, textures[i]->GetTextureResourceViewAddress()); //픽셀 셰이더에 텍스쳐 적용
+	//		break;
+	//	}
+	//}
 
 	Module::GetDeviceContext().IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
 	Module::GetDeviceContext().IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
