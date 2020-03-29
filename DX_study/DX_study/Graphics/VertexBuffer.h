@@ -52,7 +52,7 @@ public:
 		return &this->stride;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, T * data, UINT vertexCount)
+	HRESULT Initialize(ID3D11Device *device, const T * data, UINT vertexCount)
 	{
 		if (buffer.Get() != nullptr) buffer.Reset();
 

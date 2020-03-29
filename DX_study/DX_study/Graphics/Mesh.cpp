@@ -5,14 +5,25 @@
 
 #include "../Engine/ModuleResource.h"
 
-Mesh::Mesh(std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::vector<Texture*> & textures, const DirectX::XMMATRIX & transformMatrix, DrawFlag _drawflag)
+Mesh::Mesh(
+	const std::vector<Vertex3D>& vertices, 
+	const std::vector<DWORD>& indices, 
+	const std::vector<Texture*> & textures, 
+	const DirectX::XMMATRIX & transformMatrix, 
+	const DrawFlag _drawflag)
 {
 	this->textures = textures;
 	this->transformMatrix = transformMatrix;
 	hasBone = false;
 
-	m_DrawFlag = _drawflag == 0 ? Default : NoTexture;
-	DRAW_MESH = _drawflag == 0 ? &Mesh::Draw_Default : &Mesh::Draw_NoTexture;
+	if (indices.size() == 0) {
+		m_DrawFlag = BillBoard;
+		DRAW_MESH = &Mesh::Draw_Billboard;
+	}
+	else {
+		m_DrawFlag = _drawflag == 0 ? Default : NoTexture;
+		DRAW_MESH = _drawflag == 0 ? &Mesh::Draw_Default : &Mesh::Draw_NoTexture;
+	}
 
 	try {
 		HRESULT hr = this->vertexbuffer.Initialize(&Module::GetDevice(), vertices.data(), vertices.size());
@@ -26,28 +37,6 @@ Mesh::Mesh(std::vector<Vertex3D>& vertices, std::vector<DWORD>& indices, std::ve
 		return ;
 	}
 	
-}
-
-Mesh::Mesh(Vertex3D * _vertices, const UINT _vertexSize, DWORD * _indices, const UINT _indexSize, std::vector<Texture*>& textures, const DirectX::XMMATRIX & transformMatrix, DrawFlag _drawflag)
-{
-	this->textures = textures;
-	this->transformMatrix = transformMatrix;
-	hasBone = false;
-
-	m_DrawFlag = _drawflag == 0 ? Default : NoTexture;
-	DRAW_MESH = _drawflag == 0 ? &Mesh::Draw_Default : &Mesh::Draw_NoTexture;
-
-	try {
-		HRESULT hr = this->vertexbuffer.Initialize(&Module::GetDevice(), _vertices, _vertexSize);
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for mesh.");
-
-		hr = this->indexbuffer.Initialize(&Module::GetDevice(), _indices, _indexSize);
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
-	}
-	catch (COMException e) {
-		ErrorLogger::Log(e);
-		return;
-	}
 }
 
 Mesh::Mesh(std::vector<Vertex3D_BoneWeight>& _vert_bones, std::vector<DWORD>& indices, std::vector<Texture*>& textures, const DirectX::XMMATRIX & transformMatrix)
@@ -65,25 +54,6 @@ Mesh::Mesh(std::vector<Vertex3D_BoneWeight>& _vert_bones, std::vector<DWORD>& in
 
 		hr = this->indexbuffer.Initialize(&Module::GetDevice(), indices.data(), indices.size());
 		COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
-	}
-	catch (COMException e) {
-		ErrorLogger::Log(e);
-		return;
-	}
-}
-
-Mesh::Mesh(Vertex3D & _vertex, std::vector<Texture*>& textures, const DirectX::XMMATRIX & transformMatrix)
-{
-	this->textures = textures;
-	this->transformMatrix = transformMatrix;
-	hasBone = false;
-
-	m_DrawFlag = BillBoard;
-	DRAW_MESH = &Mesh::Draw_Billboard;
-
-	try {
-		HRESULT hr = this->vertexbuffer.Initialize(&Module::GetDevice(), &_vertex, 1);
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for mesh.");
 	}
 	catch (COMException e) {
 		ErrorLogger::Log(e);
@@ -118,7 +88,8 @@ void Mesh::Draw_Default()
 
 	for (int i = 0; i < textures.size(); i++) {//여기 나중에 최적화
 		if (textures[i]->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			Module::GetDeviceContext().PSSetShaderResources(i, 1, textures[i]->GetTextureResourceViewAddress()); //픽셀 셰이더에 텍스쳐 적용
+			auto addr = textures[i]->GetTextureResourceViewAddress();
+			Module::GetDeviceContext().PSSetShaderResources(i, 1, addr); //픽셀 셰이더에 텍스쳐 적용
 			break;
 		}
 	}

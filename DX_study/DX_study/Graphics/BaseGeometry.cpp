@@ -47,10 +47,6 @@ Box::Box()
 	calculateNormal(vertices, indices);
 }
 
-Box_Strange::Box_Strange() {
-	//Study_DX::calculateNormal(vertices, vertexSize, indices, indexSize);
-}
-
 Study_DX::Sphere::Sphere(UINT _sliceCount, UINT _stackCount)
 {
 	float radius = 0.5f;

@@ -17,17 +17,9 @@ public:
 	bool Initialize(const std::string & filePath);
 
 	////------------------직접 만든 정점/색인 배열로 모델 생성
-	bool Initialize(std::vector<Vertex3D> * VertexBuffer, 
-		std::vector<DWORD> * IndexBuffer);
-
-	bool Initialize(Vertex3D * _VertexBuffer, 
-		const UINT _vertexSize, 
-		DWORD * _IndexBuffer, 
-		const UINT _indexSize);
-
-	////------------------빌보드용 모델 생성
-	bool Initialize(Vertex3D * _VertexBuffer, 
-		const UINT _vertexSize);
+	bool Initialize(
+		const std::vector<Vertex3D> * VertexBuffer, 
+		const std::vector<DWORD> * IndexBuffer);
 	
 	void(*DRAW_MODEL) ();
 	void Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix);
@@ -39,17 +31,17 @@ protected:
 	
 	bool LoadModel(const std::string & filePath);
 	void ProcessNode(
-		aiNode * node, 
+		const aiNode * node, 
 		const aiScene * scene, 
 		const DirectX::XMMATRIX & parentTransformMatrix);
 
-	Mesh ProcessMesh(aiMesh * mesh,
+	Mesh ProcessMesh(
+		const aiMesh * mesh,
 		const aiScene * scene,
 		const DirectX::XMMATRIX & transformMatrix);
-	Mesh ProcessMesh(std::vector<Vertex3D> * _vertexBuffer, std::vector<DWORD> * _indexBuffer);
-	Mesh ProcessMesh(std::vector<Vertex3D_BoneWeight>* _vertexBuffer, std::vector<DWORD>* _indexBuffer);
-	Mesh ProcessMesh(Vertex3D * _vertexBuffer, const int _vertexSize, DWORD * _indexBuffer, const int _indexSize);
-	Mesh ProcessMesh(Vertex3D * _vertex); //점 하나
+	Mesh ProcessMesh(
+		const std::vector<Vertex3D> * _vertexBuffer, 
+		const std::vector<DWORD> * _indexBuffer);
 	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene);
 	void ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);

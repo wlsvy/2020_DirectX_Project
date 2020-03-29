@@ -34,29 +34,16 @@ public:
 	};
 
 	Mesh(
-		std::vector<Vertex3D> & vertices, 
-		std::vector<DWORD> & indices, 
-		std::vector<Texture*> & textures, 
+		const std::vector<Vertex3D> & vertices, 
+		const std::vector<DWORD> & indices, 
+		const std::vector<Texture*> & textures, 
 		const DirectX::XMMATRIX & transformMatrix,
-		DrawFlag _drawflag);
-
-	Mesh(
-		Vertex3D * _vertices, const UINT _vertexSize, 
-		DWORD * _indices, const UINT _indexSize, 
-		std::vector<Texture*> & textures, 
-		const DirectX::XMMATRIX & transformMatrix,
-		DrawFlag _drawflag);
+		const DrawFlag _drawflag);
 
 	//skinned mesh 전용
 	Mesh(
 		std::vector<Vertex3D_BoneWeight> & _vert_bones,
 		std::vector<DWORD> & indices,
-		std::vector<Texture*> & textures,
-		const DirectX::XMMATRIX & transformMatrix);
-
-	//빌보드 메시
-	Mesh(
-		Vertex3D & _vertex,
 		std::vector<Texture*> & textures,
 		const DirectX::XMMATRIX & transformMatrix);
 

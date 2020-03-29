@@ -26,29 +26,10 @@ bool Model::Initialize(const std::string & filePath)
 }
 
 bool Model::Initialize(
-	std::vector<Vertex3D> * VertexBuffer,
-	std::vector<DWORD> * IndexBuffer)
+	const std::vector<Vertex3D> * VertexBuffer,
+	const std::vector<DWORD> * IndexBuffer)
 {
 	m_Meshes.push_back(ProcessMesh(VertexBuffer, IndexBuffer));
-	return true;
-}
-
-bool Model::Initialize(
-	Vertex3D * _VertexBuffer,
-	const UINT _vertexSize,
-	DWORD * _IndexBuffer,
-	const UINT _indexSize)
-{
-	m_Meshes.push_back(ProcessMesh(_VertexBuffer, _vertexSize, _IndexBuffer, _indexSize));
-	return true;
-}
-
-bool Model::Initialize(
-	Vertex3D * _VertexBuffer,
-	const UINT _vertexSize)
-{
-	m_Meshes.push_back(ProcessMesh(_VertexBuffer));
-
 	return true;
 }
 
@@ -146,7 +127,8 @@ bool Model::LoadModel(const std::string & filePath)
 	return true;
 }
 
-void Model::ProcessNode(aiNode * node,
+void Model::ProcessNode(
+	const aiNode * node,
 	const aiScene * scene,
 	const DirectX::XMMATRIX & parentTransformMatrix)
 {
@@ -165,7 +147,7 @@ void Model::ProcessNode(aiNode * node,
 }
 
 Mesh Model::ProcessMesh(
-	aiMesh * mesh, 
+	const aiMesh * mesh, 
 	const aiScene * scene, 
 	const DirectX::XMMATRIX & transformMatrix)
 {
@@ -266,8 +248,8 @@ Mesh Model::ProcessMesh(
 }
 
 Mesh Model::ProcessMesh(
-	std::vector<Vertex3D>* _vertexBuffer, 
-	std::vector<DWORD>* _indexBuffer)
+	const std::vector<Vertex3D>* _vertexBuffer, 
+	const std::vector<DWORD>* _indexBuffer)
 {
 	std::vector<Texture*> textures;
 	textures.push_back(Module::GetTexture("White Texture").get());
@@ -275,35 +257,15 @@ Mesh Model::ProcessMesh(
 	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
 }
 
-Mesh Model::ProcessMesh(
-	std::vector<Vertex3D_BoneWeight>* _vertexBuffer, 
-	std::vector<DWORD>* _indexBuffer)
-{
-	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture").get());
-
-	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
-}
-
-Mesh Model::ProcessMesh(
-	Vertex3D * _vertexBuffer, 
-	const int _vertexSize, 
-	DWORD * _indexBuffer, 
-	const int _indexSize)
-{
-	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture").get());
-
-	return Mesh(_vertexBuffer, _vertexSize, _indexBuffer, _indexSize, textures, DirectX::XMMatrixIdentity(), Mesh::NoTexture);
-}
-
-Mesh Model::ProcessMesh(Vertex3D * _vertex)
-{
-	std::vector<Texture*> textures;
-	textures.push_back(Module::GetTexture("White Texture").get());
-
-	return Mesh(*_vertex, textures, DirectX::XMMatrixIdentity());
-}
+//Mesh Model::ProcessMesh(
+//	std::vector<Vertex3D_BoneWeight>* _vertexBuffer, 
+//	std::vector<DWORD>* _indexBuffer)
+//{
+//	std::vector<Texture*> textures;
+//	textures.push_back(Module::GetTexture("White Texture").get());
+//
+//	return Mesh(*_vertexBuffer, *_indexBuffer, textures, DirectX::XMMatrixIdentity());
+//}
 
 void Model::ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene)
 {

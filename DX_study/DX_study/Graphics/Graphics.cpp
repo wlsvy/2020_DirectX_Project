@@ -516,7 +516,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	std::shared_ptr<Model> model;
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(geometryPoint.vertices, geometryPoint.vertexSize)) {
+	if (!model->Initialize(&geometryPoint.vertices, &geometryPoint.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -533,7 +533,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testbox.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testbox2.vertices, testbox2.vertexSize, testbox2.indices, testbox2.indexSize)) {
+	if (!model->Initialize(&testbox2.vertices, &testbox2.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}
@@ -557,7 +557,7 @@ void GraphicsManager::InitializeSimpleGeometry()
 	m_ModelMap.insert(std::make_pair(testCylinder.name, model));
 
 	model = std::shared_ptr<Model>(new Model);
-	if (!model->Initialize(testplane.vertices, testplane.vertexSize, testplane.indices, testplane.indexSize)) {
+	if (!model->Initialize(&testplane.vertices, &testplane.indices)) {
 		MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 		return;
 	}

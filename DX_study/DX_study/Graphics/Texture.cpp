@@ -59,10 +59,6 @@ Texture::Texture(Texture && _rhs)
 	texture = _rhs.texture;
 	textureView = _rhs.textureView;
 	type = _rhs.type;
-
-	_rhs.Name.clear();
-	_rhs.texture = nullptr;
-	_rhs.textureView = nullptr;
 }
 
 aiTextureType Texture::GetType()

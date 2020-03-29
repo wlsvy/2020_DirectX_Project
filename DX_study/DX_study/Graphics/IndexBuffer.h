@@ -1,5 +1,4 @@
-#ifndef IndicesBuffer_h__
-#define IndicesBuffer_h__
+#pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <vector>
@@ -26,9 +25,10 @@ public:
 		return this->indexCount;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, DWORD * data, UINT indexCount) {
+	HRESULT Initialize(ID3D11Device *device, const DWORD * data, const UINT indexCount) {
 		this->indexCount = indexCount;
-		//Load Index Data
+		if (indexCount == 0) return S_OK;
+		
 		D3D11_BUFFER_DESC indexBufferDesc;
 		ZeroMemory(&indexBufferDesc, sizeof(indexBufferDesc));
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -43,6 +43,3 @@ public:
 		return hr;
 	}
 };
-
-#endif
-

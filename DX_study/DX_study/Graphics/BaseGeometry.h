@@ -15,9 +15,10 @@ namespace Study_DX {
 	private:
 		Point() {}
 
-		Vertex3D vertices[1] = {//position	//texcoord		//normal
+		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 		{ 1.0f, 1.0f, 1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f } 
 		};
+		const std::vector<DWORD> indices;	//no indices
 
 		const std::string name = "Point";
 		const UINT vertexSize = 1;
@@ -38,7 +39,7 @@ namespace Study_DX {
 			{ +1.0f, +1.0f, +1.0f,     0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
 			{ +1.0f, -1.0f, +1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f}
 		};
-		std::vector<DWORD> indices = {
+		const std::vector<DWORD> indices = {
 			// front face
 			0, 1, 2,
 			0, 2, 3,
@@ -65,15 +66,12 @@ namespace Study_DX {
 		};
 
 		const std::string name = "Box(Vertex8)";
-		const UINT vertexSize = sizeof(vertices) / sizeof(Vertex3D);
-		const UINT indexSize = sizeof(indices) / sizeof(DWORD);
 	};
 
 	struct Box_Strange {
 		friend class GraphicsManager;
 	private:
-		Box_Strange();
-		Vertex3D vertices[24] = {//position	//texcoord		//normal
+		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 			{-0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		 0.0f, 0.0f, -1.0f},
 			{-0.5f, +0.5f, -0.5f,		0.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
 			{+0.5f, +0.5f, -0.5f,		1.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
@@ -99,8 +97,7 @@ namespace Study_DX {
 			{+0.5f, +0.5f, +0.5f,		1.0f, 0.0f,		  1.0f, 0.0f, 0.0f},
 			{+0.5f, -0.5f, +0.5f,		1.0f, 1.0f,		  1.0f, 0.0f, 0.0f}
 		};
-
-		DWORD indices[36] = {
+		const std::vector<DWORD> indices = {
 			0,	1,	2,
 			0,	2,	3,
 			4,	5,	6,
@@ -116,14 +113,12 @@ namespace Study_DX {
 		};
 
 		const std::string name = "Box(Vertex24)";
-		const UINT vertexSize = sizeof(vertices) / sizeof(Vertex3D);
-		const UINT indexSize = sizeof(indices) / sizeof(DWORD);
 	};
 
 	struct Plane {
 		friend class GraphicsManager;
 	private:
-		Vertex3D vertices[8] = {//position	//texcoord		//normal
+		const std::vector<Vertex3D> vertices  = {//position	//texcoord		//normal
 			{-0.5f, -0.5f, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
 			{-0.5f, +0.5f, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
 			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
@@ -133,7 +128,7 @@ namespace Study_DX {
 			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, 1.0f},
 			{+0.5f, -0.5f, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, 1.0f}
 		};
-		DWORD indices[12] = {
+		const std::vector<DWORD> indices = {
 			// ¾Õ¸é
 			0, 1, 2,
 			0, 2, 3,
@@ -143,8 +138,6 @@ namespace Study_DX {
 		};
 
 		const std::string name = "Plane(Two sided)";
-		const UINT vertexSize = 8;
-		const UINT indexSize = 12;
 	};
 
 	struct Sphere {
@@ -152,9 +145,10 @@ namespace Study_DX {
 	public:
 		Sphere(UINT _sliceCount = 5, UINT _stackCount = 5);
 
-		const std::string name = "Sphere";
 		std::vector<Vertex3D> vertices;
 		std::vector<DWORD> indices;
+
+		const std::string name = "Sphere";
 	};
 
 	struct Cylinder {
@@ -164,8 +158,9 @@ namespace Study_DX {
 		void BuildCylinderTopCap(float bottomRadius, float topRadius, float height,UINT sliceCount, UINT stackCount);
 		void BuildCylinderBottomCap(float bottomRadius, float topRadius, float height, UINT sliceCount, UINT stackCount);
 
-		const std::string name = "Cylinder";
 		std::vector<Vertex3D> vertices;
 		std::vector<DWORD> indices;
+
+		const std::string name = "Cylinder";
 	};
 }
