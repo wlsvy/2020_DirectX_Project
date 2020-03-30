@@ -3,6 +3,8 @@
 #include <wrl/client.h>
 #include <vector>
 
+#include "../Core/InternalHelper.h"
+
 class IndexBuffer {
 private:
 	IndexBuffer(const IndexBuffer& rhs);
@@ -25,7 +27,7 @@ public:
 		return this->indexCount;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, DWORD * data, UINT indexCount) {
+	HRESULT Initialize(DWORD * data, UINT indexCount) {
 		this->indexCount = indexCount;
 		//Load Index Data
 		D3D11_BUFFER_DESC indexBufferDesc;
@@ -38,7 +40,7 @@ public:
 
 		D3D11_SUBRESOURCE_DATA indexBufferData;
 		indexBufferData.pSysMem = data;
-		HRESULT hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, buffer.GetAddressOf());
+		HRESULT hr = Core::GetDevice()->CreateBuffer(&indexBufferDesc, &indexBufferData, buffer.GetAddressOf());
 		return hr;
 	}
 };

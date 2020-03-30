@@ -1,8 +1,9 @@
-#ifndef VertexBuffer_h__
-#define VertexBuffer_h__
+#pragma once
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <memory>
+
+#include "../Core/InternalHelper.h"
 
 template<class T>
 class VertexBuffer
@@ -53,7 +54,7 @@ public:
 		return &this->stride;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, T * data, UINT vertexCount)
+	HRESULT Initialize(T * data, UINT vertexCount)
 	{
 		if (buffer.Get() != nullptr) buffer.Reset();
 
@@ -72,9 +73,7 @@ public:
 		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 		vertexBufferData.pSysMem = data;
 
-		HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->buffer.GetAddressOf());
+		HRESULT hr = Core::GetDevice()->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->buffer.GetAddressOf());
 		return hr;
 	}
 };
-
-#endif // VertexBuffer_h__

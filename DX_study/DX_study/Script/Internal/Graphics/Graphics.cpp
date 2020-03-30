@@ -208,24 +208,24 @@ bool Graphics::InitializeScene()
 		this->cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		//모델 데이터 초기화
-		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", Core::GetDevice(), Core::GetDeviceContext(), this->cb_vs_vertexshader)) {
+		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->cb_vs_vertexshader)) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
-		if (!gameObject.Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj", Core::GetDevice(), Core::GetDeviceContext(), this->cb_vs_vertexshader)) {
+		if (!gameObject.Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj", this->cb_vs_vertexshader)) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
 		//광원 데이터 초기화
-		if (!light.Initialize(Core::GetDevice(), Core::GetDeviceContext(), this->cb_vs_vertexshader)) {
+		if (!light.Initialize(this->cb_vs_vertexshader)) {
 			MessageBoxA(NULL, "Initialize light Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
 		//스프라이트 생성
-		if (!sprite.Initialize(Core::GetDevice(), Core::GetDeviceContext(), 256, 256, "Data/Textures/circle.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(256, 256, "Data/Textures/circle.png", cb_vs_vertexshader_2d))
 		{
 			MessageBoxA(NULL, "Initialize sprite Error", "Error", MB_ICONERROR);
 			return false;

@@ -1,16 +1,15 @@
 #include "Sprite.h"
+#include "../Internal/Core/InternalHelper.h"
 
-bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, float width, float height, std::string spritePath, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d)
+bool Sprite::Initialize(
+	float width, 
+	float height, 
+	std::string spritePath, 
+	ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d)
 {
-	this->deviceContext = deviceContext;
-	if (deviceContext == nullptr) {
-		MessageBoxA(NULL, "Initialize sprite device context Error", "Error", MB_ICONERROR);
-		return false;
-	}
-
 	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
 
-	texture = std::make_unique<Texture>(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
+	texture = std::make_unique<Texture>(spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
 	std::vector<Vertex2D> vertexData = {
 		Vertex2D(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f), //TopLeft
@@ -24,10 +23,10 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 		2, 1, 3
 	};
 
-	HRESULT hr = vertices.Initialize(device, vertexData.data(), vertexData.size());
+	HRESULT hr = vertices.Initialize(vertexData.data(), vertexData.size());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for sprite.");
 
-	hr = indices.Initialize(device, indexData.data(), indexData.size());
+	hr = indices.Initialize(indexData.data(), indexData.size());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
 
 	SetPosition(0.0f, 0.0f, 0.0f);
@@ -41,16 +40,16 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
-	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
+	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
 	cb_vs_vertexshader_2d->data.wvpMatrix = wvpMatrix;
 	cb_vs_vertexshader_2d->ApplyChanges();
 
-	deviceContext->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
+	Core::GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 
 	const UINT offsets = 0;
-	deviceContext->IASetVertexBuffers(0, 1, vertices.GetAddressOf(), vertices.StridePtr(), &offsets);
-	deviceContext->IASetIndexBuffer(indices.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	deviceContext->DrawIndexed(indices.IndexCount(), 0, 0);
+	Core::GetDeviceContext()->IASetVertexBuffers(0, 1, vertices.GetAddressOf(), vertices.StridePtr(), &offsets);
+	Core::GetDeviceContext()->IASetIndexBuffer(indices.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	Core::GetDeviceContext()->DrawIndexed(indices.IndexCount(), 0, 0);
 }
 
 float Sprite::GetWidth()

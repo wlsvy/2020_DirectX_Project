@@ -1,9 +1,9 @@
 #include "Model.h"
 
-bool Model::Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+#include "../Core/InternalHelper.h"
+
+bool Model::Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
-	this->device = device;
-	this->deviceContext = deviceContext;
 	this->cb_vs_vertexshader = &cb_vs_vertexshader;
 
 	try
@@ -22,7 +22,7 @@ bool Model::Initialize(const std::string & filePath, ID3D11Device * device, ID3D
 
 void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	this->deviceContext->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
@@ -109,7 +109,7 @@ Mesh Model::ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & t
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	return Mesh(this->device, this->deviceContext, vertices, indices, textures, transformMatrix);
+	return Mesh(vertices, indices, textures, transformMatrix);
 }
 
 TextureStorageType Model::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -171,10 +171,10 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 			if (aiColor.IsBlack()) //If color = black, just use grey
 			{
-				materialTextures.push_back(Texture(this->device, Colors::UnloadedTextureColor, textureType));
+				materialTextures.push_back(Texture(Colors::UnloadedTextureColor, textureType));
 				return materialTextures;
 			}
-			materialTextures.push_back(Texture(this->device, Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
+			materialTextures.push_back(Texture(Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
 			return materialTextures;
 		}
 	}
@@ -190,7 +190,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 			case TextureStorageType::EmbeddedIndexCompressed:
 			{
 				int index = GetTextureIndex(&path);
-				Texture embeddedIndexedTexture(this->device,
+				Texture embeddedIndexedTexture(
 												reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
 												pScene->mTextures[index]->mWidth,
 												textureType);
@@ -200,7 +200,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 			case TextureStorageType::EmbeddedCompressed:
 			{
 				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				Texture embeddedTexture(this->device,
+				Texture embeddedTexture(
 										reinterpret_cast<uint8_t*>(pTexture->pcData),
 										pTexture->mWidth,
 										textureType);
@@ -210,7 +210,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 			case TextureStorageType::Disk:
 			{
 				std::string filename = this->directory + '\\' + path.C_Str();
-				Texture diskTexture(this->device, filename, textureType);
+				Texture diskTexture(filename, textureType);
 				materialTextures.push_back(diskTexture);
 				break;
 			}
@@ -220,7 +220,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(Texture(this->device, Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(Texture(Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
 	}
 	return materialTextures;
 

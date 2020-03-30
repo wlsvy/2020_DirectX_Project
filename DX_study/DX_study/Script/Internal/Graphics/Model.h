@@ -5,7 +5,7 @@ using namespace DirectX;
 
 class Model {
 public:
-	bool Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContex, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
+	bool Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 	void Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix);
 
 private:
@@ -18,8 +18,6 @@ private:
 	std::vector<Texture> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString * pStr);
 
-	ID3D11Device * device = nullptr;
-	ID3D11DeviceContext * deviceContext = nullptr;
 	ConstantBuffer<CB_VS_vertexshader> * cb_vs_vertexshader = nullptr;
 	std::string directory = "";
 };
