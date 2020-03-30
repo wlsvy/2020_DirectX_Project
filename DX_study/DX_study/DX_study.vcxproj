@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Internal\Core.cpp" />
     <ClCompile Include="Internal\Graphics\Camera2D.cpp" />
     <ClCompile Include="Internal\Graphics\GameObject3D.cpp" />
     <ClCompile Include="Internal\Graphics\GameObject2D.cpp" />
@@ -190,6 +191,7 @@
     <ClCompile Include="Internal\Graphics\Texture.cpp" />
     <ClCompile Include="Internal\Timer.cpp" />
     <ClCompile Include="Internal\WindowContainer.cpp" />
+    <ClCompile Include="Util\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Internal\Core.h" />
@@ -236,6 +238,9 @@
     <ClInclude Include="Internal\Graphics\Texture.h" />
     <ClInclude Include="Internal\Timer.h" />
     <ClInclude Include="Internal\WindowContainer.h" />
+    <ClInclude Include="Util\Singleton.h" />
+    <ClInclude Include="Util\Time.h" />
+    <ClInclude Include="Util\UnCopyable.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="pixelshader.hlsl">

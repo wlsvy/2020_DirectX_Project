@@ -1,10 +1,10 @@
 #include "Graphics.h"
 
+#include "../../Util/Time.h"
+
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	this->windowWidth = width;
 	this->windowHeight = height;
-	this->fpsTimer.Start();
-
 
 	if (!InitializeDirectX(hwnd)) {
 		MessageBoxA(NULL, "Initialize DX Error", "Error", MB_ICONERROR);
@@ -71,12 +71,14 @@ void Graphics::RenderFrame()
 	
 	//Draw text + 프레임 측정
 	static int fpsCounter = 0;
+	static double elapsedTime = 0.0;
 	static std::string fpsString = "FPS: 0";
 	fpsCounter += 1;
-	if (fpsTimer.GetMilisecondsElapsed() > 1000.0) {
+	elapsedTime += Time::GetDeltaTime();
+	if (elapsedTime > 1.0f) {
 		fpsString = "FPS: " + std::to_string(fpsCounter);
 		fpsCounter = 0;
-		fpsTimer.Restart();
+		elapsedTime = 0.0;
 	}
 	spriteBatch->Begin();
 	spriteFont->DrawString(spriteBatch.get(), StringHelper::StringToWide(fpsString).c_str(), DirectX::XMFLOAT2(0, 0), DirectX::Colors::White, 0.0f, DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT2(1.0f, 1.0f));
@@ -374,7 +376,7 @@ bool Graphics::InitializeScene()
 			return false;
 		}
 		//sprite.SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		sprite.SetPosition(XMFLOAT3(windowWidth / 2 - sprite.GetWidth()/2, windowHeight / 2 - sprite.GetHeight()/2, 0.0f));
+		sprite.SetPosition(XMFLOAT3(static_cast<float>(windowWidth) / 2 - sprite.GetWidth()/2, windowHeight / 2 - sprite.GetHeight()/2, 0.0f));
 
 		Camera2D.SetProjectionValues(windowWidth, windowHeight, 0.0f, 1.0f);
 

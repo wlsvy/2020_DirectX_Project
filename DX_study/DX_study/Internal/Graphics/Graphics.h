@@ -6,7 +6,6 @@
 #include <WICTextureLoader.h>
 #include "Camera3D.h"
 #include "Camera2D.h"
-#include "..\\Timer.h"
 #include "imGui/imgui.h"
 #include "imGui/imgui_impl_win32.h"
 #include "imGui/imgui_impl_dx11.h"
@@ -67,6 +66,4 @@ private:
 
 	int windowWidth = 0;
 	int windowHeight = 0;
-
-	Timer fpsTimer;
 };

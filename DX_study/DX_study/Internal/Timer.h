@@ -2,20 +2,29 @@
 #include <chrono>
 
 class Timer {
+	friend class Engine;
 public:
-	Timer();
-	double GetMilisecondsElapsed();
-	void Restart();
-	bool Stop();
-	bool Start();
+	double GetTime();
+	double GetDeltaTime();
 
 private:
-	bool isrunning = false;
+	Timer();
+	bool Stop();
+	bool Start();
+	void Tick();
+
+	bool m_IsRunning = false;
+	double  m_Time = 0.0f;
+	double  m_DeltaTime = 0.0f;
+
 #ifdef _WIN32
-	std::chrono::time_point<std::chrono::steady_clock> start;
-	std::chrono::time_point<std::chrono::steady_clock> stop;
+	std::chrono::time_point<std::chrono::steady_clock> m_StartTime;
+	std::chrono::time_point<std::chrono::steady_clock> m_PrevTick;
+
+
 #else //윈도우 환경이 아닐 때, ex 리눅스
-	std::chrono::time_point<std::chrono::system_clock> start;
-	std::chrono::time_point<std::chrono::system_clock> stop;
+	std::chrono::time_point<std::chrono::system_clock> m_StartTime;
+	std::chrono::time_point<std::chrono::system_clock> m_PrevTick;
+
 #endif
 };
