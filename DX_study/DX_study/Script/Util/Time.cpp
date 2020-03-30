@@ -1,6 +1,6 @@
 #include "Time.h"
 
-#include "../Internal/Core.h"
+#include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Engine/Timer.h"
 
 double Time::GetTime()

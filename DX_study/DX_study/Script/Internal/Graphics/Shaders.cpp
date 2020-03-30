@@ -1,5 +1,5 @@
 #include "Shaders.h"
-#include "../Core.h"
+#include "../Core/InternalHelper.h"
 
 bool VertexShader::Initialize(std::wstring shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
 	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());

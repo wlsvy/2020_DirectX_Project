@@ -111,9 +111,6 @@
     <ClCompile Include="Script\Internal\Graphics\Texture.cpp">
       <Filter>소스 파일\Core\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Internal\Core.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Util\Time.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
@@ -158,6 +155,21 @@
     </ClCompile>
     <ClCompile Include="Script\Internal\Engine\AdapterReader.cpp">
       <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\Transform.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\Renderer.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\Component.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Core\InternalHelper.cpp">
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Core\Object.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -233,9 +245,6 @@
     <ClInclude Include="Script\Internal\Graphics\VertexBuffer.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Internal\Core.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
     <ClInclude Include="Script\Util\Singleton.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
@@ -286,6 +295,21 @@
     </ClInclude>
     <ClInclude Include="Script\Internal\Engine\WindowContainer.h">
       <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Transform.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Renderer.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Component.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Core\InternalHelper.h">
+      <Filter>헤더 파일\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Core\Object.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

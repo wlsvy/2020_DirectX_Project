@@ -4,7 +4,7 @@
 
 #include "ConstantBufferType.h"
 #include "../../Util/ErrorLogger.h"
-#include "../Core.h"
+#include "../Core/InternalHelper.h"
 
 template<class T>
 class ConstantBuffer
