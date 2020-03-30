@@ -1,0 +1,47 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate 디렉터리가 슬래시로 끝나지 않습니다. Intermediate 디렉터리의 적절한 평가를 허용하는 데 필요하므로 이 빌드 인스턴스에서 슬래시를 추가합니다.
+  Camera2D.cpp
+  GameObject3D.cpp
+  GameObject2D.cpp
+  Color.cpp
+  GameObject.cpp
+  Camera3D.cpp
+  AdapterReader.cpp
+  Engine.cpp
+  Graphics.cpp
+  imgui.cpp
+  imgui_draw.cpp
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\engine.cpp(21): warning C4244: '초기화 중': 'double'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\graphics.cpp(379): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_widgets.cpp
+  KeyboardClass.cpp
+  KeyboardEvent.cpp
+  Model.cpp
+  Mesh.cpp
+  Light.cpp
+  MouseClass.cpp
+  MouseEvent.cpp
+  RenderableGameObject.cpp
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\mesh.cpp(10): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\mesh.cpp(13): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\model.cpp(177): warning C4244: '인수': 'ai_real'에서 'BYTE'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  RenderWindow.cpp
+  App.cpp
+  Shaders.cpp
+  Sprite.cpp
+  Texture.cpp
+  Timer.cpp
+  WindowContainer.cpp
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\sprite.cpp(27): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\graphics\sprite.cpp(30): warning C4267: '인수': 'size_t'에서 'UINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+c:\users\user\source\repos\2020_directx_project\dx_study\dx_study\internal\windowcontainer.cpp(122): warning C4715: 'WindowContainer::WindowProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
+DirectXTK.lib(CommonStates.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(CommonStates.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(DDSTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(DDSTextureLoader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(BinaryReader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(BinaryReader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(pch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(pch.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteBatch.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteBatch.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(SpriteFont.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(SpriteFont.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(VertexTypes.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(VertexTypes.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+DirectXTK.lib(WICTextureLoader.obj) : warning LNK4099: 'DirectXTK.pdb' PDB를 'DirectXTK.lib(WICTextureLoader.obj)' 또는 'C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DirectXTK.pdb'에서 찾을 수 없습니다. 디버그 정보가 없는 것처럼 개체를 링크합니다.
+  DX_study.vcxproj -> C:\Users\USER\source\repos\2020_DirectX_Project\DX_study\x64\Debug\DX_study.exe
