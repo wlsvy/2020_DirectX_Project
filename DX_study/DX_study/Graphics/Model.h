@@ -1,69 +1,25 @@
 #pragma once
 #include "Mesh.h"
-#include <map>
 
-struct ASSIMP_API aiNode;
-struct aiScene;
-struct aiMesh;
-struct aiAnimation;
-struct BoneChannel;
-class AnimationClip;
-class Animator;
+using namespace DirectX;
 
 class Model {
-	friend class GraphicsManager;
 public:
-	//------------------fbx 파일로 모델 생성
-	bool Initialize(const std::string & filePath);
-
-	////------------------직접 만든 정점/색인 배열로 모델 생성
-	bool Initialize(
-		const std::vector<Vertex3D> * VertexBuffer, 
-		const std::vector<DWORD> * IndexBuffer);
-	
-	void(*DRAW_MODEL) ();
+	bool Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContex, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
 	void Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix);
-	void Draw_WireFrame(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix);
-	void Draw_skinnedMesh(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix, Animator * _animator);
-	void Draw_BillBoard(const DirectX::XMMATRIX & _worldMatrix, const DirectX::XMMATRIX & _viewProjectionMatrix, float _height, float _width);
 
-protected:
-	
+private:
+	std::vector<Mesh> meshes;
 	bool LoadModel(const std::string & filePath);
-	void ProcessNode(
-		const aiNode * node, 
-		const aiScene * scene, 
-		const DirectX::XMMATRIX & parentTransformMatrix);
-
-	Mesh ProcessMesh(	
-		const aiMesh * mesh,
-		const aiScene * scene,
-		const DirectX::XMMATRIX & transformMatrix);
-	Mesh ProcessMesh(
-		const std::vector<Vertex3D> * _vertexBuffer, 
-		const std::vector<DWORD> * _indexBuffer) const;
-	void ProcessAnimation(aiAnimation * _aiAnim, const aiScene * _aiScene);
-	void ProcessBoneHierarchy(aiNode * _aiNode, AnimationClip * _animClip, BoneChannel * _parentBone, const DirectX::XMMATRIX & _parentTransform);
+	void ProcessNode(aiNode * node, const aiScene * scene, const XMMATRIX & parentTransformMatrix);
+	Mesh ProcessMesh(aiMesh * mesh, const aiScene * scene, const XMMATRIX & transformMatrix);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
-	Mesh ProcessTerrain(std::vector<Vertex3D> * terrainVertexBuffer, std::vector<DWORD> * terrainIndexBuffer);
 
-
-	std::vector<Texture*> LoadMaterialTextures(
-		aiMaterial * pMaterial,
-		aiTextureType textureType,
-		const aiScene * pScene);
-
+	std::vector<Texture> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
 	int GetTextureIndex(aiString * pStr);
 
-	std::vector<Mesh> m_Meshes;
-	std::string mName = "";
+	ID3D11Device * device = nullptr;
+	ID3D11DeviceContext * deviceContext = nullptr;
+	ConstantBuffer<CB_VS_vertexshader> * cb_vs_vertexshader = nullptr;
 	std::string directory = "";
-
-#pragma region Animation Variable
-	std::map<std::string, UINT> m_Bone_Name_Map;
-	std::vector<MyCustom::Bone> mBoneBuffer;
-	UINT mBoneCount = 0;
-
-	void nodeName(std::vector<std::string> * na, aiNode* node);
-#pragma endregion
 };

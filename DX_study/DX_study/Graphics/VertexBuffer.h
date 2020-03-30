@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VertexBuffer_h__
+#define VertexBuffer_h__
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <memory>
@@ -52,7 +53,7 @@ public:
 		return &this->stride;
 	}
 
-	HRESULT Initialize(ID3D11Device *device, const T * data, UINT vertexCount)
+	HRESULT Initialize(ID3D11Device *device, T * data, UINT vertexCount)
 	{
 		if (buffer.Get() != nullptr) buffer.Reset();
 
@@ -71,6 +72,9 @@ public:
 		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 		vertexBufferData.pSysMem = data;
 
-		return device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->buffer.GetAddressOf());
+		HRESULT hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->buffer.GetAddressOf());
+		return hr;
 	}
 };
+
+#endif // VertexBuffer_h__

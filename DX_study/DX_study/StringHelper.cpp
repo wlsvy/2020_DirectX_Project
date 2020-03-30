@@ -32,13 +32,3 @@ std::string StringHelper::GetFileExtension(const std::string & filename)
 
 	return std::string(filename.substr(off + 1));//확장자 빼기. ex : file.png 에서 . 위치 확인하고 그 뒤로는 제거
 }
-
-std::string StringHelper::EraseFileExtension(const std::string & filename)
-{
-	size_t off = filename.find_last_of('.');
-	if (off == std::string::npos) {
-		return {};
-	}
-
-	return std::string(filename.substr(0, off));
-}

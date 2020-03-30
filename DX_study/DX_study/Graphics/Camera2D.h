@@ -6,11 +6,11 @@ public:
 	Camera2D();
 	void SetProjectionValues(float width, float height, float nearZ, float farZ);
 
-	const DirectX::XMMATRIX & GetOrthoMatrix() const;
-	const DirectX::XMMATRIX & GetWorldMatrix() const;
+	const XMMATRIX & GetOrthoMatrix() const;
+	const XMMATRIX & GetWorldMatrix() const;
 private:
 	void UpdateMatrix() override;
 
-	DirectX::XMMATRIX orthoMatrix;
-	DirectX::XMMATRIX worldMatrix;
+	XMMATRIX orthoMatrix;
+	XMMATRIX worldMatrix;
 };

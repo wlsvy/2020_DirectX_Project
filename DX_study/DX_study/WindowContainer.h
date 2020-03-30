@@ -10,10 +10,9 @@ public:
 	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 protected:
 	RenderWindow render_window;
-	KeyboardClass m_Keyboard;
-	MouseClass m_Mouse;
-	KeyboardEvent mKeyboardEvent;
-	MouseEvent mMouseEvent;
+	KeyboardClass keyboard;
+	MouseClass mouse;
+	Graphics gfx;
 private:
 	
 };

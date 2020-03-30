@@ -28,31 +28,31 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		//keyboard message
 	case WM_KEYDOWN: {
 		unsigned char keycode = static_cast<unsigned char>(wParam);
-		if (m_Keyboard.IsKeysAutoRepeat()) {
-			m_Keyboard.OnKeyPressed(keycode);
+		if (keyboard.IsKeysAutoRepeat()) {
+			keyboard.OnKeyPressed(keycode);
 		}
 		else {
 			const bool wasPressed = lParam & 0x40000000;
 			if (!wasPressed) {
-				m_Keyboard.OnKeyPressed(keycode);
+				keyboard.OnKeyPressed(keycode);
 			}
 		}
 		return 0;
 	}
 	case WM_KEYUP: {
 		unsigned char keycode = static_cast<unsigned char>(wParam);
-		m_Keyboard.OnKeyReleased(keycode);
+		keyboard.OnKeyReleased(keycode);
 		return 0;
 	}
 	case WM_CHAR: {
 		unsigned char ch = static_cast<unsigned char>(wParam);
-		if (m_Keyboard.IsCharsAutoRepeat()) {
-			m_Keyboard.OnChar(ch);
+		if (keyboard.IsCharsAutoRepeat()) {
+			keyboard.OnChar(ch);
 		}
 		else {
 			const bool wasPressed = lParam & 0x40000000;
 			if (!wasPressed) {
-				m_Keyboard.OnChar(ch);
+				keyboard.OnChar(ch);
 			}
 		}
 		return 0;
@@ -61,41 +61,41 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 	case WM_MOUSEMOVE: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		m_Mouse.OnMouseMove(x, y);
+		mouse.OnMouseMove(x, y);
 		return 0;
 	}
 	case WM_LBUTTONDOWN: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		m_Mouse.OnLeftPressed(x, y);
+		mouse.OnLeftPressed(x, y);
 		return 0;
 	}
 	case WM_RBUTTONDOWN: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		m_Mouse.OnRightPressed(x, y);
+		mouse.OnRightPressed(x, y);
 		return 0;
 	}
 	case WM_LBUTTONUP: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		m_Mouse.OnLeftReleased(x, y);
+		mouse.OnLeftReleased(x, y);
 		return 0;
 	}
 	case WM_RBUTTONUP: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
-		m_Mouse.OnRightReleased(x, y);
+		mouse.OnRightReleased(x, y);
 		return 0;
 	}
 	case WM_MOUSEWHEEL: {
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
 		if (GET_WHEEL_DELTA_WPARAM(wParam) > 0) {
-			m_Mouse.OnWheelUp(x, y);
+			mouse.OnWheelUp(x, y);
 		}
 		else if (GET_WHEEL_DELTA_WPARAM(wParam) < 0) {
-			m_Mouse.OnWheelDown(x, y);
+			mouse.OnWheelDown(x, y);
 		}
 		break;
 	}
@@ -109,7 +109,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 			if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize) {
 				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
 				if (raw->header.dwType == RIM_TYPEMOUSE) {
-					m_Mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+					mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 				}
 			}
 		}

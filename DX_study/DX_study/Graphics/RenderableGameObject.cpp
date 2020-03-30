@@ -1,8 +1,11 @@
 #include "RenderableGameObject.h"
 
-bool RenderableGameObject::Initialize(Model * _model)
+bool RenderableGameObject::Initialize(const std::string & filePath, ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
 {
-	model = _model;
+	if (!model.Initialize(filePath, device, deviceContext, cb_vs_vertexshader)) {
+		ErrorLogger::Log("test model Initialize Failed");
+		return false;
+	}
 
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);
@@ -13,7 +16,7 @@ bool RenderableGameObject::Initialize(Model * _model)
 
 void RenderableGameObject::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	model->Draw(this->worldMatrix, viewProjectionMatrix);
+	model.Draw(this->worldMatrix, viewProjectionMatrix);
 }
 
 void RenderableGameObject::UpdateMatrix()

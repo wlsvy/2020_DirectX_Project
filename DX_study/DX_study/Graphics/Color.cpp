@@ -15,22 +15,6 @@ Color::Color(BYTE r, BYTE g, BYTE b, BYTE a) {
 
 Color::Color(const Color & src) : color(src.color) {}
 
-Color & Color::operator=(const Color & src)
-{
-	this->color = src.color;
-	return *this;
-}
-
-bool Color::operator==(const Color & rhs) const
-{
-	return color==rhs.color;
-}
-
-bool Color::operator!=(const Color & rhs) const
-{
-	return color != rhs.color;
-}
-
 constexpr BYTE Color::GetR() const
 {
 	return this->rgba[0];
@@ -69,61 +53,4 @@ void Color::SetB(BYTE b)
 void Color::SetA(BYTE a)
 {
 	this->rgba[3] = a;
-}
-
-FColor::FColor() : FColor(1.0f, 1.0f, 1.0f, 1.0f) {}
-
-FColor::FColor(BYTE4 r, BYTE4 g, BYTE4 b) : FColor(r, g, b, 1.0f) {}
-
-FColor::FColor(BYTE4 r, BYTE4 g, BYTE4 b, BYTE4 a)
-{
-	rgba[0] = r;
-	rgba[1] = g;
-	rgba[2] = b;
-	rgba[3] = a;
-}
-
-constexpr BYTE4 FColor::GetR() const
-{
-	return rgba[0];
-}
-
-void FColor::SetR(BYTE4 r)
-{
-	rgba[0] = r;
-}
-
-constexpr BYTE4 FColor::GetG() const
-{
-	return rgba[1];
-}
-
-void FColor::SetG(BYTE4 g)
-{
-	rgba[1] = g;
-}
-
-constexpr BYTE4 FColor::GetB() const
-{
-	return rgba[2];
-}
-
-void FColor::SetB(BYTE4 b)
-{
-	rgba[2] = b;
-}
-
-constexpr BYTE4 FColor::GetA() const
-{
-	return rgba[3];
-}
-
-void FColor::SetA(BYTE4 a)
-{
-	rgba[3] = a;
-}
-
-float * FColor::Get_ptr() 
-{
-	return rgba;
 }

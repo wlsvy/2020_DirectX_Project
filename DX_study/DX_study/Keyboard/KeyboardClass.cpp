@@ -9,16 +9,6 @@ bool KeyboardClass::KeyIsPressed(const unsigned char keycode) {
 	return this->keyStates[keycode];
 }
 
-bool KeyboardClass::GetKeyDown(const unsigned char keycode)
-{
-	return this->UpDownStates[keycode] == 1;
-}
-
-bool KeyboardClass::GetKeyUp(const unsigned char keycode)
-{
-	return this->UpDownStates[keycode] == -1;
-}
-
 bool KeyboardClass::KeyBufferIsEmpty() {
 	return this->keyBuffer.empty();
 }
@@ -84,21 +74,4 @@ bool KeyboardClass::IsKeysAutoRepeat() {
 
 bool KeyboardClass::IsCharsAutoRepeat() {
 	return this->autoRepeatChars;
-}
-
-void KeyboardClass::Update()
-{
-	memset(UpDownStates, 0, sizeof(UpDownStates));
-
-	while (!CharBufferIsEmpty()) {
-		unsigned char ch = ReadChar();
-	}
-
-	while (!KeyBufferIsEmpty()) {
-		KeyboardEvent kbe = ReadKey();
-		unsigned char keycode = kbe.GetKeyCode();
-
-		if (kbe.IsPress()) UpDownStates[keycode] = 1;
-		else if (kbe.IsRelease()) UpDownStates[keycode] = -1;
-	}
 }

@@ -1,5 +1,7 @@
 #pragma once
+#include <DirectXMath.h>
 #include "GameObject3D.h"
+using namespace DirectX;
 
 class Camera3D : public GameObject3D{
 public:
@@ -12,6 +14,6 @@ public:
 private:
 	void UpdateMatrix() override;
 
-	DirectX::XMMATRIX viewMatrix;
-	DirectX::XMMATRIX projectionMatrix;
+	XMMATRIX viewMatrix;
+	XMMATRIX projectionMatrix;
 };

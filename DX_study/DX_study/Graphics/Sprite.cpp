@@ -10,7 +10,7 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 
 	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
 
-	texture = std::make_unique<Texture>(spritePath, aiTextureType::aiTextureType_DIFFUSE);
+	texture = std::make_unique<Texture>(device, spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
 	std::vector<Vertex2D> vertexData = {
 		Vertex2D(-0.5f, -0.5f, 0.0f, 0.0f, 0.0f), //TopLeft
@@ -24,10 +24,10 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 		2, 1, 3
 	};
 
-	HRESULT hr = vertices.Initialize(device, vertexData.data(), (UINT)vertexData.size());
+	HRESULT hr = vertices.Initialize(device, vertexData.data(), vertexData.size());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for sprite.");
 
-	hr = indices.Initialize(device, indexData.data(), (UINT)indexData.size());
+	hr = indices.Initialize(device, indexData.data(), indexData.size());
 	COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
 
 	SetPosition(0.0f, 0.0f, 0.0f);
@@ -38,9 +38,9 @@ bool Sprite::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceConte
 	return true;
 }
 
-void Sprite::Draw(DirectX::XMMATRIX orthoMatrix)
+void Sprite::Draw(XMMATRIX orthoMatrix)
 {
-	DirectX::XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
+	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
 	deviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
 	cb_vs_vertexshader_2d->data.wvpMatrix = wvpMatrix;
 	cb_vs_vertexshader_2d->ApplyChanges();
@@ -65,8 +65,5 @@ float Sprite::GetHeight()
 
 void Sprite::UpdateMatrix()
 {
-	worldMatrix = 
-		DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) * 
-		DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * 
-		DirectX::XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
+	worldMatrix = XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
 }

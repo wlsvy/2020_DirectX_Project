@@ -1,3 +1,0 @@
-#pragma once
-왜 React3d 물리 라이브러리를 사용했는지
-dx 버전이 무엇인지
