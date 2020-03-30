@@ -24,8 +24,8 @@ void Timer::Tick() {
 	}
 
 	auto now = std::chrono::high_resolution_clock::now();
-	m_Time = std::chrono::duration<double>(now - m_StartTime).count();
-	m_DeltaTime = std::chrono::duration<double>(now - m_PrevTick).count();
+	m_Time = std::chrono::duration<float>(now - m_StartTime).count();
+	m_DeltaTime = std::chrono::duration<float>(now - m_PrevTick).count();
 	m_PrevTick = now;
 }
 
@@ -34,12 +34,12 @@ bool Timer::IsRunning()
 	return m_IsRunning;
 }
 
-double Timer::GetTime()
+float Timer::GetTime()
 {
 	return m_Time;
 }
 
-double Timer::GetDeltaTime()
+float Timer::GetDeltaTime()
 {
 	return m_DeltaTime;
 }

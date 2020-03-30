@@ -2,6 +2,7 @@
 
 #include "Timer.h"
 #include "Graphics/Graphics.h"
+#include "DeviceResources.h"
 
 Engine* Engine::s_Ptr = nullptr;
 
@@ -12,7 +13,8 @@ Engine & Engine::GetInstance()
 
 Engine::Engine() :
 	m_Timer(new Timer),
-	m_Graphics(new Graphics)
+	m_Graphics(new Graphics),
+	m_DeviceResources(&DeviceResources::GetInstance())
 {
 	s_Ptr = this;
 }
@@ -27,10 +29,18 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	
 	m_Timer->Start();
 
-	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height))
+	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
 		return false;
-	if (!m_Graphics->Initialize(this->render_window.GetHWND(), width, height))
+	}
+	
+	if (!m_DeviceResources->Initialize(render_window.GetHWND(), width, height)) {
 		return false;
+	}
+
+	if (!m_Graphics->Initialize(this->render_window.GetHWND(), width, height)) {
+		return false;
+	}
+		
 	return true;
 }
 
@@ -41,7 +51,7 @@ bool Engine::ProcessMessage() {
 
 void Engine::Update() {
 	m_Timer->Tick();
-	double dt = m_Timer->GetDeltaTime();
+	float dt = m_Timer->GetDeltaTime();
 
 	while (!keyboard.CharBufferIsEmpty()) {
 		unsigned char ch = keyboard.ReadChar();

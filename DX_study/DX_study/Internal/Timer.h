@@ -10,13 +10,13 @@ public:
 	void Tick();
 	bool IsRunning();
 
-	double GetTime();
-	double GetDeltaTime();
+	float GetTime();
+	float GetDeltaTime();
 
 private:
 	bool m_IsRunning = false;
-	double  m_Time = 0.0f;
-	double  m_DeltaTime = 0.0f;
+	float  m_Time = 0.0f;
+	float  m_DeltaTime = 0.0f;
 
 #ifdef _WIN32
 	std::chrono::time_point<std::chrono::steady_clock> m_StartTime;

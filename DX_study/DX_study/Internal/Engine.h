@@ -5,6 +5,7 @@
 
 class Timer;
 class Graphics;
+class DeviceResources;
 
 class Engine : WindowContainer{
 public:
@@ -21,6 +22,7 @@ public:
 private:
 	static Engine* s_Ptr;
 
+	std::unique_ptr<DeviceResources> m_DeviceResources;
 	std::unique_ptr<Graphics> m_Graphics;
 	std::unique_ptr<Timer> m_Timer;
 };

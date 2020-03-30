@@ -43,14 +43,14 @@
     <Filter Include="헤더 파일\Core\Mouse">
       <UniqueIdentifier>{5b0b0880-1592-4c1b-a053-cd3fc20db03c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Util">
+      <UniqueIdentifier>{056a384d-f0f9-43e6-94c9-22e1fc8af05a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Util">
+      <UniqueIdentifier>{4619b013-6afb-4bea-9ddf-e579ecd36df7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ErrorLogger.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -139,22 +139,22 @@
       <Filter>소스 파일\Core</Filter>
     </ClCompile>
     <ClCompile Include="Internal\Core.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Internal\DeviceResources.cpp">
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="ErrorLogger.cpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="StringHelper.cpp">
+      <Filter>소스 파일\Util</Filter>
     </ClCompile>
     <ClCompile Include="Util\Time.cpp">
-      <Filter>소스 파일</Filter>
+      <Filter>소스 파일\Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ErrorLogger.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="COMException.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="StringHelper.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Internal\Graphics\imGui\imconfig.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
@@ -251,9 +251,6 @@
     <ClInclude Include="Internal\Mouse\MouseEvent.h">
       <Filter>헤더 파일\Core\Mouse</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Core.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Internal\Engine.h">
       <Filter>헤더 파일\Core</Filter>
     </ClInclude>
@@ -266,14 +263,29 @@
     <ClInclude Include="Internal\WindowContainer.h">
       <Filter>헤더 파일\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Util\Singleton.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="Internal\Core.h">
+      <Filter>헤더 파일\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Util\UnCopyable.h">
-      <Filter>헤더 파일</Filter>
+    <ClInclude Include="Internal\DeviceResources.h">
+      <Filter>헤더 파일\Core</Filter>
     </ClInclude>
     <ClInclude Include="Util\Time.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Singleton.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\UnCopyable.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="ErrorLogger.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="COMException.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHelper.h">
+      <Filter>헤더 파일\Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
