@@ -72,19 +72,10 @@
     <ClCompile Include="Internal\Graphics\AdapterReader.cpp">
       <Filter>소스 파일\Core\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Internal\Graphics\Camera2D.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Camera3D.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Internal\Graphics\Color.cpp">
       <Filter>소스 파일\Core\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Internal\Graphics\GameObject.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\GameObject2D.cpp">
       <Filter>소스 파일\Core\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Internal\Graphics\GameObject3D.cpp">
@@ -153,6 +144,9 @@
     <ClCompile Include="Util\Time.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
+    <ClCompile Include="Internal\Graphics\Camera.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Internal\Graphics\imGui\imconfig.h">
@@ -182,12 +176,6 @@
     <ClInclude Include="Internal\Graphics\AdapterReader.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Camera2D.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\Camera3D.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Internal\Graphics\Color.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
@@ -198,9 +186,6 @@
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Internal\Graphics\GameObject.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\GameObject2D.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Internal\Graphics\GameObject3D.h">
@@ -286,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="StringHelper.h">
       <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Internal\Graphics\Camera.h">
+      <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

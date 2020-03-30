@@ -1,4 +1,4 @@
-#include "Camera3D.h"
+#include "Camera.h"
 
 Camera3D::Camera3D() {
 	this->pos = XMFLOAT3(0.0f, 0.0f, 1.0f);

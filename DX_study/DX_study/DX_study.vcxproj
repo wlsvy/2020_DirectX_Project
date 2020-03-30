@@ -165,12 +165,10 @@
   <ItemGroup>
     <ClCompile Include="Internal\Core.cpp" />
     <ClCompile Include="Internal\DeviceResources.cpp" />
-    <ClCompile Include="Internal\Graphics\Camera2D.cpp" />
     <ClCompile Include="Internal\Graphics\GameObject3D.cpp" />
-    <ClCompile Include="Internal\Graphics\GameObject2D.cpp" />
     <ClCompile Include="Internal\Graphics\Color.cpp" />
     <ClCompile Include="Internal\Graphics\GameObject.cpp" />
-    <ClCompile Include="Internal\Graphics\Camera3D.cpp" />
+    <ClCompile Include="Internal\Graphics\Camera.cpp" />
     <ClCompile Include="Internal\Graphics\AdapterReader.cpp" />
     <ClCompile Include="Internal\Engine.cpp" />
     <ClCompile Include="ErrorLogger.cpp" />
@@ -201,13 +199,11 @@
   <ItemGroup>
     <ClInclude Include="Internal\Core.h" />
     <ClInclude Include="Internal\DeviceResources.h" />
-    <ClInclude Include="Internal\Graphics\Camera2D.h" />
     <ClInclude Include="Internal\Graphics\GameObject3D.h" />
-    <ClInclude Include="Internal\Graphics\GameObject2D.h" />
     <ClInclude Include="Internal\Graphics\Color.h" />
     <ClInclude Include="COMException.h" />
     <ClInclude Include="Internal\Graphics\GameObject.h" />
-    <ClInclude Include="Internal\Graphics\Camera3D.h" />
+    <ClInclude Include="Internal\Graphics\Camera.h" />
     <ClInclude Include="Internal\Graphics\AdapterReader.h" />
     <ClInclude Include="Internal\Engine.h" />
     <ClInclude Include="ErrorLogger.h" />
