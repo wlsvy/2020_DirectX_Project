@@ -1,5 +1,5 @@
 #pragma once
-#include "Model.h"
+#include "../Internal/Graphics/Model.h"
 
 class GameObject {
 public:

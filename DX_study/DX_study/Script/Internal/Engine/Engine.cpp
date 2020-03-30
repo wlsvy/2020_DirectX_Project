@@ -1,7 +1,7 @@
 #include "Engine.h"
 
 #include "Timer.h"
-#include "Graphics/Graphics.h"
+#include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
 
 Engine* Engine::s_Ptr = nullptr;

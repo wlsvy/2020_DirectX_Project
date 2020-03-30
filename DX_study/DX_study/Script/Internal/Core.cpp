@@ -1,6 +1,6 @@
 #include "Core.h"
-#include "Engine.h"
-#include "DeviceResources.h"
+#include "Engine/Engine.h"
+#include "Engine/DeviceResources.h"
 
 Engine & Core::GetEngine()
 {

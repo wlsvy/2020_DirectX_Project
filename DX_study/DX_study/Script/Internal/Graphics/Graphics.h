@@ -1,13 +1,11 @@
 #pragma once
-#include "AdapterReader.h"
+#include "../Engine/AdapterReader.h"
 #include "Shaders.h"
 
-#include <SpriteBatch.h>
-#include <SpriteFont.h>
-#include "Camera.h"
-#include "RenderableGameObject.h"
-#include "Light.h"
-#include "Sprite.h"
+#include "../../GameObject/Camera.h"
+#include "../../GameObject/RenderableGameObject.h"
+#include "../../GameObject/Light.h"
+#include "../../GameObject/Sprite.h"
 
 class Graphics {
 public:

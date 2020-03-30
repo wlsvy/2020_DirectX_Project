@@ -2,8 +2,8 @@
 
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
-#include "Graphics/AdapterReader.h"
-#include "../Util/Singleton.h"
+#include "AdapterReader.h"
+#include "../../Util/Singleton.h"
 
 class DeviceResources : public Singleton<DeviceResources> {
 public:

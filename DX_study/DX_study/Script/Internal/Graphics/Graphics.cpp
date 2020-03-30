@@ -6,7 +6,7 @@
 #include "imGui/imgui_impl_win32.h"
 #include "imGui/imgui_impl_dx11.h"
 #include "../../Util/Time.h"
-#include "../DeviceResources.h"
+#include "../Engine/DeviceResources.h"
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	this->windowWidth = width;

@@ -1,11 +1,11 @@
 #pragma once
-#include "GameObject.h"
-#include "Texture.h"
-#include "ConstantBuffer.h"
 #include <string>
-#include "IndexBuffer.h"
-#include "VertexBuffer.h"
-#include "Vertex.h"
+#include "GameObject.h"
+#include "../Internal/Graphics/Texture.h"
+#include "../Internal/Graphics/Shaders.h"
+#include "../Internal/Graphics/IndexBuffer.h"
+#include "../Internal/Graphics/VertexBuffer.h"
+#include "../Internal/Graphics/Vertex.h"
 
 class Sprite : public GameObject {
 public:

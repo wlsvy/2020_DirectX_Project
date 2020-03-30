@@ -1,5 +1,5 @@
-#include "ErrorLogger.h"
-#include "Internal/Engine.h"
+#include "Util/ErrorLogger.h"
+#include "Internal/Engine/Engine.h"
 
 void UpdateSystem(HINSTANCE& hInstance) {
 	Engine engine;

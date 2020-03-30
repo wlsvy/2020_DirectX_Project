@@ -25,23 +25,11 @@
     <Filter Include="소스 파일\Core\Graphics\ImGui">
       <UniqueIdentifier>{d81874da-a337-4c65-9fbf-e5eb64c790a1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="소스 파일\Core\Keyboard">
-      <UniqueIdentifier>{0bd01a01-24d6-4de0-9a64-9f0334bd7cf5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="소스 파일\Core\Mouse">
-      <UniqueIdentifier>{09ad019d-b90e-414f-840c-6cacd80d3cef}</UniqueIdentifier>
-    </Filter>
     <Filter Include="헤더 파일\Core\Graphics">
       <UniqueIdentifier>{0c25aaff-806d-4108-9675-b5e33f32e071}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일\Core\Graphics\ImGui">
       <UniqueIdentifier>{34d5c756-b425-4ece-967c-b0ec97797f5b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\Core\Keyboard">
-      <UniqueIdentifier>{c0ced5e5-7bf5-45cd-8044-f9a8fc3ce643}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="헤더 파일\Core\Mouse">
-      <UniqueIdentifier>{5b0b0880-1592-4c1b-a053-cd3fc20db03c}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일\Util">
       <UniqueIdentifier>{056a384d-f0f9-43e6-94c9-22e1fc8af05a}</UniqueIdentifier>
@@ -49,231 +37,255 @@
     <Filter Include="소스 파일\Util">
       <UniqueIdentifier>{4619b013-6afb-4bea-9ddf-e579ecd36df7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\GameObject">
+      <UniqueIdentifier>{b6f6b1c4-8f7a-4d34-a16c-4d02c3e7f763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\GameObject">
+      <UniqueIdentifier>{f02b60a2-4aaa-41ae-ac2c-8dbfd6406372}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Core\Engine">
+      <UniqueIdentifier>{465e06ec-79f4-4f4d-94c5-a457278ff735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Engine">
+      <UniqueIdentifier>{2ec2a8d6-d920-4c9a-b021-709415e61aac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Core\Engine\Keyboard">
+      <UniqueIdentifier>{0bd01a01-24d6-4de0-9a64-9f0334bd7cf5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Core\Engine\Mouse">
+      <UniqueIdentifier>{09ad019d-b90e-414f-840c-6cacd80d3cef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Engine\Mouse">
+      <UniqueIdentifier>{5b0b0880-1592-4c1b-a053-cd3fc20db03c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Engine\Keyboard">
+      <UniqueIdentifier>{c0ced5e5-7bf5-45cd-8044-f9a8fc3ce643}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="App.cpp">
+    <ClCompile Include="Script\GameObject\Camera.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\GameObject\GameObject.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\GameObject\GameObject3D.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\GameObject\Light.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\GameObject\RenderableGameObject.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\GameObject\Sprite.cpp">
+      <Filter>소스 파일\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\imGui\imgui.cpp">
+      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_draw.cpp">
+      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_impl_dx11.cpp">
+      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_impl_win32.cpp">
+      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_widgets.cpp">
+      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Graphics.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Mesh.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Model.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Shaders.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Texture.cpp">
+      <Filter>소스 파일\Core\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Core.cpp">
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Util\Time.cpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\App.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Internal\Graphics\imGui\imgui.cpp">
-      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\imGui\imgui_draw.cpp">
-      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\imGui\imgui_impl_dx11.cpp">
-      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\imGui\imgui_impl_win32.cpp">
-      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\imGui\imgui_widgets.cpp">
-      <Filter>소스 파일\Core\Graphics\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\AdapterReader.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Color.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\GameObject.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\GameObject3D.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Graphics.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Light.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Mesh.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Model.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\RenderableGameObject.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Shaders.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Sprite.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Graphics\Texture.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Keyboard\KeyboardClass.cpp">
-      <Filter>소스 파일\Core\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Keyboard\KeyboardEvent.cpp">
-      <Filter>소스 파일\Core\Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Mouse\MouseClass.cpp">
-      <Filter>소스 파일\Core\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Mouse\MouseEvent.cpp">
-      <Filter>소스 파일\Core\Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Engine.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\RenderWindow.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Timer.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\WindowContainer.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\Core.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Internal\DeviceResources.cpp">
-      <Filter>소스 파일\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="ErrorLogger.cpp">
+    <ClCompile Include="Script\Util\Color.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
-    <ClCompile Include="StringHelper.cpp">
+    <ClCompile Include="Script\Util\ErrorLogger.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Util\Time.cpp">
+    <ClCompile Include="Script\Util\StringHelper.cpp">
       <Filter>소스 파일\Util</Filter>
     </ClCompile>
-    <ClCompile Include="Internal\Graphics\Camera.cpp">
-      <Filter>소스 파일\Core\Graphics</Filter>
+    <ClCompile Include="Script\Internal\Engine\Keyboard\KeyboardClass.cpp">
+      <Filter>소스 파일\Core\Engine\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Keyboard\KeyboardEvent.cpp">
+      <Filter>소스 파일\Core\Engine\Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Mouse\MouseClass.cpp">
+      <Filter>소스 파일\Core\Engine\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Mouse\MouseEvent.cpp">
+      <Filter>소스 파일\Core\Engine\Mouse</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\DeviceResources.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Engine.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\RenderWindow.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Timer.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\WindowContainer.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\AdapterReader.cpp">
+      <Filter>소스 파일\Core\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Internal\Graphics\imGui\imconfig.h">
+    <ClInclude Include="Script\GameObject\Camera.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\GameObject\GameObject.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\GameObject\GameObject3D.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\GameObject\Light.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\GameObject\RenderableGameObject.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\GameObject\Sprite.h">
+      <Filter>헤더 파일\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\imGui\imconfig.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imgui.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imgui.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imgui_impl_dx11.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_impl_dx11.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imgui_impl_win32.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_impl_win32.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imgui_internal.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_internal.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imstb_rectpack.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_rectpack.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imstb_textedit.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_textedit.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\imGui\imstb_truetype.h">
+    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_truetype.h">
       <Filter>헤더 파일\Core\Graphics\ImGui</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\AdapterReader.h">
+    <ClInclude Include="Script\Internal\Graphics\ConstantBuffer.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Color.h">
+    <ClInclude Include="Script\Internal\Graphics\ConstantBufferType.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\ConstantBuffer.h">
+    <ClInclude Include="Script\Internal\Graphics\Graphics.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\ConstantBufferType.h">
+    <ClInclude Include="Script\Internal\Graphics\IndexBuffer.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\GameObject.h">
+    <ClInclude Include="Script\Internal\Graphics\Mesh.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\GameObject3D.h">
+    <ClInclude Include="Script\Internal\Graphics\Model.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Graphics.h">
+    <ClInclude Include="Script\Internal\Graphics\Shaders.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\IndexBuffer.h">
+    <ClInclude Include="Script\Internal\Graphics\Texture.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Light.h">
+    <ClInclude Include="Script\Internal\Graphics\Vertex.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Mesh.h">
+    <ClInclude Include="Script\Internal\Graphics\VertexBuffer.h">
       <Filter>헤더 파일\Core\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Model.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\RenderableGameObject.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\Shaders.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\Sprite.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\Texture.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\Vertex.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Graphics\VertexBuffer.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Keyboard\KeyboardClass.h">
-      <Filter>헤더 파일\Core\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Keyboard\KeyboardEvent.h">
-      <Filter>헤더 파일\Core\Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Mouse\MouseClass.h">
-      <Filter>헤더 파일\Core\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Mouse\MouseEvent.h">
-      <Filter>헤더 파일\Core\Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Engine.h">
+    <ClInclude Include="Script\Internal\Core.h">
       <Filter>헤더 파일\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\RenderWindow.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Timer.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\WindowContainer.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\Core.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Internal\DeviceResources.h">
-      <Filter>헤더 파일\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\Time.h">
+    <ClInclude Include="Script\Util\Singleton.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\Singleton.h">
+    <ClInclude Include="Script\Util\Time.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Util\UnCopyable.h">
+    <ClInclude Include="Script\Util\UnCopyable.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="ErrorLogger.h">
+    <ClInclude Include="Script\Util\Color.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="COMException.h">
+    <ClInclude Include="Script\Util\COMException.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="StringHelper.h">
+    <ClInclude Include="Script\Util\ErrorLogger.h">
       <Filter>헤더 파일\Util</Filter>
     </ClInclude>
-    <ClInclude Include="Internal\Graphics\Camera.h">
-      <Filter>헤더 파일\Core\Graphics</Filter>
+    <ClInclude Include="Script\Util\StringHelper.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Keyboard\KeyboardClass.h">
+      <Filter>헤더 파일\Core\Engine\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Keyboard\KeyboardEvent.h">
+      <Filter>헤더 파일\Core\Engine\Keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Mouse\MouseClass.h">
+      <Filter>헤더 파일\Core\Engine\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Mouse\MouseEvent.h">
+      <Filter>헤더 파일\Core\Engine\Mouse</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\AdapterReader.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\DeviceResources.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Engine.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\RenderWindow.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Timer.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\WindowContainer.h">
+      <Filter>헤더 파일\Core\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
