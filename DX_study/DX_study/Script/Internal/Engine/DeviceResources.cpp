@@ -45,14 +45,14 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 			NULL, //Supported feature level
 			this->deviceContext.GetAddressOf()); //Device Context Address
 
-		COM_ERROR_IF_FAILED(hr, "Failed to create device and swapchain.");
+		ThrowIfFailed(hr, "Failed to create device and swapchain.");
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
 		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-		COM_ERROR_IF_FAILED(hr, "GetBuffer Failed.");
+		ThrowIfFailed(hr, "GetBuffer Failed.");
 
 		hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create render target view.");
+		ThrowIfFailed(hr, "Failed to create render target view.");
 
 		//Describe our Depth/Stencil Buffer + 생성자 활용해서 코드 줄이기(애초에 default 패러미터 값은 안 건드려도 됨)
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
@@ -60,10 +60,10 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
 		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, this->depthStencilBuffer.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil buffer.");
+		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
 
 		hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil view.");
+		ThrowIfFailed(hr, "Failed to create depth stencil view.");
 
 		this->deviceContext->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
 
@@ -72,7 +72,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
 		hr = this->device->CreateDepthStencilState(&depthstencildesc, this->depthStencilState.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create depth stencil state.");
+		ThrowIfFailed(hr, "Failed to create depth stencil state.");
 
 		//뷰포트 만들기 & 세팅
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
@@ -81,7 +81,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		//래스터라이저 state 설정
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
 		hr = this->device->CreateRasterizerState(&rasterizerDesc, this->rasterizerState.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create rasterizer state.");
+		ThrowIfFailed(hr, "Failed to create rasterizer state.");
 
 		//Create Blend state
 		D3D11_BLEND_DESC blendDesc = { 0 };
@@ -99,7 +99,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		blendDesc.RenderTarget[0] = rtbd;
 
 		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create blend state.");
+		ThrowIfFailed(hr, "Failed to create blend state.");
 
 		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
 		spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -110,7 +110,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf()); //Create sampler state
-		COM_ERROR_IF_FAILED(hr, "Failed to create sampler state.");
+		ThrowIfFailed(hr, "Failed to create sampler state.");
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);

@@ -192,17 +192,18 @@ bool Graphics::InitializeScene()
 	try {
 		//텍스쳐 불러오기
 		HRESULT hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), L"Data\\Textures\\test.png", nullptr, grassTexture.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create wic texture from file.");
+		ThrowIfFailed(hr, "Failed to create wic texture from file.");
 
 		//Initialize Constant buffer(s)
+		//hr = ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().Initialize();
 		hr = this->cb_vs_vertexshader.Initialize();
-		COM_ERROR_IF_FAILED(hr, "Failed to Initialize constant buffer.");
+		ThrowIfFailed(hr, "Failed to Initialize constant buffer.");
 
 		hr = this->cb_vs_vertexshader_2d.Initialize();
-		COM_ERROR_IF_FAILED(hr, "Failed to Initialize 2d constant buffer.");
+		ThrowIfFailed(hr, "Failed to Initialize 2d constant buffer.");
 
 		hr = this->cb_ps_light.Initialize();
-		COM_ERROR_IF_FAILED(hr, "Failed to Initialize constant buffer.");
+		ThrowIfFailed(hr, "Failed to Initialize constant buffer.");
 
 		this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		this->cb_ps_light.data.ambientLightStrength = 1.0f;

@@ -11,10 +11,10 @@ Mesh::Mesh(
 
 	try {
 		HRESULT hr = this->vertexbuffer.Initialize(vertices.data(), vertices.size());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for mesh.");
+		ThrowIfFailed(hr, "Failed to initialize vertex buffer for mesh.");
 
 		hr = this->indexbuffer.Initialize(indices.data(), indices.size());
-		COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
+		ThrowIfFailed(hr, "Failed to initialize index buffer for mesh.");
 	}
 	catch (COMException e) {
 		

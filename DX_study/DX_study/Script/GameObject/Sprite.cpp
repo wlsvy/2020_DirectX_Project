@@ -24,10 +24,10 @@ bool Sprite::Initialize(
 	};
 
 	HRESULT hr = vertices.Initialize(vertexData.data(), vertexData.size());
-	COM_ERROR_IF_FAILED(hr, "Failed to initialize vertex buffer for sprite.");
+	ThrowIfFailed(hr, "Failed to initialize vertex buffer for sprite.");
 
 	hr = indices.Initialize(indexData.data(), indexData.size());
-	COM_ERROR_IF_FAILED(hr, "Failed to initialize index buffer for mesh.");
+	ThrowIfFailed(hr, "Failed to initialize index buffer for mesh.");
 
 	SetPosition(0.0f, 0.0f, 0.0f);
 	SetRotation(0.0f, 0.0f, 0.0f);

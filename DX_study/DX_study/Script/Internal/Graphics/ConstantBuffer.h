@@ -4,14 +4,12 @@
 
 #include "ConstantBufferType.h"
 #include "../../Util/ErrorLogger.h"
+#include "../../Util/Singleton.h"
 #include "../Core/InternalHelper.h"
 
 template<class T>
-class ConstantBuffer
+class ConstantBuffer : public Singleton<ConstantBuffer<T>>
 {
-private:
-	ConstantBuffer(const ConstantBuffer<T>& rhs);
-
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 

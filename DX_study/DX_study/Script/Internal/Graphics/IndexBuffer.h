@@ -7,9 +7,6 @@
 
 class IndexBuffer {
 private:
-	IndexBuffer(const IndexBuffer& rhs);
-
-private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 	UINT indexCount = 0;
 public:

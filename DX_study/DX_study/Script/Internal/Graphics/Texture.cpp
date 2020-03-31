@@ -42,7 +42,7 @@ Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type)
 {
 	this->type = type;
 	HRESULT hr = DirectX::CreateWICTextureFromMemory(Core::GetDevice(), pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create Texture from memory.");
+	ThrowIfFailed(hr, "Failed to create Texture from memory.");
 }
 
 aiTextureType Texture::GetType()
@@ -74,9 +74,9 @@ void Texture::InitializeColorTexture(const Color * colorData, UINT width, UINT h
 	initialData.pSysMem = colorData;
 	initialData.SysMemPitch = width * sizeof(Color);
 	HRESULT hr = Core::GetDevice()->CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
-	COM_ERROR_IF_FAILED(hr, "Failed to initialize texture from color data.");
+	ThrowIfFailed(hr, "Failed to initialize texture from color data.");
 	texture = static_cast<ID3D11Texture2D*>(p2DTexture);
 	CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format);
 	hr = Core::GetDevice()->CreateShaderResourceView(texture.Get(), &srvDesc, textureView.GetAddressOf());
-	COM_ERROR_IF_FAILED(hr, "Failed to create shader resource view from texture generated from color data.");
+	ThrowIfFailed(hr, "Failed to create shader resource view from texture generated from color data.");
 }
