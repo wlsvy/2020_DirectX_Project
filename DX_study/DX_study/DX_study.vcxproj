@@ -204,9 +204,10 @@
     <ClInclude Include="Script\Component\Component.h" />
     <ClInclude Include="Script\Component\Renderer.h" />
     <ClInclude Include="Script\Component\Transform.h" />
-    <ClInclude Include="Script\Internal\Core\BufferBase.h" />
     <ClInclude Include="Script\Internal\Core\InternalHelper.h" />
+    <ClInclude Include="Script\Internal\Core\ManagedObject.h" />
     <ClInclude Include="Script\Internal\Core\Object.h" />
+    <ClInclude Include="Script\Internal\Core\ObjectType.h" />
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\GameObject\GameObject3D.h" />
     <ClInclude Include="Script\Util\Color.h" />
