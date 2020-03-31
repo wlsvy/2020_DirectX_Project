@@ -38,14 +38,14 @@ void Graphics::RenderFrame()
 {
 	auto& deviceResources = DeviceResources::GetInstance();
 
-	cb_ps_light.data.dynamicLightColor = light.lightColor;
-	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
-	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
-	cb_ps_light.ApplyChanges();
-	deviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, this->cb_ps_light.GetAddressOf());
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightColor = light.lightColor;
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightStrength = light.lightStrength;
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightPosition = light.GetPositionFloat3();
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_a = light.attenuation_a;
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_b = light.attenuation_b;
+	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_c = light.attenuation_c;
+	ConstantBuffer<CB_PS_light>::GetInstance().ApplyChanges();
+	deviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, ConstantBuffer<CB_PS_light>::GetInstance().GetAddressOf());
 
 	static float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	deviceResources.GetDeviceContext()->ClearRenderTargetView(deviceResources.GetBaseRenderTargetView(), bgcolor);
@@ -114,8 +114,8 @@ void Graphics::DrawImGui()
 	ImGui::NewFrame();
 	
 	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &this->cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strenght", &this->cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("Ambient Light Color", &ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat("Ambient Light Strenght", &ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::NewLine();
 	ImGui::DragFloat3("Dynamic Light Color", &this->light.lightColor.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrength, 0.01f, 0.0f, 10.0f);
@@ -195,38 +195,32 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(hr, "Failed to create wic texture from file.");
 
 		//Initialize Constant buffer(s)
-		//hr = ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().Initialize();
-		hr = this->cb_vs_vertexshader.Initialize();
-		ThrowIfFailed(hr, "Failed to Initialize constant buffer.");
+		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
+		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
+		ThrowIfFailed(ConstantBuffer<CB_PS_light>::GetInstance().Initialize(), "Failed to Initialize ConstantBuffer<CB_PS_light>::GetInstance() buffer.");
 
-		hr = this->cb_vs_vertexshader_2d.Initialize();
-		ThrowIfFailed(hr, "Failed to Initialize 2d constant buffer.");
-
-		hr = this->cb_ps_light.Initialize();
-		ThrowIfFailed(hr, "Failed to Initialize constant buffer.");
-
-		this->cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		this->cb_ps_light.data.ambientLightStrength = 1.0f;
+		ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightStrength = 1.0f;
 
 		//모델 데이터 초기화
-		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj", this->cb_vs_vertexshader)) {
+		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
-		if (!gameObject.Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj", this->cb_vs_vertexshader)) {
+		if (!gameObject.Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj")) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
 		//광원 데이터 초기화
-		if (!light.Initialize(this->cb_vs_vertexshader)) {
+		if (!light.Initialize()) {
 			MessageBoxA(NULL, "Initialize light Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
 		//스프라이트 생성
-		if (!sprite.Initialize(256, 256, "Data/Textures/circle.png", cb_vs_vertexshader_2d))
+		if (!sprite.Initialize(256, 256, "Data/Textures/circle.png"))
 		{
 			MessageBoxA(NULL, "Initialize sprite Error", "Error", MB_ICONERROR);
 			return false;

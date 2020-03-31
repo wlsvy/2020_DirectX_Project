@@ -1,8 +1,8 @@
 #include "Light.h"
 
-bool Light::Initialize(ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool Light::Initialize()
 {
-	if (!model.Initialize("Data/Objects/light.fbx", cb_vs_vertexshader))
+	if (!model.Initialize("Data/Objects/light.fbx"))
 		return false;
 
 	this->SetPosition(0.0f, 0.0f, 0.0f);

@@ -2,10 +2,8 @@
 
 #include "../Core/InternalHelper.h"
 
-bool Model::Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool Model::Initialize(const std::string & filePath)
 {
-	this->cb_vs_vertexshader = &cb_vs_vertexshader;
-
 	try
 	{
 		if (!this->LoadModel(filePath))
@@ -22,14 +20,14 @@ bool Model::Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertex
 
 void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, this->cb_vs_vertexshader->GetAddressOf());
+	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, ConstantBuffer<CB_VS_vertexshader>::GetInstance().GetAddressOf());
 
 	for (int i = 0; i < meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		this->cb_vs_vertexshader->data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		this->cb_vs_vertexshader->data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
-		this->cb_vs_vertexshader->ApplyChanges();
+		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		ConstantBuffer<CB_VS_vertexshader>::GetInstance().ApplyChanges();
 		meshes[i].Draw();
 	}
 }

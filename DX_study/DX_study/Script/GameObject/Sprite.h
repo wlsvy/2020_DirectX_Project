@@ -9,14 +9,13 @@
 
 class Sprite : public GameObject {
 public:
-	bool Initialize(float width, float height, std::string spritePath, ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d);
+	bool Initialize(float width, float height, std::string spritePath);
 	void Draw(XMMATRIX orthoMatrix); //2d 카메라 orthogonal(직교) 행렬
 	float GetWidth();
 	float GetHeight();
 private:
 	void UpdateMatrix() override;
 
-	ConstantBuffer<CB_VS_vertexshader_2d> * cb_vs_vertexshader_2d = nullptr;
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
 	std::unique_ptr<Texture> texture;

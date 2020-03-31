@@ -3,7 +3,7 @@
 
 class RenderableGameObject : public GameObject3D {
 public:
-	bool Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertexshader> & cb_vs_vertexshader);
+	bool Initialize(const std::string & filePath);
 	void Draw(const DirectX::XMMATRIX & viewProjectionMatrix);
 
 protected:

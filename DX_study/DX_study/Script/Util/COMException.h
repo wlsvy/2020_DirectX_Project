@@ -1,17 +1,10 @@
 #pragma once
 #include <comdef.h>
+#include <stdexcept>
 #include "StringHelper.h"
 
 class COMException {
 public:
-	COMException(HRESULT hr, const std::string& msg, const std::string& file, const std::string& function, int line) {
-		_com_error error(hr);
-		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";
-		whatmsg += error.ErrorMessage();
-		whatmsg += L"\nFile: " + StringHelper::StringToWide(file);
-		whatmsg += L"\nFunction: " + StringHelper::StringToWide(function);
-		whatmsg += L"\nLine: " + StringHelper::StringToWide(std::to_string(line));
-	}
 	COMException(HRESULT hr, const std::string& msg) {
 		_com_error error(hr);
 		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";

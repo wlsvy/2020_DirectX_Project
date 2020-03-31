@@ -4,11 +4,8 @@
 bool Sprite::Initialize(
 	float width, 
 	float height, 
-	std::string spritePath, 
-	ConstantBuffer<CB_VS_vertexshader_2d> & cb_vs_vertexshader_2d)
+	std::string spritePath)
 {
-	this->cb_vs_vertexshader_2d = &cb_vs_vertexshader_2d;
-
 	texture = std::make_unique<Texture>(spritePath, aiTextureType::aiTextureType_DIFFUSE);
 
 	std::vector<Vertex2D> vertexData = {
@@ -40,9 +37,12 @@ bool Sprite::Initialize(
 void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
-	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader_2d->GetAddressOf());
-	cb_vs_vertexshader_2d->data.wvpMatrix = wvpMatrix;
-	cb_vs_vertexshader_2d->ApplyChanges();
+	Core::GetDeviceContext()->VSSetConstantBuffers(
+		0, 
+		1, 
+		ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().GetAddressOf());
+	ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().data.wvpMatrix = wvpMatrix;
+	ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().ApplyChanges();
 
 	Core::GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 

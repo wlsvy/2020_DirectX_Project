@@ -2,9 +2,9 @@
 
 #include "../Internal/Core/InternalHelper.h"
 
-bool RenderableGameObject::Initialize(const std::string & filePath, ConstantBuffer<CB_VS_vertexshader>& cb_vs_vertexshader)
+bool RenderableGameObject::Initialize(const std::string & filePath)
 {
-	if (!model.Initialize(filePath, cb_vs_vertexshader)) {
+	if (!model.Initialize(filePath)) {
 		ErrorLogger::Log("test model Initialize Failed");
 		return false;
 	}
