@@ -3,7 +3,7 @@
 #include "Timer.h"
 #include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
-#include "../Core/Object.h"
+#include "../Core/ManagedObject.h"
 
 Engine* Engine::s_Ptr = nullptr;
 
@@ -13,9 +13,14 @@ Engine & Engine::Get()
 }
 
 Engine::Engine() :
-	m_Timer(new Timer),
-	m_Graphics(new Graphics),
-	m_DeviceResources(DeviceResources::CreateUnique())
+	m_Timer(std::make_unique<Timer>()),
+	m_Graphics(std::make_unique<Graphics>()),
+	m_DeviceResources(DeviceResources::CreateUnique()),
+	m_ObjectPool(ObjectPool<Object>::CreateUnique()),
+	m_GameObjPool(ObjectPool<GameObject>::CreateUnique()),
+	m_ShaderPool(ObjectPool<Shader>::CreateUnique()),
+	m_TexturePool(ObjectPool<Texture>::CreateUnique()),
+	m_ModelPool(ObjectPool<Model>::CreateUnique())
 {
 	s_Ptr = this;
 }

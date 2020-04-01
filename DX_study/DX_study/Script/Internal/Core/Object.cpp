@@ -1,16 +1,26 @@
 #include "Object.h"
+#include "ManagedObject.h"
 
 Object::Object()
 {
-	InitObjectID();
+	InitObject();
 }
 
 Object::Object(const std::string & name) : Name(name)
 {
-	InitObjectID();
+	InitObject();
 }
 
-void Object::InitObjectID()
+Object::~Object()
+{
+}
+
+void Destroy(Object& obj)
+{
+	ObjectPool<Object>::GetInstance().DeRegister(obj.GetId());
+}
+
+void Object::InitObject()
 {
 	static int id = 0;
 	m_Id = id++;

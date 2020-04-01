@@ -2,41 +2,24 @@
 #include <string>
 #include <memory>
 
-#define OBJECT_DESCRIPTION(type, baseType) \
-   public: \
-	##type() : Object(#type) {} \
-    using BaseType = baseType; \
-
 #define MANAGED_OBJECT(typeName) \
    public: \
 	##typeName() : Object(#typeName) {} \
-    using BaseType = typeName; \
+    using Base_Type = typeName; \
 
 class Object {
 public:
 	Object();
 	Object(const std::string & name);
-	virtual ~Object() {}
+	virtual ~Object();
 
 	int GetId() const { return m_Id; }
-
 	virtual void OnGui() {}
 
 	std::string Name = "Object";
 	
 private:
-	void InitObjectID();
+	void InitObject();
 
 	int m_Id;
 };
-
-template<typename T>
-std::shared_ptr<T> CreateInstance() {
-	
-	
-}
-
-template<typename T>
-void Destroy() {
-
-}

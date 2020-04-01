@@ -7,12 +7,13 @@
 #include "imGui/imgui_impl_dx11.h"
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
+#include "../Core/ManagedObject.h"
 
 Graphics::Graphics() :
 	cb_vs_vertexshader_2d(ConstantBuffer<CB_VS_vertexshader_2d>::CreateUnique()),
 	cb_vs_vertexshader(ConstantBuffer<CB_VS_vertexshader>::CreateUnique()),
 	cb_ps_light(ConstantBuffer<CB_PS_light>::CreateUnique())
-{
+{	
 }
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {

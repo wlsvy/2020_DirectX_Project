@@ -7,7 +7,14 @@
 class Timer;
 class Graphics;
 class DeviceResources;
+
+template<typename T>
+class ObjectPool;
 class Object;
+class GameObject;
+class Shader;
+class Texture;
+class Model;
 
 class Engine : WindowContainer{
 public:
@@ -28,6 +35,11 @@ private:
 	std::unique_ptr<Graphics> m_Graphics;
 	std::unique_ptr<Timer> m_Timer;
 
-	std::unordered_map<int, std::shared_ptr<Object>> m_ObjectPool;
+	std::unique_ptr<ObjectPool<Object>> m_ObjectPool;
+	std::unique_ptr<ObjectPool<GameObject>> m_GameObjPool;
+	std::unique_ptr<ObjectPool<Shader>> m_ShaderPool;
+	std::unique_ptr<ObjectPool<Texture>> m_TexturePool;
+	std::unique_ptr<ObjectPool<Model>> m_ModelPool;
+
 };
 
