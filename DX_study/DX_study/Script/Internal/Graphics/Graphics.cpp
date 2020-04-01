@@ -9,16 +9,17 @@
 #include "../Engine/DeviceResources.h"
 #include "../Core/ObjectPool.h"
 
-Graphics::Graphics() :
-	cb_vs_vertexshader_2d(ConstantBuffer<CB_VS_vertexshader_2d>::CreateUnique()),
-	cb_vs_vertexshader(ConstantBuffer<CB_VS_vertexshader>::CreateUnique()),
-	cb_ps_light(ConstantBuffer<CB_PS_light>::CreateUnique())
+Graphics::Graphics()
 {	
 }
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	this->windowWidth = width;
 	this->windowHeight = height;
+
+	if (!m_DeviceResources.Initialize(hwnd, width, height)) {
+		return false;
+	}
 
 	if (!InitializeShaders()) {
 		MessageBoxA(NULL, "Initialize Shader Error", "Error", MB_ICONERROR);
@@ -36,7 +37,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(DeviceResources::GetInstance().GetDevice(), DeviceResources::GetInstance().GetDeviceContext());
+	ImGui_ImplDX11_Init(m_DeviceResources.GetDevice(), m_DeviceResources.GetDeviceContext());
 	ImGui::StyleColorsDark();
 
 	return true;
@@ -44,46 +45,44 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 void Graphics::RenderFrame()
 {
-	auto& deviceResources = DeviceResources::GetInstance();
-
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightColor = light.lightColor;
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightStrength = light.lightStrength;
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightPosition = light.GetPositionFloat3();
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_a = light.attenuation_a;
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_b = light.attenuation_b;
-	ConstantBuffer<CB_PS_light>::GetInstance().data.dynamicLightAttenuation_c = light.attenuation_c;
-	ConstantBuffer<CB_PS_light>::GetInstance().ApplyChanges();
-	deviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, ConstantBuffer<CB_PS_light>::GetInstance().GetAddressOf());
+	cb_ps_light.data.dynamicLightColor = light.lightColor;
+	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
+	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
+	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
+	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
+	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+	cb_ps_light.ApplyChanges();
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 
 	static float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	deviceResources.GetDeviceContext()->ClearRenderTargetView(deviceResources.GetBaseRenderTargetView(), bgcolor);
-	deviceResources.GetDeviceContext()->ClearDepthStencilView(deviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), bgcolor);
+	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	deviceResources.GetDeviceContext()->IASetInputLayout(this->vertexshader.GetInputLayout());
-	deviceResources.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	deviceResources.GetDeviceContext()->RSSetState(deviceResources.GetRasterizerState());
-	deviceResources.GetDeviceContext()->OMSetDepthStencilState(deviceResources.GetBaseDepthStencilState(), 0);
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(this->vertexshader.GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
+	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 
 	static float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	deviceResources.GetDeviceContext()->OMSetBlendState(DeviceResources::GetInstance().GetBlendState(), blendFactors, 0xFFFFFFFF);
-	deviceResources.GetDeviceContext()->PSSetSamplers(0, 1, deviceResources.GetSamplerStateAddr());
+	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), blendFactors, 0xFFFFFFFF);
+	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, m_DeviceResources.GetSamplerStateAddr());
 
-	deviceResources.GetDeviceContext()->VSSetShader(vertexshader.GetShader(), NULL, 0);
-	deviceResources.GetDeviceContext()->PSSetShader(pixelshader.GetShader(), NULL, 0);
-	deviceResources.GetDeviceContext()->IASetInputLayout(vertexshader.GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->VSSetShader(vertexshader.GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader.GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(vertexshader.GetInputLayout());
 
 	{
 		gameObject.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	{
-		deviceResources.GetDeviceContext()->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
+		m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
 		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
 	}
 	
 	DrawFrameString();
 	DrawImGui();
 	
-	deviceResources.PresentSwapChain();
+	m_DeviceResources.PresentSwapChain();
 }
 
 void Graphics::DrawFrameString()
@@ -100,8 +99,8 @@ void Graphics::DrawFrameString()
 		fpsCounter = 0;
 		elapsedTime = 0.0;
 	}
-	auto spriteBatch = DeviceResources::GetInstance().GetSpriteBatch();
-	auto spriteFont = DeviceResources::GetInstance().GetSpriteFont();
+	auto spriteBatch = m_DeviceResources.GetSpriteBatch();
+	auto spriteFont = m_DeviceResources.GetSpriteFont();
 	spriteBatch->Begin();
 	spriteFont->DrawString(
 		spriteBatch, 
@@ -122,8 +121,8 @@ void Graphics::DrawImGui()
 	ImGui::NewFrame();
 	
 	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strenght", &ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::NewLine();
 	ImGui::DragFloat3("Dynamic Light Color", &this->light.lightColor.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrength, 0.01f, 0.0f, 10.0f);
@@ -199,12 +198,12 @@ bool Graphics::InitializeScene()
 {
 	try {
 		//Initialize Constant buffer(s)
-		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
-		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
-		ThrowIfFailed(ConstantBuffer<CB_PS_light>::GetInstance().Initialize(), "Failed to Initialize ConstantBuffer<CB_PS_light>::GetInstance() buffer.");
+		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
+		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
+		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 
-		ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
-		ConstantBuffer<CB_PS_light>::GetInstance().data.ambientLightStrength = 1.0f;
+		cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		//모델 데이터 초기화
 		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {

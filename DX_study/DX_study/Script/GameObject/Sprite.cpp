@@ -1,5 +1,6 @@
 #include "Sprite.h"
 #include "../Internal/Core/InternalHelper.h"
+#include "../Internal/Graphics/Graphics.h"
 
 bool Sprite::Initialize(
 	float width, 
@@ -37,12 +38,9 @@ bool Sprite::Initialize(
 void Sprite::Draw(XMMATRIX orthoMatrix)
 {
 	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
-	Core::GetDeviceContext()->VSSetConstantBuffers(
-		0, 
-		1, 
-		ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().GetAddressOf());
-	ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().data.wvpMatrix = wvpMatrix;
-	ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().ApplyChanges();
+	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, Core::GetGraphics().GetCbVertexShader2D().GetAddressOf());
+	Core::GetGraphics().GetCbVertexShader2D().data.wvpMatrix = wvpMatrix;
+	Core::GetGraphics().GetCbVertexShader2D().ApplyChanges();
 
 	Core::GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 

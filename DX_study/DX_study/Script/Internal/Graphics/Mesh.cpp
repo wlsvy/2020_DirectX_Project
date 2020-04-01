@@ -46,7 +46,22 @@ void Mesh::Draw()
 
 }
 
-const DirectX::XMMATRIX & Mesh::GetTransformMatrix()
+const DirectX::XMMATRIX & Mesh::GetTransformMatrix() const
 {
 	return this->transformMatrix;
+}
+
+const VertexBuffer<Vertex3D>& Mesh::GetVertexBuffer() const
+{
+	return vertexbuffer;
+}
+
+const IndexBuffer & Mesh::GetIndexBuffer() const
+{
+	return indexbuffer;
+}
+
+const std::vector<Texture>& Mesh::GetTextures() const
+{
+	return textures;
 }

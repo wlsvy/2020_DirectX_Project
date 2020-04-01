@@ -16,8 +16,14 @@ public:
 		std::vector<Texture> & textures, 
 		const DirectX::XMMATRIX & transformMatrix);
 	Mesh(const Mesh & mesh);
+
 	void Draw();
-	const DirectX::XMMATRIX & GetTransformMatrix();
+
+	const DirectX::XMMATRIX & GetTransformMatrix() const;
+	const VertexBuffer<Vertex3D> & GetVertexBuffer() const;
+	const IndexBuffer & GetIndexBuffer() const;
+	const std::vector<Texture> & GetTextures() const;
+
 private:
 	VertexBuffer<Vertex3D> vertexbuffer;
 	IndexBuffer indexbuffer;

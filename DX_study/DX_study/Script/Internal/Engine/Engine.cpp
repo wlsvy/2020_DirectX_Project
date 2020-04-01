@@ -15,7 +15,6 @@ Engine & Engine::Get()
 Engine::Engine() :
 	m_Timer(std::make_unique<Timer>()),
 	m_Graphics(std::make_unique<Graphics>()),
-	m_DeviceResources(DeviceResources::CreateUnique()),
 	m_ObjectPool(ObjectPool<Object>::CreateUnique()),
 	m_GameObjPool(ObjectPool<GameObject>::CreateUnique()),
 	m_ShaderPool(ObjectPool<Shader>::CreateUnique()),
@@ -36,10 +35,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	m_Timer->Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
-		return false;
-	}
-	
-	if (!m_DeviceResources->Initialize(render_window.GetHWND(), width, height)) {
 		return false;
 	}
 
@@ -116,7 +111,12 @@ void Engine::RenderFrame()
 	m_Graphics->RenderFrame();
 }
 
+Graphics & Engine::GetGraphics()
+{
+	return *m_Graphics.get();
+}
+
 Timer & Engine::GetTimer()
 {
-	return *(m_Timer.get());
+	return *m_Timer.get();
 }

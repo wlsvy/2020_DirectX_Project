@@ -5,7 +5,7 @@
 #include "AdapterReader.h"
 #include "../../Util/Singleton.h"
 
-class DeviceResources : public Singleton<DeviceResources> {
+class DeviceResources {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
 

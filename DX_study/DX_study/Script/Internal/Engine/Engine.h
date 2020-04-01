@@ -27,11 +27,11 @@ public:
 	void Update();
 	void RenderFrame();
 
+	Graphics& GetGraphics();
 	Timer& GetTimer();
 private:
 	static Engine* s_Ptr;
 
-	std::unique_ptr<DeviceResources> m_DeviceResources;
 	std::unique_ptr<Graphics> m_Graphics;
 	std::unique_ptr<Timer> m_Timer;
 
