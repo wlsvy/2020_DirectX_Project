@@ -8,6 +8,9 @@ class Singleton : public Uncopyable
 public:
 	static T& GetInstance() 
 	{ 
+		if (s_Instance == nullptr) {
+			s_Instance = new T;
+		}
 		return *s_Instance; 
 	}
 

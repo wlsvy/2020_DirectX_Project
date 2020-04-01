@@ -1,5 +1,5 @@
 #include "Object.h"
-#include "ManagedObject.h"
+#include "ObjectPool.h"
 
 Object::Object()
 {
@@ -13,11 +13,6 @@ Object::Object(const std::string & name) : Name(name)
 
 Object::~Object()
 {
-}
-
-void Destroy(Object& obj)
-{
-	ObjectPool<Object>::GetInstance().DeRegister(obj.GetId());
 }
 
 void Object::InitObject()

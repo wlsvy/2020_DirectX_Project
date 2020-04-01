@@ -3,7 +3,7 @@
 #include "Timer.h"
 #include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
-#include "../Core/ManagedObject.h"
+#include "../Core/ObjectPool.h"
 
 Engine* Engine::s_Ptr = nullptr;
 

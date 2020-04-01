@@ -7,7 +7,7 @@
 #include "imGui/imgui_impl_dx11.h"
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
-#include "../Core/ManagedObject.h"
+#include "../Core/ObjectPool.h"
 
 Graphics::Graphics() :
 	cb_vs_vertexshader_2d(ConstantBuffer<CB_VS_vertexshader_2d>::CreateUnique()),

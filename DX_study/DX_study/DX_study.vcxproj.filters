@@ -183,6 +183,9 @@
     <ClCompile Include="Script\Component\Transform.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Core\ObjectPool.cpp">
+      <Filter>소스 파일\Internal\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -323,10 +326,10 @@
     <ClInclude Include="Script\Component\Transform.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Internal\Core\ManagedObject.h">
+    <ClInclude Include="Script\Internal\Core\ObjectType.h">
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Internal\Core\ObjectType.h">
+    <ClInclude Include="Script\Internal\Core\ObjectPool.h">
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
   </ItemGroup>
