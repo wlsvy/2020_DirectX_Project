@@ -4,7 +4,7 @@
 
 Engine & Core::GetEngine()
 {
-	return Engine::GetInstance();
+	return Engine::Get();
 }
 
 Timer & Core::GetTimer()

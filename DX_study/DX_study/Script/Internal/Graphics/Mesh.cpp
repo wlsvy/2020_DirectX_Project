@@ -17,7 +17,6 @@ Mesh::Mesh(
 		ThrowIfFailed(hr, "Failed to initialize index buffer for mesh.");
 	}
 	catch (COMException e) {
-		
 	}
 	
 }

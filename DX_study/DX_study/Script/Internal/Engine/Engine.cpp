@@ -3,10 +3,11 @@
 #include "Timer.h"
 #include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
+#include "../Core/Object.h"
 
 Engine* Engine::s_Ptr = nullptr;
 
-Engine & Engine::GetInstance()
+Engine & Engine::Get()
 {
 	return *s_Ptr;
 }
@@ -14,7 +15,7 @@ Engine & Engine::GetInstance()
 Engine::Engine() :
 	m_Timer(new Timer),
 	m_Graphics(new Graphics),
-	m_DeviceResources(&DeviceResources::GetInstance())
+	m_DeviceResources(DeviceResources::CreateUnique())
 {
 	s_Ptr = this;
 }

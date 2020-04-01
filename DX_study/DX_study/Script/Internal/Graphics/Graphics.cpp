@@ -8,6 +8,13 @@
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
 
+Graphics::Graphics() :
+	cb_vs_vertexshader_2d(ConstantBuffer<CB_VS_vertexshader_2d>::CreateUnique()),
+	cb_vs_vertexshader(ConstantBuffer<CB_VS_vertexshader>::CreateUnique()),
+	cb_ps_light(ConstantBuffer<CB_PS_light>::CreateUnique())
+{
+}
+
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	this->windowWidth = width;
 	this->windowHeight = height;
@@ -190,10 +197,6 @@ bool Graphics::InitializeShaders()
 bool Graphics::InitializeScene()
 {
 	try {
-		//텍스쳐 불러오기
-		HRESULT hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), L"Data\\Textures\\test.png", nullptr, grassTexture.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create wic texture from file.");
-
 		//Initialize Constant buffer(s)
 		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader_2d>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(ConstantBuffer<CB_VS_vertexshader>::GetInstance().Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");

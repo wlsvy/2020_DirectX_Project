@@ -327,7 +327,7 @@
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Core\ObjectType.h">
-      <Filter>헤더 파일</Filter>
+      <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

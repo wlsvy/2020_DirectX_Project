@@ -2,6 +2,16 @@
 
 Object::Object()
 {
+	InitObjectID();
+}
+
+Object::Object(const std::string & name) : Name(name)
+{
+	InitObjectID();
+}
+
+void Object::InitObjectID()
+{
 	static int id = 0;
-	Id = id++;
+	m_Id = id++;
 }

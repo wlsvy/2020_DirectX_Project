@@ -1,12 +1,19 @@
 #pragma once
-#pragma once
 #include <vector>
 #include <memory>
 
+#include "../../Util/Singleton.h"
+
 template<typename T>
-class ManagedObject {
+class ManagedObject :  public Singleton<ManagedObject<T>> {
 public:
 	void Update() {
+		for (auto& o : m_Objects) {
+			//m_Objects->Update();
+		}
+	}
+	void ForEach()
+	{
 		for (auto& o : m_Objects) {
 			//m_Objects->Update();
 		}

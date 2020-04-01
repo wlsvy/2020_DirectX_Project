@@ -18,6 +18,7 @@ class Model;
 
 class Graphics {
 public:
+	Graphics();
 	bool Initialize(HWND hwnd, int width, int height);
 
 	void RenderFrame();
@@ -44,10 +45,9 @@ private:
 	PixelShader pixelshader_2d_discard;
 	PixelShader pixelshader_nolight;
 
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> myTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pinkTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> pavementTexture;
+	std::unique_ptr<ConstantBuffer<CB_VS_vertexshader_2d>> cb_vs_vertexshader_2d;
+	std::unique_ptr<ConstantBuffer<CB_VS_vertexshader>> cb_vs_vertexshader;
+	std::unique_ptr<ConstantBuffer<CB_PS_light>> cb_ps_light;
 
 	std::unordered_map<std::string, std::shared_ptr<BufferBase>> m_Buffers;
 	std::unordered_map<std::string, std::shared_ptr<Texture>> m_Textures;

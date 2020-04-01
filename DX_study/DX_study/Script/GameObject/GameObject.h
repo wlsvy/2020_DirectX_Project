@@ -1,8 +1,11 @@
 #pragma once
 #include "../Internal/Graphics/Model.h"
+#include "../Internal/Core/Object.h"
 
-class GameObject {
+class GameObject : public Object{
 public:
+	MANAGED_OBJECT(GameObject)
+
 	const XMVECTOR & GetPositionVector() const;
 	const XMFLOAT3 & GetPositionFloat3() const;
 	const XMVECTOR & GetRotationVector() const;

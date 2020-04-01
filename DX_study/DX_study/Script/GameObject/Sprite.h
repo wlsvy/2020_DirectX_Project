@@ -9,6 +9,7 @@
 
 class Sprite : public GameObject {
 public:
+	Sprite() {}
 	bool Initialize(float width, float height, std::string spritePath);
 	void Draw(XMMATRIX orthoMatrix); //2d 카메라 orthogonal(직교) 행렬
 	float GetWidth();

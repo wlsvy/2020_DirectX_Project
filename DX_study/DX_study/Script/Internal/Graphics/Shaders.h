@@ -5,8 +5,14 @@
 #include <wrl/client.h>
 #include <d3dcompiler.h>
 #include <string>
+#include "../Core/Object.h"
 
-class VertexShader {
+class ShaderBase : public Object {
+public:
+	MANAGED_OBJECT(ShaderBase)
+};
+
+class VertexShader : public ShaderBase {
 public:
 	bool Initialize(std::wstring shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements);
 	ID3D11VertexShader * GetShader();
@@ -18,7 +24,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 };
 
-class PixelShader {
+class PixelShader : public ShaderBase {
 public:
 	bool Initialize(std::wstring shaderpath);
 	ID3D11PixelShader * GetShader();

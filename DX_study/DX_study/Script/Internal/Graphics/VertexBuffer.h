@@ -15,7 +15,6 @@ private:
 
 public:
 	VertexBuffer() {}
-
 	VertexBuffer(const VertexBuffer<T> & rhs) {
 		this->buffer = rhs.buffer;
 		this->vertexCount = rhs.vertexCount;

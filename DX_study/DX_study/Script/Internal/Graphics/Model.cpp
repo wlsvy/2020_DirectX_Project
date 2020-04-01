@@ -22,19 +22,20 @@ void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMa
 {
 	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, ConstantBuffer<CB_VS_vertexshader>::GetInstance().GetAddressOf());
 
-	for (int i = 0; i < meshes.size(); i++)
+	for (int i = 0; i < m_Meshes.size(); i++)
 	{
 		//Update Constant buffer with WVP Matrix
-		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.wvpMatrix = meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.worldMatrix = meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		ConstantBuffer<CB_VS_vertexshader>::GetInstance().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
 		ConstantBuffer<CB_VS_vertexshader>::GetInstance().ApplyChanges();
-		meshes[i].Draw();
+		m_Meshes[i].Draw();
 	}
 }
 
 bool Model::LoadModel(const std::string & filePath)
 {
-	this->directory = StringHelper::GetDirectoryFromPath(filePath);
+	this->m_Directory = StringHelper::GetDirectoryFromPath(filePath);
+	Name = m_Directory;
 
 	Assimp::Importer importer;
 
@@ -56,7 +57,7 @@ void Model::ProcessNode(aiNode * node, const aiScene * scene, const XMMATRIX & p
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
+		m_Meshes.push_back(this->ProcessMesh(mesh, scene, nodeTransformMatrix));
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
@@ -207,7 +208,7 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial * pMaterial, aiTextu
 			}
 			case TextureStorageType::Disk:
 			{
-				std::string filename = this->directory + '\\' + path.C_Str();
+				std::string filename = this->m_Directory + '\\' + path.C_Str();
 				Texture diskTexture(filename, textureType);
 				materialTextures.push_back(diskTexture);
 				break;

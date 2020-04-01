@@ -10,8 +10,6 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 	UINT indexCount = 0;
 public:
-	IndexBuffer() {}
-
 	ID3D11Buffer* Get() const {
 		return buffer.Get();
 	}

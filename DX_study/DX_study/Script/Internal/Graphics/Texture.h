@@ -4,6 +4,7 @@
 #include <string>
 #include <assimp/material.h>
 #include "../../Util/Color.h"
+#include "../Core/Object.h"
 
 enum class TextureStorageType {
 	Invalid,
@@ -15,8 +16,10 @@ enum class TextureStorageType {
 	Disk
 };
 
-class Texture {
+class Texture : public Object {
 public:
+	MANAGED_OBJECT(Texture)
+
 	Texture(const Color & color, aiTextureType type);
 	Texture(const Color * colorData, UINT width, UINT height, aiTextureType type);
 	Texture(const std::string & filePath, aiTextureType type);
