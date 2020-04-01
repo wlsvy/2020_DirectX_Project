@@ -46,14 +46,13 @@ public:
 	std::shared_ptr<Object> Find(const int objId) {
 		auto iter = m_Objects.find(objId);
 		if (iter != m_Objects.end()) {
-			return iter->second->GetObject();
+			return iter->second->Ptr;
 		}
 		return std::shared_ptr<Object>();
 	}
 private:
 	class ObjWrapperBase {
 	public:
-		std::shared_ptr<Object> GetObject() { return Ptr; }
 		std::shared_ptr<Object> Ptr;
 	};
 
@@ -66,7 +65,6 @@ private:
 		~ObjectWrapper() {
 			ObjectPool<T>::GetInstance().DeRegister(Ptr);
 		}
-		std::shared_ptr<T> Get() { return Ptr; }
 	};
 
 	std::unordered_map<int, std::shared_ptr<ObjWrapperBase>> m_Objects;
