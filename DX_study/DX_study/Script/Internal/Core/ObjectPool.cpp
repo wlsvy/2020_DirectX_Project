@@ -1,6 +1,6 @@
 #include "ObjectPool.h"
 
-void Destroy(Object & obj)
+void Pool::Destroy(Object & obj)
 {
 	ObjectPool<Object>::GetInstance().DeRegister(obj.GetId());
 }

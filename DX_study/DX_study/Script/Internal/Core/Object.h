@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <memory>
 
 #define MANAGED_OBJECT(typeName) \
    public: \

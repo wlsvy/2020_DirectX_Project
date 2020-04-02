@@ -14,13 +14,6 @@ public:
 		return *s_Instance; 
 	}
 
-	static std::unique_ptr<T> CreateUnique() 
-	{
-		auto unique = std::make_unique<T>();
-		Singleton<T>::s_Instance = unique.get();
-		return unique;
-	}
-
 protected:
 	Singleton() {}
 	virtual ~Singleton() 
