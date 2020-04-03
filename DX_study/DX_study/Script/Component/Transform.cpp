@@ -5,12 +5,12 @@
 #include "../Internal/Core/ObjectPool.h"
 #include "../GameObject/GameObject.h"
 
-#define POSITION_MAX 10000.0f
-#define POSITION_MIN -10000.0f
-#define Deg2Rad 0.0174533f	// pi / 180
-#define Rad2Deg 57.2958f	// 180 / pi
-
 using DirectX::operator+=;
+
+const float POSITION_MAX = 10000.0f;
+const float POSITION_MIN = -10000.0f;
+const float Deg2Rad = 0.0174533f;	// pi / 180
+const float Rad2Deg = 57.2958f;	// 180 / pi
 
 const DirectX::XMVECTOR Transform::DEFAULT_FORWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 const DirectX::XMVECTOR Transform::DEFAULT_UP_VECTOR = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
@@ -39,10 +39,6 @@ DirectX::XMFLOAT3 QuatenionToEuler(float x, float y, float z, float w) {
 	yaw = atan2(siny_cosp, cosy_cosp);
 
 	return DirectX::XMFLOAT3(roll * Rad2Deg, pitch * Rad2Deg, yaw * Rad2Deg);
-}
-
-Transform::Transform(GameObject* gameObj) : Component(gameObj)
-{
 }
 
 Transform::~Transform() {

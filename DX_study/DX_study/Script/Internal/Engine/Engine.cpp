@@ -8,6 +8,9 @@
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../../Component/Transform.h"
+#include "../../GameObject/GameObject.h"
+#include "../../GameObject/Camera.h"
+#include "../../GameObject/Light.h"
 
 Engine* Engine::s_Ptr = nullptr;
 
@@ -19,9 +22,8 @@ Engine & Engine::Get()
 Engine::Engine() :
 	m_Timer(std::make_unique<Timer>()),
 	m_CurrentScene(std::make_unique<Scene>()),
-	m_Graphics(std::make_unique<Graphics>(this))
+	m_Graphics(std::make_unique<Graphics>())
 {
-	
 	s_Ptr = this;
 }
 
@@ -72,7 +74,7 @@ void Engine::Update() {
 		MouseEvent me = mouse.ReadEvent();
 		if (mouse.IsRightDown()) {//마우스 오른쪽 버튼 눌렀을 때 회전
 			if (me.GetType() == MouseEvent::EventType::Raw_MOVE) {
-				this->m_Graphics->mainCam->GetTransform().rotate((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0.0f);
+				m_Graphics->mainCam->GetTransform().rotate((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0.0f);
 			}
 		}
 	}
@@ -108,8 +110,8 @@ void Engine::Update() {
 	if (keyboard.KeyIsPressed('C')) {
 		XMVECTOR lightPosition = this->m_Graphics->mainCam->GetTransform().GetPositionVector();
 		lightPosition += this->m_Graphics->mainCam->GetTransform().GetForwardVector();
-		this->m_Graphics->light->GetTransform().SetPosition(lightPosition);
-		this->m_Graphics->light->GetTransform().SetRotation(this->m_Graphics->mainCam->GetTransform().GetRotationFloat3());
+		m_Graphics->light->GetTransform().SetPosition(lightPosition);
+		m_Graphics->light->GetTransform().SetRotation(this->m_Graphics->mainCam->GetTransform().GetRotationFloat3());
 	}
 	this->m_Graphics->mainCam->UpdateViewMatrix();
 	m_CurrentScene->UpdateTransform();
@@ -120,7 +122,7 @@ void Engine::RenderFrame()
 	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
 
 	m_Graphics->RenderFrame();
-	Pool::ObjectPool<Renderer>::GetInstance().ForEach(drawFunc);
+	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
 	m_Graphics->DrawImGui();
 	m_Graphics->DrawFrameString();
 	m_Graphics->SwapBuffer();

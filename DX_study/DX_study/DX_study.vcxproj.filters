@@ -81,13 +81,7 @@
     <ClCompile Include="Script\GameObject\GameObject.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Script\GameObject\GameObject3D.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="Script\GameObject\Light.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
-    <ClCompile Include="Script\GameObject\RenderableGameObject.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
     <ClCompile Include="Script\GameObject\Sprite.cpp">
@@ -177,9 +171,6 @@
     <ClCompile Include="Script\Component\Component.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Component\Renderer.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Component\Transform.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
@@ -189,6 +180,9 @@
     <ClCompile Include="Script\Internal\Core\Scene.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Component\Renderable.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -197,13 +191,7 @@
     <ClInclude Include="Script\GameObject\GameObject.h">
       <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
-    <ClInclude Include="Script\GameObject\GameObject3D.h">
-      <Filter>헤더 파일\GameObject</Filter>
-    </ClInclude>
     <ClInclude Include="Script\GameObject\Light.h">
-      <Filter>헤더 파일\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Script\GameObject\RenderableGameObject.h">
       <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Script\GameObject\Sprite.h">
@@ -323,9 +311,6 @@
     <ClInclude Include="Script\Component\Component.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Component\Renderer.h">
-      <Filter>헤더 파일\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Script\Component\Transform.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
@@ -337,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="Script\Internal\Core\Scene.h">
       <Filter>헤더 파일\Internal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Renderable.h">
+      <Filter>헤더 파일\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

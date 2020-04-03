@@ -7,10 +7,10 @@ class Model;
 class VertexShader;
 class PixelShader;
 
-class Renderer : public Component {
-	MANAGED_OBJECT(Renderer)
+class Renderable : public Component {
+	MANAGED_OBJECT(Renderable)
+	COMPONENT_CONSTRUCTOR(Renderable)
 public:
-	Renderer(GameObject* gameObj) : Component(gameObj) {}
 
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;

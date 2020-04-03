@@ -1,13 +1,9 @@
 #pragma once
 #include <string>
 
-#define COMPONENT_CONSTRUCTOR(typeName) \
-	public: \
-	#typeName(GameObject * gameObj) : Component(gameObj) {} \
-
 #define MANAGED_OBJECT(typeName) \
    public: \
-    using Base_Type = typeName; \
+    using ManagedType = typeName; \
 
 class Object {
 public:

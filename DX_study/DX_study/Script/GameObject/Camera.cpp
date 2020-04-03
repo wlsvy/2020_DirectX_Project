@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include "../Component/Transform.h"
 
-Camera::Camera() {
+Camera::Camera() : GameObject("Camera") {
 	m_Transform->SetPosition(0.0f, 0.0f, 1.0f);
 }
 

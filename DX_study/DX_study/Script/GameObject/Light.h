@@ -1,9 +1,9 @@
 #pragma once
-#include "RenderableGameObject.h"
+#include "GameObject.h"
 
-class Light : public RenderableGameObject {
+class Light : public GameObject {
 public:
-	bool Initialize();
+	Light() : GameObject("Light") {}
 
 	DirectX::XMFLOAT3 lightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float lightStrength = 1.0f;

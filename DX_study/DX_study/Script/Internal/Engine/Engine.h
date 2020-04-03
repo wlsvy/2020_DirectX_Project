@@ -16,7 +16,7 @@ class Shader;
 class Texture;
 class Model;
 class Scene;
-class Renderer;
+class Renderable;
 
 class Engine : WindowContainer{
 public:

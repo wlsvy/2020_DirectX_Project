@@ -73,10 +73,10 @@ private:
 		class ObjectWrapper : public ObjWrapperBase {
 		public:
 			ObjectWrapper(const std::shared_ptr<T>& obj) : Ptr(obj) {
-				ObjectPool<typename T::Base_Type>::GetInstance().Register(obj);
+				ObjectPool<typename T::ManagedType>::GetInstance().Register(obj);
 			}
 			~ObjectWrapper() {
-				ObjectPool<typename T::Base_Type>::GetInstance().DeRegister(Ptr);
+				ObjectPool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
 			}
 			virtual std::shared_ptr<Object> Get() override { return Ptr; }
 

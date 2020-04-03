@@ -3,31 +3,26 @@
 #include <memory>
 #include <unordered_map>
 
-#include "../Engine/AdapterReader.h"
 #include "Shaders.h"
+#include "ConstantBuffer.h"
 #include "../Engine/DeviceResources.h"
-#include "../../GameObject/Camera.h"
-#include "../../GameObject/RenderableGameObject.h"
-#include "../../GameObject/Light.h"
-#include "../../GameObject/Sprite.h"
 
 class BufferBase;
 class Texture;
 class Material;
 class Model;
-class Renderer;
+class Renderable;
 class Engine;
+class Camera;
+class Light;
+class GameObject;
 
 class Graphics {
-	friend class Engine;
 public:
-	Graphics(Engine*) {}
 	bool Initialize(HWND hwnd, int width, int height);
 
 	void RenderFrame();
-
-
-	void Draw(const std::shared_ptr<Renderer>& renderer);
+	void Draw(const std::shared_ptr<Renderable>& renderer);
 	void DrawFrameString();
 	void DrawImGui();
 	void SwapBuffer();
@@ -38,7 +33,7 @@ public:
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
 	
 	std::shared_ptr<Camera> mainCam;
-	std::shared_ptr<RenderableGameObject> gameObject;
+	std::shared_ptr<GameObject> gameObject;
 	std::shared_ptr<Light> light;
 
 private:

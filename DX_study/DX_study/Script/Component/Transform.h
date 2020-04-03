@@ -9,7 +9,7 @@ class Scene;
 class Transform : public Component {
 	friend class Scene;
 public:
-	Transform(GameObject* gameObj);
+	COMPONENT_CONSTRUCTOR(Transform)
 	~Transform();
 	void OnGui() override;
 

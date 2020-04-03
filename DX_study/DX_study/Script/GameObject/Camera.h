@@ -1,9 +1,9 @@
 #pragma once
 #include <DirectXMath.h>
-#include "GameObject3D.h"
+#include "GameObject.h"
 using namespace DirectX;
 
-class Camera : public GameObject3D{
+class Camera : public GameObject {
 public:
 	Camera();
 	void UpdateViewMatrix();

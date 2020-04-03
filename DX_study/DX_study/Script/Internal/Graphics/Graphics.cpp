@@ -9,12 +9,16 @@
 #include "../Engine/DeviceResources.h"
 #include "../Core/ObjectPool.h"
 #include "../../Component/Transform.h"
-#include "../../Component/Renderer.h"
+#include "../../Component/Renderable.h"
+#include "../../GameObject/Camera.h"
+#include "../../GameObject/GameObject.h"
+#include "../../GameObject/Light.h"
+#include "../../GameObject/Sprite.h"
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	mainCam = std::make_shared<Camera>();
 	light = std::make_shared<Light>();
-	gameObject = std::make_shared<RenderableGameObject>();
+	gameObject = std::make_shared<GameObject>("First Created");
 
 	this->windowWidth = width;
 	this->windowHeight = height;
@@ -71,7 +75,7 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, m_DeviceResources.GetSamplerStateAddr());
 }
 
-void Graphics::Draw(const std::shared_ptr<Renderer>& renderer)
+void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 {
 	if (!renderer->Vshader ||
 		!renderer->Pshader ||
@@ -226,22 +230,6 @@ bool Graphics::InitializeScene()
 		light->GetRenderer().Model = model;
 		light->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
 		light->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader_nolight);
-		//모델 데이터 초기화
-		if (!gameObject->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {
-			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
-			return false;
-		}
-
-		if (!gameObject->Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj")) {
-			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
-			return false;
-		}
-
-		//광원 데이터 초기화
-		if (!light->Initialize()) {
-			MessageBoxA(NULL, "Initialize light Error", "Error", MB_ICONERROR);
-			return false;
-		}
 
 		mainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
 		mainCam->SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
