@@ -15,6 +15,7 @@ class GameObject;
 class Shader;
 class Texture;
 class Model;
+class Scene;
 
 class Engine : WindowContainer{
 public:
@@ -29,11 +30,13 @@ public:
 
 	Graphics& GetGraphics();
 	Timer& GetTimer();
+	Scene& GetCurrentScene();
 private:
 	static Engine* s_Ptr;
 
 	std::unique_ptr<Graphics> m_Graphics;
 	std::unique_ptr<Timer> m_Timer;
+	std::unique_ptr<Scene> m_CurrentScene;
 
 };
 

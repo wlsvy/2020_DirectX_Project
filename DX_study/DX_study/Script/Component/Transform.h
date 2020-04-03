@@ -6,6 +6,7 @@
 
 class Transform : public Component {
 public:
+	Transform(GameObject* gameObj);
 	~Transform();
 	void OnGui() override;
 
@@ -45,10 +46,11 @@ public:
 
 	const DirectX::XMMATRIX & GetWorldMatrix();
 
-	Transform * GetParent();
+	std::shared_ptr<Transform> GetParent();
+	std::shared_ptr<Transform> GetChild(int index);
 	int GetChildNum();
-	Transform * GetChild(int index);
-	void SetParent(Transform * _transform);
+
+	void SetParent(const std::shared_ptr<Transform> & transform);
 	bool HaveChildTransform(Transform * _transform);
 
 	DirectX::XMVECTOR quaternion = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
@@ -68,17 +70,19 @@ public:
 	void UpdateMatrix(DirectX::XMMATRIX & _parentMatrix);
 	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 
+	static const DirectX::XMVECTOR DEFAULT_FORWARD_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_UP_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_BACKWARD_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_LEFT_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_RIGHT_VECTOR;
 
 protected:
 	void UpdateDirectionVectors();
-	void SetChild(Transform * _transform);
-	void EraseChild(Transform * _transform);
 
-	const DirectX::XMVECTOR DEFAULT_FORWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-	const DirectX::XMVECTOR DEFAULT_UP_VECTOR = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	const DirectX::XMVECTOR DEFAULT_BACKWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
-	const DirectX::XMVECTOR DEFAULT_LEFT_VECTOR = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
-	const DirectX::XMVECTOR DEFAULT_RIGHT_VECTOR = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+	void SetChild(const std::shared_ptr<Transform> & child);
+	void EraseChild(Transform* child);
+
+	
 
 	DirectX::XMVECTOR vec_forward_noY;
 	DirectX::XMVECTOR vec_left_noY;
@@ -86,9 +90,6 @@ protected:
 	DirectX::XMVECTOR vec_backward_noY;
 	DirectX::XMVECTOR vec_upward_noY;
 
-	int mChildNum = 0;
-	Transform * mParent = nullptr;
-	std::vector<Transform*> mChildTransform;
-	Transform * mWorldTransform = nullptr;
-	
+	std::weak_ptr<Transform> m_Parent;
+	std::vector<std::weak_ptr<Transform>> m_Children;
 };

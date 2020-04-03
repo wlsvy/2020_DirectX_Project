@@ -2,6 +2,8 @@
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
 #include "../Graphics/Graphics.h"
+#include "ObjectPool.h"
+#include "Scene.h"
 
 Engine & Core::GetEngine()
 {
@@ -31,6 +33,21 @@ Graphics & Core::GetGraphics()
 ConstantBuffer<CB_VS_vertexshader>& Core::GetCbVertexShader()
 {
 	return Engine::Get().GetGraphics().GetCbVertexShader();
+}
+
+Scene & Core::GetCurrentScene()
+{
+	return Engine::Get().GetCurrentScene();
+}
+
+std::shared_ptr<Transform> Core::GetWorldTransform()
+{
+	return GetCurrentScene().GetWorldTransform();
+}
+
+std::shared_ptr<Object> Core::GetObjectById(int id)
+{
+	return Pool::Find(id);
 }
 
 

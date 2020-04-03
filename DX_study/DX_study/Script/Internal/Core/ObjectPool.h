@@ -12,6 +12,7 @@ class Engine;
 class Pool {
 	friend class Engine;
 private:
+
 	template<typename T>
 	class ObjectPool : public Singleton<ObjectPool<T>> {
 		friend class Engine;
@@ -31,7 +32,6 @@ private:
 		std::vector<std::shared_ptr<T>> m_Objects;
 	};
 
-public:
 	template<>
 	class ObjectPool<Object> : public Singleton<ObjectPool<Object>> {
 	public:
@@ -58,6 +58,11 @@ public:
 			}
 			return std::shared_ptr<Object>();
 		}
+		/*template<typename T>
+		std::shared_ptr<T> FindTypeObj(const int objId) {
+			return std::dynamic_pointer_cast<T>(Find(objId));
+		}*/
+
 	private:
 		class ObjWrapperBase {
 		public:
@@ -82,15 +87,22 @@ public:
 		std::unordered_map<int, std::shared_ptr<ObjWrapperBase>> m_Objects;
 	};
 
+public:
 
-
-	template<typename T>
-	static std::shared_ptr<T> CreateInstance() {
-		auto ptr = std::make_shared<T>();
+	template<typename T, typename ...Arg>
+	static std::shared_ptr<T> CreateInstance(Arg&&... arg) {
+		auto ptr = std::make_shared<T>(arg...);
 		ObjectPool<Object>::GetInstance().Register<T>(ptr);
 		return ptr;
 	}
 
-	static void Destroy(Object& obj);
+	static std::shared_ptr<Object> Find(const int objId) {
+		return ObjectPool<Object>::GetInstance().Find(objId);
+	}
+	template<typename T>
+	static std::shared_ptr<T> FindWithType(const int objId) {
+		return std::dynamic_pointer_cast<T>(Find(objId));
+	}
 
+	static void Destroy(Object* obj);
 };

@@ -1,6 +1,7 @@
 #include "RenderableGameObject.h"
 
 #include "../Internal/Core/InternalHelper.h"
+#include "../Component/Transform.h"
 
 bool RenderableGameObject::Initialize(const std::string & filePath)
 {
@@ -9,20 +10,10 @@ bool RenderableGameObject::Initialize(const std::string & filePath)
 		return false;
 	}
 
-
-	this->SetPosition(0.0f, 0.0f, 0.0f);
-	this->SetRotation(0.0f, 0.0f, 0.0f);
-	this->UpdateMatrix();
 	return true;
 }
 
 void RenderableGameObject::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	model.Draw(this->worldMatrix, viewProjectionMatrix);
-}
-
-void RenderableGameObject::UpdateMatrix()
-{
-	this->worldMatrix = DirectX::XMMatrixRotationRollPitchYaw(this->rot.x, this->rot.y, this->rot.z) * DirectX::XMMatrixTranslation(this->pos.x, this->pos.y, this->pos.z);
-	this->UpdateDirectionVectors();
+	model.Draw(m_Transform->worldMatrix, viewProjectionMatrix);
 }

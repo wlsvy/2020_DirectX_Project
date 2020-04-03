@@ -3,7 +3,6 @@
 
 #define MANAGED_OBJECT(typeName) \
    public: \
-	##typeName() : Object(#typeName) {} \
     using Base_Type = typeName; \
 
 class Object {

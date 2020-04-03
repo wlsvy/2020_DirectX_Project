@@ -1,9 +1,10 @@
 #include "Component.h"
 
+Component::Component(GameObject * gameObj) : m_GameObject(gameObj)
+{
+}
+
 GameObject* Component::GetGameObject()
 {
-	if (auto ptr = m_GameObject.lock()) {
-		return ptr.get();
-	}
-	return nullptr;
+	return m_GameObject;
 }

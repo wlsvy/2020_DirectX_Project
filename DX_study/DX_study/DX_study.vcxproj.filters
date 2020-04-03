@@ -186,6 +186,9 @@
     <ClCompile Include="Script\Internal\Core\ObjectPool.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Core\Scene.cpp">
+      <Filter>소스 파일\Internal\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -330,6 +333,9 @@
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Core\ObjectPool.h">
+      <Filter>헤더 파일\Internal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Core\Scene.h">
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
   </ItemGroup>

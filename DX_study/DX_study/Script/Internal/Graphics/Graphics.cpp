@@ -8,6 +8,7 @@
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
 #include "../Core/ObjectPool.h"
+#include "../../Component/Transform.h"
 
 Graphics::Graphics()
 {	
@@ -47,7 +48,7 @@ void Graphics::RenderFrame()
 {
 	cb_ps_light.data.dynamicLightColor = light.lightColor;
 	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light.GetPositionFloat3();
+	cb_ps_light.data.dynamicLightPosition = light.GetTransform().GetPositionFloat3();
 	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
 	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
 	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
@@ -72,11 +73,11 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(vertexshader.GetInputLayout());
 
 	{
-		gameObject.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		gameObject.Draw(Camera.GetViewMatrix() * Camera.GetProjectionMatrix());
 	}
 	{
 		m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		light.Draw(Camera3D.GetViewMatrix() * Camera3D.GetProjectionMatrix());
+		light.Draw(Camera.GetViewMatrix() * Camera.GetProjectionMatrix());
 	}
 	
 	DrawFrameString();
@@ -229,10 +230,10 @@ bool Graphics::InitializeScene()
 			return false;
 		}
 		//sprite.SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		sprite.SetPosition(XMFLOAT3(windowWidth / 2 - sprite.GetWidth()/2, windowHeight / 2 - sprite.GetHeight()/2, 0.0f));
+		sprite.GetTransform().SetPosition(XMFLOAT3(windowWidth / 2 - sprite.GetWidth()/2, windowHeight / 2 - sprite.GetHeight()/2, 0.0f));
 
-		Camera3D.SetPosition(0.0f, 0.0f, -2.0f);
-		Camera3D.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		Camera.GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
+		Camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);

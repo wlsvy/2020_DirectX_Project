@@ -15,7 +15,7 @@ public:
 	float GetWidth();
 	float GetHeight();
 private:
-	void UpdateMatrix() override;
+	void UpdateMatrix();
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 

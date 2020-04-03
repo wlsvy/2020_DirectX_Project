@@ -4,6 +4,8 @@
 #include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
 #include "../Core/ObjectPool.h"
+#include "../Core/Scene.h"
+#include "../../Component/Transform.h"
 
 Engine* Engine::s_Ptr = nullptr;
 
@@ -14,8 +16,9 @@ Engine & Engine::Get()
 
 Engine::Engine() :
 	m_Timer(std::make_unique<Timer>()),
-	m_Graphics(std::make_unique<Graphics>())
+	m_CurrentScene(std::make_unique<Scene>())
 {
+	
 	s_Ptr = this;
 	auto light = Pool::CreateInstance<Light>();
 }
@@ -27,7 +30,7 @@ Engine::~Engine()
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
-	
+	m_Graphics = std::make_unique<Graphics>();
 	m_Timer->Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
@@ -61,45 +64,46 @@ void Engine::Update() {
 		MouseEvent me = mouse.ReadEvent();
 		if (mouse.IsRightDown()) {//마우스 오른쪽 버튼 눌렀을 때 회전
 			if (me.GetType() == MouseEvent::EventType::Raw_MOVE) {
-				this->m_Graphics->Camera3D.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0.0f);
+				this->m_Graphics->Camera.GetTransform().rotate((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0.0f);
 			}
 		}
 	}
 
-	this->m_Graphics->gameObject.AdjustRotation(0.0f, dt, 0.0f);
+	this->m_Graphics->gameObject.GetTransform().rotate(0.0f, 100 * dt, 0.0f);
 
 	//1인칭 형식 카메라 이동 조작
-	float Camera3DSpeed = 6.0f;
+	float Camera3DSpeed = 0.0001f;
 
 	if (keyboard.KeyIsPressed(VK_SHIFT)) {
-		Camera3DSpeed = 30.0f;
+		Camera3DSpeed = 0.3f;
 	}
 
 	if (keyboard.KeyIsPressed('W')) {
-		this->m_Graphics->Camera3D.AdjustPosition(this->m_Graphics->Camera3D.GetForwardVector() * Camera3DSpeed * dt);
+		this->m_Graphics->Camera.GetTransform().translate(this->m_Graphics->Camera.GetTransform().GetForwardVector() * Camera3DSpeed * dt);
 	}
 	if (keyboard.KeyIsPressed('S')) {
-		this->m_Graphics->Camera3D.AdjustPosition(this->m_Graphics->Camera3D.GetBackwardVector() * Camera3DSpeed * dt);
+		this->m_Graphics->Camera.GetTransform().translate(this->m_Graphics->Camera.GetTransform().GetBackwardVector() * Camera3DSpeed * dt);
 	}
 	if (keyboard.KeyIsPressed('A')) {
-		this->m_Graphics->Camera3D.AdjustPosition(this->m_Graphics->Camera3D.GetLeftVector() * Camera3DSpeed * dt);
+		this->m_Graphics->Camera.GetTransform().translate(this->m_Graphics->Camera.GetTransform().GetLeftVector() * Camera3DSpeed * dt);
 	}
 	if (keyboard.KeyIsPressed('D')) {
-		this->m_Graphics->Camera3D.AdjustPosition(this->m_Graphics->Camera3D.GetRightVector() * Camera3DSpeed * dt);
+		this->m_Graphics->Camera.GetTransform().translate(this->m_Graphics->Camera.GetTransform().GetRightVector() * Camera3DSpeed * dt);
 	}
 	if (keyboard.KeyIsPressed(VK_SPACE)) {
-		this->m_Graphics->Camera3D.AdjustPosition(0.0f, Camera3DSpeed * dt, 0.0f);
+		this->m_Graphics->Camera.GetTransform().translate(0.0f, Camera3DSpeed * dt, 0.0f);
 	}
 	if (keyboard.KeyIsPressed('Z')) {
-		this->m_Graphics->Camera3D.AdjustPosition(0.0f, -Camera3DSpeed * dt, 0.0f);
+		this->m_Graphics->Camera.GetTransform().translate(0.0f, -Camera3DSpeed * dt, 0.0f);
 	}
 
 	if (keyboard.KeyIsPressed('C')) {
-		XMVECTOR lightPosition = this->m_Graphics->Camera3D.GetPositionVector();
-		lightPosition += this->m_Graphics->Camera3D.GetForwardVector();
-		this->m_Graphics->light.SetPosition(lightPosition);
-		this->m_Graphics->light.SetRotation(this->m_Graphics->Camera3D.GetRotationFloat3());
+		XMVECTOR lightPosition = this->m_Graphics->Camera.GetTransform().GetPositionVector();
+		lightPosition += this->m_Graphics->Camera.GetTransform().GetForwardVector();
+		this->m_Graphics->light.GetTransform().SetPosition(lightPosition);
+		this->m_Graphics->light.GetTransform().SetRotation(this->m_Graphics->Camera.GetTransform().GetRotationFloat3());
 	}
+	this->m_Graphics->Camera.UpdateViewMatrix();
 }
 
 void Engine::RenderFrame()
@@ -115,4 +119,9 @@ Graphics & Engine::GetGraphics()
 Timer & Engine::GetTimer()
 {
 	return *m_Timer.get();
+}
+
+Scene & Engine::GetCurrentScene()
+{
+	return *m_CurrentScene.get();
 }

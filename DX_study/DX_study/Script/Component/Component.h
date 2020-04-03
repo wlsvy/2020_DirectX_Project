@@ -6,8 +6,9 @@ class GameObject;
 
 class Component abstract : public Object {
 public:
+	Component(GameObject* gameObj);
 	GameObject* GetGameObject();
 
-private:
-	std::weak_ptr<GameObject> m_GameObject;
+protected:
+	GameObject * const m_GameObject;
 };

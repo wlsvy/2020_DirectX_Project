@@ -1,6 +1,8 @@
 #include "Transform.h"
 
 #include <DirectXMath.h>
+#include "../Internal/Core/InternalHelper.h"
+#include "../Internal/Core/ObjectPool.h"
 
 #define POSITION_MAX 10000.0f
 #define POSITION_MIN -10000.0f
@@ -8,6 +10,12 @@
 #define Rad2Deg 57.2958f	// 180 / pi
 
 using DirectX::operator+=;
+
+const DirectX::XMVECTOR Transform::DEFAULT_FORWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_UP_VECTOR = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_BACKWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_LEFT_VECTOR = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_RIGHT_VECTOR = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 
 //불완전함
 DirectX::XMFLOAT3 QuatenionToEuler(float x, float y, float z, float w) {
@@ -32,13 +40,16 @@ DirectX::XMFLOAT3 QuatenionToEuler(float x, float y, float z, float w) {
 	return DirectX::XMFLOAT3(roll * Rad2Deg, pitch * Rad2Deg, yaw * Rad2Deg);
 }
 
+Transform::Transform(GameObject* gameObj) : Component(gameObj)
+{
+}
+
 Transform::~Transform() {
-	for (auto child : mChildTransform) {
-		//child->gameObject->Destroy();
+	for (auto child : m_Children) {
+		Pool::Destroy(child.lock().get());
 	}
 
 	SetParent(nullptr);
-
 }
 
 
@@ -54,7 +65,7 @@ void Transform::UpdateMatrix(DirectX::XMMATRIX & _parentMatrix)
 		* DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 
 	worldMatrix = worldMatrix * _parentMatrix;
-	//this->UpdateDirectionVectors();
+	this->UpdateDirectionVectors();
 }
 
 const DirectX::XMVECTOR Transform::GetPositionVector() const
@@ -219,39 +230,32 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 void Transform::UpdateDirectionVectors() {
 	//안써요
 	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(this->rotation.x, this->rotation.y, 0.0f);
-	this->vec_forward = DirectX::XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	//this->vec_backward = DirectX::XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
-	this->vec_left = DirectX::XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrix);
-	//this->vec_right = DirectX::XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
-	this->vec_upward = DirectX::XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, vecRotationMatrix);
+	this->vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	//this->vec_backward = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
+	this->vec_left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrix);
+	//this->vec_right = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
+	this->vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrix);
 
 	DirectX::XMMATRIX vecRotationMatrixNoY = DirectX::XMMatrixRotationRollPitchYaw(0.0f, this->rotation.y, 0.0f);
-	this->vec_forward_noY = DirectX::XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrixNoY);
-	this->vec_backward_noY = DirectX::XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, vecRotationMatrixNoY);
-	this->vec_left_noY = DirectX::XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, vecRotationMatrixNoY);
-	this->vec_right_noY = DirectX::XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, vecRotationMatrixNoY);
-	this->vec_upward_noY = DirectX::XMVector3TransformCoord(this->DEFAULT_UP_VECTOR, vecRotationMatrixNoY);
+	this->vec_forward_noY = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrixNoY);
+	this->vec_backward_noY = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrixNoY);
+	this->vec_left_noY = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrixNoY);
+	this->vec_right_noY = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrixNoY);
+	this->vec_upward_noY = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrixNoY);
 }
 
-void Transform::SetChild(Transform * _transform)
+void Transform::SetChild(const std::shared_ptr<Transform>& child)
 {
-	for (auto child : mChildTransform) {
-		if (child == _transform) {
-			return;
-		}
+	if (!HaveChildTransform(child.get())) {
+		m_Children.push_back(child);
 	}
-
-	mChildTransform.push_back(_transform);
-	mChildNum = mChildTransform.size();
 }
 
-void Transform::EraseChild(Transform * _transform)
+void Transform::EraseChild(Transform* child)
 {
-	if (mChildNum == 0) return;
-
-	for (auto iter = mChildTransform.begin(); iter != mChildTransform.end(); iter++) {
-		if (*iter == _transform) {
-			mChildTransform.erase(iter);
+	for (auto iter = m_Children.begin(); iter != m_Children.end(); iter++) {
+		if (iter->lock().get() == child) {
+			m_Children.erase(iter);
 			return;
 		}
 	}
@@ -268,7 +272,7 @@ void Transform::OnGui()
 const DirectX::XMVECTOR & Transform::GetForwardVector(bool omitY)
 {
 	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
-	vec_forward = DirectX::XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
 	if (omitY) return vec_forward_noY;
 	return vec_forward;
 }
@@ -297,7 +301,7 @@ const DirectX::XMVECTOR & Transform::GetBackwardVector(bool omitY)
 const DirectX::XMVECTOR & Transform::GetUpwardVector(bool omitY)
 {
 	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
-	vec_upward = DirectX::XMVector3TransformCoord(this->DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
 	if (omitY) return vec_upward_noY;
 	return vec_upward;
 }
@@ -309,53 +313,57 @@ const DirectX::XMMATRIX & Transform::GetWorldMatrix()
 	return worldMatrix;
 }
 
-Transform * Transform::GetParent()
+std::shared_ptr<Transform> Transform::GetParent()
 {
-	return mParent;
+	return m_Parent.lock();
+}
+
+std::shared_ptr<Transform> Transform::GetChild(int index)
+{
+	return m_Children[index].lock();
 }
 
 int Transform::GetChildNum()
 {
-	return mChildNum;
+	return m_Children.size();
 }
 
-Transform * Transform::GetChild(int index)
+void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 {
-	if (index >= mChildNum) assert("Get Child Exceeded Index!!" && 0);
+	auto parent = GetParent();
+	auto* target = transform.get();
 
-	return mChildTransform[index];
-}
-
-void Transform::SetParent(Transform * _transform)
-{
-	if (_transform == this ||
-		mParent == _transform ||
-		HaveChildTransform(_transform))
+	if (transform.get() == this ||
+		transform == parent ||
+		HaveChildTransform(target))
 	{
 		return;
 	}
 
-	if (_transform == nullptr) {
-		if (mParent == nullptr) return;
-		mParent->EraseChild(this);
-		mParent = mWorldTransform;
+	if (target == nullptr) {
+		if (parent == Core::GetWorldTransform()) {
+			return;
+		}
+		parent->EraseChild(this);
+		m_Parent = Core::GetWorldTransform();
 		return;
 	}
 
-	if (mParent != nullptr) 
+	if (parent != nullptr)
 	{ 
-		mParent->EraseChild(this); 
+		parent->EraseChild(this);
 	}
 
-	mParent = _transform;
-	mParent->SetChild(this);
+	m_Parent = transform;
+	GetParent()->SetChild(Pool::FindWithType<Transform>(GetId()));
 }
 
 bool Transform::HaveChildTransform(Transform * _transform)
 {
-	for (auto child : mChildTransform) {
-		if (_transform == child) return true;
-		if (child->HaveChildTransform(_transform)) return true;
+	for (auto& c : m_Children) {
+		if (c.lock().get() == _transform) {
+			return true;
+		}
 	}
 	return false;
 }

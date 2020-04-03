@@ -8,8 +8,4 @@ public:
 
 protected:
 	Model model;
-	void UpdateMatrix() override;
-
-
-	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 };

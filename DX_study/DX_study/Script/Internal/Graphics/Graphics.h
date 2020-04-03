@@ -33,7 +33,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
 
-	Camera3D Camera3D;
+	Camera Camera;
 	Sprite sprite;
 	RenderableGameObject gameObject;
 	Light light;

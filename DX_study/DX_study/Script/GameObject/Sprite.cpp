@@ -1,6 +1,7 @@
 #include "Sprite.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Graphics/Graphics.h"
+#include "../Component/Transform.h"
 
 bool Sprite::Initialize(
 	float width, 
@@ -27,10 +28,7 @@ bool Sprite::Initialize(
 	hr = indices.Initialize(indexData.data(), indexData.size());
 	ThrowIfFailed(hr, "Failed to initialize index buffer for mesh.");
 
-	SetPosition(0.0f, 0.0f, 0.0f);
-	SetRotation(0.0f, 0.0f, 0.0f);
-
-	SetScale(width, height);
+	m_Transform->SetScale(width, height, 0.0f);
 
 	return true;
 }
@@ -52,15 +50,21 @@ void Sprite::Draw(XMMATRIX orthoMatrix)
 
 float Sprite::GetWidth()
 {
-	return scale.x;
+	return m_Transform->scale.x;
 }
 
 float Sprite::GetHeight()
 {
-	return scale.y;
+	return m_Transform->scale.y;
 }
 
 void Sprite::UpdateMatrix()
 {
-	worldMatrix = XMMatrixScaling(scale.x, scale.y, scale.z) * XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
+	auto& scale = m_Transform->scale;
+	auto& rot = m_Transform->rotation;
+	auto& pos = m_Transform->position;
+	worldMatrix = 
+		XMMatrixScaling(scale.x, scale.y, scale.z) * 
+		XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * 
+		XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
 }
