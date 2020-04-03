@@ -1,7 +1,13 @@
 #pragma once
 #include "../Internal/Core/Object.h"
+#include <memory>
 
-class Component : public Object {
+class GameObject;
+
+class Component abstract : public Object {
 public:
+	GameObject* GetGameObject();
 
+private:
+	std::weak_ptr<GameObject> m_GameObject;
 };
