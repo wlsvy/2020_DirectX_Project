@@ -33,9 +33,9 @@ void Mesh::Draw()
 {
 	UINT offset = 0;
 
-	for (int i = 0; i < textures.size(); i++) {
-		if (textures[i].GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			Core::GetDeviceContext()->PSSetShaderResources(0, 1, textures[i].GetTextureResourceViewAddress());
+	for (auto& texture : textures) {
+		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			Core::GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
 			break;
 		}
 	}
@@ -43,7 +43,6 @@ void Mesh::Draw()
 	Core::GetDeviceContext()->IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
 	Core::GetDeviceContext()->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	Core::GetDeviceContext()->DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
-
 }
 
 const DirectX::XMMATRIX & Mesh::GetTransformMatrix() const

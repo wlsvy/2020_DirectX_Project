@@ -9,10 +9,7 @@
 #include "../Engine/DeviceResources.h"
 #include "../Core/ObjectPool.h"
 #include "../../Component/Transform.h"
-
-Graphics::Graphics()
-{	
-}
+#include "../../Component/Renderer.h"
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	mainCam = std::make_shared<Camera>();
@@ -50,6 +47,9 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 void Graphics::RenderFrame()
 {
+	static float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
 	cb_ps_light.data.dynamicLightColor = light->lightColor;
 	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
 	cb_ps_light.data.dynamicLightPosition = light->GetTransform().GetPositionFloat3();
@@ -59,7 +59,6 @@ void Graphics::RenderFrame()
 	cb_ps_light.ApplyChanges();
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 
-	static float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), bgcolor);
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
@@ -68,26 +67,26 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 
-	static float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), blendFactors, 0xFFFFFFFF);
 	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, m_DeviceResources.GetSamplerStateAddr());
+}
 
-	m_DeviceResources.GetDeviceContext()->VSSetShader(vertexshader.GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader.GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(vertexshader.GetInputLayout());
+void Graphics::Draw(const std::shared_ptr<Renderer>& renderer)
+{
+	if (!renderer->Vshader ||
+		!renderer->Pshader ||
+		!renderer->Model)
+	{
+		return;
+	}
 
-	{
-		gameObject->Draw(mainCam->GetViewMatrix() * mainCam->GetProjectionMatrix());
-	}
-	{
-		m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		light->Draw(mainCam->GetViewMatrix() * mainCam->GetProjectionMatrix());
-	}
-	
-	DrawFrameString();
-	DrawImGui();
-	
-	m_DeviceResources.PresentSwapChain();
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(renderer->Vshader->GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->VSSetShader(renderer->Vshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(renderer->Pshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
+
+	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
+	renderer->Model->Draw(worldMat, mainCam->GetViewProjectionMatrix());
 }
 
 void Graphics::DrawFrameString()
@@ -138,6 +137,11 @@ void Graphics::DrawImGui()
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Graphics::SwapBuffer()
+{
+	m_DeviceResources.PresentSwapChain();
 }
 
 bool Graphics::InitializeShaders()
@@ -210,6 +214,18 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
+		auto model = Pool::CreateInstance<Model>();
+		model->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj");
+		gameObject->GetRenderer().Model = model;
+		model = Pool::CreateInstance<Model>();
+		model->Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj");
+		gameObject->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
+		gameObject->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader);
+		model = Pool::CreateInstance<Model>();
+		model->Initialize("Data/Objects/light.fbx");
+		light->GetRenderer().Model = model;
+		light->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
+		light->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader_nolight);
 		//모델 데이터 초기화
 		if (!gameObject->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);

@@ -10,17 +10,6 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	this->projectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 }
 
-const DirectX::XMMATRIX & Camera::GetViewMatrix() const
-{
-	return this->viewMatrix;
-}
-
-const DirectX::XMMATRIX & Camera::GetProjectionMatrix() const
-{
-	return this->projectionMatrix;
-}
-
-
 void Camera::UpdateViewMatrix() //뷰 행렬 업데이트 + 이동 벡터 업데이트
 {
 	//카메라 회전 행렬 계산
@@ -32,5 +21,6 @@ void Camera::UpdateViewMatrix() //뷰 행렬 업데이트 + 이동 벡터 업데이트
 	//카메라 현재 각도에 따른 업벡터 조정
 	XMVECTOR upDir = XMVector3TransformCoord(Transform::DEFAULT_UP_VECTOR, camRotationMatrix);
 	//뷰 행렬 설정.
-	this->viewMatrix = XMMatrixLookAtLH(m_Transform->GetPositionVector(), camTarget, upDir);
+	viewMatrix = XMMatrixLookAtLH(m_Transform->GetPositionVector(), camTarget, upDir);
+	viewProjectionMatrix = viewMatrix * projectionMatrix;
 }

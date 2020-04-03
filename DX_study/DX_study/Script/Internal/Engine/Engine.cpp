@@ -1,10 +1,12 @@
 #include "Engine.h"
+#include <functional>
 
 #include "Timer.h"
 #include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/Scene.h"
+#include "../Core/InternalHelper.h"
 #include "../../Component/Transform.h"
 
 Engine* Engine::s_Ptr = nullptr;
@@ -17,11 +19,10 @@ Engine & Engine::Get()
 Engine::Engine() :
 	m_Timer(std::make_unique<Timer>()),
 	m_CurrentScene(std::make_unique<Scene>()),
-	m_Graphics(std::make_unique<Graphics>())
+	m_Graphics(std::make_unique<Graphics>(this))
 {
 	
 	s_Ptr = this;
-	auto light = Pool::CreateInstance<Light>();
 }
 
 Engine::~Engine()
@@ -40,7 +41,14 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!m_Graphics->Initialize(this->render_window.GetHWND(), width, height)) {
 		return false;
 	}
-		
+	
+	GameObject* ptr;
+	{
+		auto var = Pool::CreateInstance<GameObject>();
+		ptr = var.get();
+	}
+	Pool::Destroy(ptr);
+
 	return true;
 }
 
@@ -109,7 +117,13 @@ void Engine::Update() {
 
 void Engine::RenderFrame()
 {
+	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
+
 	m_Graphics->RenderFrame();
+	Pool::ObjectPool<Renderer>::GetInstance().ForEach(drawFunc);
+	m_Graphics->DrawImGui();
+	m_Graphics->DrawFrameString();
+	m_Graphics->SwapBuffer();
 }
 
 Graphics & Engine::GetGraphics()

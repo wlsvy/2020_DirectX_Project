@@ -20,15 +20,11 @@ bool Model::Initialize(const std::string & filePath)
 
 void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
 {
-	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, Core::GetCbVertexShader().GetAddressOf());
-
-	for (int i = 0; i < m_Meshes.size(); i++)
-	{
-		//Update Constant buffer with WVP Matrix
-		Core::GetCbVertexShader().data.wvpMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Core::GetCbVertexShader().data.worldMatrix = m_Meshes[i].GetTransformMatrix() * worldMatrix; //Calculate World Matrix
+	for (auto& mesh : m_Meshes) {
+		Core::GetCbVertexShader().data.wvpMatrix = mesh.GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
+		Core::GetCbVertexShader().data.worldMatrix = mesh.GetTransformMatrix() * worldMatrix; //Calculate World Matrix
 		Core::GetCbVertexShader().ApplyChanges();
-		m_Meshes[i].Draw();
+		mesh.Draw();
 	}
 }
 

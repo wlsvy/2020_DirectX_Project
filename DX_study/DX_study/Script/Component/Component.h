@@ -9,6 +9,8 @@ public:
 	Component(GameObject* gameObj);
 	GameObject* GetGameObject();
 
+	bool Enable = true;
+
 protected:
 	GameObject * const m_GameObject;
 };

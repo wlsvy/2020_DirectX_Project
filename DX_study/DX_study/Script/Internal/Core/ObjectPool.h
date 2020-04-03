@@ -15,7 +15,6 @@ private:
 
 	template<typename T>
 	class ObjectPool : public Singleton<ObjectPool<T>> {
-		friend class Engine;
 	public:
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.push_back(obj);
@@ -26,6 +25,11 @@ private:
 			if (iter != m_Objects.end()) {
 				m_Objects.erase(iter);
 			}
+		}
+
+		template<class CallBack>
+		void ForEach(CallBack func) {
+			std::for_each(m_Objects.begin(), m_Objects.end(), func);
 		}
 
 	private:
@@ -58,10 +62,6 @@ private:
 			}
 			return std::shared_ptr<Object>();
 		}
-		/*template<typename T>
-		std::shared_ptr<T> FindTypeObj(const int objId) {
-			return std::dynamic_pointer_cast<T>(Find(objId));
-		}*/
 
 	private:
 		class ObjWrapperBase {
@@ -76,7 +76,7 @@ private:
 				ObjectPool<typename T::Base_Type>::GetInstance().Register(obj);
 			}
 			~ObjectWrapper() {
-				ObjectPool<T>::GetInstance().DeRegister(Ptr);
+				ObjectPool<typename T::Base_Type>::GetInstance().DeRegister(Ptr);
 			}
 			virtual std::shared_ptr<Object> Get() override { return Ptr; }
 
@@ -101,8 +101,7 @@ public:
 	}
 	template<typename T>
 	static std::shared_ptr<T> FindWithType(const int objId) {
-		auto var = Find(objId);
-		return std::dynamic_pointer_cast<T>(var);
+		return std::dynamic_pointer_cast<T>(Find(objId));
 	}
 
 	static void Destroy(Object* obj);

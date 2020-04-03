@@ -50,7 +50,9 @@ Transform::~Transform() {
 		Pool::Destroy(child.lock()->m_GameObject);
 	}
 
-	m_Parent.lock()->EraseChild(this);
+	if (auto ptr = m_Parent.lock()) {
+		ptr->EraseChild(this);
+	}
 }
 
 void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
@@ -244,10 +246,14 @@ void Transform::SetChild(const std::shared_ptr<Transform>& child)
 
 void Transform::EraseChild(Transform* child)
 {
-	for (auto iter = m_Children.begin(); iter != m_Children.end(); iter++) {
-		if (iter->lock().get() == child) {
-			m_Children.erase(iter);
+	for (auto iter = m_Children.begin(); iter != m_Children.end();) {
+		if (iter->expired() ||
+			iter->lock().get() == child ) 
+		{
+			iter = m_Children.erase(iter);
+			continue;
 		}
+		iter++;
 	}
 }
 

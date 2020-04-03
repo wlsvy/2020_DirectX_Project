@@ -16,17 +16,21 @@ class Texture;
 class Material;
 class Model;
 class Renderer;
+class Engine;
 
 class Graphics {
+	friend class Engine;
 public:
-	Graphics();
+	Graphics(Engine*) {}
 	bool Initialize(HWND hwnd, int width, int height);
 
 	void RenderFrame();
 
-	void Draw(Model* model);
-	void Draw(Sprite* sprite);
-	void Draw(Renderer* renderer);
+
+	void Draw(const std::shared_ptr<Renderer>& renderer);
+	void DrawFrameString();
+	void DrawImGui();
+	void SwapBuffer();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
@@ -40,8 +44,7 @@ public:
 private:
 	bool InitializeShaders();
 	bool InitializeScene();
-	void DrawFrameString();
-	void DrawImGui();
+	
 
 	int windowWidth = 0;
 	int windowHeight = 0;
