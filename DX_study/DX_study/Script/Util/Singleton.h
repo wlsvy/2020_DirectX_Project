@@ -8,22 +8,12 @@ class Singleton : public Uncopyable
 public:
 	static T& GetInstance() 
 	{ 
-		if (s_Instance == nullptr) {
-			s_Instance = new T;
-		}
+		static T* s_Instance = new T;
 		return *s_Instance; 
 	}
 
 protected:
 	Singleton() {}
-	virtual ~Singleton() 
-	{ 
-		s_Instance = nullptr; 
-	}
+	virtual ~Singleton() {}
 
-private:
-	static T* s_Instance;
 };
-
-template<typename T>
-T* Singleton<T>::s_Instance = nullptr;
