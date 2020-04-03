@@ -4,7 +4,10 @@
 
 #include "Component.h"
 
+class Scene;
+
 class Transform : public Component {
+	friend class Scene;
 public:
 	Transform(GameObject* gameObj);
 	~Transform();
@@ -38,13 +41,13 @@ public:
 
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 
-	const DirectX::XMVECTOR & GetForwardVector(bool omitY = false);
-	const DirectX::XMVECTOR & GetRightVector(bool omitY = false);
-	const DirectX::XMVECTOR & GetLeftVector(bool omitY = false);
-	const DirectX::XMVECTOR & GetBackwardVector(bool omitY = false);
-	const DirectX::XMVECTOR & GetUpwardVector(bool omitY = false);
+	const DirectX::XMVECTOR & GetForwardVector() const { return vec_forward; }
+	const DirectX::XMVECTOR & GetRightVector() const { return vec_right; }
+	const DirectX::XMVECTOR & GetLeftVector() const { return vec_left; }
+	const DirectX::XMVECTOR & GetBackwardVector() const { return vec_backward; }
+	const DirectX::XMVECTOR & GetUpwardVector() const { return vec_upward; }
 
-	const DirectX::XMMATRIX & GetWorldMatrix();
+	const DirectX::XMMATRIX & GetWorldMatrix() const { return worldMatrix; }
 
 	std::shared_ptr<Transform> GetParent();
 	std::shared_ptr<Transform> GetChild(int index);
@@ -59,17 +62,6 @@ public:
 	DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 
-	DirectX::XMVECTOR vec_forward;
-	DirectX::XMVECTOR vec_left;
-	DirectX::XMVECTOR vec_right;
-	DirectX::XMVECTOR vec_backward;
-	DirectX::XMVECTOR vec_upward;
-
-	bool TRANSFORM_UPDATED = false;
-
-	void UpdateMatrix(DirectX::XMMATRIX & _parentMatrix);
-	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
-
 	static const DirectX::XMVECTOR DEFAULT_FORWARD_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_UP_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_BACKWARD_VECTOR;
@@ -77,18 +69,18 @@ public:
 	static const DirectX::XMVECTOR DEFAULT_RIGHT_VECTOR;
 
 protected:
+	void UpdateMatrix(const DirectX::XMMATRIX & parentMatrix);
 	void UpdateDirectionVectors();
 
 	void SetChild(const std::shared_ptr<Transform> & child);
 	void EraseChild(Transform* child);
 
-	
-
-	DirectX::XMVECTOR vec_forward_noY;
-	DirectX::XMVECTOR vec_left_noY;
-	DirectX::XMVECTOR vec_right_noY;
-	DirectX::XMVECTOR vec_backward_noY;
-	DirectX::XMVECTOR vec_upward_noY;
+	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
+	DirectX::XMVECTOR vec_forward;
+	DirectX::XMVECTOR vec_left;
+	DirectX::XMVECTOR vec_right;
+	DirectX::XMVECTOR vec_backward;
+	DirectX::XMVECTOR vec_upward;
 
 	std::weak_ptr<Transform> m_Parent;
 	std::vector<std::weak_ptr<Transform>> m_Children;

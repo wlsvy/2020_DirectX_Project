@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/ObjectPool.h"
+#include "../GameObject/GameObject.h"
 
 #define POSITION_MAX 10000.0f
 #define POSITION_MIN -10000.0f
@@ -45,27 +46,25 @@ Transform::Transform(GameObject* gameObj) : Component(gameObj)
 }
 
 Transform::~Transform() {
-	for (auto child : m_Children) {
-		Pool::Destroy(child.lock().get());
+	for (auto& child : m_Children) {
+		Pool::Destroy(child.lock()->m_GameObject);
 	}
 
-	SetParent(nullptr);
+	m_Parent.lock()->EraseChild(this);
 }
 
-
-
-
-void Transform::UpdateMatrix(DirectX::XMMATRIX & _parentMatrix)
+void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 {
-	TRANSFORM_UPDATED = true;
-
-	this->worldMatrix =
+	worldMatrix =
 		DirectX::XMMatrixScaling(scale.x, scale.y, scale.z)
 		* DirectX::XMMatrixRotationQuaternion(quaternion)
-		* DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+		* DirectX::XMMatrixTranslation(position.x, position.y, position.z)
+		* parentMatrix;
 
-	worldMatrix = worldMatrix * _parentMatrix;
 	this->UpdateDirectionVectors();
+	for (auto& child : m_Children) {
+		child.lock()->UpdateMatrix(worldMatrix);
+	}
 }
 
 const DirectX::XMVECTOR Transform::GetPositionVector() const
@@ -228,20 +227,12 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 }
 
 void Transform::UpdateDirectionVectors() {
-	//안써요
 	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(this->rotation.x, this->rotation.y, 0.0f);
-	this->vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	//this->vec_backward = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
-	this->vec_left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrix);
-	//this->vec_right = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
-	this->vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrix);
-
-	DirectX::XMMATRIX vecRotationMatrixNoY = DirectX::XMMatrixRotationRollPitchYaw(0.0f, this->rotation.y, 0.0f);
-	this->vec_forward_noY = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrixNoY);
-	this->vec_backward_noY = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrixNoY);
-	this->vec_left_noY = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrixNoY);
-	this->vec_right_noY = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrixNoY);
-	this->vec_upward_noY = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrixNoY);
+	vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
+	vec_backward = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
+	vec_left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrix);
+	vec_right = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
+	vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrix);
 }
 
 void Transform::SetChild(const std::shared_ptr<Transform>& child)
@@ -256,7 +247,6 @@ void Transform::EraseChild(Transform* child)
 	for (auto iter = m_Children.begin(); iter != m_Children.end(); iter++) {
 		if (iter->lock().get() == child) {
 			m_Children.erase(iter);
-			return;
 		}
 	}
 }
@@ -267,50 +257,6 @@ void Transform::OnGui()
 	////ImGui::DragFloat4("Quaternion", &quaternion.x, 0.1f, -3.0f, 3.0f);
 	//ImGui::DragFloat3("Euler Angle", &rotation.x, 0.1f, -1000.0f, 1000.0f);
 	//ImGui::DragFloat3("Scale", &scale.x, 0.1f, -1000.0f, 1000.0f);
-}
-
-const DirectX::XMVECTOR & Transform::GetForwardVector(bool omitY)
-{
-	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
-	vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	if (omitY) return vec_forward_noY;
-	return vec_forward;
-}
-
-const DirectX::XMVECTOR & Transform::GetRightVector(bool omitY)
-{
-	//미구현
-	if (omitY) return vec_right_noY;
-	return vec_right;
-}
-
-const DirectX::XMVECTOR & Transform::GetLeftVector(bool omitY)
-{
-	//미구현
-	if (omitY) return vec_left_noY;
-	return vec_left;
-}
-
-const DirectX::XMVECTOR & Transform::GetBackwardVector(bool omitY)
-{
-	//미구현
-	if (omitY) return vec_backward_noY;
-	return vec_backward;
-}
-
-const DirectX::XMVECTOR & Transform::GetUpwardVector(bool omitY)
-{
-	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
-	vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	if (omitY) return vec_upward_noY;
-	return vec_upward;
-}
-
-const DirectX::XMMATRIX & Transform::GetWorldMatrix()
-{
-	//행렬값 이상하게 나옴 assert 걸어두자
-
-	return worldMatrix;
 }
 
 std::shared_ptr<Transform> Transform::GetParent()
@@ -344,6 +290,7 @@ void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 		if (parent == Core::GetWorldTransform()) {
 			return;
 		}
+		Core::GetWorldTransform()->SetChild(m_GameObject->GetTransformPtr());
 		parent->EraseChild(this);
 		m_Parent = Core::GetWorldTransform();
 		return;
@@ -354,8 +301,8 @@ void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 		parent->EraseChild(this);
 	}
 
+	transform->SetChild(m_GameObject->GetTransformPtr());
 	m_Parent = transform;
-	GetParent()->SetChild(Pool::FindWithType<Transform>(GetId()));
 }
 
 bool Transform::HaveChildTransform(Transform * _transform)

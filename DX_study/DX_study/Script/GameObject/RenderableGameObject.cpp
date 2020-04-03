@@ -15,5 +15,5 @@ bool RenderableGameObject::Initialize(const std::string & filePath)
 
 void RenderableGameObject::Draw(const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	model.Draw(m_Transform->worldMatrix, viewProjectionMatrix);
+	model.Draw(m_Transform->GetWorldMatrix(), viewProjectionMatrix);
 }

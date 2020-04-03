@@ -12,7 +12,8 @@ public:
 	GameObject();
 	~GameObject();
 
-	Transform& GetTransform();
+	Transform& GetTransform() { return *m_Transform.get(); }
+	std::shared_ptr<Transform> GetTransformPtr() { return m_Transform; }
 
 protected:
 	std::shared_ptr<Transform> m_Transform;

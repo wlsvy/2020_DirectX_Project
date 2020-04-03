@@ -32,11 +32,10 @@ public:
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
-
-	Camera Camera;
-	Sprite sprite;
-	RenderableGameObject gameObject;
-	Light light;
+	
+	std::shared_ptr<Camera> mainCam;
+	std::shared_ptr<RenderableGameObject> gameObject;
+	std::shared_ptr<Light> light;
 
 private:
 	bool InitializeShaders();

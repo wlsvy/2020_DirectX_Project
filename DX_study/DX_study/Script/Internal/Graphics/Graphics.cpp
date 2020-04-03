@@ -15,6 +15,10 @@ Graphics::Graphics()
 }
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
+	mainCam = std::make_shared<Camera>();
+	light = std::make_shared<Light>();
+	gameObject = std::make_shared<RenderableGameObject>();
+
 	this->windowWidth = width;
 	this->windowHeight = height;
 
@@ -46,12 +50,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 void Graphics::RenderFrame()
 {
-	cb_ps_light.data.dynamicLightColor = light.lightColor;
-	cb_ps_light.data.dynamicLightStrength = light.lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light.GetTransform().GetPositionFloat3();
-	cb_ps_light.data.dynamicLightAttenuation_a = light.attenuation_a;
-	cb_ps_light.data.dynamicLightAttenuation_b = light.attenuation_b;
-	cb_ps_light.data.dynamicLightAttenuation_c = light.attenuation_c;
+	cb_ps_light.data.dynamicLightColor = light->lightColor;
+	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
+	cb_ps_light.data.dynamicLightPosition = light->GetTransform().GetPositionFloat3();
+	cb_ps_light.data.dynamicLightAttenuation_a = light->attenuation_a;
+	cb_ps_light.data.dynamicLightAttenuation_b = light->attenuation_b;
+	cb_ps_light.data.dynamicLightAttenuation_c = light->attenuation_c;
 	cb_ps_light.ApplyChanges();
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 
@@ -73,11 +77,11 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(vertexshader.GetInputLayout());
 
 	{
-		gameObject.Draw(Camera.GetViewMatrix() * Camera.GetProjectionMatrix());
+		gameObject->Draw(mainCam->GetViewMatrix() * mainCam->GetProjectionMatrix());
 	}
 	{
 		m_DeviceResources.GetDeviceContext()->PSSetShader(pixelshader_nolight.GetShader(), NULL, 0);
-		light.Draw(Camera.GetViewMatrix() * Camera.GetProjectionMatrix());
+		light->Draw(mainCam->GetViewMatrix() * mainCam->GetProjectionMatrix());
 	}
 	
 	DrawFrameString();
@@ -125,11 +129,11 @@ void Graphics::DrawImGui()
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::NewLine();
-	ImGui::DragFloat3("Dynamic Light Color", &this->light.lightColor.x, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Strength", &this->light.lightStrength, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light.attenuation_a, 0.01f, 0.1f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light.attenuation_b, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light.attenuation_c, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat3("Dynamic Light Color", &this->light->lightColor.x, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Strength", &this->light->lightStrength, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light->attenuation_a, 0.01f, 0.1f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light->attenuation_b, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light->attenuation_c, 0.01f, 0.0f, 10.0f);
 	
 	ImGui::End();
 	ImGui::Render();
@@ -207,33 +211,24 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		//모델 데이터 초기화
-		if (!gameObject.Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {
+		if (!gameObject->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj")) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
-		if (!gameObject.Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj")) {
+		if (!gameObject->Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj")) {
 			MessageBoxA(NULL, "Initialize Model Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
 		//광원 데이터 초기화
-		if (!light.Initialize()) {
+		if (!light->Initialize()) {
 			MessageBoxA(NULL, "Initialize light Error", "Error", MB_ICONERROR);
 			return false;
 		}
 
-		//스프라이트 생성
-		if (!sprite.Initialize(256, 256, "Data/Textures/circle.png"))
-		{
-			MessageBoxA(NULL, "Initialize sprite Error", "Error", MB_ICONERROR);
-			return false;
-		}
-		//sprite.SetPosition(XMFLOAT3(0.0f, 0.0f, 0.0f));
-		sprite.GetTransform().SetPosition(XMFLOAT3(windowWidth / 2 - sprite.GetWidth()/2, windowHeight / 2 - sprite.GetHeight()/2, 0.0f));
-
-		Camera.GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
-		Camera.SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		mainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
+		mainCam->SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);

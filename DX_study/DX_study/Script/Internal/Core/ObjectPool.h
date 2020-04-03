@@ -101,7 +101,8 @@ public:
 	}
 	template<typename T>
 	static std::shared_ptr<T> FindWithType(const int objId) {
-		return std::dynamic_pointer_cast<T>(Find(objId));
+		auto var = Find(objId);
+		return std::dynamic_pointer_cast<T>(var);
 	}
 
 	static void Destroy(Object* obj);
