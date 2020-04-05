@@ -73,6 +73,12 @@
     <Filter Include="헤더 파일\Component">
       <UniqueIdentifier>{446a2282-82d5-4662-93bf-17b1f3ab36f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Component\Custom">
+      <UniqueIdentifier>{24f2b72d-3fc1-425c-a803-b3593cc30aa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Component\Custom">
+      <UniqueIdentifier>{c3dd19aa-5c6f-4db0-9a47-b4f2b30f3ed5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Script\GameObject\Camera.cpp">
@@ -187,6 +193,9 @@
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
     <ClCompile Include="Script\Util\Input.cpp">
+      <Filter>소스 파일\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\Custom\CamMove.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -336,6 +345,9 @@
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
     <ClInclude Include="Script\Util\Input.h">
+      <Filter>헤더 파일\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Custom\CamMove.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

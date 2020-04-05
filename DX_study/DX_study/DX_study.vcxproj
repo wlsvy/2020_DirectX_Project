@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
+    <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
     <ClCompile Include="Script\Component\Renderable.cpp" />
     <ClCompile Include="Script\Internal\Core\Scene.cpp" />
     <ClCompile Include="Script\Component\Transform.cpp" />
@@ -205,6 +206,7 @@
   <ItemGroup>
     <ClInclude Include="Script\Component\Behaviour.h" />
     <ClInclude Include="Script\Component\Component.h" />
+    <ClInclude Include="Script\Component\Custom\CamMove.h" />
     <ClInclude Include="Script\Component\Renderable.h" />
     <ClInclude Include="Script\Internal\Core\Scene.h" />
     <ClInclude Include="Script\Component\Transform.h" />

@@ -12,6 +12,9 @@
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 
+using DirectX::operator*;
+using namespace DirectX;
+
 Engine* Engine::s_Ptr = nullptr;
 
 Engine & Engine::Get()
@@ -82,36 +85,37 @@ void Engine::Update() {
 	this->m_Graphics->gameObject->GetTransform().rotate(0.0f, 100 * dt, 0.0f);
 
 	//1인칭 형식 카메라 이동 조작
-	float Camera3DSpeed = 6.0f;
+	float Camera3DSpeed = 8.0f * dt;
 
 	if (keyboard.KeyIsPressed(VK_SHIFT)) {
-		Camera3DSpeed = 30.0f;
+		Camera3DSpeed = 30.0f * dt;
 	}
 
+	auto& tf = this->m_Graphics->mainCam->GetTransform();
 	if (keyboard.KeyIsPressed('W')) {
-		this->m_Graphics->mainCam->GetTransform().translate(this->m_Graphics->mainCam->GetTransform().GetForwardVector() * Camera3DSpeed * dt);
+		tf.translate(tf.GetForwardVector() * Camera3DSpeed);
 	}
 	if (keyboard.KeyIsPressed('S')) {
-		this->m_Graphics->mainCam->GetTransform().translate(this->m_Graphics->mainCam->GetTransform().GetBackwardVector() * Camera3DSpeed * dt);
+		tf.translate(tf.GetBackwardVector() * Camera3DSpeed);
 	}
 	if (keyboard.KeyIsPressed('A')) {
-		this->m_Graphics->mainCam->GetTransform().translate(this->m_Graphics->mainCam->GetTransform().GetLeftVector() * Camera3DSpeed * dt);
+		tf.translate(tf.GetLeftVector() * Camera3DSpeed);
 	}
 	if (keyboard.KeyIsPressed('D')) {
-		this->m_Graphics->mainCam->GetTransform().translate(this->m_Graphics->mainCam->GetTransform().GetRightVector() * Camera3DSpeed * dt);
+		tf.translate(tf.GetRightVector() * Camera3DSpeed);
 	}
 	if (keyboard.KeyIsPressed(VK_SPACE)) {
-		this->m_Graphics->mainCam->GetTransform().translate(0.0f, Camera3DSpeed * dt, 0.0f);
+		tf.translate(0.0f, Camera3DSpeed, 0.0f);
 	}
 	if (keyboard.KeyIsPressed('Z')) {
-		this->m_Graphics->mainCam->GetTransform().translate(0.0f, -Camera3DSpeed * dt, 0.0f);
+		tf.translate(0.0f, -Camera3DSpeed, 0.0f);
 	}
 
 	if (keyboard.KeyIsPressed('C')) {
-		XMVECTOR lightPosition = this->m_Graphics->mainCam->GetTransform().GetPositionVector();
-		lightPosition += this->m_Graphics->mainCam->GetTransform().GetForwardVector();
+		XMVECTOR lightPosition = tf.GetPositionVector();
+		lightPosition += tf.GetForwardVector();
 		m_Graphics->light->GetTransform().SetPosition(lightPosition);
-		m_Graphics->light->GetTransform().SetRotation(this->m_Graphics->mainCam->GetTransform().GetRotationFloat3());
+		m_Graphics->light->GetTransform().SetRotation(tf.GetRotationFloat3());
 	}
 	this->m_Graphics->mainCam->UpdateViewMatrix();
 	m_CurrentScene->UpdateTransform();

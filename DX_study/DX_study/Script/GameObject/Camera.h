@@ -2,8 +2,6 @@
 #include <DirectXMath.h>
 #include "../Internal/Core/GameObject.h"
 
-using namespace DirectX;
-
 class Camera : public GameObject {
 public:
 	Camera();
@@ -15,7 +13,7 @@ public:
 	const DirectX::XMMATRIX & GetViewProjectionMatrix() const { return viewProjectionMatrix; }
 
 private:
-	XMMATRIX viewMatrix;
-	XMMATRIX projectionMatrix;
-	XMMATRIX viewProjectionMatrix;
+	DirectX::XMMATRIX viewMatrix;
+	DirectX::XMMATRIX projectionMatrix;
+	DirectX::XMMATRIX viewProjectionMatrix;
 };
