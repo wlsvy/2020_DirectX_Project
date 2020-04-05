@@ -46,6 +46,8 @@ void MouseClass::OnMouseMove(int x, int y) {
 }
 
 void MouseClass::OnMouseMoveRaw(int x, int y) {
+	deltaX = x;
+	deltaY = y;
 	this->eventBuffer.push(MouseEvent(MouseEvent::EventType::Raw_MOVE, x, y));
 }
 

@@ -29,9 +29,11 @@ public:
 	void Update();
 	void RenderFrame();
 
-	Graphics& GetGraphics();
-	Timer& GetTimer();
-	Scene& GetCurrentScene();
+	Graphics& GetGraphics() { return *m_Graphics; }
+	Timer& GetTimer() { return *m_Timer; }
+	Scene& GetCurrentScene() { return *m_CurrentScene; }
+	KeyboardClass& GetKeyboard() { return keyboard; }
+	MouseClass& GetMouse() { return mouse; }
 private:
 	static Engine* s_Ptr;
 

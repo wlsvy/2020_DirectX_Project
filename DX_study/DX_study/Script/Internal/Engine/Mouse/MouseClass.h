@@ -21,6 +21,8 @@ public:
 
 	int GetPosX();
 	int GetPosY();
+	int GetDeltaX() { return deltaX; }
+	int GetDeltaY() { return deltaY; }
 	MousePoint GetPos();
 
 	bool EventBufferIsEmpty();
@@ -33,4 +35,6 @@ private:
 	bool mbuttonDown = false;
 	int x = 0;
 	int y = 0;
+	int deltaX = 0;
+	int deltaY = 0;
 };

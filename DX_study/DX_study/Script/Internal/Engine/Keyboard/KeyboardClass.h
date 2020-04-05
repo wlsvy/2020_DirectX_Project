@@ -6,6 +6,8 @@ class KeyboardClass {
 public:
 	KeyboardClass();
 	bool KeyIsPressed(const unsigned char keycode);
+	bool GetKeyDown(const unsigned char keycode) const { return UpDownStates[keycode] == 1; }
+	bool GetKeyUp(const unsigned char keycode) const { return UpDownStates[keycode] == -1; }
 	bool KeyBufferIsEmpty();
 	bool CharBufferIsEmpty();
 	KeyboardEvent ReadKey();
@@ -20,9 +22,12 @@ public:
 	bool IsKeysAutoRepeat();
 	bool IsCharsAutoRepeat();
 private:
+	void ResetUpDownState();
+
 	bool autoRepeatKeys = false;
 	bool autoRepeatChars = false;
 	bool keyStates[256];
+	char UpDownStates[256];
 	std::queue<KeyboardEvent> keyBuffer;
 	std::queue<unsigned char> charBuffer;
 };

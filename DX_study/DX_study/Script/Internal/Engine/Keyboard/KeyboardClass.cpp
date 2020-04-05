@@ -40,11 +40,13 @@ unsigned char KeyboardClass::ReadChar() {
 
 void KeyboardClass::OnKeyPressed(const unsigned char key) {
 	this->keyStates[key] = true;
+	this->UpDownStates[key] = 1;
 	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Press, key));
 }
 
 void KeyboardClass::OnKeyReleased(const unsigned char key) {
 	this->keyStates[key] = false;
+	this->UpDownStates[key] = -1;
 	this->keyBuffer.push(KeyboardEvent(KeyboardEvent::EventType::Release, key));
 }
 
@@ -74,4 +76,9 @@ bool KeyboardClass::IsKeysAutoRepeat() {
 
 bool KeyboardClass::IsCharsAutoRepeat() {
 	return this->autoRepeatChars;
+}
+
+void KeyboardClass::ResetUpDownState()
+{
+	memset(UpDownStates, 0, sizeof(UpDownStates));
 }

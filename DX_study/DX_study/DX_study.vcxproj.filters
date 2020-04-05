@@ -186,6 +186,9 @@
     <ClCompile Include="Script\Internal\Core\GameObject.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Util\Input.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="Script\Internal\Core\GameObject.h">
       <Filter>헤더 파일\Internal\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Util\Input.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

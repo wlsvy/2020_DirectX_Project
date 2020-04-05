@@ -127,18 +127,3 @@ void Engine::RenderFrame()
 	m_Graphics->DrawFrameString();
 	m_Graphics->SwapBuffer();
 }
-
-Graphics & Engine::GetGraphics()
-{
-	return *m_Graphics.get();
-}
-
-Timer & Engine::GetTimer()
-{
-	return *m_Timer.get();
-}
-
-Scene & Engine::GetCurrentScene()
-{
-	return *m_CurrentScene.get();
-}

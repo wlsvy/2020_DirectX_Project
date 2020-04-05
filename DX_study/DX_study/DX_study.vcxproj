@@ -195,6 +195,7 @@
     <ClCompile Include="Script\App.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Shaders.cpp" />
     <ClCompile Include="Script\GameObject\Sprite.cpp" />
+    <ClCompile Include="Script\Util\Input.cpp" />
     <ClCompile Include="Script\Util\StringHelper.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Texture.cpp" />
     <ClCompile Include="Script\Internal\Engine\Timer.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="Script\Internal\Engine\RenderWindow.h" />
     <ClInclude Include="Script\Internal\Graphics\Shaders.h" />
     <ClInclude Include="Script\GameObject\Sprite.h" />
+    <ClInclude Include="Script\Util\Input.h" />
     <ClInclude Include="Script\Util\StringHelper.h" />
     <ClInclude Include="Script\Internal\Graphics\Vertex.h" />
     <ClInclude Include="Script\Internal\Graphics\VertexBuffer.h" />
