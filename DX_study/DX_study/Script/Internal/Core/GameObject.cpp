@@ -1,4 +1,6 @@
 #include "GameObject.h"
+
+#include <algorithm>
 #include "ObjectPool.h"
 #include "InternalHelper.h"
 #include "../../Component/Transform.h"
@@ -22,5 +24,14 @@ GameObject::GameObject(const std::string & name) :
 
 GameObject::~GameObject()
 {
+}
+
+void GameObject::RemoveExpiredComponent()
+{
+	std::remove_if(m_Components.begin(), m_Components.end(), 
+		[](std::weak_ptr<Component>& ptr)
+	{
+		return ptr.expired();
+	});
 }
 

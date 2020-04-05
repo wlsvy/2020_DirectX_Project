@@ -1,6 +1,6 @@
 #pragma once
-#include "../Internal/Core/Object.h"
 #include <memory>
+#include "../Internal/Core/Object.h"
 
 class GameObject;
 
@@ -13,6 +13,8 @@ class Component abstract : public Object {
 public:
 	Component(GameObject* gameObj);
 	Component(GameObject* gameObj, const std::string& name);
+	virtual ~Component();
+
 	GameObject* GetGameObject();
 
 protected:

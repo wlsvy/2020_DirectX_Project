@@ -17,6 +17,6 @@ Object::~Object()
 
 void Object::InitObject()
 {
-	static int id = 0;
-	m_Id = id++;
+	static int s_Id = 0;
+	m_Id = s_Id++;
 }

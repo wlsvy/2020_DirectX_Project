@@ -9,6 +9,8 @@ explicit type(GameObject * gameObj, const std::string & name) : Component(gameOb
 class Behaviour : public Component{
 	MANAGED_OBJECT(Behaviour)
 public:
+	virtual ~Behaviour() {}
+
 	virtual void Awake();
 	virtual void Update();
 
