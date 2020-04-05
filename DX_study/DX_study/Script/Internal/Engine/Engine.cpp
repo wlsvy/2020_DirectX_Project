@@ -8,7 +8,7 @@
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../../Component/Transform.h"
-#include "../../GameObject/GameObject.h"
+#include "../Core/GameObject.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 

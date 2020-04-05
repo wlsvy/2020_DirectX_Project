@@ -1,5 +1,6 @@
 #pragma once
-#include "GameObject.h"
+#include <DirectXMath.h>
+#include "../Internal/Core/GameObject.h"
 
 class Light : public GameObject {
 public:

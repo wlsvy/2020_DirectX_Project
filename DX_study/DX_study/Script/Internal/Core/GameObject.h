@@ -1,6 +1,7 @@
 #pragma once
-#include "../Internal/Graphics/Model.h"
-#include "../Internal/Core/Object.h"
+#include <vector>
+#include <memory>
+#include "Object.h"
 
 class Component;
 class Transform;

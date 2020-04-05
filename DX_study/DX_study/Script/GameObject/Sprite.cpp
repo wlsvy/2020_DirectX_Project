@@ -33,9 +33,9 @@ bool Sprite::Initialize(
 	return true;
 }
 
-void Sprite::Draw(XMMATRIX orthoMatrix)
+void Sprite::Draw(DirectX::XMMATRIX orthoMatrix)
 {
-	XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
+	DirectX::XMMATRIX wvpMatrix = worldMatrix * orthoMatrix;
 	Core::GetDeviceContext()->VSSetConstantBuffers(0, 1, Core::GetGraphics().GetCbVertexShader2D().GetAddressOf());
 	Core::GetGraphics().GetCbVertexShader2D().data.wvpMatrix = wvpMatrix;
 	Core::GetGraphics().GetCbVertexShader2D().ApplyChanges();
@@ -63,8 +63,8 @@ void Sprite::UpdateMatrix()
 	auto& scale = m_Transform->scale;
 	auto& rot = m_Transform->rotation;
 	auto& pos = m_Transform->position;
-	worldMatrix = 
-		XMMatrixScaling(scale.x, scale.y, scale.z) * 
-		XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) * 
-		XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
+	worldMatrix =
+		DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
+		DirectX::XMMatrixRotationRollPitchYaw(rot.x, rot.y, rot.z) *
+		DirectX::XMMatrixTranslation(pos.x + scale.x / 2.0f, pos.y + scale.y / 2.0f, pos.z);
 }

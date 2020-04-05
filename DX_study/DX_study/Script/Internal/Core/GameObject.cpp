@@ -1,7 +1,8 @@
 #include "GameObject.h"
-#include "../Component/Transform.h"
-#include "../Internal/Core/ObjectPool.h"
-#include "../Component/Renderable.h"
+#include "ObjectPool.h"
+#include "InternalHelper.h"
+#include "../../Component/Transform.h"
+#include "../../Component/Renderable.h"
 
 GameObject::GameObject() : 
 	m_Transform(std::make_shared<Transform>(this)),

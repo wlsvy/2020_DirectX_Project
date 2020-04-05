@@ -15,8 +15,6 @@ public:
 	Component(GameObject* gameObj, const std::string& name);
 	GameObject* GetGameObject();
 
-	bool Enable = true;
-
 protected:
 	GameObject * const m_GameObject;
 };

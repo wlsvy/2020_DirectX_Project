@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/ObjectPool.h"
-#include "../GameObject/GameObject.h"
+#include "../Internal/Core/GameObject.h"
 
 using DirectX::operator+=;
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
-#include "GameObject.h"
+#include <DirectXMath.h>
+#include "../Internal/Core/GameObject.h"
 #include "../Internal/Graphics/Texture.h"
 #include "../Internal/Graphics/Shaders.h"
 #include "../Internal/Graphics/IndexBuffer.h"
@@ -11,13 +11,13 @@ class Sprite : public GameObject {
 public:
 	Sprite() {}
 	bool Initialize(float width, float height, std::string spritePath);
-	void Draw(XMMATRIX orthoMatrix); //2d 카메라 orthogonal(직교) 행렬
+	void Draw(DirectX::XMMATRIX orthoMatrix); //2d 카메라 orthogonal(직교) 행렬
 	float GetWidth();
 	float GetHeight();
 private:
 	void UpdateMatrix();
 
-	XMMATRIX worldMatrix = XMMatrixIdentity();
+	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
 
 	std::unique_ptr<Texture> texture;
 

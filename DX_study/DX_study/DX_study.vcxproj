@@ -163,6 +163,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
     <ClCompile Include="Script\Component\Renderable.cpp" />
     <ClCompile Include="Script\Internal\Core\Scene.cpp" />
@@ -172,7 +173,7 @@
     <ClCompile Include="Script\Internal\Core\ObjectPool.cpp" />
     <ClCompile Include="Script\Internal\Engine\DeviceResources.cpp" />
     <ClCompile Include="Script\Util\Color.cpp" />
-    <ClCompile Include="Script\GameObject\GameObject.cpp" />
+    <ClCompile Include="Script\Internal\Core\GameObject.cpp" />
     <ClCompile Include="Script\GameObject\Camera.cpp" />
     <ClCompile Include="Script\Internal\Engine\AdapterReader.cpp" />
     <ClCompile Include="Script\Internal\Engine\Engine.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="Script\Util\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Script\Component\Behaviour.h" />
     <ClInclude Include="Script\Component\Component.h" />
     <ClInclude Include="Script\Component\Renderable.h" />
     <ClInclude Include="Script\Internal\Core\Scene.h" />
@@ -212,7 +214,7 @@
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\Util\Color.h" />
     <ClInclude Include="Script\Util\COMException.h" />
-    <ClInclude Include="Script\GameObject\GameObject.h" />
+    <ClInclude Include="Script\Internal\Core\GameObject.h" />
     <ClInclude Include="Script\GameObject\Camera.h" />
     <ClInclude Include="Script\Internal\Engine\AdapterReader.h" />
     <ClInclude Include="Script\Internal\Engine\Engine.h" />

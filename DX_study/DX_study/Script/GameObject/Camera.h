@@ -1,6 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
-#include "GameObject.h"
+#include "../Internal/Core/GameObject.h"
+
 using namespace DirectX;
 
 class Camera : public GameObject {

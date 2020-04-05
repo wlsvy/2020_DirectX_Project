@@ -78,9 +78,6 @@
     <ClCompile Include="Script\GameObject\Camera.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Script\GameObject\GameObject.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="Script\GameObject\Light.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
@@ -183,12 +180,15 @@
     <ClCompile Include="Script\Component\Renderable.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Component\Behaviour.cpp">
+      <Filter>소스 파일\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Core\GameObject.cpp">
+      <Filter>소스 파일\Internal\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
-      <Filter>헤더 파일\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Script\GameObject\GameObject.h">
       <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Script\GameObject\Light.h">
@@ -325,6 +325,12 @@
     </ClInclude>
     <ClInclude Include="Script\Component\Renderable.h">
       <Filter>헤더 파일\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Behaviour.h">
+      <Filter>헤더 파일\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Core\GameObject.h">
+      <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
