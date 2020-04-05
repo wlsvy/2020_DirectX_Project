@@ -208,6 +208,8 @@ bool Graphics::InitializeShaders()
 	return true;
 }
 
+#include "../../Component/Custom/CamMove.h"
+
 bool Graphics::InitializeScene()
 {
 	try {
@@ -234,6 +236,7 @@ bool Graphics::InitializeScene()
 
 		mainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
 		mainCam->SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
+		mainCam->AddComponent<CamMove>();
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);

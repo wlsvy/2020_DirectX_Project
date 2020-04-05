@@ -2,13 +2,14 @@
 #include <functional>
 
 #include "Timer.h"
-#include "../Graphics/Graphics.h"
 #include "DeviceResources.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
-#include "../../Component/Transform.h"
 #include "../Core/GameObject.h"
+#include "../Graphics/Graphics.h"
+#include "../../Component/Transform.h"
+#include "../../Component/Behaviour.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 
@@ -46,79 +47,30 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	if (!m_Graphics->Initialize(this->render_window.GetHWND(), width, height)) {
 		return false;
 	}
-	
-	GameObject* ptr;
-	{
-		auto var = Pool::CreateInstance<GameObject>();
-		ptr = var.get();
-	}
-	Pool::Destroy(ptr);
 
 	return true;
 }
 
 bool Engine::ProcessMessage() {
-	//if(keyboard.KeyIsPressed('P'))
 	return this->render_window.ProcessMessage();
+}
+
+void UpdateBehaviour(const std::shared_ptr<Behaviour> & behaviour) {
+	if (behaviour->Enable) {
+		behaviour->Update();
+	}
 }
 
 void Engine::Update() {
 	m_Timer->Tick();
-	float dt = m_Timer->GetDeltaTime();
+	keyboard.Update();
+	mouse.Update();
+	Pool::ObjectPool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
 
-	while (!keyboard.CharBufferIsEmpty()) {
-		unsigned char ch = keyboard.ReadChar();
-	} 
-	while (!keyboard.KeyBufferIsEmpty()) {
-		KeyboardEvent kbe = keyboard.ReadKey();
-		unsigned char keycode = kbe.GetKeyCode();
-	}
-	while (!mouse.EventBufferIsEmpty()) {
-		MouseEvent me = mouse.ReadEvent();
-		if (mouse.IsRightDown()) {//마우스 오른쪽 버튼 눌렀을 때 회전
-			if (me.GetType() == MouseEvent::EventType::Raw_MOVE) {
-				m_Graphics->mainCam->GetTransform().rotate((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f, 0.0f);
-			}
-		}
-	}
+	this->m_Graphics->gameObject->GetTransform().rotate(0.0f, 100 * m_Timer->GetDeltaTime(), 0.0f);
 
-	this->m_Graphics->gameObject->GetTransform().rotate(0.0f, 100 * dt, 0.0f);
-
-	//1인칭 형식 카메라 이동 조작
-	float Camera3DSpeed = 8.0f * dt;
-
-	if (keyboard.KeyIsPressed(VK_SHIFT)) {
-		Camera3DSpeed = 30.0f * dt;
-	}
-
-	auto& tf = this->m_Graphics->mainCam->GetTransform();
-	if (keyboard.KeyIsPressed('W')) {
-		tf.translate(tf.GetForwardVector() * Camera3DSpeed);
-	}
-	if (keyboard.KeyIsPressed('S')) {
-		tf.translate(tf.GetBackwardVector() * Camera3DSpeed);
-	}
-	if (keyboard.KeyIsPressed('A')) {
-		tf.translate(tf.GetLeftVector() * Camera3DSpeed);
-	}
-	if (keyboard.KeyIsPressed('D')) {
-		tf.translate(tf.GetRightVector() * Camera3DSpeed);
-	}
-	if (keyboard.KeyIsPressed(VK_SPACE)) {
-		tf.translate(0.0f, Camera3DSpeed, 0.0f);
-	}
-	if (keyboard.KeyIsPressed('Z')) {
-		tf.translate(0.0f, -Camera3DSpeed, 0.0f);
-	}
-
-	if (keyboard.KeyIsPressed('C')) {
-		XMVECTOR lightPosition = tf.GetPositionVector();
-		lightPosition += tf.GetForwardVector();
-		m_Graphics->light->GetTransform().SetPosition(lightPosition);
-		m_Graphics->light->GetTransform().SetRotation(tf.GetRotationFloat3());
-	}
+	m_CurrentScene->Update();
 	this->m_Graphics->mainCam->UpdateViewMatrix();
-	m_CurrentScene->UpdateTransform();
 }
 
 void Engine::RenderFrame()

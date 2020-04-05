@@ -34,8 +34,8 @@ protected:
 template<typename T>
 inline std::shared_ptr<T> GameObject::AddComponent()
 {
-	auto ptr = Pool::CreateInstance<T>();
-	m_Components.push_back(ptr);
+	auto ptr = Pool::CreateInstance<T>(this);
+	m_Components.emplace_back(ptr);
 
 	return ptr;
 }

@@ -6,7 +6,7 @@ class Transform;
 class Scene {
 public:
 	Scene();
-	void UpdateTransform();
+	void Update();
 
 	std::shared_ptr<Transform> GetWorldTransform();
 private:

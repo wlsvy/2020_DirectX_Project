@@ -5,7 +5,7 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 {
 }
 
-void Scene::UpdateTransform()
+void Scene::Update()
 {
 	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity());
 }

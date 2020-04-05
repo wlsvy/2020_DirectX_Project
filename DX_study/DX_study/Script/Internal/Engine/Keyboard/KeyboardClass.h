@@ -21,9 +21,9 @@ public:
 	void DisableAutoRepeatChars();
 	bool IsKeysAutoRepeat();
 	bool IsCharsAutoRepeat();
-private:
-	void ResetUpDownState();
 
+	void Update();
+private:
 	bool autoRepeatKeys = false;
 	bool autoRepeatChars = false;
 	bool keyStates[256];

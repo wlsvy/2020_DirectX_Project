@@ -15,7 +15,9 @@ Component::Component(GameObject * gameObj, const std::string & name)
 
 Component::~Component()
 {
-	m_GameObject->RemoveExpiredComponent();
+	if (m_GameObject) {
+		m_GameObject->RemoveExpiredComponent();
+	}
 }
 
 GameObject* Component::GetGameObject()

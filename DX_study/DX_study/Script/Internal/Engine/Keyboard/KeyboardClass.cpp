@@ -78,7 +78,10 @@ bool KeyboardClass::IsCharsAutoRepeat() {
 	return this->autoRepeatChars;
 }
 
-void KeyboardClass::ResetUpDownState()
+void KeyboardClass::Update()
 {
 	memset(UpDownStates, 0, sizeof(UpDownStates));
+
+	while (!CharBufferIsEmpty()) { ReadChar(); }
+	while (!KeyBufferIsEmpty()) { ReadKey(); }
 }

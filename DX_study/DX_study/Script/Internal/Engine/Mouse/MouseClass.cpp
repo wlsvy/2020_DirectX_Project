@@ -89,3 +89,8 @@ MouseEvent MouseClass::ReadEvent() {
 		return e;
 	}
 }
+
+void MouseClass::Update()
+{
+	while (!EventBufferIsEmpty()) { ReadEvent(); }
+}

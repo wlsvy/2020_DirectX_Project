@@ -10,14 +10,13 @@ using DirectX::operator*;
 void CamMove::Update()
 {
 	float dt = Time::GetDeltaTime();
-	Transform tf = m_GameObject->GetTransform();
+	Transform& tf = m_GameObject->GetTransform();
 
 	if (Input::IsMouseRightDown()) {
 		tf.rotate(Input::GetMouseDeltaY() * m_RotateSpeed * dt, Input::GetMouseDeltaX() * m_RotateSpeed * dt, 0.0f);
 	}
 
 	float speed = m_MoveSpeed;
-	tf.translate(tf.GetForwardVector() * speed * dt);
 	if (Input::GetKey(Input::SHIFT)) {
 		speed = m_FastMoveSpeed;
 	}

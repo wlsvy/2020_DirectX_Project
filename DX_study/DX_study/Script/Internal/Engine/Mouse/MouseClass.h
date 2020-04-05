@@ -28,6 +28,8 @@ public:
 	bool EventBufferIsEmpty();
 	MouseEvent ReadEvent();
 
+	void Update();
+
 private:
 	std::queue<MouseEvent> eventBuffer;
 	bool leftIsDown = false;
