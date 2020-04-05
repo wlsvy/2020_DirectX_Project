@@ -11,10 +11,6 @@ Object::Object(const std::string & name) : Name(name)
 	InitObject();
 }
 
-Object::~Object()
-{
-}
-
 void Object::InitObject()
 {
 	static int s_Id = 0;

@@ -9,7 +9,7 @@ class Object {
 public:
 	Object();
 	Object(const std::string & name);
-	virtual ~Object();
+	virtual ~Object() {}
 
 	int GetId() const { return m_Id; }
 	virtual void OnGui() {}

@@ -9,10 +9,11 @@
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
 #include "../Core/ObjectPool.h"
+#include "../Core/GameObject.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
+#include "../../Component/Custom/CamMove.h"
 #include "../../GameObject/Camera.h"
-#include "../Core/GameObject.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
 
@@ -208,7 +209,7 @@ bool Graphics::InitializeShaders()
 	return true;
 }
 
-#include "../../Component/Custom/CamMove.h"
+
 
 bool Graphics::InitializeScene()
 {
