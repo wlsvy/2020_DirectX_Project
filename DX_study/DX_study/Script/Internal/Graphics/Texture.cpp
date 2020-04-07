@@ -45,21 +45,6 @@ Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type)
 	ThrowIfFailed(hr, "Failed to create Texture from memory.");
 }
 
-aiTextureType Texture::GetType()
-{
-	return this->type;
-}
-
-ID3D11ShaderResourceView * Texture::GetTextureResourceView()
-{
-	return this->textureView.Get();
-}
-
-ID3D11ShaderResourceView ** Texture::GetTextureResourceViewAddress()
-{
-	return this->textureView.GetAddressOf();
-}
-
 void Texture::Initialize1x1ColorTexture(const Color & colorData, aiTextureType type)
 {
 	InitializeColorTexture(&colorData, 1, 1, type);

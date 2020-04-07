@@ -25,9 +25,9 @@ public:
 	Texture(const std::string & filePath, aiTextureType type);
 	Texture(const uint8_t* pData, size_t size, aiTextureType type);
 
-	aiTextureType GetType();
-	ID3D11ShaderResourceView * GetTextureResourceView();
-	ID3D11ShaderResourceView ** GetTextureResourceViewAddress();
+	const aiTextureType GetType()										const { return type; }
+	ID3D11ShaderResourceView *			GetTextureResourceView()		const { return textureView.Get(); }
+	ID3D11ShaderResourceView * const *	GetTextureResourceViewAddress()	const { return textureView.GetAddressOf(); }
 
 private:
 	void Initialize1x1ColorTexture(const Color & colorData, aiTextureType type);

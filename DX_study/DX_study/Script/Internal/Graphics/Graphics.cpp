@@ -57,6 +57,8 @@ void Graphics::RenderFrame()
 	cb_ps_light.ApplyChanges();
 	
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
+	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(this->vertexshader.GetInputLayout());
@@ -83,7 +85,25 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
-	renderer->Model->Draw(worldMat, mainCam->GetViewProjectionMatrix());
+	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
+
+	for (auto& mesh : renderer->Model->GetMeshes()) {
+		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+		cb_vs_vertexshader.ApplyChanges();
+
+		for (auto& texture : mesh.GetTextures()) {
+			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+				break;
+			}
+		}
+
+		UINT offset = 0;
+		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
+		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
+	}
 }
 
 void Graphics::DrawImGui()
@@ -111,13 +131,11 @@ void Graphics::DrawImGui()
 
 void Graphics::SetOmRenderTargetToBase()
 {
-	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetBaseRenderTargetViewAddress(), m_DeviceResources.GetBaseDepthStencilView());
 }
 
 void Graphics::SetOmRenderTargetToAux()
 {
-	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetAuxRenderTargetViewAddress(), m_DeviceResources.GetBaseDepthStencilView());
 }
 
@@ -144,6 +162,7 @@ bool Graphics::InitializeShaders()
 		shaderfolder = L"..\\Release\\";
 #endif
 #endif
+#pragma endregion
 
 	//3D shader
 	D3D11_INPUT_ELEMENT_DESC layout3D[] = {

@@ -9,7 +9,7 @@ public:
 	MANAGED_OBJECT(Model)
 
 	bool Initialize(const std::string & filePath);
-	void Draw(const DirectX::XMMATRIX & worldMatrix, const DirectX::XMMATRIX & viewProjectionMatrix);
+	const std::vector<Mesh>& GetMeshes() const { return m_Meshes; }
 
 private:
 	bool LoadModel(const std::string & filePath);

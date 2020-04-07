@@ -19,8 +19,3 @@ Component::~Component()
 		m_GameObject->RemoveExpiredComponent();
 	}
 }
-
-GameObject* Component::GetGameObject()
-{
-	return m_GameObject;
-}

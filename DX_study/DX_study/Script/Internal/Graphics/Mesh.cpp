@@ -28,39 +28,3 @@ Mesh::Mesh(const Mesh & mesh)
 	this->textures = mesh.textures;
 	this->transformMatrix = mesh.transformMatrix;
 }
-
-void Mesh::Draw()
-{
-	UINT offset = 0;
-
-	for (auto& texture : textures) {
-		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			Core::GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
-			break;
-		}
-	}
-
-	Core::GetDeviceContext()->IASetVertexBuffers(0, 1, this->vertexbuffer.GetAddressOf(), this->vertexbuffer.StridePtr(), &offset);
-	Core::GetDeviceContext()->IASetIndexBuffer(this->indexbuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	Core::GetDeviceContext()->DrawIndexed(this->indexbuffer.IndexCount(), 0, 0);
-}
-
-const DirectX::XMMATRIX & Mesh::GetTransformMatrix() const
-{
-	return this->transformMatrix;
-}
-
-const VertexBuffer<Vertex3D>& Mesh::GetVertexBuffer() const
-{
-	return vertexbuffer;
-}
-
-const IndexBuffer & Mesh::GetIndexBuffer() const
-{
-	return indexbuffer;
-}
-
-const std::vector<Texture>& Mesh::GetTextures() const
-{
-	return textures;
-}

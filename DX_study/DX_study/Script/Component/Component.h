@@ -15,7 +15,7 @@ public:
 	Component(GameObject* gameObj, const std::string& name);
 	virtual ~Component();
 
-	GameObject* GetGameObject();
+	GameObject* GetGameObject() { return m_GameObject; }
 
 protected:
 	GameObject * const m_GameObject;

@@ -1,7 +1,5 @@
 #include "Model.h"
 
-#include "../Core/InternalHelper.h"
-
 bool Model::Initialize(const std::string & filePath)
 {
 	try
@@ -16,16 +14,6 @@ bool Model::Initialize(const std::string & filePath)
 	}
 
 	return true;
-}
-
-void Model::Draw(const XMMATRIX & worldMatrix, const XMMATRIX & viewProjectionMatrix)
-{
-	for (auto& mesh : m_Meshes) {
-		Core::GetCbVertexShader().data.wvpMatrix = mesh.GetTransformMatrix() * worldMatrix * viewProjectionMatrix; //Calculate World-View-Projection Matrix
-		Core::GetCbVertexShader().data.worldMatrix = mesh.GetTransformMatrix() * worldMatrix; //Calculate World Matrix
-		Core::GetCbVertexShader().ApplyChanges();
-		mesh.Draw();
-	}
 }
 
 bool Model::LoadModel(const std::string & filePath)
