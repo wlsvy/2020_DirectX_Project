@@ -7,6 +7,7 @@
 #include "imGui/imgui_impl_win32.h"
 #include "imGui/imgui_impl_dx11.h"
 #include "Model.h"
+#include "Shaders.h"
 #include "../../Util/Time.h"
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
@@ -35,13 +36,10 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		return false;
 	}
 
+	TraverseDirectory("hlsl\\VertexShader\\", &Graphics::LoadVertexShader);
+	TraverseDirectory("hlsl\\PixelShader\\", &Graphics::LoadPixelShader);
 	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
 	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
-
-	if (!InitializeShaders()) {
-		MessageBoxA(NULL, "Initialize Shader Error", "Error", MB_ICONERROR);
-		return false;
-	}
 
 	if (!InitializeScene()) {
 		MessageBoxA(NULL, "Initialize Scene Error", "Error", MB_ICONERROR);
@@ -68,7 +66,6 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(this->vertexshader.GetInputLayout());
 	m_DeviceResources.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
@@ -151,66 +148,6 @@ void Graphics::SwapBuffer()
 	m_DeviceResources.GetSwapChain()->Present(1, NULL);
 }
 
-bool Graphics::InitializeShaders()
-{
-	std::wstring shaderfolder = L"";
-#pragma region DetermineShaderPath
-
-#ifdef _DEBUG //Debug Mode
-#ifdef _WIN64 //x64
-		shaderfolder = L"..\\x64\\Debug\\";
-#else //x86(win32)
-		shaderfolder = L"..\\Debug\\";
-#endif 
-#else //Release Mode
-#ifdef _WIN64 //x64
-		shaderfolder = L"..\\x64\\Release\\";
-#else //x86(win32)
-		shaderfolder = L"..\\Release\\";
-#endif
-#endif
-#pragma endregion
-
-	//3D shader
-	D3D11_INPUT_ELEMENT_DESC layout3D[] = {
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
-		{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
-		//{"COLOR", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
-	};
-
-	UINT numElements3D = ARRAYSIZE(layout3D);
-
-	if (!vertexshader.Initialize(shaderfolder + L"vertexshader.cso", layout3D, numElements3D))
-		return false;
-
-	if (!pixelshader.Initialize(shaderfolder + L"pixelshader.cso"))
-		return false;
-
-	//2D shader
-	D3D11_INPUT_ELEMENT_DESC layout2D[] = {
-		{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
-		{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
-	};
-
-	UINT numElements2D = ARRAYSIZE(layout2D);
-
-	if (!vertexshader_2d.Initialize(shaderfolder + L"vertexshader_2d.cso", layout2D, numElements2D))
-		return false;
-
-	if (!pixelshader_2d.Initialize(shaderfolder + L"pixelshader_2d.cso"))
-		return false;
-
-	if (!pixelshader_nolight.Initialize(shaderfolder + L"pixelshader_nolight.cso"))
-		return false;
-
-	if (!pixelshader_2d_discard.Initialize(shaderfolder + L"pixelshader_2d_discard.cso"))
-		return false;
-
-
-	return true;
-}
-
 bool Graphics::InitializeScene()
 {
 	try {
@@ -222,12 +159,12 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
-		gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit.obj");
-		gameObject->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
-		gameObject->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader);
-		light->GetRenderer().Model = Pool::Find<Model>("light.fbx");
-		light->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
-		light->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader_nolight);
+		gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
+		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader");
+		light->GetRenderer().Model = Pool::Find<Model>("light");
+		light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+		light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_nolight");
 
 		mainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
 		mainCam->SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);
@@ -254,8 +191,41 @@ void Graphics::LoadModel(const std::string & filePath)
 	}
 }
 
-void Graphics::LoadShader(const std::string & filePath)
+void Graphics::LoadVertexShader(const std::string & filePath)
 {
+	std::string ext = StringHelper::GetFileExtension(filePath);
+	if (ext == "hlsl")
+	{
+		D3D11_INPUT_ELEMENT_DESC layout3D[] = {
+			{"POSITION", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA, 0},
+			{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
+			{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
+			{"BONEID", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA},
+			{"BONEWEIGHT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
+		};
+
+		auto vs = Pool::CreateInstance<VertexShader>();
+		if (!vs->Initialize(
+			Core::GetBuildPath() + StringHelper::GetNameFromPath(filePath, true) + ".cso",
+			layout3D,
+			ARRAYSIZE(layout3D)))
+		{
+			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
+		}
+	}
+}
+
+void Graphics::LoadPixelShader(const std::string & filePath)
+{
+	std::string ext = StringHelper::GetFileExtension(filePath);
+	if (ext == "hlsl")
+	{
+		auto ps = Pool::CreateInstance<PixelShader>();
+		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::GetNameFromPath(filePath, true) + ".cso"))
+		{
+			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
+		}
+	}
 }
 
 void Graphics::LoadTexture(const std::string & filePath)

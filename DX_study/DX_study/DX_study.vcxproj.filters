@@ -376,5 +376,21 @@
     <FxCompile Include="pixelshader_2d_discard.hlsl">
       <Filter>리소스 파일</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_2d.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_2d_discard.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_nolight.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_sample01.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_sample02.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_skybox.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PS_Camera.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PS_Light.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\skinned_vertex.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader_2d.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader_geo.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader_sample01.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader_skybox.hlsl" />
+    <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl" />
   </ItemGroup>
 </Project>

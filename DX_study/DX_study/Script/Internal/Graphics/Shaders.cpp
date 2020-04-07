@@ -1,18 +1,21 @@
 #include "Shaders.h"
 #include "../Core/InternalHelper.h"
+#include "../../Util/StringHelper.h"
 
-bool VertexShader::Initialize(std::wstring shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
-	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());
+bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
+	Name = StringHelper::GetNameFromPath(shaderpath);
+	auto wstr = StringHelper::StringToWide(shaderpath);
 
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
 	if (FAILED(hr)) {
-		std::wstring errorMsg = L"Failed to load shader: " + shaderpath;
+		std::wstring errorMsg = L"Failed to load shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreateVertexShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hr)) {
-		std::wstring errorMsg = L"Failed to create vertex shader: " + shaderpath;
+		std::wstring errorMsg = L"Failed to create vertex shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
@@ -39,18 +42,20 @@ ID3D11InputLayout * VertexShader::GetInputLayout()
 	return this->inputLayout.Get();
 }
 
-bool PixelShader::Initialize(std::wstring shaderpath) {
-	HRESULT hr = D3DReadFileToBlob(shaderpath.c_str(), this->shader_buffer.GetAddressOf());
+bool PixelShader::Initialize(const std::string & shaderpath) {
+	Name = StringHelper::GetNameFromPath(shaderpath);
+	auto wstr = StringHelper::StringToWide(shaderpath);
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
 
 	if (FAILED(hr)) {
-		std::wstring errorMsg = L"Failed to load shader: " + shaderpath;
+		std::wstring errorMsg = L"Failed to load shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreatePixelShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
 	if (FAILED(hr)) {
-		std::wstring errorMsg = L"Failed to create vertex shader: " + shaderpath;
+		std::wstring errorMsg = L"Failed to create vertex shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}

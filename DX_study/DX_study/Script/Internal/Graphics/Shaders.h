@@ -7,14 +7,10 @@
 #include <string>
 #include "../Core/Object.h"
 
-class ShaderBase : public Object {
+class VertexShader : public Object {
+	MANAGED_OBJECT(VertexShader)
 public:
-	MANAGED_OBJECT(ShaderBase)
-};
-
-class VertexShader : public ShaderBase {
-public:
-	bool Initialize(std::wstring shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements);
+	bool Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements);
 	ID3D11VertexShader * GetShader();
 	ID3D10Blob * GetBuffer();
 	ID3D11InputLayout * GetInputLayout();
@@ -24,9 +20,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 };
 
-class PixelShader : public ShaderBase {
+class PixelShader : public Object {
+	MANAGED_OBJECT(PixelShader)
 public:
-	bool Initialize(std::wstring shaderpath);
+	bool Initialize(const std::string & shaderpath);
 	ID3D11PixelShader * GetShader();
 	ID3D10Blob * GetBuffer();
 private:

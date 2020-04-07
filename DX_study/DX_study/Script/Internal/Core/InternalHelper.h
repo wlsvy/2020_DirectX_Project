@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 
 class Engine;
 class Timer;
@@ -27,4 +28,6 @@ namespace Core {
 	std::shared_ptr<Transform> GetWorldTransform();
 
 	std::shared_ptr<Object> GetObjectById(int id);
+
+	std::string GetBuildPath();
 }
