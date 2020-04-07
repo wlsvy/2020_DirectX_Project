@@ -8,6 +8,7 @@
 #include "imGui/imgui_impl_dx11.h"
 #include "Model.h"
 #include "Shaders.h"
+#include "Skybox.h"
 #include "../../Util/Time.h"
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
@@ -40,6 +41,20 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	TraverseDirectory("hlsl\\PixelShader\\", &Graphics::LoadPixelShader);
 	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
 	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
+
+	m_Skybox = std::make_shared<Skybox>();
+	std::string filename[6] = { //순서는 나중에
+		"Data\\Skybox\\Test1\\oasisnight_ft_p.png",	// +X
+		"Data\\Skybox\\Test1\\oasisnight_bk_p.png",	// -X
+		"Data\\Skybox\\Test1\\oasisnight_up_p.png",	// +Y
+		"Data\\Skybox\\Test1\\oasisnight_dn_p.png",	// -Y
+		"Data\\Skybox\\Test1\\oasisnight_rt_p.png",	// +Z
+		"Data\\Skybox\\Test1\\oasisnight_lf_p.png"	// -Z
+	};
+	if (!m_Skybox->Initialize(filename)) {
+		MessageBoxA(NULL, "Initialize Skybox Error", "Error", MB_ICONERROR);
+		return false;
+	}
 
 	if (!InitializeScene()) {
 		MessageBoxA(NULL, "Initialize Scene Error", "Error", MB_ICONERROR);
@@ -110,7 +125,7 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	}
 }
 
-void Graphics::DrawImGui()
+void Graphics::DrawUI()
 {
 	
 	ImGui_ImplDX11_NewFrame();
@@ -131,6 +146,42 @@ void Graphics::DrawImGui()
 	ImGui::End();
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+}
+
+void Graphics::DrawSkybox()
+{
+	auto vs = Pool::Find<VertexShader>("vertexshader_skybox");
+	auto ps = Pool::Find<PixelShader>("pixelshader_skybox");
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(vs->GetInputLayout()); //IA에 입력할 배치 적용
+	m_DeviceResources.GetDeviceContext()->VSSetShader(vs->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	m_DeviceResources.GetDeviceContext()->PSSetShader(ps->GetShader(), NULL, 0); //그릴 때 쓸 셰이더 적용
+	m_DeviceResources.GetDeviceContext()->GSSetShader(NULL, NULL, 0);
+
+	m_Skybox->Draw(
+		DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector()),
+		mainCam->GetViewProjectionMatrix());
+
+	auto model = Pool::Find<Model>("nanosuit");
+	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
+	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
+
+	for (auto& mesh : model->GetMeshes()) {
+		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+		cb_vs_vertexshader.ApplyChanges();
+
+		for (auto& texture : mesh.GetTextures()) {
+			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+				break;
+			}
+		}
+
+		UINT offset = 0;
+		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
+		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
+	}
 }
 
 void Graphics::SetOmRenderTargetToBase()

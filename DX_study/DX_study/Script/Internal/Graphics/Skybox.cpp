@@ -1,37 +1,34 @@
 #include "Skybox.h"
 #include <WICTextureLoader.h>
-#include "..\\ErrorLogger.h"
-#include <string>
 #include <assimp/material.h>
 #include <DDSTextureLoader.h>
-#include "BaseGeometry.h"
+#include <DirectXMath.h>
+
+#include "../Core/InternalHelper.h"
+#include "../../Util/ErrorLogger.h"
 
 
-bool Skybox::Initialize(const std::string * filePath, ID3D11Device * _device, ID3D11DeviceContext * _deviceContext, Model * _model)
+bool Skybox::Initialize(const std::string * filePath)
 {
-	mDeviceContext = _deviceContext;
-	mDevice = _device;
-
-	Study_DX::Sphere testSphere(30, 30);
-	mSkyboxModel = std::shared_ptr<Model>(_model);
+	//mSkyboxModel = std::shared_ptr<Model>(_model);
 
 	HRESULT hr;
 	try {
 		for (int Index = 0; Index < 6; Index++) {
 			std::wstring filename = StringHelper::StringToWide(filePath[Index]);
-			hr = DirectX::CreateWICTextureFromFile(mDevice, filename.c_str(), mSkybox_Resource[Index].GetAddressOf(), this->mSkybox_SRV[Index].GetAddressOf());
-			COM_ERROR_IF_FAILED(hr, "Skybox Texture initialize failed.");
+			hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), filename.c_str(), mSkybox_Resource[Index].GetAddressOf(), this->mSkybox_SRV[Index].GetAddressOf());
+			ThrowIfFailed(hr, "Skybox Texture initialize failed.");
 		}
 
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
 		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		hr = this->mDevice->CreateDepthStencilState(&depthstencildesc, this->mSkyboxDepthStencilState.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create skybox depth stencil state.");
+		hr = Core::GetDevice()->CreateDepthStencilState(&depthstencildesc, this->mSkyboxDepthStencilState.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create skybox depth stencil state.");
 
 		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
 		rasterizerDesc.CullMode = D3D11_CULL_NONE;
-		hr = this->mDevice->CreateRasterizerState(&rasterizerDesc, this->mSkyboxRasterizerState.GetAddressOf());
-		COM_ERROR_IF_FAILED(hr, "Failed to create skybox rasterizer state.");
+		hr = Core::GetDevice()->CreateRasterizerState(&rasterizerDesc, this->mSkyboxRasterizerState.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create skybox rasterizer state.");
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);
@@ -49,7 +46,7 @@ bool Skybox::Make_CubeMap()
 {
 	//큐브맵 만드는 함수 출처 : https://stackoverflow.com/questions/19364012/d3d11-creating-a-cube-map-from-6-images
 	try {
-		// Each element in the texture array has the same format/dimensions.
+		//Each element in the texture array has the same format/dimensions.
 		HRESULT hr;
 		D3D11_TEXTURE2D_DESC texElementDesc;
 		((ID3D11Texture2D*)mSkybox_Resource[0].Get())->GetDesc(&texElementDesc);
@@ -68,12 +65,12 @@ bool Skybox::Make_CubeMap()
 		texArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 
 		ID3D11Texture2D* texArray = 0;
-		hr = mDevice->CreateTexture2D(&texArrayDesc, 0, &texArray);
-		COM_ERROR_IF_FAILED(hr, "Failed to create CubeMap Texture.");
+		hr = Core::GetDevice()->CreateTexture2D(&texArrayDesc, 0, &texArray);
+		ThrowIfFailed(hr, "Failed to create CubeMap Texture.");
 
-		// Copy individual texture elements into texture array.
+		//Copy individual texture elements into texture array.
 		ID3D11DeviceContext* pd3dContext;
-		mDevice->GetImmediateContext(&pd3dContext);
+		Core::GetDevice()->GetImmediateContext(&pd3dContext);
 		D3D11_BOX sourceRegion;
 
 		//Here i copy the mip map levels of the textures
@@ -92,19 +89,19 @@ bool Skybox::Make_CubeMap()
 				if (sourceRegion.bottom == 0 || sourceRegion.right == 0)
 					break;
 
-				mDeviceContext->CopySubresourceRegion(texArray, D3D11CalcSubresource(mipLevel, x, texArrayDesc.MipLevels), 0, 0, 0, mSkybox_Resource[x].Get(), mipLevel, &sourceRegion);
+				Core::GetDeviceContext()->CopySubresourceRegion(texArray, D3D11CalcSubresource(mipLevel, x, texArrayDesc.MipLevels), 0, 0, 0, mSkybox_Resource[x].Get(), mipLevel, &sourceRegion);
 			}
 		}
 
-		// Create a resource view to the texture array.
+		//Create a resource view to the texture array.
 		D3D11_SHADER_RESOURCE_VIEW_DESC viewDesc;
 		viewDesc.Format = texArrayDesc.Format;
 		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		viewDesc.TextureCube.MostDetailedMip = 0;
 		viewDesc.TextureCube.MipLevels = texArrayDesc.MipLevels;
 
-		hr = mDevice->CreateShaderResourceView(texArray, &viewDesc, &mSkybox_CubeMapSRV);
-		COM_ERROR_IF_FAILED(hr, "Failed to create CubeMap Texture SRV.");
+		hr = Core::GetDevice()->CreateShaderResourceView(texArray, &viewDesc, &mSkybox_CubeMapSRV);
+		ThrowIfFailed(hr, "Failed to create CubeMap Texture SRV.");
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);
@@ -116,9 +113,9 @@ bool Skybox::Make_CubeMap()
 
 void Skybox::Draw(const DirectX::XMMATRIX & wMatrix, const DirectX::XMMATRIX & viewProjectionMatrix)
 {
-	mDeviceContext->RSSetState(this->mSkyboxRasterizerState.Get());//래스터라이저 설정 적용
-	mDeviceContext->OMSetDepthStencilState(this->mSkyboxDepthStencilState.Get(), 0);
-	mDeviceContext->PSSetShaderResources(1, 1, mSkybox_CubeMapSRV.GetAddressOf());
+	Core::GetDeviceContext()->RSSetState(this->mSkyboxRasterizerState.Get());//래스터라이저 설정 적용
+	Core::GetDeviceContext()->OMSetDepthStencilState(this->mSkyboxDepthStencilState.Get(), 0);
+	Core::GetDeviceContext()->PSSetShaderResources(1, 1, mSkybox_CubeMapSRV.GetAddressOf());
 
-	mSkyboxModel->Draw(wMatrix, viewProjectionMatrix);
+	//mSkyboxModel->Draw(wMatrix, viewProjectionMatrix);
 }

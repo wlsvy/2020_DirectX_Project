@@ -15,6 +15,7 @@ class Engine;
 class Camera;
 class Light;
 class GameObject;
+class Skybox;
 
 class Graphics {
 public:
@@ -22,7 +23,8 @@ public:
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<Renderable>& renderer);
-	void DrawImGui();
+	void DrawUI();
+	void DrawSkybox();
 	void SetOmRenderTargetToBase();
 	void SetOmRenderTargetToAux();
 	void SwapBuffer();
@@ -48,6 +50,8 @@ private:
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
+
+	std::shared_ptr<Skybox> m_Skybox;
 
 	int windowWidth = 0;
 	int windowHeight = 0;

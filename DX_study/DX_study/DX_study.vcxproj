@@ -186,6 +186,7 @@
     <ClCompile Include="Script\Internal\Core\ObjectPool.cpp" />
     <ClCompile Include="Script\Internal\Engine\DeviceResources.cpp" />
     <ClCompile Include="Script\Internal\Engine\Ui.cpp" />
+    <ClCompile Include="Script\Internal\Graphics\Skybox.cpp" />
     <ClCompile Include="Script\Util\Color.cpp" />
     <ClCompile Include="Script\Internal\Core\GameObject.cpp" />
     <ClCompile Include="Script\GameObject\Camera.cpp" />
@@ -229,6 +230,7 @@
     <ClInclude Include="Script\Internal\Core\ObjectType.h" />
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\Internal\Engine\Ui.h" />
+    <ClInclude Include="Script\Internal\Graphics\Skybox.h" />
     <ClInclude Include="Script\Util\Color.h" />
     <ClInclude Include="Script\Util\COMException.h" />
     <ClInclude Include="Script\Internal\Core\GameObject.h" />

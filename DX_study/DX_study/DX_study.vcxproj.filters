@@ -79,6 +79,9 @@
     <Filter Include="소스 파일\Component\Custom">
       <UniqueIdentifier>{c3dd19aa-5c6f-4db0-9a47-b4f2b30f3ed5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="쉐이더 파일">
+      <UniqueIdentifier>{d03474ad-3627-49a2-9a7b-c687575a9abe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Script\GameObject\Camera.cpp">
@@ -200,6 +203,9 @@
     </ClCompile>
     <ClCompile Include="Script\Internal\Engine\Ui.cpp">
       <Filter>소스 파일\Internal\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Skybox.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -356,23 +362,58 @@
     <ClInclude Include="Script\Internal\Engine\Ui.h">
       <Filter>헤더 파일\Internal\Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\Skybox.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_2d.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_2d_discard.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_nolight.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_sample01.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_sample02.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\pixelshader_skybox.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\PS_Camera.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\PS_Light.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\skinned_vertex.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\vertexshader.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\vertexshader_2d.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\vertexshader_geo.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\vertexshader_sample01.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\vertexshader_skybox.hlsl" />
-    <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl" />
+    <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_2d.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_2d_discard.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_nolight.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_sample01.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_sample02.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\pixelshader_skybox.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\PS_Camera.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\PS_Light.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\skinned_vertex.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\vertexshader.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\vertexshader_2d.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\vertexshader_geo.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\vertexshader_sample01.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\vertexshader_skybox.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

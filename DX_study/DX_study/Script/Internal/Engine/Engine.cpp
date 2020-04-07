@@ -80,7 +80,8 @@ void Engine::RenderFrame()
 	m_Graphics->RenderFrame();
 	m_Graphics->SetOmRenderTargetToAux();
 	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
+	m_Graphics->DrawSkybox();
 	m_Graphics->SetOmRenderTargetToBase();
-	m_Graphics->DrawImGui();
+	m_Graphics->DrawUI();
 	m_Graphics->SwapBuffer();
 }
