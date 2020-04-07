@@ -358,24 +358,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="vertexshader.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_nolight.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_2d.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="vertexshader_2d.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="pixelshader_2d_discard.hlsl">
-      <Filter>리소스 파일</Filter>
-    </FxCompile>
     <FxCompile Include="hlsl\PixelShader\pixelshader.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_2d.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_2d_discard.hlsl" />
