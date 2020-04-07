@@ -40,6 +40,9 @@ public:
 private:
 	bool InitializeShaders();
 	bool InitializeScene();
+	void LoadModel(const std::string & filePath);
+	void LoadShader(const std::string & filePath);
+	void LoadTexture(const std::string & filePath);
 	
 
 	

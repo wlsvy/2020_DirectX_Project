@@ -1,7 +1,9 @@
 #include "Model.h"
+#include "../../Util/StringHelper.h"
 
 bool Model::Initialize(const std::string & filePath)
 {
+	Name = StringHelper::GetNameFromPath(filePath);
 	try
 	{
 		if (!this->LoadModel(filePath))
@@ -19,7 +21,6 @@ bool Model::Initialize(const std::string & filePath)
 bool Model::LoadModel(const std::string & filePath)
 {
 	this->m_Directory = StringHelper::GetDirectoryFromPath(filePath);
-	Name = m_Directory;
 
 	Assimp::Importer importer;
 

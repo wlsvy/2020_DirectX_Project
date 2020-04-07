@@ -23,6 +23,20 @@ std::string StringHelper::GetDirectoryFromPath(const std::string & filepath)
 	return filepath.substr(0, std::max(off1, off2)); //둘 다 존재하면 높은 값으로
 }
 
+std::string StringHelper::GetNameFromPath(const std::string & filepath)
+{
+	size_t off1 = filepath.find_last_of('\\');
+	size_t off2 = filepath.find_last_of('/');
+	if (off1 == std::string::npos && off2 == std::string::npos) return "";
+
+	size_t off;
+	if (off1 == std::string::npos) { off = off2; }
+	else if (off2 == std::string::npos) { off = off1; }
+	else { off = std::max(off1, off2); }
+
+	return filepath.substr(off + 1, filepath.size() - off - 1);
+}
+
 std::string StringHelper::GetFileExtension(const std::string & filename)
 {
 	size_t off = filename.find_last_of('.');

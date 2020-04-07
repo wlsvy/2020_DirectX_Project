@@ -3,7 +3,6 @@
 #include <SpriteBatch.h>
 #include <SpriteFont.h>
 #include "AdapterReader.h"
-#include "../../Util/Singleton.h"
 
 class DeviceResources {
 public:

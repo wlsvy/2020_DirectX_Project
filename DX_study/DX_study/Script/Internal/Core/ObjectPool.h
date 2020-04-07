@@ -32,6 +32,23 @@ private:
 			std::for_each(m_Objects.begin(), m_Objects.end(), func);
 		}
 
+		std::shared_ptr<T> Find(const int objId) {
+			for (auto& ptr : m_Objects) {
+				if (ptr->GetId() == objId) {
+					return ptr;
+				}
+			}
+			return std::shared_ptr<T>();
+		}
+		std::shared_ptr<T> Find(const std::string & objName) {
+			for (auto& ptr : m_Objects) {
+				if (ptr->Name == objName) {
+					return ptr;
+				}
+			}
+			return std::shared_ptr<T>();
+		}
+
 	private:
 		std::vector<std::shared_ptr<T>> m_Objects;
 	};
@@ -100,8 +117,12 @@ public:
 		return ObjectPool<Object>::GetInstance().Find(objId);
 	}
 	template<typename T>
-	static std::shared_ptr<T> FindWithType(const int objId) {
-		return std::dynamic_pointer_cast<T>(Find(objId));
+	static std::shared_ptr<T> Find(const int objId) {
+		return ObjectPool<T>::GetInstance().Find(objId);
+	}
+	template<typename T>
+	static std::shared_ptr<T> Find(const std::string & objName) {
+		return ObjectPool<T>::GetInstance().Find(objName);
 	}
 
 	static void Destroy(Object* obj);

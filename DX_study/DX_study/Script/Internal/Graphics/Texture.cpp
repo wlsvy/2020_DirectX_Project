@@ -4,6 +4,7 @@
 #include <DDSTextureLoader.h>
 
 #include "../Core/InternalHelper.h"
+#include "../../Util/StringHelper.h"
 
 Texture::Texture(const Color & color, aiTextureType type)
 {
@@ -15,8 +16,9 @@ Texture::Texture(const Color * colorData, UINT width, UINT height, aiTextureType
 	this->InitializeColorTexture(colorData, width, height, type);
 }
 
-Texture::Texture(const std::string & filePath, aiTextureType type)
+Texture::Texture(const std::string & filePath, aiTextureType type) : Object(StringHelper::GetNameFromPath(filePath))
 {
+	
 	this->type = type;
 	if (StringHelper::GetFileExtension(filePath) == ".dds")
 	{
@@ -38,7 +40,7 @@ Texture::Texture(const std::string & filePath, aiTextureType type)
 	}
 }
 
-Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type)
+Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type) 
 {
 	this->type = type;
 	HRESULT hr = DirectX::CreateWICTextureFromMemory(Core::GetDevice(), pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());

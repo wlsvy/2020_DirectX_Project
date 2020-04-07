@@ -1,12 +1,14 @@
 #include "Graphics.h"
 
 #include <WICTextureLoader.h>
+#include <io.h>
 
 #include "imGui/imgui.h"
 #include "imGui/imgui_impl_win32.h"
 #include "imGui/imgui_impl_dx11.h"
 #include "Model.h"
 #include "../../Util/Time.h"
+#include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
 #include "../Engine/Ui.h"
 #include "../Core/ObjectPool.h"
@@ -17,6 +19,8 @@
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
+
+void TraverseDirectory(const std::string & dirPath, void(Graphics::* callBack)(const std::string &));
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	mainCam = std::make_shared<Camera>();
@@ -30,6 +34,9 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		!m_DeviceResources.InitializeRenderTarget(width, height)) {
 		return false;
 	}
+
+	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
+	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
 
 	if (!InitializeShaders()) {
 		MessageBoxA(NULL, "Initialize Shader Error", "Error", MB_ICONERROR);
@@ -215,16 +222,10 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
-		auto model = Pool::CreateInstance<Model>();
-		model->Initialize("Data\\Objects\\nanosuit\\nanosuit.obj");
-		gameObject->GetRenderer().Model = model;
-		model = Pool::CreateInstance<Model>();
-		model->Initialize("Data\\Objects\\Test_cat\\12221_Cat_v1_l3.obj");
+		gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit.obj");
 		gameObject->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
 		gameObject->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader);
-		model = Pool::CreateInstance<Model>();
-		model->Initialize("Data/Objects/light.fbx");
-		light->GetRenderer().Model = model;
+		light->GetRenderer().Model = Pool::Find<Model>("light.fbx");
 		light->GetRenderer().Vshader = std::shared_ptr<VertexShader>(&vertexshader);
 		light->GetRenderer().Pshader = std::shared_ptr<PixelShader>(&pixelshader_nolight);
 
@@ -237,4 +238,57 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 	return true;
+}
+
+void Graphics::LoadModel(const std::string & filePath)
+{
+	std::string ext = StringHelper::GetFileExtension(filePath);
+	if (ext == "fbx" ||
+		ext == "obj")
+	{
+		auto model = Pool::CreateInstance<Model>();
+		if (!model->Initialize(filePath)) {
+			MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
+			return;
+		}
+	}
+}
+
+void Graphics::LoadShader(const std::string & filePath)
+{
+}
+
+void Graphics::LoadTexture(const std::string & filePath)
+{
+	std::string ext = StringHelper::GetFileExtension(filePath);
+	if (ext == "jpg" ||
+		ext == "png" ||
+		ext == "bmp")
+	{
+		auto texture = Pool::CreateInstance<Texture>(filePath, aiTextureType::aiTextureType_DIFFUSE);
+	}
+}
+
+void TraverseDirectory(const std::string & dirPath, void(Graphics::* callBack)(const std::string &))
+{
+	struct _finddata_t fd;
+	intptr_t handle;
+
+	std::string filePath = dirPath + "*.*";
+
+	if ((handle = _findfirst(filePath.c_str(), &fd)) != -1L) {
+		do {
+			if (fd.attrib & _A_SUBDIR &&
+				(fd.name != std::string(".")) &&
+				(fd.name != std::string("..")))
+			{
+				std::string subDirPath = dirPath + fd.name + "\\";
+				TraverseDirectory(subDirPath, callBack);
+				continue;
+			}
+
+			(Engine::Get().GetGraphics().*callBack)(dirPath + fd.name);
+		} while (_findnext(handle, &fd) == 0);
+	}
+	_findclose(handle);
 }
