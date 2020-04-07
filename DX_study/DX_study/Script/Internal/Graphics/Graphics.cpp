@@ -8,6 +8,7 @@
 #include "Model.h"
 #include "../../Util/Time.h"
 #include "../Engine/DeviceResources.h"
+#include "../Engine/Ui.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
 #include "../../Component/Transform.h"
@@ -25,7 +26,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	this->windowWidth = width;
 	this->windowHeight = height;
 
-	if (!m_DeviceResources.Initialize(hwnd, width, height)) {
+	if (!m_DeviceResources.Initialize(hwnd, width, height) ||
+		!m_DeviceResources.InitializeRenderTarget(width, height)) {
 		return false;
 	}
 
@@ -39,23 +41,13 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		return false;
 	}
 		
-
-	//Setup ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui_ImplWin32_Init(hwnd);
-	ImGui_ImplDX11_Init(m_DeviceResources.GetDevice(), m_DeviceResources.GetDeviceContext());
-	ImGui::StyleColorsDark();
+	UI::InitImGUI(hwnd);
 
 	return true;
 }
 
 void Graphics::RenderFrame()
 {
-	static float bgcolor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	static float blendFactors[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
 	cb_ps_light.data.dynamicLightColor = light->lightColor;
 	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
 	cb_ps_light.data.dynamicLightPosition = light->GetTransform().GetPositionFloat3();
@@ -63,9 +55,8 @@ void Graphics::RenderFrame()
 	cb_ps_light.data.dynamicLightAttenuation_b = light->attenuation_b;
 	cb_ps_light.data.dynamicLightAttenuation_c = light->attenuation_c;
 	cb_ps_light.ApplyChanges();
+	
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
-
-	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), bgcolor);
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(this->vertexshader.GetInputLayout());
@@ -73,7 +64,7 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 
-	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), blendFactors, 0xFFFFFFFF);
+	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), m_BlendFactors, 0xFFFFFFFF);
 	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, m_DeviceResources.GetSamplerStateAddr());
 }
 
@@ -95,40 +86,13 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	renderer->Model->Draw(worldMat, mainCam->GetViewProjectionMatrix());
 }
 
-void Graphics::DrawFrameString()
-{
-	//Draw text + 프레임 측정
-	static int fpsCounter = 0;
-	static double elapsedTime = 0.0;
-	static std::string fpsString = "FPS: 0";
-
-	fpsCounter += 1;
-	elapsedTime += Time::GetDeltaTime();
-	if (elapsedTime > 1.0f) {
-		fpsString = "FPS: " + std::to_string(fpsCounter);
-		fpsCounter = 0;
-		elapsedTime = 0.0;
-	}
-	auto spriteBatch = m_DeviceResources.GetSpriteBatch();
-	auto spriteFont = m_DeviceResources.GetSpriteFont();
-	spriteBatch->Begin();
-	spriteFont->DrawString(
-		spriteBatch, 
-		StringHelper::StringToWide(fpsString).c_str(), 
-		DirectX::XMFLOAT2(0, 0), 
-		DirectX::Colors::White, 0.0f, 
-		DirectX::XMFLOAT2(0, 0), 
-		DirectX::XMFLOAT2(1.0f, 1.0f));
-	spriteBatch->End();
-}
-
 void Graphics::DrawImGui()
 {
-	static int counter = 0;
 	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+	UI::EditorUI(m_DeviceResources.GetAuxRenderTargetSrv());
 	
 	ImGui::Begin("Light Controls");
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
@@ -145,9 +109,21 @@ void Graphics::DrawImGui()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
+void Graphics::SetOmRenderTargetToBase()
+{
+	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetBaseRenderTargetViewAddress(), m_DeviceResources.GetBaseDepthStencilView());
+}
+
+void Graphics::SetOmRenderTargetToAux()
+{
+	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetAuxRenderTargetViewAddress(), m_DeviceResources.GetBaseDepthStencilView());
+}
+
 void Graphics::SwapBuffer()
 {
-	m_DeviceResources.PresentSwapChain();
+	m_DeviceResources.GetSwapChain()->Present(1, NULL);
 }
 
 bool Graphics::InitializeShaders()
@@ -208,8 +184,6 @@ bool Graphics::InitializeShaders()
 
 	return true;
 }
-
-
 
 bool Graphics::InitializeScene()
 {

@@ -23,8 +23,9 @@ public:
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<Renderable>& renderer);
-	void DrawFrameString();
 	void DrawImGui();
+	void SetOmRenderTargetToBase();
+	void SetOmRenderTargetToAux();
 	void SwapBuffer();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
@@ -41,8 +42,7 @@ private:
 	bool InitializeScene();
 	
 
-	int windowWidth = 0;
-	int windowHeight = 0;
+	
 
 	DeviceResources m_DeviceResources;
 
@@ -61,4 +61,9 @@ private:
 	std::unordered_map<std::string, std::shared_ptr<Texture>> m_Textures;
 	std::unordered_map<std::string, std::shared_ptr<Material>> m_Materials;
 	std::unordered_map<std::string, std::shared_ptr<Model>> m_Model;
+
+	int windowWidth = 0;
+	int windowHeight = 0;
+	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 };

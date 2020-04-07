@@ -8,19 +8,23 @@
 class DeviceResources {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
+	bool InitializeRenderTarget(int width, int height);
 
-	ID3D11Device*				GetDevice()	const					{ return device.Get(); }
-	ID3D11DeviceContext*		GetDeviceContext()	const			{ return deviceContext.Get(); }
-	ID3D11RenderTargetView*		GetBaseRenderTargetView() const		{ return renderTargetView.Get(); }
-	ID3D11DepthStencilView*		GetBaseDepthStencilView() const		{ return depthStencilView.Get(); }
-	ID3D11DepthStencilState*	GetBaseDepthStencilState() const	{ return depthStencilState.Get(); }
-	ID3D11RasterizerState*		GetRasterizerState() const			{ return rasterizerState.Get(); }
-	ID3D11BlendState*			GetBlendState() const				{ return blendState.Get();	}
-	ID3D11SamplerState* const*	GetSamplerStateAddr() const			{ return samplerState.GetAddressOf(); }
-	DirectX::SpriteBatch*		GetSpriteBatch() const				{ return spriteBatch.get(); }
-	DirectX::SpriteFont*		GetSpriteFont() const				{ return spriteFont.get(); }
-
-	void PresentSwapChain()		{ swapchain->Present(1, NULL); }
+	ID3D11Device*					GetDevice()	const						{ return device.Get(); }
+	ID3D11DeviceContext*			GetDeviceContext()	const				{ return deviceContext.Get(); }
+	ID3D11RenderTargetView*			GetBaseRenderTargetView() const			{ return renderTargetView.Get(); }
+	ID3D11RenderTargetView* const*	GetBaseRenderTargetViewAddress() const	{ return renderTargetView.GetAddressOf(); }
+	ID3D11DepthStencilView*			GetBaseDepthStencilView() const			{ return depthStencilView.Get(); }
+	ID3D11DepthStencilState*		GetBaseDepthStencilState() const		{ return depthStencilState.Get(); }
+	ID3D11RasterizerState*			GetRasterizerState() const				{ return rasterizerState.Get(); }
+	ID3D11BlendState*				GetBlendState() const					{ return blendState.Get();	}
+	ID3D11SamplerState* const*		GetSamplerStateAddr() const				{ return samplerState.GetAddressOf(); }
+	DirectX::SpriteBatch*			GetSpriteBatch() const					{ return spriteBatch.get(); }
+	DirectX::SpriteFont*			GetSpriteFont() const					{ return spriteFont.get(); }
+	ID3D11RenderTargetView*			GetAuxRenderTargetView() const			{ return auxiliaryRenderTargetView.Get(); }
+	ID3D11RenderTargetView* const*	GetAuxRenderTargetViewAddress() const	{ return auxiliaryRenderTargetView.GetAddressOf(); }
+	ID3D11ShaderResourceView*		GetAuxRenderTargetSrv() const			{ return auxiliaryShaderResourceView.Get(); }
+	IDXGISwapChain*					GetSwapChain() const					{ return swapchain.Get(); }
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device; //디바이스 인터페이스 : 기능 지원 점검과 자원 할당에 쓰임
@@ -38,4 +42,9 @@ private:
 
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
+
+	//렌더타겟 추가
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> auxiliaryRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> auxiliaryShaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> auxiliaryRenderTargetTexture;
 };

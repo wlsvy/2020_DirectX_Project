@@ -78,8 +78,9 @@ void Engine::RenderFrame()
 	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
 
 	m_Graphics->RenderFrame();
+	m_Graphics->SetOmRenderTargetToAux();
 	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
+	m_Graphics->SetOmRenderTargetToBase();
 	m_Graphics->DrawImGui();
-	m_Graphics->DrawFrameString();
 	m_Graphics->SwapBuffer();
 }

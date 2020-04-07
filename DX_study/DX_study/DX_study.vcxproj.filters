@@ -198,6 +198,9 @@
     <ClCompile Include="Script\Component\Custom\CamMove.cpp">
       <Filter>소스 파일\Component\Custom</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Ui.cpp">
+      <Filter>소스 파일\Internal\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -349,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="Script\Component\Custom\CamMove.h">
       <Filter>헤더 파일\Component\Custom</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Ui.h">
+      <Filter>헤더 파일\Internal\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
