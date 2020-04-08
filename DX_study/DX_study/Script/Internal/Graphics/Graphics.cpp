@@ -9,6 +9,7 @@
 #include "Model.h"
 #include "Shaders.h"
 #include "Skybox.h"
+#include "BaseGeometry.h"
 #include "../../Util/Time.h"
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
@@ -37,10 +38,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		return false;
 	}
 
+	
+
 	TraverseDirectory("hlsl\\VertexShader\\", &Graphics::LoadVertexShader);
 	TraverseDirectory("hlsl\\PixelShader\\", &Graphics::LoadPixelShader);
 	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
 	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
+
+	BaseGeometry::Initialize();
 
 	m_Skybox = std::make_shared<Skybox>();
 	std::string filename[6] = { //순서는 나중에
@@ -161,7 +166,7 @@ void Graphics::DrawSkybox()
 		DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector()),
 		mainCam->GetViewProjectionMatrix());
 
-	auto model = Pool::Find<Model>("nanosuit");
+	auto model = Pool::Find<Model>("Box");
 	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
 
@@ -286,7 +291,7 @@ void Graphics::LoadTexture(const std::string & filePath)
 		ext == "png" ||
 		ext == "bmp")
 	{
-		auto texture = Pool::CreateInstance<Texture>(filePath, aiTextureType::aiTextureType_DIFFUSE);
+		Pool::CreateInstance<Texture>(filePath, aiTextureType::aiTextureType_DIFFUSE);
 	}
 }
 

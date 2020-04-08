@@ -22,7 +22,7 @@ public:
 		return this->indexCount;
 	}
 
-	HRESULT Initialize(DWORD * data, UINT indexCount) {
+	HRESULT Initialize(const DWORD * data, const UINT indexCount) {
 		this->indexCount = indexCount;
 		//Load Index Data
 		D3D11_BUFFER_DESC indexBufferDesc;

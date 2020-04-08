@@ -18,6 +18,13 @@ bool Model::Initialize(const std::string & filePath)
 	return true;
 }
 
+bool Model::Initialize(const std::vector<Mesh>& meshes)
+{
+	m_Meshes.clear();
+	m_Meshes.insert(m_Meshes.begin(), meshes.begin(), meshes.end());
+	return true;
+}
+
 bool Model::LoadModel(const std::string & filePath)
 {
 	this->m_Directory = StringHelper::GetDirectoryFromPath(filePath);

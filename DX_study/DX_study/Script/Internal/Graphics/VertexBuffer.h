@@ -53,7 +53,7 @@ public:
 		return &this->stride;
 	}
 
-	HRESULT Initialize(T * data, UINT vertexCount)
+	HRESULT Initialize(const T * data, const UINT vertexCount)
 	{
 		if (buffer.Get() != nullptr) buffer.Reset();
 

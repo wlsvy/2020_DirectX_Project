@@ -11,9 +11,9 @@
 class Mesh {
 public:
 	Mesh(
-		std::vector<Vertex3D> & vertices, 
-		std::vector<DWORD> & indices, 
-		std::vector<Texture> & textures, 
+		const std::vector<Vertex3D> & vertices, 
+		const std::vector<DWORD> & indices, 
+		const std::vector<Texture> & textures, 
 		const DirectX::XMMATRIX & transformMatrix);
 	Mesh(const Mesh & mesh);
 

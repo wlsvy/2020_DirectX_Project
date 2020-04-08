@@ -9,6 +9,7 @@ public:
 	MANAGED_OBJECT(Model)
 
 	bool Initialize(const std::string & filePath);
+	bool Initialize(const std::vector<Mesh>& meshes);
 	const std::vector<Mesh>& GetMeshes() const { return m_Meshes; }
 
 private:

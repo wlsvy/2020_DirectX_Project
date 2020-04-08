@@ -365,6 +365,9 @@
     <ClInclude Include="Script\Internal\Graphics\Skybox.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\BaseGeometry.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">

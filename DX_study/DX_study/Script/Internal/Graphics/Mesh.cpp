@@ -1,14 +1,14 @@
 #include "Mesh.h"
 
 Mesh::Mesh(
-	std::vector<Vertex3D>& vertices, 
-	std::vector<DWORD>& indices, 
-	std::vector<Texture> & textures, 
+	const std::vector<Vertex3D>& vertices, 
+	const std::vector<DWORD>& indices, 
+	const std::vector<Texture> & textures, 
 	const DirectX::XMMATRIX & transformMatrix)
+	:
+	textures(textures),
+	transformMatrix(transformMatrix)
 {
-	this->textures = textures;
-	this->transformMatrix = transformMatrix;
-
 	try {
 		HRESULT hr = this->vertexbuffer.Initialize(vertices.data(), vertices.size());
 		ThrowIfFailed(hr, "Failed to initialize vertex buffer for mesh.");
@@ -18,13 +18,12 @@ Mesh::Mesh(
 	}
 	catch (COMException e) {
 	}
-	
 }
 
-Mesh::Mesh(const Mesh & mesh)
+Mesh::Mesh(const Mesh & mesh) :
+	indexbuffer(mesh.indexbuffer),
+	vertexbuffer(mesh.vertexbuffer),
+	textures(mesh.textures),
+	transformMatrix(mesh.transformMatrix)
 {
-	this->indexbuffer = mesh.indexbuffer;
-	this->vertexbuffer = mesh.vertexbuffer;
-	this->textures = mesh.textures;
-	this->transformMatrix = mesh.transformMatrix;
 }

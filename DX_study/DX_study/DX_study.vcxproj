@@ -230,6 +230,7 @@
     <ClInclude Include="Script\Internal\Core\ObjectType.h" />
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\Internal\Engine\Ui.h" />
+    <ClInclude Include="Script\Internal\Graphics\BaseGeometry.h" />
     <ClInclude Include="Script\Internal\Graphics\Skybox.h" />
     <ClInclude Include="Script\Util\Color.h" />
     <ClInclude Include="Script\Util\COMException.h" />
