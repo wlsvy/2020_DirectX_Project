@@ -10,6 +10,7 @@ class BufferBase;
 class Texture;
 class Material;
 class Model;
+class Mesh;
 class Renderable;
 class Engine;
 class Camera;
@@ -23,6 +24,13 @@ public:
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<Renderable>& renderer);
+	void DrawModel(
+		const std::shared_ptr<Model>& model,
+		const DirectX::XMMATRIX & worldMat, 
+		const DirectX::XMMATRIX & wvpMat);
+	void DrawMesh(const Mesh & mesh,
+		const DirectX::XMMATRIX & worldMat, 
+		const DirectX::XMMATRIX & wvpMat);
 	void DrawUI();
 	void DrawSkybox();
 	void SetOmRenderTargetToBase();

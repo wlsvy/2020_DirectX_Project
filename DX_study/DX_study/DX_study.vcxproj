@@ -175,10 +175,12 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Script\Component\Animator.cpp" />
     <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
     <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
     <ClCompile Include="Script\Component\Renderable.cpp" />
+    <ClCompile Include="Script\Internal\Core\FileImporter.cpp" />
     <ClCompile Include="Script\Internal\Core\Scene.cpp" />
     <ClCompile Include="Script\Component\Transform.cpp" />
     <ClCompile Include="Script\Internal\Core\InternalHelper.cpp" />
@@ -186,6 +188,7 @@
     <ClCompile Include="Script\Internal\Core\ObjectPool.cpp" />
     <ClCompile Include="Script\Internal\Engine\DeviceResources.cpp" />
     <ClCompile Include="Script\Internal\Engine\Ui.cpp" />
+    <ClCompile Include="Script\Internal\Graphics\AnimationClip.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Skybox.cpp" />
     <ClCompile Include="Script\Util\Color.cpp" />
     <ClCompile Include="Script\Internal\Core\GameObject.cpp" />
@@ -218,10 +221,12 @@
     <ClCompile Include="Script\Util\Time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Script\Component\Animator.h" />
     <ClInclude Include="Script\Component\Behaviour.h" />
     <ClInclude Include="Script\Component\Component.h" />
     <ClInclude Include="Script\Component\Custom\CamMove.h" />
     <ClInclude Include="Script\Component\Renderable.h" />
+    <ClInclude Include="Script\Internal\Core\FileImporter.h" />
     <ClInclude Include="Script\Internal\Core\Scene.h" />
     <ClInclude Include="Script\Component\Transform.h" />
     <ClInclude Include="Script\Internal\Core\InternalHelper.h" />
@@ -230,6 +235,7 @@
     <ClInclude Include="Script\Internal\Core\ObjectType.h" />
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\Internal\Engine\Ui.h" />
+    <ClInclude Include="Script\Internal\Graphics\AnimationClip.h" />
     <ClInclude Include="Script\Internal\Graphics\BaseGeometry.h" />
     <ClInclude Include="Script\Internal\Graphics\Skybox.h" />
     <ClInclude Include="Script\Util\Color.h" />

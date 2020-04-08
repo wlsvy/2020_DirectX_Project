@@ -111,23 +111,38 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
 
-	for (auto& mesh : renderer->Model->GetMeshes()) {
-		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
-		cb_vs_vertexshader.ApplyChanges();
+	DrawModel(renderer->Model, worldMat, wvpMat);
+}
 
-		for (auto& texture : mesh.GetTextures()) {
-			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
-				break;
-			}
-		}
-
-		UINT offset = 0;
-		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
-		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
+void Graphics::DrawModel(
+	const std::shared_ptr<Model>& model, 
+	const DirectX::XMMATRIX & worldMat, 
+	const DirectX::XMMATRIX & wvpMat)
+{
+	for (auto& mesh : model->GetMeshes()) {
+		DrawMesh(mesh, worldMat, wvpMat);
 	}
+}
+void Graphics::DrawMesh(
+	const Mesh & mesh,
+	const DirectX::XMMATRIX & worldMat, 
+	const DirectX::XMMATRIX & wvpMat)
+{
+	cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+	cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+	cb_vs_vertexshader.ApplyChanges();
+
+	for (auto& texture : mesh.GetTextures()) {
+		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+			break;
+		}
+	}
+
+	UINT offset = 0;
+	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
+	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
 }
 
 void Graphics::DrawUI()
@@ -170,23 +185,7 @@ void Graphics::DrawSkybox()
 	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
 
-	for (auto& mesh : model->GetMeshes()) {
-		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
-		cb_vs_vertexshader.ApplyChanges();
-
-		for (auto& texture : mesh.GetTextures()) {
-			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
-				break;
-			}
-		}
-
-		UINT offset = 0;
-		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
-		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
-	}
+	DrawModel(model, worldMat, wvpMat);
 }
 
 void Graphics::SetOmRenderTargetToBase()

@@ -58,7 +58,7 @@ namespace BaseGeometry {
 		model->Name = "Box";
 	}
 
-	static void CreateSphere(int slice, int stack) {
+	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
 
 		std::vector<Vertex3D> vertices; vertices.reserve(2 + (stack - 1) * (slice + 1));

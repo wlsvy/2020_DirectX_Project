@@ -4,6 +4,11 @@
 
 using namespace DirectX;
 
+struct aiScene;
+struct aiNode;
+struct aiMesh;
+struct aiMaterial;
+
 class Model : public Object {
 public:
 	MANAGED_OBJECT(Model)

@@ -1,4 +1,8 @@
 #include "Model.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include "../../Util/StringHelper.h"
 
 bool Model::Initialize(const std::string & filePath)
