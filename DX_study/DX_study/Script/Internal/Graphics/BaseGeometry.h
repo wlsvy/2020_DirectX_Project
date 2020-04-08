@@ -148,6 +148,6 @@ namespace BaseGeometry {
 
 	static void Initialize() {
 		CreateBox();
-		CreateSphere(17, 39);
+		CreateSphere(10, 10);
 	}
 };

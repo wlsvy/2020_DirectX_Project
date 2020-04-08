@@ -46,8 +46,6 @@ void MouseClass::OnMouseMove(int x, int y) {
 }
 
 void MouseClass::OnMouseMoveRaw(int x, int y) {
-	deltaX = x;
-	deltaY = y;
 	this->eventBuffer.push(MouseEvent(MouseEvent::EventType::Raw_MOVE, x, y));
 }
 
@@ -92,5 +90,14 @@ MouseEvent MouseClass::ReadEvent() {
 
 void MouseClass::Update()
 {
-	while (!EventBufferIsEmpty()) { ReadEvent(); }
+	deltaX = 0;
+	deltaY = 0;
+	while (!EventBufferIsEmpty()) 
+	{ 
+		MouseEvent me = ReadEvent();
+		if (me.GetType() == MouseEvent::EventType::Raw_MOVE) {
+			deltaX = me.GetPosX();
+			deltaY = me.GetPosY();
+		}
+	}
 }
