@@ -216,6 +216,9 @@
     <ClCompile Include="Script\Internal\Core\FileImporter.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Core\ImportHelper.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -384,6 +387,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Core\FileImporter.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Core\ImportHelper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

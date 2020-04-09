@@ -16,6 +16,7 @@
 #include "../Engine/Ui.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
+#include "../Core/ImportHelper.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Custom/CamMove.h"
@@ -211,7 +212,7 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 
-		cb_ps_light.data.ambientLightColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
+		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
@@ -239,8 +240,7 @@ void Graphics::LoadModel(const std::string & filePath)
 	if (ext == "fbx" ||
 		ext == "obj")
 	{
-		auto model = Pool::CreateInstance<Model>();
-		if (!model->Initialize(filePath)) {
+		if (!Importer::LoadModel(filePath)) {
 			MessageBoxA(NULL, "Model Initialize error.", ERROR, MB_ICONERROR);
 			return;
 		}

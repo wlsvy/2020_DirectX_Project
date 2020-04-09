@@ -47,13 +47,12 @@ namespace BaseGeometry {
 
 		auto model = Pool::CreateInstance<Model>();
 		model->Initialize(
-			std::vector<Mesh>(1, 
-				Mesh(
+			std::move(std::vector<Mesh>(1, Mesh(
 					vertices,
 					indices,
 					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
 					DirectX::XMMatrixIdentity())
-				)
+				))
 		);
 		model->Name = "Box";
 	}
@@ -61,8 +60,10 @@ namespace BaseGeometry {
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
 
-		std::vector<Vertex3D> vertices; vertices.reserve(2 + (stack - 1) * (slice + 1));
-		std::vector<DWORD> indices; indices.reserve(slice * 6 + (stack - 2) * slice * 6);
+		std::vector<Vertex3D> vertices; 
+		vertices.reserve(2 + (stack - 1) * (slice + 1));
+		std::vector<DWORD> indices; 
+		indices.reserve(slice * 6 + (stack - 2) * slice * 6);
 
 		Vertex3D topVertex(0.0f, +radius, 0.0f, 0.0f, 0.0f, 0.0f, +1.0f, 0.0f);
 		Vertex3D bottomVertex(0.0f, -radius, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);
@@ -71,7 +72,7 @@ namespace BaseGeometry {
 		vertices.push_back(topVertex);
 
 		float phiStep = DirectX::XM_PI / stack;
-		float thetaStep = 2.0f*XM_PI / slice;
+		float thetaStep = 2.0f * DirectX::XM_PI / slice;
 
 		for (UINT i = 1; i <= stack - 1; ++i)
 		{
@@ -87,11 +88,11 @@ namespace BaseGeometry {
 				v.pos.y = radius * cosf(phi);
 				v.pos.z = radius * sinf(phi)*sinf(theta);
 
-				XMVECTOR p = XMLoadFloat3(&v.pos);
-				XMStoreFloat3(&v.normal, XMVector3Normalize(p));
+				DirectX::XMVECTOR p = DirectX::XMLoadFloat3(&v.pos);
+				DirectX::XMStoreFloat3(&v.normal, DirectX::XMVector3Normalize(p));
 
-				v.texCoord.x = theta / XM_2PI;
-				v.texCoord.y = phi / XM_PI;
+				v.texCoord.x = theta / DirectX::XM_2PI;
+				v.texCoord.y = phi / DirectX::XM_PI;
 
 				vertices.push_back(v);
 			}
@@ -135,13 +136,12 @@ namespace BaseGeometry {
 
 		auto model = Pool::CreateInstance<Model>();
 		model->Initialize(
-			std::vector<Mesh>(1,
-				Mesh(
+			std::move(std::vector<Mesh>(1, Mesh(
 					vertices,
 					indices,
 					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
 					DirectX::XMMatrixIdentity())
-				)
+				))
 		);
 		model->Name = "Sphere";
 	}
