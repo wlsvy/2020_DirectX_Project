@@ -10,26 +10,18 @@
 #include "../Graphics/Model.h"
 #include "../../Util/StringHelper.h"
 #include "ObjectPool.h"
+#include "../Graphics/AnimationClip.h"
 
 
 //int GetTextureIndex(aiString * pStr);
 //TextureStorageType DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType);
 //Mesh ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix);
 
-bool ModelImporter::LoadModel(const std::string & filePath)
+bool ModelImporter::LoadModel(const std::string & filePath, const aiScene * scene)
 {
 	m_Directory = StringHelper::GetDirectoryFromPath(filePath);
 
-	Assimp::Importer importer;
-
-	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
-
-	if (pScene == nullptr)
-		return false;
-
-	this->ProcessNode(pScene->mRootNode, pScene, DirectX::XMMatrixIdentity());
+	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
 	auto model = Pool::CreateInstance<Model>();
 	model->Name = StringHelper::GetNameFromPath(filePath);
@@ -40,14 +32,19 @@ bool ModelImporter::LoadModel(const std::string & filePath)
 	return true;
 }
 
-void ModelImporter::ProcessNode(aiNode * node, const aiScene * scene, const DirectX::XMMATRIX & parentTransformMatrix)
+bool ModelImporterBase::LoadModel(const std::string & filePath, const aiScene * scene)
+{
+	return false;
+}
+
+void ModelImporterBase::ProcessNode(aiNode * node, const aiScene * scene, const DirectX::XMMATRIX & parentTransformMatrix)
 {
 	DirectX::XMMATRIX nodeTransformMatrix = DirectX::XMMatrixTranspose(DirectX::XMMATRIX(&node->mTransformation.a1)) * parentTransformMatrix;
 
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
 		aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-		m_Meshes.push_back(ProcessMesh(mesh, scene, nodeTransformMatrix));
+		ProcessMesh(mesh, scene, nodeTransformMatrix);
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
@@ -56,7 +53,7 @@ void ModelImporter::ProcessNode(aiNode * node, const aiScene * scene, const Dire
 	}
 }
 
-Mesh ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix)
+void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix)
 {
 	// Data to fill
 	std::vector<Vertex3D> vertices;
@@ -98,10 +95,10 @@ Mesh ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	return Mesh(vertices, indices, textures, transformMatrix);
+	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix);
 }
 
-TextureStorageType ModelImporter::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
+TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
 {
 	if (pMat->GetTextureCount(textureType) == 0)
 		return TextureStorageType::None;
@@ -144,7 +141,7 @@ TextureStorageType ModelImporter::DetermineTextureStorageType(const aiScene * pS
 	return TextureStorageType::None; // No texture exists
 }
 
-std::vector<Texture> ModelImporter::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
+std::vector<Texture> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
 {
 	std::vector<Texture> materialTextures;
 	TextureStorageType storetype = TextureStorageType::Invalid;
@@ -215,8 +212,250 @@ std::vector<Texture> ModelImporter::LoadMaterialTextures(aiMaterial * pMaterial,
 
 }
 
-int ModelImporter::GetTextureIndex(aiString * pStr)
+int ModelImporterBase::GetTextureIndex(aiString * pStr)
 {
 	assert(pStr->length >= 2);
 	return atoi(&pStr->C_Str()[1]);
+}
+
+bool SkinnedModelImporter::LoadModel(const std::string & filePath, const aiScene * scene)
+{
+	m_Directory = StringHelper::GetDirectoryFromPath(filePath);
+
+	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
+
+	auto model = Pool::CreateInstance<SkinnedModel>();
+	model->Name = StringHelper::GetNameFromPath(filePath);
+	if (!model->Initialize(std::move(m_Meshes))) {
+		Pool::Destroy(model.get());
+		return false;
+	}
+	
+	int animationNum = scene->mNumAnimations;
+	for (int i = 0; i < animationNum; i++) {
+		aiAnimation *anim = scene->mAnimations[i];
+		ProcessAnimation(anim, scene);
+	}
+
+	return true;
+}
+
+DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource);
+
+void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix)
+{
+	// Data to fill
+	//std::vector<Vertex3D> vertices;
+	const int vericesSize = mesh->mNumVertices;
+
+	std::vector<DWORD> indices;
+	std::vector<Texture> textures;
+	std::vector<Vertex_Bone_Data> VB_buffer;
+	std::vector<Vertex3D_BoneWeight> vertices_skinned(vericesSize);
+
+	VB_buffer.resize(mesh->mNumVertices);
+
+	//Get Bones
+	UINT BoneIndex = 0;
+
+	for (UINT i = 0; i < mesh->mNumBones; i++) {
+		aiBone *bone = mesh->mBones[i];
+		std::string boneName = bone->mName.data;
+
+		if (m_Bone_Name_Map.find(boneName) == m_Bone_Name_Map.end()) {
+			//BoneIndex = mBoneCount;
+			//mBoneCount++;
+			BoneIndex = m_Bone_Name_Map.size();
+			Bone boneInfo;
+			boneInfo.BoneOffset = DirectX::XMMatrixTranspose(GetAiMatrixData(bone->mOffsetMatrix)); //수식 조심
+			mBoneBuffer.push_back(boneInfo);
+			//mBoneBuffer[BoneIndex].BoneOffset = GetAiMatrixData(bone->mOffsetMatrix); //수식 조심
+			//mBoneBuffer[BoneIndex].BoneOffset = DirectX::XMMatrixTranspose(mBoneBuffer[BoneIndex].BoneOffset);
+			m_Bone_Name_Map[boneName] = BoneIndex;
+		}
+		else {
+			BoneIndex = m_Bone_Name_Map[boneName];
+		}
+
+		for (UINT j = 0; j < bone->mNumWeights; j++) {
+			UINT VertexID = bone->mWeights[j].mVertexId;
+			float Weight = bone->mWeights[j].mWeight;
+
+			for (int index = 0; index < Vertex_Bone_Data::MAX_BONE_PER_VERTEX; index++) {
+				if (VB_buffer[VertexID].BoneIDs[index] == -1)
+				{
+					VB_buffer[VertexID].BoneIDs[index] = BoneIndex;
+					VB_buffer[VertexID].BoneWeights[index] = Weight;
+					break;
+				}
+			}
+		}
+	}
+
+	//Get vertices
+	for (UINT i = 0; i < vericesSize; i++)
+	{
+		vertices_skinned[i].pos.x = mesh->mVertices[i].x;
+		vertices_skinned[i].pos.y = mesh->mVertices[i].y;
+		vertices_skinned[i].pos.z = mesh->mVertices[i].z;
+		vertices_skinned[i].normal.x = mesh->mNormals[i].x;
+		vertices_skinned[i].normal.y = mesh->mNormals[i].y;
+		vertices_skinned[i].normal.z = mesh->mNormals[i].z;
+
+		if (mesh->mTextureCoords[0])
+		{
+			vertices_skinned[i].texCoord.x = (float)mesh->mTextureCoords[0][i].x;
+			vertices_skinned[i].texCoord.y = (float)mesh->mTextureCoords[0][i].y;
+		}
+
+		vertices_skinned[i].boneIDs = DirectX::XMINT4(
+			VB_buffer[i].BoneIDs[0], VB_buffer[i].BoneIDs[1],
+			VB_buffer[i].BoneIDs[2], VB_buffer[i].BoneIDs[3]);
+		vertices_skinned[i].boneWeights = DirectX::XMFLOAT4(
+			VB_buffer[i].BoneWeights[0], VB_buffer[i].BoneWeights[1],
+			VB_buffer[i].BoneWeights[2], VB_buffer[i].BoneWeights[3]);
+	}
+
+	//Get indices
+	for (UINT i = 0; i < mesh->mNumFaces; i++)
+	{
+		aiFace& face = mesh->mFaces[i];
+
+		for (UINT j = 0; j < face.mNumIndices; j++)
+			indices.push_back(face.mIndices[j]);
+	}
+
+	//Get Material & Textures
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	textures = LoadMaterialTextures(material,
+		aiTextureType::aiTextureType_DIFFUSE,
+		scene);
+
+	m_Meshes.emplace_back(vertices_skinned, indices, textures, transformMatrix);
+}
+
+void SkinnedModelImporter::ProcessAnimation(aiAnimation * anim, const aiScene * scene)
+{
+	auto clip = Pool::CreateInstance<AnimationClip>();
+	clip->Name = anim->mName.data;
+	clip->mChannel.resize(m_Bone_Name_Map.size());
+	clip->mTickPerSecond = (float)(anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f);
+	clip->mDuration = (float)anim->mDuration;
+
+	int numChannel = anim->mNumChannels;
+	for (int i = 0; i < numChannel; i++) {
+		aiNodeAnim *ainodeAnim = anim->mChannels[i];
+		BoneChannel channel;
+
+		channel.mChannelName = ainodeAnim->mNodeName.data;
+		if (m_Bone_Name_Map.find(channel.mChannelName) != m_Bone_Name_Map.end()) {
+			channel.mBoneIndex = m_Bone_Name_Map[channel.mChannelName];
+		}
+
+		channel.mNumPositionKeys = ainodeAnim->mNumPositionKeys;
+		channel.mNumRotationKeys = ainodeAnim->mNumRotationKeys;
+		channel.mNumScaleKeys = ainodeAnim->mNumScalingKeys;
+		channel.mBoneOffset = mBoneBuffer[channel.mBoneIndex].BoneOffset;
+
+		for (int j = 0; j < channel.mNumPositionKeys; j++) {
+			aiVectorKey aiPosKey = ainodeAnim->mPositionKeys[j];
+			PositionKey positionkey;
+
+			positionkey.mTime = (float)aiPosKey.mTime;
+			positionkey.mPosition = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
+
+			channel.mPositionKeys.push_back(positionkey);
+		}
+
+		for (int j = 0; j < channel.mNumRotationKeys; j++) {
+			aiQuatKey aiRotkey = ainodeAnim->mRotationKeys[j];
+			RotationKey rotationkey;
+
+			rotationkey.mTime = (float)aiRotkey.mTime;
+			rotationkey.mQuaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
+
+			channel.mRotationKeys.push_back(rotationkey);
+		}
+
+		for (int j = 0; j < channel.mNumScaleKeys; j++) {
+			aiVectorKey aiScaleKey = ainodeAnim->mScalingKeys[j];
+			ScaleKey scalekey;
+
+			scalekey.mTime = (float)aiScaleKey.mTime;
+			scalekey.mScale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
+
+			channel.mScaleKeys.push_back(scalekey);
+		}
+
+		DirectX::XMMATRIX globalInverseTransform = GetAiMatrixData(scene->mRootNode->mTransformation);
+		globalInverseTransform = DirectX::XMMatrixTranspose(globalInverseTransform);
+		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
+		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
+		channel.mGlobalInverseTransform = globalInverseTransform;
+		clip->mChannel[channel.mBoneIndex] = channel;
+	}
+
+	aiNode * ainode = scene->mRootNode;
+
+	ProcessBoneHierarchy(ainode, clip.get(), nullptr, DirectX::XMMatrixIdentity());
+
+	clip->mNumChannel = (short)clip->mChannel.size();
+	for (auto& channel : clip->mChannel) {
+		channel.mNumChildBone = (short)channel.mChildBoneIndex.size();
+	}
+}
+
+void SkinnedModelImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * animClip, BoneChannel * parentBone, const DirectX::XMMATRIX & parentTransform)
+{
+	std::string nodeName = node->mName.data;
+	int nodeIndex = -1;
+	DirectX::XMMATRIX nodeTransform = GetAiMatrixData(node->mTransformation);
+	nodeTransform = DirectX::XMMatrixTranspose(nodeTransform);
+
+	BoneChannel * currentBoneChannel = nullptr;
+
+	if (m_Bone_Name_Map.find(nodeName) != m_Bone_Name_Map.end()) {
+		nodeIndex = m_Bone_Name_Map[nodeName];
+		currentBoneChannel = &animClip->mChannel[nodeIndex];
+	}
+
+	int childNum = node->mNumChildren;
+
+	if (currentBoneChannel != nullptr) {
+		if (parentBone != nullptr)
+			parentBone->mChildBoneIndex.push_back(currentBoneChannel->mBoneIndex);
+
+		currentBoneChannel->mParentNodeTransform = parentTransform;
+		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
+
+		for (int i = 0; i < childNum; i++) {
+			aiNode * childNode = node->mChildren[i];
+			std::string childName = childNode->mName.data;
+
+			if (m_Bone_Name_Map.find(childName) == m_Bone_Name_Map.end()) {
+				ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
+				continue;
+			}
+
+			ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
+		}
+	}
+	else {
+		DirectX::XMMATRIX globalTransform = nodeTransform * parentTransform;
+
+		for (int i = 0; i < childNum; i++) {
+			aiNode * childNode = node->mChildren[i];
+
+			ProcessBoneHierarchy(childNode, animClip, parentBone, globalTransform);
+		}
+	}
+}
+
+DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)
+{
+	return DirectX::XMMatrixSet(
+		pSource.a1, pSource.a2, pSource.a3, pSource.a4,
+		pSource.b1, pSource.b2, pSource.b3, pSource.b4,
+		pSource.c1, pSource.c2, pSource.c3, pSource.c4,
+		pSource.d1, pSource.d2, pSource.d3, pSource.d4);
 }

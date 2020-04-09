@@ -8,6 +8,7 @@
 #include "../Core/InternalHelper.h"
 #include "../Core/GameObject.h"
 #include "../Graphics/Graphics.h"
+#include "../../Component/Animator.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Behaviour.h"
 #include "../../GameObject/Camera.h"
@@ -66,8 +67,9 @@ void Engine::Update() {
 	keyboard.Update();
 	mouse.Update();
 	Pool::ObjectPool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
+	Pool::ObjectPool<Animator>::GetInstance().ForEach(UpdateBehaviour);
 
-	this->m_Graphics->gameObject->GetTransform().rotate(0.0f, 100 * m_Timer->GetDeltaTime(), 0.0f);
+	//this->m_Graphics->gameObject->GetTransform().rotate(0.0f, 100 * m_Timer->GetDeltaTime(), 0.0f);
 
 	m_CurrentScene->Update();
 	this->m_Graphics->mainCam->UpdateViewMatrix();

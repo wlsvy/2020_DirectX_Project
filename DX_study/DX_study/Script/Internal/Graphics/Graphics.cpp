@@ -10,6 +10,7 @@
 #include "Shaders.h"
 #include "Skybox.h"
 #include "BaseGeometry.h"
+#include "AnimationClip.h"
 #include "../../Util/Time.h"
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
@@ -20,6 +21,7 @@
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Custom/CamMove.h"
+#include "../../Component/Animator.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
@@ -98,8 +100,7 @@ void Graphics::RenderFrame()
 void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 {
 	if (!renderer->Vshader ||
-		!renderer->Pshader ||
-		!renderer->Model)
+		!renderer->Pshader)
 	{
 		return;
 	}
@@ -111,8 +112,27 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
+	
+	if (renderer->Model) {
+		DrawModel(renderer->Model, worldMat, wvpMat);
+	}
+	else if (renderer->SkinnedModel) {
+		DrawSkinned(renderer->Anim);
+		DrawModel(renderer->SkinnedModel, worldMat, wvpMat);
+	}
+}
 
-	DrawModel(renderer->Model, worldMat, wvpMat);
+void Graphics::DrawSkinned(const std::shared_ptr<Animator>& animator)
+{
+	if (!animator->GetAnimClip()) 
+	{
+		return;
+	}
+		
+	CopyMemory(cb_BoneInfo.data.boneTransform, animator->mAnimResult.data(), animator->mAnimResult.size() * sizeof(DirectX::XMMATRIX));
+	cb_BoneInfo.ApplyChanges();
+
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
 }
 
 void Graphics::DrawModel(
@@ -122,6 +142,29 @@ void Graphics::DrawModel(
 {
 	for (auto& mesh : model->GetMeshes()) {
 		DrawMesh(mesh, worldMat, wvpMat);
+	}
+}
+void Graphics::DrawModel(
+	const std::shared_ptr<SkinnedModel>& model,
+	const DirectX::XMMATRIX & worldMat,
+	const DirectX::XMMATRIX & wvpMat)
+{
+	for (auto& mesh : model->GetMeshes()) {
+		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+		cb_vs_vertexshader.ApplyChanges();
+
+		for (auto& texture : mesh.GetTextures()) {
+			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+				break;
+			}
+		}
+
+		UINT offset = 0;
+		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
+		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
 	}
 }
 void Graphics::DrawMesh(
@@ -211,13 +254,20 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
+		ThrowIfFailed(cb_BoneInfo.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
 
 		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
-		gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
-		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+		gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
+		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
+		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Walking");
+		gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
+		gameObject->GetRenderer().Anim->SetClip(Pool::Find<AnimationClip>("mixamo.com").get());
+		gameObject->GetRenderer().Anim->Play();
+		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
 		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader");
 		light->GetRenderer().Model = Pool::Find<Model>("light");
 		light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");

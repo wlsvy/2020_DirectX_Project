@@ -6,12 +6,14 @@
 #include "Behaviour.h"
 
 class AnimationClip;
+class SkinnedModel;
 
 class Animator : public Behaviour {
+	MANAGED_OBJECT(Animator)
 	BEHAVIOUR_CONSTRUCTOR(Animator)
 public:
 	
-	void Update(float _deltaTime);
+	void Update();
 	void Play();
 	void Stop();
 
@@ -19,6 +21,7 @@ public:
 	void SetClip(const std::string & clipName);
 
 	AnimationClip * GetAnimClip();
+	std::shared_ptr<SkinnedModel> m_Model;
 
 	bool IsRunning();
 

@@ -3,27 +3,26 @@
 #include "../Internal/Graphics/AnimationClip.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/GameObject.h"
+#include "../Util/Time.h"
 
-void Animator::Update(float _deltaTime)
+void Animator::Update()
 {
-	if (mClip == nullptr) return;
+	if (mClip == nullptr ||
+		!m_IsRunning) return;
 
 	mClip->GetResultInTime(mPlayTime, &mAnimResult);
 
-	mPlayTime += _deltaTime / 10;
+	mPlayTime += Time::GetDeltaTime();
 }
 
 void Animator::Play()
 {
 	m_IsRunning = true;
-	//if (mClip != nullptr) gameObject->renderer.drawSkinnedMesh = true;
-	//else gameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::Stop()
 {
 	m_IsRunning = false;
-	//gameObject->renderer.drawSkinnedMesh = false;
 }
 
 void Animator::SetClip(AnimationClip * _clip)

@@ -30,6 +30,10 @@ void AnimationClip::HierarchyBoneAnim(
 		if (_check[childIndex])
 			HierarchyBoneAnim(&mChannel[childIndex], _animTime, boneGlobalMatrix, _check, _result);
 	}
+	/*for (auto i : _bone->mChildBoneIndex) {
+		if (_check[i])
+			HierarchyBoneAnim(&mChannel[i], _animTime, boneGlobalMatrix, _check, _result);
+	}*/
 }
 
 void AnimationClip::GetResultInTime(float _time, std::vector<DirectX::XMMATRIX> * _result)

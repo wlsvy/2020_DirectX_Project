@@ -10,6 +10,7 @@ class BufferBase;
 class Texture;
 class Material;
 class Model;
+class SkinnedModel;
 class Mesh;
 class Renderable;
 class Engine;
@@ -17,6 +18,7 @@ class Camera;
 class Light;
 class GameObject;
 class Skybox;
+class Animator;
 
 class Graphics {
 public:
@@ -24,9 +26,14 @@ public:
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<Renderable>& renderer);
+	void DrawSkinned(const std::shared_ptr<Animator>& animator);
 	void DrawModel(
 		const std::shared_ptr<Model>& model,
 		const DirectX::XMMATRIX & worldMat, 
+		const DirectX::XMMATRIX & wvpMat);
+	void DrawModel(
+		const std::shared_ptr<SkinnedModel>& model,
+		const DirectX::XMMATRIX & worldMat,
 		const DirectX::XMMATRIX & wvpMat);
 	void DrawMesh(const Mesh & mesh,
 		const DirectX::XMMATRIX & worldMat, 
@@ -41,6 +48,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
+	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_BoneInfo; }
 	
 	std::shared_ptr<Camera> mainCam;
 	std::shared_ptr<GameObject> gameObject;
@@ -58,6 +66,7 @@ private:
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
+	ConstantBuffer<CB_VS_boneData> cb_BoneInfo;
 
 	std::shared_ptr<Skybox> m_Skybox;
 

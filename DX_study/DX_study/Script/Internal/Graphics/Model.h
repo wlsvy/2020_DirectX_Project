@@ -11,3 +11,14 @@ public:
 private:
 	std::vector<Mesh> m_Meshes;
 };
+
+class SkinnedModel : public Object {
+	MANAGED_OBJECT(SkinnedModel)
+public:
+	bool Initialize(std::vector<SkinnedMesh>&& meshes);
+	const std::vector<SkinnedMesh>& GetMeshes() const { return m_Meshes; }
+
+private:
+	std::vector<SkinnedMesh> m_Meshes;
+
+};

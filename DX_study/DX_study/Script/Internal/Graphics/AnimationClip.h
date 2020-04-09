@@ -47,6 +47,7 @@ public:
 };
 
 class AnimationClip : public Object {
+	MANAGED_OBJECT(AnimationClip)
 public:
 	void GetResultInTime(float _time, std::vector<DirectX::XMMATRIX> * _result);
 
