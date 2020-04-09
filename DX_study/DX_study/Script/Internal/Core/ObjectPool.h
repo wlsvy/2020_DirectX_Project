@@ -12,7 +12,6 @@ class Engine;
 class Pool {
 	friend class Engine;
 private:
-
 	template<typename T>
 	class ObjectPool : public Singleton<ObjectPool<T>> {
 	public:

@@ -5,7 +5,7 @@
 void RunApplication(HINSTANCE& hInstance) {
 	Engine engine;
 	engine.Initialize(hInstance, "title", "class", 800, 600);
-	while (engine.ProcessMessage() == true) {
+	while (engine.ProcessMessage()) {
 		engine.Update();
 		engine.RenderFrame();
 	}

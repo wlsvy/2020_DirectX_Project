@@ -215,7 +215,7 @@ bool Graphics::InitializeScene()
 		cb_ps_light.data.ambientLightStrength = 1.0f;
 
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
-		gameObject->GetRenderer().Model = Pool::Find<Model>("Sphere");
+		gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader");
 		light->GetRenderer().Model = Pool::Find<Model>("light");
