@@ -116,23 +116,18 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	if (renderer->Model) {
 		DrawModel(renderer->Model, worldMat, wvpMat);
 	}
-	else if (renderer->SkinnedModel) {
-		DrawSkinned(renderer->Anim);
+	else if (renderer->SkinnedModel &&
+		renderer->Anim &&
+		renderer->Anim->Clip) 
+	{
+		CopyMemory(cb_BoneInfo.data.boneTransform, 
+			renderer->Anim->GetAnimResult().data(), 
+			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
+		cb_BoneInfo.ApplyChanges();
+
+		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
 		DrawModel(renderer->SkinnedModel, worldMat, wvpMat);
 	}
-}
-
-void Graphics::DrawSkinned(const std::shared_ptr<Animator>& animator)
-{
-	if (!animator->GetAnimClip()) 
-	{
-		return;
-	}
-		
-	CopyMemory(cb_BoneInfo.data.boneTransform, animator->mAnimResult.data(), animator->mAnimResult.size() * sizeof(DirectX::XMMATRIX));
-	cb_BoneInfo.ApplyChanges();
-
-	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
 }
 
 void Graphics::DrawModel(
@@ -264,7 +259,7 @@ bool Graphics::InitializeScene()
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
 		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Walking");
 		gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-		gameObject->GetRenderer().Anim->SetClip(Pool::Find<AnimationClip>("mixamo.com").get());
+		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("mixamo.com");
 		gameObject->GetRenderer().Anim->Play();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");

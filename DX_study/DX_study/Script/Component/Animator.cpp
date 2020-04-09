@@ -7,12 +7,15 @@
 
 void Animator::Update()
 {
-	if (mClip == nullptr ||
-		!m_IsRunning) return;
+	if (!Clip ||
+		!m_IsRunning) 
+	{
+		return;
+	}
 
-	mClip->GetResultInTime(mPlayTime, &mAnimResult);
+	Clip->GetResultInTime(m_PlayTime, m_AnimResult);
 
-	mPlayTime += Time::GetDeltaTime();
+	m_PlayTime += Time::GetDeltaTime() * Speed;
 }
 
 void Animator::Play()
@@ -25,29 +28,6 @@ void Animator::Stop()
 	m_IsRunning = false;
 }
 
-void Animator::SetClip(AnimationClip * _clip)
-{
-	mClip = _clip;
-	if (mClip == nullptr) Stop();
-	else Play();
-		
-}
-
-void Animator::SetClip(const std::string & clipName)
-{
-	//SetClip(Module::GetAnimationClip(clipName).get());
-}
-
-AnimationClip * Animator::GetAnimClip()
-{
-	return mClip;
-}
-
-bool Animator::IsRunning()
-{
-	return m_IsRunning;
-}
-
 void Animator::OnGui()
 {
 	/*if (m_IsRunning) {
@@ -57,10 +37,4 @@ void Animator::OnGui()
 	//애니메이션 클립 이름
 	//애니메이션 진행 속도 바
 	//ImGui::Button
-}
-
-Animator::~Animator()
-{
-	//gameObject->renderer.animator = nullptr;
-	//gameObject->renderer.drawSkinnedMesh = false;
 }

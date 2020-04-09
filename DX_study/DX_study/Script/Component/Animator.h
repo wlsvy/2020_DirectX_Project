@@ -12,26 +12,18 @@ class Animator : public Behaviour {
 	MANAGED_OBJECT(Animator)
 	BEHAVIOUR_CONSTRUCTOR(Animator)
 public:
-	
 	void Update();
 	void Play();
 	void Stop();
-
-	void SetClip(AnimationClip * _clip);
-	void SetClip(const std::string & clipName);
-
-	AnimationClip * GetAnimClip();
-	std::shared_ptr<SkinnedModel> m_Model;
-
-	bool IsRunning();
-
+	bool IsRunning() const { return m_IsRunning; }
+	const std::vector<DirectX::XMMATRIX> & GetAnimResult() const { return m_AnimResult; }
 	void OnGui() override;
 
-	~Animator();
-	
-	float mPlayTime = 0.0f;
-	std::vector<DirectX::XMMATRIX> mAnimResult;
+	std::shared_ptr<AnimationClip> Clip;
+	float Speed = 1.0f;
+
 private:
-	AnimationClip * mClip = nullptr;
+	std::vector<DirectX::XMMATRIX> m_AnimResult;
+	float m_PlayTime = 0.0f;
 	bool m_IsRunning = false;
 };

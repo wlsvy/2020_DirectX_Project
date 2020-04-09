@@ -18,9 +18,9 @@ struct Vertex3D {
 	DirectX::XMFLOAT3 normal;
 };
 
-struct Vertex3D_BoneWeight {
-	Vertex3D_BoneWeight() {}
-	Vertex3D_BoneWeight(
+struct SkinnedVertex {
+	SkinnedVertex() {}
+	SkinnedVertex(
 		float x, float y, float z, 
 		float u, float v, 
 		float nx, float ny, float nz,

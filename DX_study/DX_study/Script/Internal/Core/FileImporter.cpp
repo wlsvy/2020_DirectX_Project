@@ -245,15 +245,14 @@ DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource);
 void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix)
 {
 	// Data to fill
-	//std::vector<Vertex3D> vertices;
 	const int vericesSize = mesh->mNumVertices;
 
 	std::vector<DWORD> indices;
 	std::vector<Texture> textures;
-	std::vector<Vertex_Bone_Data> VB_buffer;
-	std::vector<Vertex3D_BoneWeight> vertices_skinned(vericesSize);
+	std::vector<Vertex_Bone_Data> bones;
+	std::vector<SkinnedVertex> vertices(vericesSize);
 
-	VB_buffer.resize(mesh->mNumVertices);
+	bones.resize(mesh->mNumVertices);
 
 	//Get Bones
 	UINT BoneIndex = 0;
@@ -263,14 +262,10 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		std::string boneName = bone->mName.data;
 
 		if (m_Bone_Name_Map.find(boneName) == m_Bone_Name_Map.end()) {
-			//BoneIndex = mBoneCount;
-			//mBoneCount++;
 			BoneIndex = m_Bone_Name_Map.size();
 			Bone boneInfo;
 			boneInfo.BoneOffset = DirectX::XMMatrixTranspose(GetAiMatrixData(bone->mOffsetMatrix)); //수식 조심
 			mBoneBuffer.push_back(boneInfo);
-			//mBoneBuffer[BoneIndex].BoneOffset = GetAiMatrixData(bone->mOffsetMatrix); //수식 조심
-			//mBoneBuffer[BoneIndex].BoneOffset = DirectX::XMMatrixTranspose(mBoneBuffer[BoneIndex].BoneOffset);
 			m_Bone_Name_Map[boneName] = BoneIndex;
 		}
 		else {
@@ -282,10 +277,10 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 			float Weight = bone->mWeights[j].mWeight;
 
 			for (int index = 0; index < Vertex_Bone_Data::MAX_BONE_PER_VERTEX; index++) {
-				if (VB_buffer[VertexID].BoneIDs[index] == -1)
+				if (bones[VertexID].BoneIDs[index] == -1)
 				{
-					VB_buffer[VertexID].BoneIDs[index] = BoneIndex;
-					VB_buffer[VertexID].BoneWeights[index] = Weight;
+					bones[VertexID].BoneIDs[index] = BoneIndex;
+					bones[VertexID].BoneWeights[index] = Weight;
 					break;
 				}
 			}
@@ -295,25 +290,25 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	//Get vertices
 	for (UINT i = 0; i < vericesSize; i++)
 	{
-		vertices_skinned[i].pos.x = mesh->mVertices[i].x;
-		vertices_skinned[i].pos.y = mesh->mVertices[i].y;
-		vertices_skinned[i].pos.z = mesh->mVertices[i].z;
-		vertices_skinned[i].normal.x = mesh->mNormals[i].x;
-		vertices_skinned[i].normal.y = mesh->mNormals[i].y;
-		vertices_skinned[i].normal.z = mesh->mNormals[i].z;
+		vertices[i].pos.x = mesh->mVertices[i].x;
+		vertices[i].pos.y = mesh->mVertices[i].y;
+		vertices[i].pos.z = mesh->mVertices[i].z;
+		vertices[i].normal.x = mesh->mNormals[i].x;
+		vertices[i].normal.y = mesh->mNormals[i].y;
+		vertices[i].normal.z = mesh->mNormals[i].z;
 
 		if (mesh->mTextureCoords[0])
 		{
-			vertices_skinned[i].texCoord.x = (float)mesh->mTextureCoords[0][i].x;
-			vertices_skinned[i].texCoord.y = (float)mesh->mTextureCoords[0][i].y;
+			vertices[i].texCoord.x = (float)mesh->mTextureCoords[0][i].x;
+			vertices[i].texCoord.y = (float)mesh->mTextureCoords[0][i].y;
 		}
 
-		vertices_skinned[i].boneIDs = DirectX::XMINT4(
-			VB_buffer[i].BoneIDs[0], VB_buffer[i].BoneIDs[1],
-			VB_buffer[i].BoneIDs[2], VB_buffer[i].BoneIDs[3]);
-		vertices_skinned[i].boneWeights = DirectX::XMFLOAT4(
-			VB_buffer[i].BoneWeights[0], VB_buffer[i].BoneWeights[1],
-			VB_buffer[i].BoneWeights[2], VB_buffer[i].BoneWeights[3]);
+		vertices[i].boneIDs = DirectX::XMINT4(
+			bones[i].BoneIDs[0], bones[i].BoneIDs[1],
+			bones[i].BoneIDs[2], bones[i].BoneIDs[3]);
+		vertices[i].boneWeights = DirectX::XMFLOAT4(
+			bones[i].BoneWeights[0], bones[i].BoneWeights[1],
+			bones[i].BoneWeights[2], bones[i].BoneWeights[3]);
 	}
 
 	//Get indices
@@ -331,7 +326,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		aiTextureType::aiTextureType_DIFFUSE,
 		scene);
 
-	m_Meshes.emplace_back(vertices_skinned, indices, textures, transformMatrix);
+	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix);
 }
 
 void SkinnedModelImporter::ProcessAnimation(aiAnimation * anim, const aiScene * scene)
@@ -358,33 +353,24 @@ void SkinnedModelImporter::ProcessAnimation(aiAnimation * anim, const aiScene * 
 		channel.mBoneOffset = mBoneBuffer[channel.mBoneIndex].BoneOffset;
 
 		for (int j = 0; j < channel.mNumPositionKeys; j++) {
-			aiVectorKey aiPosKey = ainodeAnim->mPositionKeys[j];
-			PositionKey positionkey;
+			auto& posKey = ainodeAnim->mPositionKeys[j];
+			auto& posValue = posKey.mValue;
 
-			positionkey.mTime = (float)aiPosKey.mTime;
-			positionkey.mPosition = DirectX::XMFLOAT3(aiPosKey.mValue.x, aiPosKey.mValue.y, aiPosKey.mValue.z);
-
-			channel.mPositionKeys.push_back(positionkey);
+			channel.mPositionKeys.emplace_back(posValue.x, posValue.y, posValue.z, posKey.mTime);
 		}
 
 		for (int j = 0; j < channel.mNumRotationKeys; j++) {
-			aiQuatKey aiRotkey = ainodeAnim->mRotationKeys[j];
-			RotationKey rotationkey;
+			auto& rotKey = ainodeAnim->mRotationKeys[j];
+			auto& rotValue = rotKey.mValue;
 
-			rotationkey.mTime = (float)aiRotkey.mTime;
-			rotationkey.mQuaternion = DirectX::XMFLOAT4(aiRotkey.mValue.x, aiRotkey.mValue.y, aiRotkey.mValue.z, aiRotkey.mValue.w);
-
-			channel.mRotationKeys.push_back(rotationkey);
+			channel.mRotationKeys.emplace_back(rotValue.x, rotValue.y, rotValue.z, rotValue.w, rotKey.mTime);
 		}
 
 		for (int j = 0; j < channel.mNumScaleKeys; j++) {
-			aiVectorKey aiScaleKey = ainodeAnim->mScalingKeys[j];
-			ScaleKey scalekey;
+			auto& scaleKey = ainodeAnim->mScalingKeys[j];
+			auto& scaleValue = scaleKey.mValue;
 
-			scalekey.mTime = (float)aiScaleKey.mTime;
-			scalekey.mScale = DirectX::XMFLOAT3(aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z);
-
-			channel.mScaleKeys.push_back(scalekey);
+			channel.mScaleKeys.emplace_back(scaleValue.x, scaleValue.y, scaleValue.z, scaleKey.mTime);
 		}
 
 		DirectX::XMMATRIX globalInverseTransform = GetAiMatrixData(scene->mRootNode->mTransformation);

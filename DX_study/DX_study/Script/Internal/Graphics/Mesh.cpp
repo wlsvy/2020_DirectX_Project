@@ -30,7 +30,7 @@ Mesh::Mesh(const Mesh & mesh) :
 }
 
 SkinnedMesh::SkinnedMesh(
-	const std::vector<Vertex3D_BoneWeight>& vertices, 
+	const std::vector<SkinnedVertex>& vertices, 
 	const std::vector<DWORD>& indices, 
 	const std::vector<Texture>& textures, 
 	const DirectX::XMMATRIX & transformMatrix)

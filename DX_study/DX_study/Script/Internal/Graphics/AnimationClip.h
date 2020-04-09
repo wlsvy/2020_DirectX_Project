@@ -5,18 +5,21 @@
 #include "../Core/Object.h"
 
 struct PositionKey {
-	DirectX::XMFLOAT3 mPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	PositionKey(float x, float y, float z, float time) : mPosition(x, y, z), mTime(time) {}
+	DirectX::XMFLOAT3 mPosition;
+	float mTime;
 };
 
 struct RotationKey {
-	DirectX::XMFLOAT4 mQuaternion = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	RotationKey(float x, float y, float z, float w, float time) : mQuaternion(x, y, z, w), mTime(time) {}
+	DirectX::XMFLOAT4 mQuaternion;
+	float mTime;
 };
 
 struct ScaleKey {
-	DirectX::XMFLOAT3 mScale = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	float mTime = 0.0f;
+	ScaleKey(float x, float y, float z, float time) : mScale(x, y, z), mTime(time) {}
+	DirectX::XMFLOAT3 mScale;
+	float mTime;
 };
 
 struct BoneChannel {
@@ -41,15 +44,15 @@ struct BoneChannel {
 	DirectX::XMMATRIX mGlobalInverseTransform;
 
 public:
-	void positionInterpolate(DirectX::XMVECTOR & _result, float _animTime);
-	void rotationInterpolate(DirectX::XMVECTOR & _result, float _animTime);
-	void scaleInterpolate(DirectX::XMVECTOR & _result, float _animTime);
+	const DirectX::XMVECTOR & positionInterpolate(float time) const;
+	const DirectX::XMVECTOR & rotationInterpolate(float time) const;
+	const DirectX::XMVECTOR & scaleInterpolate(float time) const;
 };
 
 class AnimationClip : public Object {
 	MANAGED_OBJECT(AnimationClip)
 public:
-	void GetResultInTime(float _time, std::vector<DirectX::XMMATRIX> * _result);
+	void GetResultInTime(float time, std::vector<DirectX::XMMATRIX> & result);
 
 	short mNumChannel;
 	std::vector<BoneChannel> mChannel;
@@ -59,9 +62,9 @@ public:
 
 private:
 	void HierarchyBoneAnim(
-		BoneChannel * _bone, 
-		float _animTime, 
-		DirectX::XMMATRIX & _parentTransform, 
-		std::vector<bool> & _check,
-		std::vector<DirectX::XMMATRIX> * _result);
+		const BoneChannel & bone, 
+		float animTime, 
+		const DirectX::XMMATRIX & parentTransform, 
+		std::vector<bool> & check,
+		std::vector<DirectX::XMMATRIX> & result);
 };

@@ -29,19 +29,19 @@ private:
 class SkinnedMesh {
 public:
 	SkinnedMesh(
-		const std::vector<Vertex3D_BoneWeight> & vertices,
+		const std::vector<SkinnedVertex> & vertices,
 		const std::vector<DWORD> & indices,
 		const std::vector<Texture> & textures,
 		const DirectX::XMMATRIX & transformMatrix);
 	SkinnedMesh(const SkinnedMesh & mesh);
 
 	const DirectX::XMMATRIX & GetTransformMatrix() const { return transformMatrix; }
-	const VertexBuffer<Vertex3D_BoneWeight> & GetVertexBuffer() const { return vertexbuffer; }
+	const VertexBuffer<SkinnedVertex> & GetVertexBuffer() const { return vertexbuffer; }
 	const IndexBuffer & GetIndexBuffer() const { return indexbuffer; }
 	const std::vector<Texture> & GetTextures() const { return textures; }
 
 private:
-	VertexBuffer<Vertex3D_BoneWeight> vertexbuffer;
+	VertexBuffer<SkinnedVertex> vertexbuffer;
 	IndexBuffer indexbuffer;
 	std::vector<Texture> textures;
 	DirectX::XMMATRIX transformMatrix;
