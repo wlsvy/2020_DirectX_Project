@@ -50,6 +50,30 @@ private:
 
 	struct Bone {
 		DirectX::XMMATRIX BoneOffset;
+	};
+	struct Vertex_Bone_Data {
+		const static int MAX_BONE_PER_VERTEX = 4;
+
+		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
+
+		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	};
+	std::vector<SkinnedMesh> m_Meshes;
+	std::unordered_map<std::string, UINT> m_BoneIdMap;
+	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
+	
+};
+
+class AnimationImporter {
+public:
+	void LoadAnimation(const std::string & filePath, const aiScene * scene);
+
+private:
+	void ProcessAnimation(aiAnimation * anim, const aiScene * scene);
+	void ProcessBoneHierarchy(aiNode * node, AnimationClip * animClip, BoneChannel * parentBone, const DirectX::XMMATRIX & parentTransform);
+
+	struct Bone {
+		DirectX::XMMATRIX BoneOffset;
 		DirectX::XMMATRIX FinalTransform;
 	};
 	struct Vertex_Bone_Data {
@@ -58,9 +82,8 @@ private:
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
-	std::vector<SkinnedMesh> m_Meshes;
-	std::unordered_map<std::string, UINT> m_Bone_Name_Map;
-	std::vector<Bone> mBoneBuffer;
-	
+
+	std::unordered_map<std::string, UINT> m_BoneIdMap;
+	std::vector<Bone> m_BoneBuffer;
 };
 

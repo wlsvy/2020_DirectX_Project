@@ -21,14 +21,22 @@ bool Importer::LoadModel(const std::string & filePath)
 	if (pScene == nullptr)
 		return false;
 
-	if (!pScene->HasAnimations()) {
-		ModelImporter importer;
-		return importer.LoadModel(filePath, pScene);
+	if (pScene->HasAnimations()) {
+		AnimationImporter animImporter;
+		//animImporter.LoadAnimation(filePath, pScene);
 	}
-	else {
-		SkinnedModelImporter importer;
-		return importer.LoadModel(filePath, pScene);
+
+	if (pScene->HasMeshes()) {
+		if (!pScene->HasAnimations()) {
+			ModelImporter importer;
+			return importer.LoadModel(filePath, pScene);
+		}
+		else {
+			SkinnedModelImporter importer;
+			return importer.LoadModel(filePath, pScene);
+		}
 	}
+	
 
 	return true;
 }

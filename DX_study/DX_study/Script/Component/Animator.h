@@ -6,7 +6,7 @@
 #include "Behaviour.h"
 
 class AnimationClip;
-class SkinnedModel;
+class BoneAvatar;
 
 class Animator : public Behaviour {
 	MANAGED_OBJECT(Animator)
@@ -20,6 +20,7 @@ public:
 	void OnGui() override;
 
 	std::shared_ptr<AnimationClip> Clip;
+	std::shared_ptr<BoneAvatar> Avatar;
 	float Speed = 1.0f;
 
 private:
