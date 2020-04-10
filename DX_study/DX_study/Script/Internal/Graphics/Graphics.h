@@ -59,6 +59,7 @@ private:
 	void LoadPixelShader(const std::string & filePath);
 	void LoadModel(const std::string & filePath);
 	void LoadTexture(const std::string & filePath);
+	void LoadAnimation(const std::string & filePath);
 	
 	DeviceResources m_DeviceResources;
 

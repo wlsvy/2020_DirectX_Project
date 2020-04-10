@@ -9,9 +9,11 @@ bool Model::Initialize(const std::vector<Mesh>& meshes)
 
 bool SkinnedModel::Initialize(
 	const std::vector<SkinnedMesh> & meshes,
-	const std::vector<DirectX::XMMATRIX> & boneMatrices)
+	const std::vector<DirectX::XMMATRIX> & boneMatrices,
+	const std::unordered_map<std::string, UINT> & boneIdMap)
 {
 	m_Meshes = meshes;
-	m_BoneMatrices = boneMatrices;
+	m_BoneOffsets = boneMatrices;
+	m_BoneIdMap = boneIdMap;
 	return true;
 }

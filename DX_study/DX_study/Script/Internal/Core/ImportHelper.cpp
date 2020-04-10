@@ -2,7 +2,9 @@
 #include "FileImporter.h"
 
 #include "../Graphics/Texture.h"
+#include "../Graphics/Model.h"
 #include "../../Util/ErrorLogger.h"
+#include "ObjectPool.h"
 #include <WICTextureLoader.h>
 #include <DDSTextureLoader.h>
 #include <assimp/Importer.hpp>
@@ -21,10 +23,7 @@ bool Importer::LoadModel(const std::string & filePath)
 	if (pScene == nullptr)
 		return false;
 
-	if (pScene->HasAnimations()) {
-		AnimationImporter animImporter;
-		//animImporter.LoadAnimation(filePath, pScene);
-	}
+	
 
 	if (pScene->HasMeshes()) {
 		if (!pScene->HasAnimations()) {
@@ -37,6 +36,25 @@ bool Importer::LoadModel(const std::string & filePath)
 		}
 	}
 	
+
+	return true;
+}
+
+bool Importer::LoadAnimation(const std::string & filePath)
+{
+	Assimp::Importer importer;
+
+	const aiScene* pScene = importer.ReadFile(filePath,
+		aiProcess_Triangulate |
+		aiProcess_ConvertToLeftHanded);
+
+	if (pScene == nullptr)
+		return false;
+
+	if (pScene->HasAnimations()) {
+		AnimationImporter animImporter;
+		animImporter.LoadAnimation(StringHelper::GetNameFromPath(filePath), Pool::Find<SkinnedModel>("Walking"), pScene);
+	}
 
 	return true;
 }

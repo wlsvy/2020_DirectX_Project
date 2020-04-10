@@ -1,5 +1,6 @@
 #pragma once
 #include "Mesh.h"
+#include <unordered_map>
 #include "../Core/Object.h"
 
 class Model : public Object {
@@ -17,11 +18,14 @@ class SkinnedModel : public Object {
 public:
 	bool Initialize(
 		const std::vector<SkinnedMesh>& meshes, 
-		const std::vector<DirectX::XMMATRIX> & boneMatrices);
+		const std::vector<DirectX::XMMATRIX> & boneMatrices,
+		const std::unordered_map<std::string, UINT> & boneIdMap);
 	const std::vector<SkinnedMesh>& GetMeshes() const { return m_Meshes; }
+	const std::unordered_map<std::string, UINT> & GetBoneIdMap()  { return m_BoneIdMap; }
+	const std::vector<DirectX::XMMATRIX> & GetBoneOffsets() const { return m_BoneOffsets; }
 
 private:
 	std::vector<SkinnedMesh> m_Meshes;
-	std::vector<DirectX::XMMATRIX> m_BoneMatrices;
-
+	std::unordered_map<std::string, UINT> m_BoneIdMap;
+	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
 };

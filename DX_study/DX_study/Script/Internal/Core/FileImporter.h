@@ -14,6 +14,7 @@ struct aiMaterial;
 struct aiAnimation;
 struct BoneChannel;
 class AnimationClip;
+class SkinnedModel;
 
 class ModelImporterBase {
 public:
@@ -45,8 +46,6 @@ public:
 
 private:
 	void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) override;
-	void ProcessAnimation(aiAnimation * anim, const aiScene * scene);
-	void ProcessBoneHierarchy(aiNode * node, AnimationClip * animClip, BoneChannel * parentBone, const DirectX::XMMATRIX & parentTransform);
 
 	struct Bone {
 		DirectX::XMMATRIX BoneOffset;
@@ -55,7 +54,6 @@ private:
 		const static int MAX_BONE_PER_VERTEX = 4;
 
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
-
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
 	std::vector<SkinnedMesh> m_Meshes;
@@ -66,10 +64,10 @@ private:
 
 class AnimationImporter {
 public:
-	void LoadAnimation(const std::string & filePath, const aiScene * scene);
+	void LoadAnimation(const std::string & fileName, const std::shared_ptr<SkinnedModel> & baseModel, const aiScene * scene);
 
 private:
-	void ProcessAnimation(aiAnimation * anim, const aiScene * scene);
+	void ProcessAnimation(const std::string & name, aiAnimation * anim, const aiScene * scene);
 	void ProcessBoneHierarchy(aiNode * node, AnimationClip * animClip, BoneChannel * parentBone, const DirectX::XMMATRIX & parentTransform);
 
 	struct Bone {
@@ -83,7 +81,5 @@ private:
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
 
-	std::unordered_map<std::string, UINT> m_BoneIdMap;
-	std::vector<Bone> m_BoneBuffer;
+	std::shared_ptr<SkinnedModel> m_BaseModel;
 };
-

@@ -46,6 +46,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	TraverseDirectory("hlsl\\VertexShader\\", &Graphics::LoadVertexShader);
 	TraverseDirectory("hlsl\\PixelShader\\", &Graphics::LoadPixelShader);
 	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
+	TraverseDirectory("Data\\Animation\\", &Graphics::LoadAnimation);
 	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
 
 	BaseGeometry::Initialize();
@@ -259,7 +260,7 @@ bool Graphics::InitializeScene()
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
 		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Walking");
 		gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("mixamo.com");
+		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Catwalk Walk Forward 01");
 		gameObject->GetRenderer().Anim->Play();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
@@ -337,6 +338,18 @@ void Graphics::LoadTexture(const std::string & filePath)
 		ext == "bmp")
 	{
 		Pool::CreateInstance<Texture>(filePath, aiTextureType::aiTextureType_DIFFUSE);
+	}
+}
+
+void Graphics::LoadAnimation(const std::string & filePath)
+{
+	std::string ext = StringHelper::GetFileExtension(filePath);
+	if (ext == "fbx")
+	{
+		if (!Importer::LoadAnimation(filePath)) {
+			MessageBoxA(NULL, "Animation Initialize error.", ERROR, MB_ICONERROR);
+			return;
+		}
 	}
 }
 
