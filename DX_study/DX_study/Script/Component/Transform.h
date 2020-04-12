@@ -18,8 +18,6 @@ public:
 	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
 	const DirectX::XMVECTOR GetRotationVector() const;
 	const DirectX::XMFLOAT3 & GetRotationFloat3() const;
-	const DirectX::XMVECTOR & GetQuaternionVector() const;
-	const DirectX::XMFLOAT4 GetQuaternionFloat4() const;
 	const DirectX::XMFLOAT3 & GetScaleFloat3() const;
 
 	void SetPosition(const DirectX::XMVECTOR & pos);
@@ -56,8 +54,6 @@ public:
 
 	void SetParent(const std::shared_ptr<Transform> & transform);
 	bool HaveChildTransform(Transform * _transform);
-
-	DirectX::XMVECTOR quaternion = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);

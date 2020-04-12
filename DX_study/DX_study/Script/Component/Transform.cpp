@@ -90,18 +90,6 @@ const DirectX::XMFLOAT3 & Transform::GetRotationFloat3() const
 	return this->rotation;
 }
 
-const DirectX::XMVECTOR & Transform::GetQuaternionVector() const
-{
-	return quaternion;
-}
-
-const DirectX::XMFLOAT4 Transform::GetQuaternionFloat4() const
-{
-	DirectX::XMFLOAT4 quaternionfloat4;
-	DirectX::XMStoreFloat4(&quaternionfloat4, quaternion);
-	return quaternionfloat4;
-}
-
 const DirectX::XMFLOAT3 & Transform::GetScaleFloat3() const
 {
 	return this->scale;
@@ -142,31 +130,25 @@ void Transform::translate(float x, float y, float z)
 void Transform::SetRotation(const DirectX::XMFLOAT3 & rot)
 {
 	rotation = rot;
-	quaternion = DirectX::XMQuaternionRotationRollPitchYaw(rotation.x * Deg2Rad, rotation.y * Deg2Rad, rotation.z * Deg2Rad);
 }
 
 void Transform::SetRotation(float x, float y, float z)
 {
 	rotation = DirectX::XMFLOAT3(x, y, z);
-	quaternion = DirectX::XMQuaternionRotationRollPitchYaw(x * Deg2Rad, y * Deg2Rad, z * Deg2Rad);
 }
 
 void Transform::SetRotation(const DirectX::XMVECTOR & _quat)
 {
-	this->quaternion = _quat;
-	//quaternion -> euler 변경할 적합한 방법이 안 떠오름
 	DirectX::XMFLOAT4 quatFloat;
-	DirectX::XMStoreFloat4(&quatFloat, quaternion);
+	DirectX::XMStoreFloat4(&quatFloat, _quat);
 	rotation = QuatenionToEuler(quatFloat.x, quatFloat.y, quatFloat.z, quatFloat.w);
 }
 
 void Transform::rotate(const DirectX::XMVECTOR & _quaternion)
 {
-	quaternion = DirectX::XMQuaternionMultiply(_quaternion, quaternion);
-
 	DirectX::XMFLOAT4 quatFloat;
-	DirectX::XMStoreFloat4(&quatFloat, quaternion);
-	rotation = QuatenionToEuler(quatFloat.x, quatFloat.y, quatFloat.z, quatFloat.w);
+	DirectX::XMStoreFloat4(&quatFloat, _quaternion);
+	rotate(QuatenionToEuler(quatFloat.x, quatFloat.y, quatFloat.z, quatFloat.w));
 }
 
 void Transform::rotate(const DirectX::XMFLOAT3 & rot)
@@ -174,7 +156,6 @@ void Transform::rotate(const DirectX::XMFLOAT3 & rot)
 	rotation.x += rot.x;
 	rotation.y += rot.y;
 	rotation.z += rot.z;
-	quaternion = DirectX::XMQuaternionRotationRollPitchYaw(rotation.x * Deg2Rad, rotation.y * Deg2Rad, rotation.z * Deg2Rad);
 }
 
 void Transform::rotate(float x, float y, float z)
@@ -182,7 +163,6 @@ void Transform::rotate(float x, float y, float z)
 	rotation.x += x;
 	rotation.y += y;
 	rotation.z += z;
-	quaternion = DirectX::XMQuaternionRotationRollPitchYaw(rotation.x * Deg2Rad, rotation.y * Deg2Rad, rotation.z * Deg2Rad);
 }
 
 void Transform::SetScale(float xScale, float yScale, float zScale)
