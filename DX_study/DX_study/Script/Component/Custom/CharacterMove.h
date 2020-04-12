@@ -19,5 +19,5 @@ private:
 	Transform* m_Transform;
 	float m_MoveSpeed = 6.0f;
 	float m_RunSpeed = 30.0f;
-	float m_RotateSpeed = 300.0f;
+	float m_RotateSpeed = 4.0f;
 };

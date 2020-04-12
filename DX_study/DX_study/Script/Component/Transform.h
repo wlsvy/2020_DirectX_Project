@@ -71,7 +71,7 @@ public:
 
 protected:
 	void UpdateMatrix(const DirectX::XMMATRIX & parentMatrix);
-	void UpdateDirectionVectors();
+	void UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat);
 
 	void SetChild(const std::shared_ptr<Transform> & child);
 	void EraseChild(Transform* child);
