@@ -6,6 +6,7 @@
 #include "../Internal/Core/GameObject.h"
 
 using DirectX::operator+=;
+using DirectX::operator*;
 
 const float POSITION_MAX = 10000.0f;
 const float POSITION_MIN = -10000.0f;
@@ -225,11 +226,11 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 }
 
 void Transform::UpdateDirectionVectors() {
-	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationRollPitchYaw(this->rotation.x, this->rotation.y, 0.0f);
+	DirectX::XMMATRIX vecRotationMatrix = DirectX::XMMatrixRotationQuaternion(quaternion);
 	vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	vec_backward = DirectX::XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
+	vec_backward = vec_forward * -1;
 	vec_left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrix);
-	vec_right = DirectX::XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
+	vec_right = vec_left * -1;
 	vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, vecRotationMatrix);
 }
 

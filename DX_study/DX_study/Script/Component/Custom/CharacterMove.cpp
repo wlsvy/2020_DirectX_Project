@@ -15,19 +15,19 @@ void CharacterMove::Update() {
 	bool isMove = false;
 
 	if (Input::GetKey(Input::LEFT_ARROW)) {
-		m_GameObject->GetTransform().rotate(Transform::DEFAULT_LEFT_VECTOR * m_RotateSpeed * Time::GetDeltaTime());
+		m_Transform->rotate(0.0f, -m_RotateSpeed * Time::GetDeltaTime(), 0.0);
 		isMove = true;
 	}
 	if (Input::GetKey(Input::RIGHT_ARROW)) {
-		m_GameObject->GetTransform().rotate(Transform::DEFAULT_RIGHT_VECTOR * m_RotateSpeed * Time::GetDeltaTime());
+		m_Transform->rotate(0.0f, m_RotateSpeed * Time::GetDeltaTime(), 0.0);
 		isMove = true;
 	}
 	if (Input::GetKey(Input::UP_ARROW)) {
-		m_GameObject->GetTransform().translate(Transform::DEFAULT_FORWARD_VECTOR * m_MoveSpeed * Time::GetDeltaTime());
+		m_Transform->translate(m_Transform->GetBackwardVector() * m_MoveSpeed * Time::GetDeltaTime());
 		isMove = true;
 	}
 	if (Input::GetKey(Input::DOWN_ARROW)) {
-		m_GameObject->GetTransform().translate(Transform::DEFAULT_BACKWARD_VECTOR * m_MoveSpeed * Time::GetDeltaTime());
+		m_Transform->translate(m_Transform->GetForwardVector() * m_MoveSpeed * Time::GetDeltaTime());
 		isMove = true;
 	}
 
@@ -45,6 +45,7 @@ void CharacterMove::Update() {
 
 void CharacterMove::Init()
 {
+	m_Transform = &m_GameObject->GetTransform();
 	m_Anim = m_GameObject->GetComponent<Animator>();
 	m_RunClip = Pool::Find<AnimationClip>("Y Bot_Running");
 	m_IdleClip = Pool::Find<AnimationClip>("Y Bot_Idle");
