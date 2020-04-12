@@ -21,6 +21,7 @@
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Custom/CamMove.h"
+#include "../../Component/Custom/CharacterMove.h"
 #include "../../Component/Animator.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
@@ -260,8 +261,10 @@ bool Graphics::InitializeScene()
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
 		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y Bot");
 		gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y Bot_Walking");
+		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y Bot_Idle");
 		gameObject->GetRenderer().Anim->Play();
+		auto cm = gameObject->AddComponent<CharacterMove>();
+		cm->Init();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
 		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader");

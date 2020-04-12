@@ -179,6 +179,7 @@
     <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
     <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
+    <ClCompile Include="Script\Component\Custom\CharacterMove.cpp" />
     <ClCompile Include="Script\Component\Renderable.cpp" />
     <ClCompile Include="Script\Internal\Core\FileImporter.cpp" />
     <ClCompile Include="Script\Internal\Core\ImportHelper.cpp" />
@@ -226,6 +227,7 @@
     <ClInclude Include="Script\Component\Behaviour.h" />
     <ClInclude Include="Script\Component\Component.h" />
     <ClInclude Include="Script\Component\Custom\CamMove.h" />
+    <ClInclude Include="Script\Component\Custom\CharacterMove.h" />
     <ClInclude Include="Script\Component\Renderable.h" />
     <ClInclude Include="Script\Internal\Core\FileImporter.h" />
     <ClInclude Include="Script\Internal\Core\ImportHelper.h" />
