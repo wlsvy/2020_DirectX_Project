@@ -64,7 +64,7 @@ private:
 
 class AnimationImporter {
 public:
-	void LoadAnimation(const std::string & fileName, const std::shared_ptr<SkinnedModel> & baseModel, const aiScene * scene);
+	void LoadAnimation(const std::string & name, const std::shared_ptr<SkinnedModel> & baseModel, const aiScene * scene);
 
 private:
 	void ProcessAnimation(const std::string & name, aiAnimation * anim, const aiScene * scene);

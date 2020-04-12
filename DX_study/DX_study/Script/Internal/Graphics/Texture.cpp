@@ -16,7 +16,7 @@ Texture::Texture(const Color * colorData, UINT width, UINT height, aiTextureType
 	this->InitializeColorTexture(colorData, width, height, type);
 }
 
-Texture::Texture(const std::string & filePath, aiTextureType type) : Object(StringHelper::GetNameFromPath(filePath))
+Texture::Texture(const std::string & filePath, aiTextureType type) : Object(StringHelper::GetFileNameFromPath(filePath))
 {
 	
 	this->type = type;

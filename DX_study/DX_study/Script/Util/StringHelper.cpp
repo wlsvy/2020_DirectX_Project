@@ -23,7 +23,7 @@ std::string StringHelper::GetDirectoryFromPath(const std::string & filepath)
 	return filepath.substr(0, std::max(off1, off2)); //둘 다 존재하면 높은 값으로
 }
 
-std::string StringHelper::GetNameFromPath(const std::string & filepath, bool removeExtension)
+std::string StringHelper::GetFileNameFromPath(const std::string & filepath, bool removeExtension)
 {
 	size_t off1 = filepath.find_last_of('\\');
 	size_t off2 = filepath.find_last_of('/');
@@ -59,4 +59,27 @@ std::string StringHelper::EraseFileExtension(const std::string & filePath)
 	}
 
 	return std::string(filePath.substr(0, off));
+}
+
+std::string StringHelper::GetUpperDirectroyName(const std::string & filePath)
+{
+	size_t off1 = filePath.find_last_of('\\');
+	size_t off2 = filePath.find_last_of('/');
+	if (off1 == std::string::npos && off2 == std::string::npos) return "";
+
+	size_t end;
+	if (off1 == std::string::npos) { end = off2; }
+	else if (off2 == std::string::npos) { end = off1; }
+	else { end = std::max(off1, off2); }
+
+	off1 = filePath.find_last_of('\\', std::max(end - 1, (size_t)0));
+	off2 = filePath.find_last_of('/', std::max(end - 1, (size_t)0));
+
+	size_t start;
+	if (off1 == std::string::npos && off2 == std::string::npos) { start = 0; }
+	else if (off1 == std::string::npos) { start = off2 + 1; }
+	else if (off2 == std::string::npos) { start = off1 + 1; }
+	else { start = std::max(off1, off2) + 1; }
+
+	return filePath.substr(start, end - start);
 }

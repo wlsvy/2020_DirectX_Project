@@ -3,7 +3,7 @@
 #include "../../Util/StringHelper.h"
 
 bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
-	Name = StringHelper::GetNameFromPath(shaderpath);
+	Name = StringHelper::GetFileNameFromPath(shaderpath);
 	auto wstr = StringHelper::StringToWide(shaderpath);
 
 	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
@@ -43,7 +43,7 @@ ID3D11InputLayout * VertexShader::GetInputLayout()
 }
 
 bool PixelShader::Initialize(const std::string & shaderpath) {
-	Name = StringHelper::GetNameFromPath(shaderpath);
+	Name = StringHelper::GetFileNameFromPath(shaderpath);
 	auto wstr = StringHelper::StringToWide(shaderpath);
 	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
 

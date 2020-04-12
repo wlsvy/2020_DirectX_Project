@@ -24,7 +24,7 @@ bool ModelImporter::LoadModel(const std::string & filePath, const aiScene * scen
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
 	auto model = Pool::CreateInstance<Model>();
-	model->Name = StringHelper::GetNameFromPath(filePath);
+	model->Name = StringHelper::GetFileNameFromPath(filePath);
 	if (!model->Initialize(m_Meshes)) {
 		Pool::Destroy(model.get());
 		return false;
@@ -225,7 +225,7 @@ bool SkinnedModelImporter::LoadModel(const std::string & filePath, const aiScene
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
 	auto model = Pool::CreateInstance<SkinnedModel>();
-	model->Name = StringHelper::GetNameFromPath(filePath);
+	model->Name = StringHelper::GetFileNameFromPath(filePath);
 	if (!model->Initialize(m_Meshes, m_BoneOffsets, m_BoneIdMap)) {
 		Pool::Destroy(model.get());
 		return false;
@@ -330,14 +330,14 @@ DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)
 		pSource.d1, pSource.d2, pSource.d3, pSource.d4);
 }
 
-void AnimationImporter::LoadAnimation(const std::string & fileName, const std::shared_ptr<SkinnedModel> & baseModel, const aiScene * scene)
+void AnimationImporter::LoadAnimation(const std::string & name, const std::shared_ptr<SkinnedModel> & baseModel, const aiScene * scene)
 {
 	m_BaseModel = baseModel;
 
 	int animationNum = scene->mNumAnimations;
 	for (int i = 0; i < animationNum; i++) {
 		aiAnimation *anim = scene->mAnimations[i];
-		ProcessAnimation(fileName, anim, scene);
+		ProcessAnimation(name, anim, scene);
 	}
 }
 

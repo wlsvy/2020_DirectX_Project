@@ -53,7 +53,9 @@ bool Importer::LoadAnimation(const std::string & filePath)
 
 	if (pScene->HasAnimations()) {
 		AnimationImporter animImporter;
-		animImporter.LoadAnimation(StringHelper::GetNameFromPath(filePath), Pool::Find<SkinnedModel>("Walking"), pScene);
+		auto avatarName = StringHelper::GetUpperDirectroyName(filePath);
+
+		animImporter.LoadAnimation(avatarName + "_" + StringHelper::GetFileNameFromPath(filePath), Pool::Find<SkinnedModel>(avatarName), pScene);
 	}
 
 	return true;

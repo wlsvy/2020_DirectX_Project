@@ -43,11 +43,11 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 	
 
-	TraverseDirectory("hlsl\\VertexShader\\", &Graphics::LoadVertexShader);
-	TraverseDirectory("hlsl\\PixelShader\\", &Graphics::LoadPixelShader);
-	TraverseDirectory("Data\\Objects\\", &Graphics::LoadModel);
-	TraverseDirectory("Data\\Animation\\", &Graphics::LoadAnimation);
-	TraverseDirectory("Data\\Textures\\", &Graphics::LoadTexture);
+	TraverseDirectory("hlsl/VertexShader/", &Graphics::LoadVertexShader);
+	TraverseDirectory("hlsl/PixelShader/", &Graphics::LoadPixelShader);
+	TraverseDirectory("Data/Objects/", &Graphics::LoadModel);
+	TraverseDirectory("Data/Animation/", &Graphics::LoadAnimation);
+	TraverseDirectory("Data/Textures/", &Graphics::LoadTexture);
 
 	BaseGeometry::Initialize();
 
@@ -258,9 +258,9 @@ bool Graphics::InitializeScene()
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
 		gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
-		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Walking");
+		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y Bot");
 		gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Catwalk Walk Forward 01");
+		gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y Bot_Walking");
 		gameObject->GetRenderer().Anim->Play();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
@@ -308,7 +308,7 @@ void Graphics::LoadVertexShader(const std::string & filePath)
 
 		auto vs = Pool::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
-			Core::GetBuildPath() + StringHelper::GetNameFromPath(filePath, true) + ".cso",
+			Core::GetBuildPath() + StringHelper::GetFileNameFromPath(filePath, true) + ".cso",
 			layout3D,
 			ARRAYSIZE(layout3D)))
 		{
@@ -323,7 +323,7 @@ void Graphics::LoadPixelShader(const std::string & filePath)
 	if (ext == "hlsl")
 	{
 		auto ps = Pool::CreateInstance<PixelShader>();
-		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::GetNameFromPath(filePath, true) + ".cso"))
+		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::GetFileNameFromPath(filePath, true) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
@@ -366,7 +366,7 @@ void TraverseDirectory(const std::string & dirPath, void(Graphics::* callBack)(c
 				(fd.name != std::string(".")) &&
 				(fd.name != std::string("..")))
 			{
-				std::string subDirPath = dirPath + fd.name + "\\";
+				std::string subDirPath = dirPath + fd.name + "/";
 				TraverseDirectory(subDirPath, callBack);
 				continue;
 			}
