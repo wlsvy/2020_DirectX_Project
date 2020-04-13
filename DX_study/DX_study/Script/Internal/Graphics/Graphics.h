@@ -67,9 +67,6 @@ private:
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_VS_boneData> cb_BoneInfo;
-	ConstantBuffer<CB_PS_AmbientLight> cb_ps_AmbientLight;
-	ConstantBuffer<CB_PS_DynamicLight> cb_ps_DynamicLight;
-	ConstantBuffer<CB_PS_SpotLight> cb_ps_SpotLight;
 
 	std::shared_ptr<Skybox> m_Skybox;
 	

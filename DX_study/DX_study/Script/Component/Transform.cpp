@@ -64,7 +64,7 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 		* posMat
 		* parentMatrix;
 
-	this->UpdateDirectionVectors(rotMat * Rad2Deg);
+	this->UpdateDirectionVectors(rotMat);
 	for (auto& child : m_Children) {
 		child.lock()->UpdateMatrix(worldMatrix);
 	}

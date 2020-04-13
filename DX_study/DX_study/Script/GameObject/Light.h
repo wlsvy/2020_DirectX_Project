@@ -13,5 +13,5 @@ public:
 
 	DirectX::XMFLOAT3 lightDir = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 	float range = 10.0f;
-	float cone = 30.0f;
+	float cone = 1.0f;
 };

@@ -9,5 +9,5 @@ public:
 private:
 	float m_MoveSpeed = 6.0f;
 	float m_FastMoveSpeed = 30.0f;
-	float m_RotateSpeed = 2.0f;
+	float m_RotateSpeed = 100.0f;
 };
