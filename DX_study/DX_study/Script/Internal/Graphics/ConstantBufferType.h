@@ -20,14 +20,14 @@ struct CB_VS_boneData {
 //8 bytes -> 16 bytes(padding) -> 데이터 정렬 반드시 해야 함. 변수 위치 중요
 
 struct CB_PS_light {
-	DirectX::XMFLOAT3 dynamicLightPosition;
+	DirectX::XMFLOAT3 position;
 	float range;
 
-	DirectX::XMFLOAT3 dir;
-	float cone;
+	DirectX::XMFLOAT3 forwardVector;
+	float spotAngle;
 
-	DirectX::XMFLOAT3 dynamicLightColor;
-	float dynamicLightStrength;
+	DirectX::XMFLOAT3 color;
+	float strength;
 
 	DirectX::XMFLOAT3 ambientLightColor;
 	float ambientLightStrength;

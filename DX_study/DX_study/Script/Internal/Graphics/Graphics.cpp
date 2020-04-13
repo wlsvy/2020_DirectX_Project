@@ -80,12 +80,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 void Graphics::RenderFrame()
 {
-	cb_ps_light.data.dynamicLightColor = light->lightColor;
-	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light->GetTransform().position;
+	cb_ps_light.data.color = light->color;
+	cb_ps_light.data.strength = light->strength;
+	cb_ps_light.data.position = light->GetTransform().position;
 	cb_ps_light.data.attenuation = light->attenuation;
-	DirectX::XMStoreFloat3(&cb_ps_light.data.dir, light->GetTransform().GetForwardVector());
-	cb_ps_light.data.cone = light->cone;
+	DirectX::XMStoreFloat3(&cb_ps_light.data.forwardVector, light->GetTransform().GetForwardVector());
+	cb_ps_light.data.spotAngle = light->spotAngle;
 	cb_ps_light.data.range = light->range;
 	cb_ps_light.ApplyChanges();
 	
@@ -202,11 +202,11 @@ void Graphics::DrawUI()
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::NewLine();
-	ImGui::DragFloat3("Dynamic Light Color", &this->light->lightColor.x, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Strength", &this->light->lightStrength, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat3("Dynamic Light Color", &this->light->color.x, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("Dynamic Light Strength", &this->light->strength, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat3("Dynamic Light Attenuation", &this->light->attenuation.x, 0.01f, 0.1f, 10.0f);
 	ImGui::DragFloat3("Dir", &this->light->GetTransform().rotation.x, 0.1f, 0.0f, 90.0f);
-	ImGui::DragFloat("Cone", &this->light->cone, 0.01f, 0.0f, 180.0f);
+	ImGui::DragFloat("Cone", &this->light->spotAngle, 0.01f, 0.0f, 180.0f);
 	ImGui::DragFloat("Range", &this->light->range, 0.1f, 0.1f, 1000.0f);
 	ImGui::End();
 
