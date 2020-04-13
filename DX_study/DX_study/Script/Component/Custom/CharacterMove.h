@@ -17,7 +17,7 @@ private:
 	std::weak_ptr<AnimationClip> m_IdleClip;
 	std::weak_ptr<AnimationClip> m_RunClip;
 	Transform* m_Transform;
-	float m_MoveSpeed = 6.0f;
-	float m_RunSpeed = 30.0f;
+	float m_MoveSpeed = 0.1f;
+	float m_RunSpeed = 0.5f;
 	float m_RotateSpeed = 4.0f;
 };

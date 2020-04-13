@@ -18,6 +18,7 @@
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
 #include "../Core/ImportHelper.h"
+#include "../Core/Scene.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Custom/CamMove.h"
@@ -27,6 +28,7 @@
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
 
+using DirectX::operator*;
 void TraverseDirectory(const std::string & dirPath, void(Graphics::* callBack)(const std::string &));
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
@@ -78,15 +80,35 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 void Graphics::RenderFrame()
 {
-	cb_ps_light.data.dynamicLightColor = light->lightColor;
-	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
-	cb_ps_light.data.dynamicLightPosition = light->GetTransform().GetPositionFloat3();
-	cb_ps_light.data.dynamicLightAttenuation_a = light->attenuation_a;
-	cb_ps_light.data.dynamicLightAttenuation_b = light->attenuation_b;
-	cb_ps_light.data.dynamicLightAttenuation_c = light->attenuation_c;
-	cb_ps_light.ApplyChanges();
+	cb_ps_DynamicLight.data.dynamicLightColor = light->lightColor;
+	cb_ps_DynamicLight.data.dynamicLightStrength = light->lightStrength;
+	cb_ps_DynamicLight.data.attenuation = light->attenuation;
 	
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	cb_ps_SpotLight.data.dynamicLightPosition = light->GetTransform().position;
+	cb_ps_SpotLight.data.cone = light->cone;
+	DirectX::XMStoreFloat3(&cb_ps_SpotLight.data.dir, light->GetTransform().GetForwardVector());
+	//cb_ps_SpotLight.data.dir.x = light->GetTransform().rotation.x * 0.0174533f;
+	//cb_ps_SpotLight.data.dir.y = light->GetTransform().rotation.y * 0.0174533f;
+	//cb_ps_SpotLight.data.dir.z = light->GetTransform().rotation.z * 0.0174533f;
+	cb_ps_SpotLight.data.range = light->range;
+
+	cb_ps_AmbientLight.ApplyChanges();
+	cb_ps_DynamicLight.ApplyChanges();
+	cb_ps_SpotLight.ApplyChanges();
+	/*cb_ps_light.data.dynamicLightColor = light->lightColor;
+	cb_ps_light.data.dynamicLightStrength = light->lightStrength;
+	cb_ps_light.data.dynamicLightPosition = light->GetTransform().position;
+	cb_ps_light.data.attenuation = light->attenuation;
+	cb_ps_light.data.dir = light->GetTransform().rotation;
+	cb_ps_light.data.cone = light->cone;
+	cb_ps_light.data.range = light->range;
+	cb_ps_light.ApplyChanges();
+	*/
+
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_AmbientLight.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_DynamicLight.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(2, 1, cb_ps_SpotLight.GetAddressOf());
+	//m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -195,16 +217,19 @@ void Graphics::DrawUI()
 	UI::EditorUI(m_DeviceResources.GetAuxRenderTargetSrv());
 	
 	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat3("Ambient Light Color", &cb_ps_AmbientLight.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
+	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_AmbientLight.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
 	ImGui::NewLine();
 	ImGui::DragFloat3("Dynamic Light Color", &this->light->lightColor.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("Dynamic Light Strength", &this->light->lightStrength, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation A", &this->light->attenuation_a, 0.01f, 0.1f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation B", &this->light->attenuation_b, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Attenuation C", &this->light->attenuation_c, 0.01f, 0.0f, 10.0f);
-	
+	ImGui::DragFloat3("Dynamic Light Attenuation", &this->light->attenuation.x, 0.01f, 0.1f, 10.0f);
+	ImGui::DragFloat3("Dir", &this->light->GetTransform().rotation.x, 0.1f, 0.0f, 90.0f);
+	ImGui::DragFloat("Cone", &this->light->cone, 0.001f, 0.0f, 180.0f);
+	ImGui::DragFloat("Range", &this->light->range, 0.1f, 0.1f, 1000.0f);
 	ImGui::End();
+
+	Engine::Get().GetCurrentScene().OnGui();
+
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
@@ -252,9 +277,12 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_BoneInfo.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
+		ThrowIfFailed(cb_ps_AmbientLight.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
+		ThrowIfFailed(cb_ps_DynamicLight.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
+		ThrowIfFailed(cb_ps_SpotLight.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
 
-		cb_ps_light.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-		cb_ps_light.data.ambientLightStrength = 1.0f;
+		cb_ps_AmbientLight.data.ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		cb_ps_AmbientLight.data.ambientLightStrength = 1.0f;
 
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
 		gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
@@ -267,7 +295,7 @@ bool Graphics::InitializeScene()
 		cm->Init();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
-		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader");
+		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_spotlight");
 		light->GetRenderer().Model = Pool::Find<Model>("light");
 		light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_nolight");

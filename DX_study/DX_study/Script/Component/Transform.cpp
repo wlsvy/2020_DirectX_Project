@@ -55,7 +55,7 @@ Transform::~Transform() {
 void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 {
 	auto scaleMat = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
-	auto rotMat = DirectX::XMMatrixRotationRollPitchYaw(rotation.x, rotation.y, rotation.z);
+	auto rotMat = DirectX::XMMatrixRotationRollPitchYaw(rotation.x * Deg2Rad, rotation.y * Deg2Rad, rotation.z * Deg2Rad);
 	auto posMat = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
 
 	worldMatrix = 
@@ -64,7 +64,7 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 		* posMat
 		* parentMatrix;
 
-	this->UpdateDirectionVectors(rotMat);
+	this->UpdateDirectionVectors(rotMat * Rad2Deg);
 	for (auto& child : m_Children) {
 		child.lock()->UpdateMatrix(worldMatrix);
 	}
