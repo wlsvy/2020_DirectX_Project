@@ -1,6 +1,7 @@
 #include "Transform.h"
 
 #include <DirectXMath.h>
+#include "../Internal/Graphics/imGui/imgui.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/ObjectPool.h"
 #include "../Internal/Core/GameObject.h"
@@ -235,10 +236,9 @@ void Transform::EraseChild(Transform* child)
 
 void Transform::OnGui()
 {
-	//ImGui::DragFloat3("Position", &position.x, 0.1f, POSITION_MIN, POSITION_MAX);
-	////ImGui::DragFloat4("Quaternion", &quaternion.x, 0.1f, -3.0f, 3.0f);
-	//ImGui::DragFloat3("Euler Angle", &rotation.x, 0.1f, -1000.0f, 1000.0f);
-	//ImGui::DragFloat3("Scale", &scale.x, 0.1f, -1000.0f, 1000.0f);
+	ImGui::DragFloat3("Position", &position.x, 0.1f, POSITION_MIN, POSITION_MAX);
+	ImGui::DragFloat3("Rotation", &rotation.x, 0.1f, -1000.0f, 1000.0f);
+	ImGui::DragFloat3("Scale", &scale.x, 0.1f, -1000.0f, 1000.0f);
 }
 
 std::shared_ptr<Transform> Transform::GetParent()

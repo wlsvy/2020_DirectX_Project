@@ -7,7 +7,10 @@
 #include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "Engine.h"
 #include "DeviceResources.h"
+#include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
+#include "../Core//GameObject.h"
+#include "../../Component/Transform.h"
 
 void UI::InitImGUI(HWND _hwnd)
 {
@@ -107,18 +110,18 @@ void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	ImGui::Text("Console");
 	ImGui::Separator();
 	ImGui::Spacing();
-	//Engine::ref().Log.Draw();
 	ImGui::EndChild();
 
 	ImGui::EndGroup();
 	ImGui::SameLine();
 
-	ImGui::BeginChild("Hierarchy##Editor", ImVec2(io.DisplaySize.x * 0.15f, io.DisplaySize.y), true);
+	ImGui::BeginChild("Hierarchy##Editor", ImVec2(io.DisplaySize.x * 0.15f, io.DisplaySize.y * 0.9f), true);
 	ImGui::Text("Hierarchy");
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	//Engine::Get().GetSceneManager().OnGui();
+	auto& scene = Engine::Get().GetCurrentScene();
+	scene.OnGui();
 
 	ImGui::EndChild();
 	ImGui::SameLine();
@@ -128,11 +131,11 @@ void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	//GameObject_v2 * selectedObj = Engine::GetInstance().GetSceneManager().getUIselectedObj();
-	/*if (selectedObj != nullptr)
+	
+	if (auto selected = scene.GetGuiSelected().lock())
 	{
-		selectedObj->OnGui();
-	}*/
+		selected->GetGameObject()->OnGui();
+	}
 
 	ImGui::EndChild();
 	ImGui::PopStyleVar();

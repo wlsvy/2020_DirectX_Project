@@ -24,6 +24,8 @@ public:
 	std::shared_ptr<Transform> GetTransformPtr() { return m_Transform; }
 	Renderable& GetRenderer() { return *m_Renderer; }
 
+	void OnGui();
+
 protected:
 
 	std::shared_ptr<Transform> m_Transform;

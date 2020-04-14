@@ -27,17 +27,7 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 
 void Scene::Initialize()
 {
-	for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 5; j++) {
-			for (int k = 0; k < 5; k++) {
-				auto tempObj = Pool::CreateInstance<GameObject>("BoxTest" + std::to_string(i) + std::to_string(j));
-				tempObj->GetTransform().SetPosition(5.0f + i * 3.0f, j * 3.0f, k * 3.0f);
-				tempObj->GetRenderer().Model = Pool::Find<Model>("Box");
-				tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
-				tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
-			}
-		}
-	}
+	
 
 	auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
 	gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
@@ -49,6 +39,19 @@ void Scene::Initialize()
 	gameObject->AddComponent<CharacterMove>()->Init();
 	gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
 	gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+
+	for (int i = 0; i < 5; i++) {
+		for (int j = 0; j < 5; j++) {
+			for (int k = 0; k < 5; k++) {
+				auto tempObj = Pool::CreateInstance<GameObject>("BoxTest" + std::to_string(i) + std::to_string(j) + std::to_string(k));
+				tempObj->GetTransform().SetPosition(5.0f + i * 3.0f, j * 3.0f, k * 3.0f);
+				tempObj->GetTransform().SetParent(gameObject->GetTransformPtr());
+				tempObj->GetRenderer().Model = Pool::Find<Model>("Box");
+				tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+				tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+			}
+		}
+	}
 
 	auto light = Pool::CreateInstance<Light>();
 	light->GetRenderer().Model = Pool::Find<Model>("light");
@@ -73,10 +76,46 @@ void Scene::Update()
 
 void Scene::OnGui()
 {
-	static auto light = std::dynamic_pointer_cast<Light>(Pool::Find<GameObject>("Light"));
-	Transform& tf = light->GetTransform();
-	ImGui::Begin("Light Transform");
-	ImGui::DragFloat3("Pos", &tf.position.x, 0.1f, -1000.0f, 1000.0f);
-	ImGui::DragFloat3("Rot", &tf.rotation.x, 0.1f, -1000.0f, 1000.0f);
-	ImGui::End();
+	for (auto child : m_WorldTransform->m_Children)
+	{
+		ProcessGuiHirarchy(child);
+	}
+	ImGui::Spacing();
+}
+
+void Scene::ProcessGuiHirarchy(std::weak_ptr<Transform> ptr)
+{
+	if (ptr.expired()) return;
+
+	auto tf = ptr.lock();
+	bool check = false;
+	if(auto selected = m_GuiSelectedObj.lock())
+	{
+		if (selected->GetId() == tf->GetId()) {
+			check = true;
+		}
+		check = selected->GetId() == tf->GetId();
+	}
+
+	ImGuiTreeNodeFlags nodeFlags =
+		ImGuiTreeNodeFlags_OpenOnArrow
+		| ImGuiTreeNodeFlags_OpenOnDoubleClick
+		| ImGuiTreeNodeFlags_DefaultOpen;
+	 nodeFlags |= check ? ImGuiTreeNodeFlags_Selected : 0;
+	 nodeFlags |= tf->GetChildNum() == 0 ? ImGuiTreeNodeFlags_Leaf : 0;
+
+	bool isNodeOpen = ImGui::TreeNodeEx(tf->GetGameObject()->Name.c_str(), nodeFlags);
+	if (ImGui::IsItemClicked())
+	{
+		m_GuiSelectedObj = ptr;
+	}
+
+	if (isNodeOpen)
+	{
+		for (auto child : tf->m_Children)
+		{
+			ProcessGuiHirarchy(child);
+		}
+		ImGui::TreePop();
+	}
 }

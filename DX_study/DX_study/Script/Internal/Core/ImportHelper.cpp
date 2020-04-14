@@ -186,7 +186,6 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 	}
 }
 
-
 void Importer::TraverseDirectory(const std::string & dirPath, void(*callBack)(const std::string &, const std::string &))
 {
 	struct _finddata_t fd;

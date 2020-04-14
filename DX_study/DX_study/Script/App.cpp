@@ -4,7 +4,7 @@
 
 void RunApplication(HINSTANCE& hInstance) {
 	Engine engine;
-	engine.Initialize(hInstance, "title", "class", 800, 600);
+	engine.Initialize(hInstance, "title", "class", 1280, 720);
 	while (engine.ProcessMessage()) {
 		engine.Update();
 		engine.RenderFrame();
