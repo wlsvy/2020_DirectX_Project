@@ -7,5 +7,6 @@ struct ID3D11ShaderResourceView;
 
 namespace UI {
 	void InitImGUI(HWND _hwnd);
-	void EditorUI(ID3D11ShaderResourceView * image);
+	void DrawEditorUI(ID3D11ShaderResourceView * image);
+	void DrawDeferredChannelImage();
 };

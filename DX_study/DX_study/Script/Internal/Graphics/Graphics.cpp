@@ -217,7 +217,7 @@ void Graphics::DrawUI()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	UI::EditorUI(m_DeviceResources.GetRenderTargetSrv(3));
+	UI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(3));
 	
 	ImGui::Begin("Light Controls");
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
@@ -231,15 +231,8 @@ void Graphics::DrawUI()
 	ImGui::DragFloat("Range", &this->light->range, 0.1f, 0.1f, 1000.0f);
 	ImGui::End();
 
-	ImGuiIO& io = ImGui::GetIO();
-	ImGui::Begin("Deferred Rendering Debug");
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
-	ImGui::Image(m_DeviceResources.GetRenderTargetSrv(0), scene_size);
-	ImGui::Image(m_DeviceResources.GetRenderTargetSrv(1), scene_size);
-	ImGui::Image(m_DeviceResources.GetRenderTargetSrv(2), scene_size);
-	ImGui::Image(m_DeviceResources.GetRenderTargetSrv(3), scene_size);
-	ImGui::End();
-
+	
+	UI::DrawDeferredChannelImage();
 	Engine::Get().GetCurrentScene().OnGui();
 
 	ImGui::Render();

@@ -1,10 +1,12 @@
 #include "Ui.h"
 #include <d3d11.h>
 
+#include "../Graphics/Graphics.h"
 #include "../Graphics/imGui/imgui.h"
 #include "../Graphics/imGui/imgui_impl_win32.h"
 #include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "Engine.h"
+#include "DeviceResources.h"
 #include "../Core/InternalHelper.h"
 
 void UI::InitImGUI(HWND _hwnd)
@@ -20,7 +22,7 @@ void UI::InitImGUI(HWND _hwnd)
 	ImGui::StyleColorsClassic();
 }
 
-void UI::EditorUI(ID3D11ShaderResourceView * image)
+void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 {
 	static bool show_editor = true;
 	static bool show_statistics = false;
@@ -134,5 +136,18 @@ void UI::EditorUI(ID3D11ShaderResourceView * image)
 
 	ImGui::EndChild();
 	ImGui::PopStyleVar();
+	ImGui::End();
+}
+
+void UI::DrawDeferredChannelImage()
+{
+	auto& deviceResources = Engine::Get().GetGraphics().GetDeviceResources();
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui::Begin("Deferred Rendering Debug");
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+	ImGui::Image(deviceResources.GetRenderTargetSrv(0), scene_size);
+	ImGui::Image(deviceResources.GetRenderTargetSrv(1), scene_size);
+	ImGui::Image(deviceResources.GetRenderTargetSrv(2), scene_size);
+	ImGui::Image(deviceResources.GetRenderTargetSrv(3), scene_size);
 	ImGui::End();
 }

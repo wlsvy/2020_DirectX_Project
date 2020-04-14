@@ -63,13 +63,12 @@ namespace BaseGeometry {
 	}
 	static void CreatePlane() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
-			{-1, -1, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
-			{-1, +1, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
-			{+1, +1, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
-			{+1, -1, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f}
+			{-0.5, -0.5, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
+			{-0.5, +0.5, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+0.5, +0.5, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+0.5, -0.5, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f}
 		};
 		const std::vector<DWORD> indices = {
-			// ¾Õ¸é
 			0, 1, 2,
 			0, 2, 3,
 		};

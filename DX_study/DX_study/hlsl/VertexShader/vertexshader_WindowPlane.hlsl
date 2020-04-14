@@ -13,7 +13,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
-    output.outPosition = float4(input.inPos, 1.0f);
+    output.outPosition = float4(input.inPos * 2, 1.0f);
     output.outTexCoord = input.inTexCoord;
     return output;
 }
