@@ -91,9 +91,6 @@ void Scene::ProcessGuiHirarchy(std::weak_ptr<Transform> ptr)
 	bool check = false;
 	if(auto selected = m_GuiSelectedObj.lock())
 	{
-		if (selected->GetId() == tf->GetId()) {
-			check = true;
-		}
 		check = selected->GetId() == tf->GetId();
 	}
 

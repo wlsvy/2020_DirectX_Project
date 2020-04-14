@@ -52,11 +52,7 @@ void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	if (ImGui::BeginMenuBar())
 	{
-		if (ImGui::BeginMenu("What the??"))
-		{
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Viewer Window"))
+		if (ImGui::BeginMenu("Menu"))
 		{
 			ImGui::MenuItem("Show Statistics", "", &show_statistics);
 			ImGui::MenuItem("Show Editor", "", &show_editor);
@@ -115,7 +111,7 @@ void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	ImGui::EndGroup();
 	ImGui::SameLine();
 
-	ImGui::BeginChild("Hierarchy##Editor", ImVec2(io.DisplaySize.x * 0.15f, io.DisplaySize.y * 0.9f), true);
+	ImGui::BeginChild("Hierarchy##Editor", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
 	ImGui::Text("Hierarchy");
 	ImGui::Separator();
 	ImGui::Spacing();

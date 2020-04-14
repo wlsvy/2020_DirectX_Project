@@ -219,7 +219,6 @@ void Graphics::DrawUI()
 
 	
 	UI::DrawDeferredChannelImage();
-	Engine::Get().GetCurrentScene().OnGui();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
