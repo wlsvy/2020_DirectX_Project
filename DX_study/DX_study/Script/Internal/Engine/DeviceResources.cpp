@@ -35,7 +35,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter, //IDXGI Adapter
 			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL, //FOR SOFTWARE DRIVER TYPE
-			NULL, //FLAGS FOR RUNTIME LAYERS
+			D3D11_CREATE_DEVICE_DEBUG, //FLAGS FOR RUNTIME LAYERS
 			NULL, //FEATURE LEVELS ARRAY
 			0, //# OF FEATURE LEVELS IN ARRAY
 			D3D11_SDK_VERSION,
@@ -130,7 +130,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 		textureDesc.Height = height;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;

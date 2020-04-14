@@ -9,40 +9,45 @@
 
 namespace BaseGeometry {
 	static void CreateBox() {
-		const std::vector<Vertex3D> vertices = { //position, texcoord, normal
-		{ -1.0f, -1.0f, -1.0f,     0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-		{ -1.0f, +1.0f, -1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f},
-		{ +1.0f, +1.0f, -1.0f,     1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
-		{ +1.0f, -1.0f, -1.0f,     1.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-		{ -1.0f, -1.0f, +1.0f,     1.0f, 0.0f,    0.0f, 0.0f, 0.0f},
-		{ -1.0f, +1.0f, +1.0f,     1.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-		{ +1.0f, +1.0f, +1.0f,     0.0f, 1.0f,    0.0f, 0.0f, 0.0f},
-		{ +1.0f, -1.0f, +1.0f,     0.0f, 0.0f,    0.0f, 0.0f, 0.0f}
+		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
+			{-0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		 0.0f, 0.0f, -1.0f},
+			{-0.5f, +0.5f, -0.5f,		0.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
+			{+0.5f, +0.5f, -0.5f,		1.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
+			{+0.5f, -0.5f, -0.5f,		1.0f, 1.0f,		 0.0f, 0.0f, -1.0f},
+			{-0.5f, -0.5f, +0.5f,		1.0f, 1.0f,		 0.0f, 0.0f, 1.0f},
+			{+0.5f, -0.5f, +0.5f,		0.0f, 1.0f,		 0.0f, 0.0f, 1.0f},
+			{+0.5f, +0.5f, +0.5f,		0.0f, 0.0f,		 0.0f, 0.0f, 1.0f},
+			{-0.5f, +0.5f, +0.5f,		1.0f, 0.0f,		 0.0f, 0.0f, 1.0f},
+			{-0.5f, +0.5f, -0.5f,		0.0f, 1.0f,		  0.0f, 1.0f, 0.0f},
+			{-0.5f, +0.5f, +0.5f,		0.0f, 0.0f,		  0.0f, 1.0f, 0.0f},
+			{+0.5f, +0.5f, +0.5f,		1.0f, 0.0f,		  0.0f, 1.0f, 0.0f},
+			{+0.5f, +0.5f, -0.5f,		1.0f, 1.0f,		  0.0f, 1.0f, 0.0f},
+			{-0.5f, -0.5f, -0.5f,		1.0f, 1.0f,		  0.0f, -1.0f, 0.0f},
+			{+0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		  0.0f, -1.0f, 0.0f},
+			{+0.5f, -0.5f, +0.5f,		0.0f, 0.0f,		  0.0f, -1.0f, 0.0f},
+			{-0.5f, -0.5f, +0.5f,		1.0f, 0.0f,		  0.0f, -1.0f, 0.0f},
+			{-0.5f, -0.5f, +0.5f,		0.0f, 1.0f,		  -1.0f, 0.0f, 0.0f},
+			{-0.5f, +0.5f, +0.5f,		0.0f, 0.0f,		  -1.0f, 0.0f, 0.0f},
+			{-0.5f, +0.5f, -0.5f,		1.0f, 0.0f,		  -1.0f, 0.0f, 0.0f},
+			{-0.5f, -0.5f, -0.5f,		1.0f, 1.0f,		  -1.0f, 0.0f, 0.0f},
+			{+0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		  1.0f, 0.0f, 0.0f},
+			{+0.5f, +0.5f, -0.5f,		0.0f, 0.0f,		  1.0f, 0.0f, 0.0f},
+			{+0.5f, +0.5f, +0.5f,		1.0f, 0.0f,		  1.0f, 0.0f, 0.0f},
+			{+0.5f, -0.5f, +0.5f,		1.0f, 1.0f,		  1.0f, 0.0f, 0.0f}
 		};
 		const std::vector<DWORD> indices = {
-			// front face
-			0, 1, 2,
-			0, 2, 3,
-
-			// back face
-			4, 6, 5,
-			4, 7, 6,
-
-			// left face
-			4, 5, 1,
-			4, 1, 0,
-
-			// right face
-			3, 2, 6,
-			3, 6, 7,
-
-			// top face
-			1, 5, 6,
-			1, 6, 2,
-
-			// bottom face
-			4, 0, 3,
-			4, 3, 7
+			0,	1,	2,
+			0,	2,	3,
+			4,	5,	6,
+			4,	6,	7,
+			8,	9,	10,
+			8,	10,	11,
+			12,	13,	14,
+			12,	14,	15,
+			16,	17,	18,
+			16,	18,	19,
+			20,	21,	22,
+			20,	22,	23
 		};
 
 		auto model = Pool::CreateInstance<Model>();
@@ -57,39 +62,6 @@ namespace BaseGeometry {
 		model->Name = "Box";
 	}
 	static void CreatePlane() {
-		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
-			{-0.5f, -0.5f, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
-			{-0.5f, +0.5f, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
-			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
-			{+0.5f, -0.5f, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f},
-			{-0.5f, -0.5f, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, 1.0f},
-			{-0.5f, +0.5f, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, 1.0f},
-			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, 1.0f},
-			{+0.5f, -0.5f, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, 1.0f}
-		};
-		const std::vector<DWORD> indices = {
-			// ¾Õ¸é
-			0, 1, 2,
-			0, 2, 3,
-			// µÞ¸é
-			6, 5, 4,
-			7, 6, 4
-		};
-
-		auto model = Pool::CreateInstance<Model>();
-		model->Initialize(
-			std::move(std::vector<Mesh>(1, Mesh(
-				vertices,
-				indices,
-				std::vector<Texture>(1, *Pool::Find<Texture>("test")),
-				DirectX::XMMatrixIdentity())
-				))
-		);
-		model->Name = "Plane";
-	}
-	static void CreateWindowPlane(int windowWidth, int windowHeight) {
-		float w = windowWidth / 2;
-		float h = windowHeight / 2;
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 			{-1, -1, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
 			{-1, +1, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
@@ -111,7 +83,7 @@ namespace BaseGeometry {
 				DirectX::XMMatrixIdentity())
 				))
 		);
-		model->Name = "WindowPlane";
+		model->Name = "Plane";
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;

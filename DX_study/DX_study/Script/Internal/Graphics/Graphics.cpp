@@ -53,7 +53,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	TraverseDirectory("Data/Textures/", &Graphics::LoadTexture);
 
 	BaseGeometry::Initialize();
-	BaseGeometry::CreateWindowPlane(width, height);
 
 	m_Skybox = std::make_shared<Skybox>();
 	std::string filename[6] = { //순서는 나중에
@@ -196,7 +195,7 @@ void Graphics::DrawMesh(
 void Graphics::DeferredLighting()
 {
 	cb_vs_vertexshader.data.projection = mainCam->GetProjectionMatrix();
-	static auto plane = Pool::Find<Model>("WindowPlane");
+	static auto plane = Pool::Find<Model>("Plane");
 	static auto& vp = plane->GetMeshes()[0].GetVertexBuffer();
 	static auto& ip = plane->GetMeshes()[0].GetIndexBuffer();
 	
@@ -241,7 +240,7 @@ void Graphics::DrawUI()
 	ImGui::DragFloat("Dynamic Light Strength", &this->light->strength, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat3("Dynamic Light Attenuation", &this->light->attenuation.x, 0.01f, 0.1f, 10.0f);
 	ImGui::DragFloat3("Dir", &this->light->GetTransform().rotation.x, 0.1f, 0.0f, 90.0f);
-	ImGui::DragFloat("Cone", &this->light->spotAngle, 0.01f, 0.0f, 180.0f);
+	ImGui::DragFloat("spotangle", &this->light->spotAngle, 0.01f, 0.0f, 180.0f);
 	ImGui::DragFloat("Range", &this->light->range, 0.1f, 0.1f, 1000.0f);
 	ImGui::End();
 
@@ -309,11 +308,19 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_BoneInfo.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
 		
-		auto tempObj = Pool::CreateInstance<GameObject>("PlaneTest");
-		tempObj->GetRenderer().Model = Pool::Find<Model>("Plane");
-		tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
-		tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
-		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
+		for (int i = 0; i < 5; i++) {
+			for (int j = 0; j < 5; j++) {
+				for (int k = 0; k < 5; k++) {
+					auto tempObj = Pool::CreateInstance<GameObject>("BoxTest" + std::to_string(i) + std::to_string(j));
+					tempObj->GetTransform().SetPosition(5.0f + i * 3.0f, j * 3.0f, k * 3.0f);
+					tempObj->GetRenderer().Model = Pool::Find<Model>("Box");
+					tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+					tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+				}
+			}
+		}
+		
+		gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 		gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
 		gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y Bot");

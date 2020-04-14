@@ -31,13 +31,13 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_TARGET
 {    
-    float3 texturePos = positionTexture.Sample(SampleTypePoint, input.inTexCoord);
+    float4 texturePos = positionTexture.Sample(SampleTypePoint, input.inTexCoord);
     float3 textureNormal = normalTexture.Sample(SampleTypePoint, input.inTexCoord);
     float3 textureColor = colorTexture.Sample(SampleTypePoint, input.inTexCoord);
     float3 ambient = textureColor * ambientColor * ambientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
-    float3 vectorToLight = position - texturePos;
-    float distToLight = distance(position, texturePos);
+    float3 vectorToLight = position - texturePos.xyz;
+    float distToLight = length(vectorToLight);
     if (distToLight > range)
         return float4(ambient, 1.0f);
     

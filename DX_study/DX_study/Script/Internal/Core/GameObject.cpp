@@ -28,6 +28,7 @@ GameObject::~GameObject()
 
 void GameObject::RemoveExpiredComponent()
 {
+	if (m_Components.size() == 0) return;
 	std::remove_if(m_Components.begin(), m_Components.end(), 
 		[](std::weak_ptr<Component>& ptr)
 	{
