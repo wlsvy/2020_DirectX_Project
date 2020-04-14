@@ -51,7 +51,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = this->swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
 		ThrowIfFailed(hr, "GetBuffer Failed.");
 
-		hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->renderTargetView.GetAddressOf());
+		hr = this->device->CreateRenderTargetView(backBuffer.Get(), NULL, this->mainRenderTargetView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create render target view.");
 
 		//Describe our Depth/Stencil Buffer + 생성자 활용해서 코드 줄이기(애초에 default 패러미터 값은 안 건드려도 됨)
@@ -65,7 +65,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil view.");
 
-		this->deviceContext->OMSetRenderTargets(1, this->renderTargetView.GetAddressOf(), this->depthStencilView.Get());
+		this->deviceContext->OMSetRenderTargets(1, this->mainRenderTargetView.GetAddressOf(), this->depthStencilView.Get());
 
 		//Create depth stencil state 스텐실 & 뎁스
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
@@ -136,20 +136,33 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
-		device->CreateTexture2D(&textureDesc, NULL, auxiliaryRenderTargetTexture.GetAddressOf());
+		for (auto& target : renderTargetTextureArr)
+		{
+			ThrowIfFailed(
+				device->CreateTexture2D(&textureDesc, NULL, target.GetAddressOf()),
+				"Failed to create renderTargetTextureArr.");
+		}
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 		renderTargetViewDesc.Format = textureDesc.Format;
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		device->CreateRenderTargetView(auxiliaryRenderTargetTexture.Get(), &renderTargetViewDesc, auxiliaryRenderTargetView.GetAddressOf());
+		for (int i = 0; i < RenderTargetCount; i++) {
+			ThrowIfFailed(
+				device->CreateRenderTargetView(renderTargetTextureArr[i].Get(), &renderTargetViewDesc, renderTargetViewArr[i].GetAddressOf()),
+				"Failed to create renderTargetViewArr.");
+		}
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 		shaderResourceViewDesc.Format = textureDesc.Format;
 		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		device->CreateShaderResourceView(auxiliaryRenderTargetTexture.Get(), &shaderResourceViewDesc, auxiliaryShaderResourceView.GetAddressOf());
+		for (int i = 0; i < RenderTargetCount; i++) {
+			ThrowIfFailed(
+				device->CreateShaderResourceView(renderTargetTextureArr[i].Get(), &shaderResourceViewDesc, shaderResourceViewArr[i].GetAddressOf()),
+				"Failed to create shaderResourceViewArr.");
+		}
 	}
 	catch (COMException & exception) {
 		ErrorLogger::Log(exception);

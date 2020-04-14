@@ -449,5 +449,7 @@
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
     <FxCompile Include="hlsl\PixelShader\pixelshader_spotlight.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\vertexshader_deferred.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_deferred.hlsl" />
   </ItemGroup>
 </Project>

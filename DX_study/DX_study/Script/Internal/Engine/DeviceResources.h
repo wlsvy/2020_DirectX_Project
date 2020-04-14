@@ -11,8 +11,8 @@ public:
 
 	ID3D11Device*					GetDevice()	const						{ return device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const				{ return deviceContext.Get(); }
-	ID3D11RenderTargetView*			GetBaseRenderTargetView() const			{ return renderTargetView.Get(); }
-	ID3D11RenderTargetView* const*	GetBaseRenderTargetViewAddress() const	{ return renderTargetView.GetAddressOf(); }
+	ID3D11RenderTargetView*			GetBaseRenderTargetView() const			{ return mainRenderTargetView.Get(); }
+	ID3D11RenderTargetView* const*	GetBaseRenderTargetViewAddress() const	{ return mainRenderTargetView.GetAddressOf(); }
 	ID3D11DepthStencilView*			GetBaseDepthStencilView() const			{ return depthStencilView.Get(); }
 	ID3D11DepthStencilState*		GetBaseDepthStencilState() const		{ return depthStencilState.Get(); }
 	ID3D11RasterizerState*			GetRasterizerState() const				{ return rasterizerState.Get(); }
@@ -20,16 +20,16 @@ public:
 	ID3D11SamplerState* const*		GetSamplerStateAddr() const				{ return samplerState.GetAddressOf(); }
 	DirectX::SpriteBatch*			GetSpriteBatch() const					{ return spriteBatch.get(); }
 	DirectX::SpriteFont*			GetSpriteFont() const					{ return spriteFont.get(); }
-	ID3D11RenderTargetView*			GetAuxRenderTargetView() const			{ return auxiliaryRenderTargetView.Get(); }
-	ID3D11RenderTargetView* const*	GetAuxRenderTargetViewAddress() const	{ return auxiliaryRenderTargetView.GetAddressOf(); }
-	ID3D11ShaderResourceView*		GetAuxRenderTargetSrv() const			{ return auxiliaryShaderResourceView.Get(); }
+	ID3D11RenderTargetView*			GetAuxRenderTargetView() const			{ return renderTargetViewArr[0].Get(); }
+	ID3D11RenderTargetView* const*	GetAuxRenderTargetViewAddress() const	{ return renderTargetViewArr[0].GetAddressOf(); }
+	ID3D11ShaderResourceView*		GetAuxRenderTargetSrv() const			{ return shaderResourceViewArr[0].Get(); }
 	IDXGISwapChain*					GetSwapChain() const					{ return swapchain.Get(); }
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device; //디바이스 인터페이스 : 기능 지원 점검과 자원 할당에 쓰임
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext; //디바이스 컨텍스트 인터페이스 : 렌더 대상을 설정하고 자원을 그래픽 파이프라인에 묶고 Gpu가 수행할 렌더링 명령들을 지시하는데 쓰인다.
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain; //프론트 버퍼 백 버퍼 바꿔치기
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mainRenderTargetView;
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
@@ -43,7 +43,9 @@ private:
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
 
 	//렌더타겟 추가
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> auxiliaryRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> auxiliaryShaderResourceView;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> auxiliaryRenderTargetTexture;
+	//Result, Position, Color, Normal
+	static const int RenderTargetCount = 4;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetViewArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceViewArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> renderTargetTextureArr[RenderTargetCount];
 };

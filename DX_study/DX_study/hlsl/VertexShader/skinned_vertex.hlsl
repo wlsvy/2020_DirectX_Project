@@ -33,14 +33,6 @@ VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
 
-    /*float4x4 test =
-    {
-        0.1, 0, 0, 0,
-        0, .1, 0, 0,
-        0, 0, .1, 0,
-        0, 0, 0, 1
-    };*/
-
     float4x4 boneMatrix = boneTransform[input.inBoneIDs[0]] * input.inBoneWeights[0];
     boneMatrix += boneTransform[input.inBoneIDs[1]] * input.inBoneWeights[1];
     boneMatrix += boneTransform[input.inBoneIDs[2]] * input.inBoneWeights[2];
@@ -51,7 +43,7 @@ VS_OUTPUT main(VS_INPUT input)
 
     output.outPosition = mul(float4(input.inPos, 1.0f), animatedWvpMatrix);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = mul(float4(input.inNormal, 0.0f), animatedWorldMatrix); //여기는 정규화가 필요 없을 수도 있겠다.애초에 들어오는 값이 정규화가 되있을 텐데
+    output.outNormal = mul(float4(input.inNormal, 0.0f), animatedWorldMatrix);
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
     return output;
 }
