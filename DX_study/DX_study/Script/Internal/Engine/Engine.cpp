@@ -75,14 +75,15 @@ void Engine::Update() {
 void Engine::RenderFrame()
 {
 	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
+	auto& dr = m_Graphics->GetDeviceResources();
 
 	m_Graphics->RenderFrame();
-	m_Graphics->SetRenderTargetDeferred();
+	m_Graphics->SetRenderTarget(dr.GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
 	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
-	m_Graphics->SetOmRenderTargetToAux();
-	m_Graphics->DeferredLighting();
 	m_Graphics->DrawSkybox();
-	m_Graphics->SetOmRenderTargetToBase();
+	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));
+	m_Graphics->PostProcess();
+	m_Graphics->SetRenderTarget(dr.GetBaseRTVaddress());
 	m_Graphics->DrawUI();
 	m_Graphics->SwapBuffer();
 }

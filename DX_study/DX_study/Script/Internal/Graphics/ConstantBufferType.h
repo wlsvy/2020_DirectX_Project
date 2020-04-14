@@ -4,9 +4,6 @@
 struct CB_VS_vertexshader {
 	DirectX::XMMATRIX wvpMatrix;
 	DirectX::XMMATRIX worldMatrix;
-	DirectX::XMMATRIX projection;
-	//float xOffset = 0;	//4bytes
-	//float yOffset = 0;	//4bytes
 };
 
 struct CB_VS_vertexshader_2d {

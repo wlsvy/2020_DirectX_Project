@@ -5,7 +5,10 @@
 #include <DirectXMath.h>
 
 #include "../Core/InternalHelper.h"
+#include "../Core/ObjectPool.h"
 #include "../../Util/ErrorLogger.h"
+#include "Shaders.h"
+#include "Model.h"
 
 
 bool Skybox::Initialize(const std::string * filePath)
@@ -37,6 +40,10 @@ bool Skybox::Initialize(const std::string * filePath)
 
 	if (!Make_CubeMap())
 		return false;
+
+	m_Model = Pool::Find<Model>("Box");
+	m_Vshader = Pool::Find<VertexShader>("vertexshader_skybox");
+	m_Pshader = Pool::Find<PixelShader>("pixelshader_deferredSkybox");
 
 	return true;
 
@@ -109,13 +116,4 @@ bool Skybox::Make_CubeMap()
 	}
 
 	return true;
-}
-
-void Skybox::Draw(const DirectX::XMMATRIX & wMatrix, const DirectX::XMMATRIX & viewProjectionMatrix)
-{
-	Core::GetDeviceContext()->RSSetState(this->mSkyboxRasterizerState.Get());//래스터라이저 설정 적용
-	Core::GetDeviceContext()->OMSetDepthStencilState(this->mSkyboxDepthStencilState.Get(), 0);
-	Core::GetDeviceContext()->PSSetShaderResources(1, 1, mSkybox_CubeMapSRV.GetAddressOf());
-
-	//mSkyboxModel->Draw(wMatrix, viewProjectionMatrix);
 }

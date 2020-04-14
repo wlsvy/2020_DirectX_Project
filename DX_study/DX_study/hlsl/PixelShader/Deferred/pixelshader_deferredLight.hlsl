@@ -38,6 +38,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
     float3 vectorToLight = position - texturePos.xyz;
     float distToLight = length(vectorToLight);
+    if (texturePos.w < 0.0f)
+        return float4(textureColor, 1.0f);
     if (distToLight > range)
         return float4(ambient, 1.0f);
     

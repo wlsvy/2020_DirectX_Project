@@ -19,6 +19,8 @@ class Light;
 class GameObject;
 class Skybox;
 class Animator;
+class VertexShader;
+class PixelShader;
 
 class Graphics {
 public:
@@ -37,12 +39,10 @@ public:
 	void DrawMesh(const Mesh & mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
-	void DeferredLighting();
+	void PostProcess();
 	void DrawUI();
 	void DrawSkybox();
-	void SetOmRenderTargetToBase();
-	void SetOmRenderTargetToAux();
-	void SetRenderTargetDeferred();
+	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
 	void SwapBuffer();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
@@ -71,6 +71,9 @@ private:
 	ConstantBuffer<CB_VS_boneData> cb_BoneInfo;
 
 	std::shared_ptr<Skybox> m_Skybox;
+	std::shared_ptr<VertexShader> m_PostProcesVshader;
+	std::shared_ptr<PixelShader> m_PostProcesPshader;
+	std::shared_ptr<Model> m_PostProcesWindowModel;
 	
 	int windowWidth = 0;
 	int windowHeight = 0;
