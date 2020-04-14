@@ -17,24 +17,22 @@
 //TextureStorageType DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType);
 //Mesh ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix);
 
-bool ModelImporter::LoadModel(const std::string & filePath, const aiScene * scene)
+bool ModelImporter::CreateModel(
+	const std::string & dirPath,
+	const std::string & fileName,
+	const aiScene * scene)
 {
-	m_Directory = StringHelper::GetDirectoryFromPath(filePath);
+	m_Directory = dirPath;
 
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
 	auto model = Pool::CreateInstance<Model>();
-	model->Name = StringHelper::GetFileNameFromPath(filePath);
+	model->Name = StringHelper::GetFileNameFromPath(fileName);
 	if (!model->Initialize(m_Meshes)) {
 		Pool::Destroy(model.get());
 		return false;
 	}
 	return true;
-}
-
-bool ModelImporterBase::LoadModel(const std::string & filePath, const aiScene * scene)
-{
-	return false;
 }
 
 void ModelImporterBase::ProcessNode(aiNode * node, const aiScene * scene, const DirectX::XMMATRIX & parentTransformMatrix)
@@ -218,14 +216,17 @@ int ModelImporterBase::GetTextureIndex(aiString * pStr)
 	return atoi(&pStr->C_Str()[1]);
 }
 
-bool SkinnedModelImporter::LoadModel(const std::string & filePath, const aiScene * scene)
+bool SkinnedModelImporter::CreateModel(
+	const std::string & dirPath,
+	const std::string & fileName,
+	const aiScene * scene)
 {
-	m_Directory = StringHelper::GetDirectoryFromPath(filePath);
+	m_Directory = dirPath;
 	
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
 	auto model = Pool::CreateInstance<SkinnedModel>();
-	model->Name = StringHelper::GetFileNameFromPath(filePath);
+	model->Name = fileName;
 	if (!model->Initialize(m_Meshes, m_BoneOffsets, m_BoneIdMap)) {
 		Pool::Destroy(model.get());
 		return false;

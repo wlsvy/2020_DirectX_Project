@@ -18,7 +18,9 @@ class SkinnedModel;
 
 class ModelImporterBase {
 public:
-	virtual bool LoadModel(const std::string & filePath, const aiScene * scene) = 0;
+	virtual bool CreateModel(const std::string & dirPath,
+		const std::string & fileName,
+		const aiScene * scene) = 0;
 protected:
 	virtual void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) = 0;
 
@@ -32,7 +34,9 @@ protected:
 
 class ModelImporter : public ModelImporterBase {
 public:
-	bool LoadModel(const std::string & filePath, const aiScene * scene) override;
+	bool CreateModel(const std::string & dirPath,
+		const std::string & fileName,
+		const aiScene * scene) override;
 
 private:
 	void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) override;
@@ -42,7 +46,9 @@ private:
 
 class SkinnedModelImporter : public ModelImporterBase {
 public:
-	bool LoadModel(const std::string & filePath, const aiScene * scene) override;
+	bool CreateModel(const std::string & dirPath,
+		const std::string & fileName,
+		const aiScene * scene) override;
 
 private:
 	void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) override;

@@ -125,4 +125,5 @@ public:
 	}
 
 	static void Destroy(Object* obj);
+	static void Destroy(std::shared_ptr<Object> obj);
 };

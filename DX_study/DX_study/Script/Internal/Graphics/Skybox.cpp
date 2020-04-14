@@ -33,7 +33,7 @@ bool Skybox::Initialize(const std::string * filePath)
 		hr = Core::GetDevice()->CreateRasterizerState(&rasterizerDesc, this->mSkyboxRasterizerState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create skybox rasterizer state.");
 	}
-	catch (COMException & exception) {
+	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
 		return false;
 	}
@@ -110,7 +110,7 @@ bool Skybox::Make_CubeMap()
 		hr = Core::GetDevice()->CreateShaderResourceView(texArray, &viewDesc, &mSkybox_CubeMapSRV);
 		ThrowIfFailed(hr, "Failed to create CubeMap Texture SRV.");
 	}
-	catch (COMException & exception) {
+	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
 		return false;
 	}

@@ -16,7 +16,7 @@ Mesh::Mesh(
 		hr = this->indexbuffer.Initialize(indices.data(), indices.size());
 		ThrowIfFailed(hr, "Failed to initialize index buffer for mesh.");
 	}
-	catch (COMException e) {
+	catch (CustomException e) {
 		ErrorLogger::Log(e);
 	}
 }
@@ -45,7 +45,7 @@ SkinnedMesh::SkinnedMesh(
 		hr = this->indexbuffer.Initialize(indices.data(), indices.size());
 		ThrowIfFailed(hr, "Failed to initialize index buffer for SkinnedMesh.");
 	}
-	catch (COMException e) {
+	catch (CustomException e) {
 		ErrorLogger::Log(e);
 	}
 }

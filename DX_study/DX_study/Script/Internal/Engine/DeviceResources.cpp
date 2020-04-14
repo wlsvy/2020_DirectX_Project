@@ -112,7 +112,7 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = this->device->CreateSamplerState(&sampDesc, this->samplerState.GetAddressOf()); //Create sampler state
 		ThrowIfFailed(hr, "Failed to create sampler state.");
 	}
-	catch (COMException & exception) {
+	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
 		return false;
 	}
@@ -164,7 +164,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 				"Failed to create shaderResourceViewArr.");
 		}
 	}
-	catch (COMException & exception) {
+	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
 		return false;
 	}

@@ -50,19 +50,11 @@ public:
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
 	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_BoneInfo; }
-	
-	std::shared_ptr<Camera> mainCam;
-	std::shared_ptr<GameObject> gameObject;
-	std::shared_ptr<Light> light;
+
+	int GetWindowWidth() const { return windowWidth; }
+	int GetWindowHeight() const { return windowHeight; }
 
 private:
-	bool InitializeScene();
-	void LoadVertexShader(const std::string & filePath);
-	void LoadPixelShader(const std::string & filePath);
-	void LoadModel(const std::string & filePath);
-	void LoadTexture(const std::string & filePath);
-	void LoadAnimation(const std::string & filePath);
-	
 	DeviceResources m_DeviceResources;
 
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;

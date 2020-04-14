@@ -3,12 +3,15 @@
 #include <stdexcept>
 #include "StringHelper.h"
 
-class COMException {
+class CustomException {
 public:
-	COMException(HRESULT hr, const std::string& msg) {
+	CustomException(HRESULT hr, const std::string& msg) {
 		_com_error error(hr);
 		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";
 		whatmsg += error.ErrorMessage();
+	}
+	CustomException(const std::string& msg) {
+		whatmsg = L"Msg: " + StringHelper::StringToWide(std::string(msg)) + L"\n";
 	}
 
 	const wchar_t * what() const {
@@ -22,6 +25,14 @@ inline void ThrowIfFailed(HRESULT hr, const std::string& msg)
 {
 	if (FAILED(hr))
 	{
-		throw COMException(hr, msg);
+		throw CustomException(hr, msg);
+	}
+}
+
+inline void ThrowIfFailed(bool result, const std::string& msg)
+{
+	if (result == false)
+	{
+		throw CustomException(msg);
 	}
 }

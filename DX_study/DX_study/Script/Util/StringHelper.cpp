@@ -27,13 +27,19 @@ std::string StringHelper::GetFileNameFromPath(const std::string & filepath, bool
 {
 	size_t off1 = filepath.find_last_of('\\');
 	size_t off2 = filepath.find_last_of('/');
-	if (off1 == std::string::npos && off2 == std::string::npos) return "";
+	if (off1 == std::string::npos && off2 == std::string::npos) {
+		if (removeExtension) {
+			size_t extOff = filepath.find_last_of('.');
+			return filepath.substr(0, extOff);
+		}
+		return filepath;
+	}
 
 	size_t off;
 	if (off1 == std::string::npos) { off = off2; }
 	else if (off2 == std::string::npos) { off = off1; }
 	else { off = std::max(off1, off2); }
-	
+
 	if (removeExtension) {
 		size_t extOff = filepath.find_last_of('.');
 		return filepath.substr(off + 1, extOff - off - 1);
@@ -48,17 +54,17 @@ std::string StringHelper::GetFileExtension(const std::string & filename)
 		return {};
 	}
 
-	return std::string(filename.substr(off + 1));//확장자 빼기. ex : file.png 에서 . 위치 확인하고 그 뒤로는 제거
+	return filename.substr(off + 1);//확장자 빼기. ex : file.png 에서 . 위치 확인하고 그 뒤로는 제거
 }
 
 std::string StringHelper::EraseFileExtension(const std::string & filePath)
 {
 	size_t off = filePath.find_last_of('.');
 	if (off == std::string::npos) {
-		return {};
+		return filePath;
 	}
 
-	return std::string(filePath.substr(0, off));
+	return filePath.substr(0, off);
 }
 
 std::string StringHelper::GetUpperDirectroyName(const std::string & filePath)

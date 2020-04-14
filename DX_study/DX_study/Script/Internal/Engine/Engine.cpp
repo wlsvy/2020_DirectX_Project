@@ -49,6 +49,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 		return false;
 	}
 
+	m_CurrentScene->Initialize();
+
 	return true;
 }
 
@@ -69,7 +71,6 @@ void Engine::Update() {
 	Pool::ObjectPool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
 	Pool::ObjectPool<Animator>::GetInstance().ForEach(UpdateBehaviour);
 	m_CurrentScene->Update();
-	this->m_Graphics->mainCam->UpdateViewMatrix();
 }
 
 void Engine::RenderFrame()
