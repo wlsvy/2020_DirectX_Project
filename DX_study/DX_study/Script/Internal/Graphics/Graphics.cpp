@@ -53,6 +53,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	TraverseDirectory("Data/Textures/", &Graphics::LoadTexture);
 
 	BaseGeometry::Initialize();
+	BaseGeometry::CreateWindowPlane(width, height);
 
 	m_Skybox = std::make_shared<Skybox>();
 	std::string filename[6] = { //순서는 나중에
@@ -92,7 +93,9 @@ void Graphics::RenderFrame()
 
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
-	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(), m_BackgroundColor);
+	for (int i = 0; i < DeviceResources::RenderTargetCount; i++) {
+		m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetAuxRenderTargetView(i), m_BackgroundColor);
+	}
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_DeviceResources.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -190,13 +193,45 @@ void Graphics::DrawMesh(
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
 }
 
+void Graphics::DeferredLighting()
+{
+	cb_vs_vertexshader.data.projection = mainCam->GetProjectionMatrix();
+	static auto plane = Pool::Find<Model>("WindowPlane");
+	static auto& vp = plane->GetMeshes()[0].GetVertexBuffer();
+	static auto& ip = plane->GetMeshes()[0].GetIndexBuffer();
+	
+	static auto vs = Pool::Find<VertexShader>("vertexshader_deferred"); 
+	static auto ps = Pool::Find<PixelShader>("pixelshader_deferredLight");
+	//static auto ps = Pool::Find<PixelShader>("pixelshader_nolight");
+	m_DeviceResources.GetDeviceContext()->VSSetShader(vs->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(ps->GetShader(), NULL, 0);
+	
+
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetAuxRenderTargetSrvAddress(0));
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetAuxRenderTargetSrvAddress(1));
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetAuxRenderTargetSrvAddress(2));
+
+	auto worldMat = DirectX::XMMatrixTranslation(0.0f, 0.0f, 0.1f);
+	auto wvpMat = worldMat * mainCam->GetProjectionMatrix();
+	cb_vs_vertexshader.data.wvpMatrix = wvpMat; //Calculate World-View-Projection Matrix
+	cb_vs_vertexshader.data.worldMatrix = worldMat; //Calculate World Matrix
+	cb_vs_vertexshader.ApplyChanges();
+
+	UINT offset = 0;
+	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, vp.GetAddressOf(), vp.StridePtr(), &offset);
+	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(ip.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceResources.GetDeviceContext()->DrawIndexed(ip.IndexCount(), 0, 0);
+
+
+}
+
 void Graphics::DrawUI()
 {
 	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	UI::EditorUI(m_DeviceResources.GetAuxRenderTargetSrv());
+	UI::EditorUI(m_DeviceResources.GetAuxRenderTargetSrv(3));
 	
 	ImGui::Begin("Light Controls");
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
@@ -208,6 +243,15 @@ void Graphics::DrawUI()
 	ImGui::DragFloat3("Dir", &this->light->GetTransform().rotation.x, 0.1f, 0.0f, 90.0f);
 	ImGui::DragFloat("Cone", &this->light->spotAngle, 0.01f, 0.0f, 180.0f);
 	ImGui::DragFloat("Range", &this->light->range, 0.1f, 0.1f, 1000.0f);
+	ImGui::End();
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImGui::Begin("Deferred Rendering Debug");
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+	ImGui::Image(m_DeviceResources.GetAuxRenderTargetSrv(0), scene_size);
+	ImGui::Image(m_DeviceResources.GetAuxRenderTargetSrv(1), scene_size);
+	ImGui::Image(m_DeviceResources.GetAuxRenderTargetSrv(2), scene_size);
+	ImGui::Image(m_DeviceResources.GetAuxRenderTargetSrv(3), scene_size);
 	ImGui::End();
 
 	Engine::Get().GetCurrentScene().OnGui();
@@ -243,7 +287,12 @@ void Graphics::SetOmRenderTargetToBase()
 
 void Graphics::SetOmRenderTargetToAux()
 {
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetAuxRenderTargetViewAddress(), m_DeviceResources.GetBaseDepthStencilView());
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetAuxRenderTargetViewAddress(DeviceResources::RenderTargetCount - 1), m_DeviceResources.GetBaseDepthStencilView());
+}
+
+void Graphics::SetRenderTargetDeferred()
+{
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DeviceResources::RenderTargetCount - 1, m_DeviceResources.GetAuxRenderTargetViewAddress(0), m_DeviceResources.GetBaseDepthStencilView());
 }
 
 void Graphics::SwapBuffer()
@@ -259,7 +308,11 @@ bool Graphics::InitializeScene()
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_BoneInfo.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
-
+		
+		auto tempObj = Pool::CreateInstance<GameObject>("PlaneTest");
+		tempObj->GetRenderer().Model = Pool::Find<Model>("Plane");
+		tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
+		tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 		gameObject->GetTransform().SetPosition(2.0f, 0.0f, 0.0f);
 		gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
 		//gameObject->GetRenderer().Model = Pool::Find<Model>("nanosuit");
@@ -271,10 +324,12 @@ bool Graphics::InitializeScene()
 		cm->Init();
 		//gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
-		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_spotlight");
+		//gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_spotlight");
+		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 		light->GetRenderer().Model = Pool::Find<Model>("light");
 		light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
-		light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_nolight");
+		//light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_nolight");
+		light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 
 		mainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
 		mainCam->SetProjectionValues(90.0f, static_cast<float>(windowWidth) / static_cast<float>(windowHeight), 0.1f, 1000.0f);

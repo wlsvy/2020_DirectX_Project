@@ -19,10 +19,16 @@ cbuffer lightBuffer : register(b0)
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
-    //float3 inColor : COLOR;
     float2 inTexCoord : TEXCOORD;
-    float3 inNormal : NORMAL; //정점 상의 노말 벡터를 보간하면, 다시 정규화를 해줘야 할 필요가 있음. 
+    float3 inNormal : NORMAL; 
     float3 inWorldPos : WORLD_POSITION;
+};
+
+struct PS_OUTPUT
+{
+    float4 pos : SV_Target0;
+    float4 normal : SV_Target1;
+    float4 color : SV_Target2;
 };
 
 Texture2D objTexture : TEXTURE : register(t0);

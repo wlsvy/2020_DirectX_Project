@@ -56,7 +56,63 @@ namespace BaseGeometry {
 		);
 		model->Name = "Box";
 	}
+	static void CreatePlane() {
+		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
+			{-0.5f, -0.5f, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
+			{-0.5f, +0.5f, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+0.5f, -0.5f, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f},
+			{-0.5f, -0.5f, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, 1.0f},
+			{-0.5f, +0.5f, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, 1.0f},
+			{+0.5f, +0.5f, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, 1.0f},
+			{+0.5f, -0.5f, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, 1.0f}
+		};
+		const std::vector<DWORD> indices = {
+			// 앞면
+			0, 1, 2,
+			0, 2, 3,
+			// 뒷면
+			6, 5, 4,
+			7, 6, 4
+		};
 
+		auto model = Pool::CreateInstance<Model>();
+		model->Initialize(
+			std::move(std::vector<Mesh>(1, Mesh(
+				vertices,
+				indices,
+				std::vector<Texture>(1, *Pool::Find<Texture>("test")),
+				DirectX::XMMatrixIdentity())
+				))
+		);
+		model->Name = "Plane";
+	}
+	static void CreateWindowPlane(int windowWidth, int windowHeight) {
+		float w = windowWidth / 2;
+		float h = windowHeight / 2;
+		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
+			{-1, -1, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
+			{-1, +1, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+1, +1, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
+			{+1, -1, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f}
+		};
+		const std::vector<DWORD> indices = {
+			// 앞면
+			0, 1, 2,
+			0, 2, 3,
+		};
+
+		auto model = Pool::CreateInstance<Model>();
+		model->Initialize(
+			std::move(std::vector<Mesh>(1, Mesh(
+				vertices,
+				indices,
+				std::vector<Texture>(1, *Pool::Find<Texture>("test")),
+				DirectX::XMMatrixIdentity())
+				))
+		);
+		model->Name = "WindowPlane";
+	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
 
@@ -148,6 +204,7 @@ namespace BaseGeometry {
 
 	static void Initialize() {
 		CreateBox();
+		CreatePlane();
 		CreateSphere(10, 10);
 	}
 };

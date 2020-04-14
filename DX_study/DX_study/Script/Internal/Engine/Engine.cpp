@@ -77,8 +77,10 @@ void Engine::RenderFrame()
 	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
 
 	m_Graphics->RenderFrame();
-	m_Graphics->SetOmRenderTargetToAux();
+	m_Graphics->SetRenderTargetDeferred();
 	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
+	m_Graphics->SetOmRenderTargetToAux();
+	m_Graphics->DeferredLighting();
 	m_Graphics->DrawSkybox();
 	m_Graphics->SetOmRenderTargetToBase();
 	m_Graphics->DrawUI();

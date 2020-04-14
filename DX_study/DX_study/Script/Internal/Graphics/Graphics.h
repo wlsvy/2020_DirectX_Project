@@ -37,10 +37,12 @@ public:
 	void DrawMesh(const Mesh & mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
+	void DeferredLighting();
 	void DrawUI();
 	void DrawSkybox();
 	void SetOmRenderTargetToBase();
 	void SetOmRenderTargetToAux();
+	void SetRenderTargetDeferred();
 	void SwapBuffer();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
