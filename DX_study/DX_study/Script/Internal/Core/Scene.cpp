@@ -97,9 +97,9 @@ void Scene::ProcessGuiHirarchy(std::weak_ptr<Transform> ptr)
 	ImGuiTreeNodeFlags nodeFlags =
 		ImGuiTreeNodeFlags_OpenOnArrow
 		| ImGuiTreeNodeFlags_OpenOnDoubleClick
+		| (check ? ImGuiTreeNodeFlags_Selected : 0)
+		| (tf->GetChildNum() == 0 ? ImGuiTreeNodeFlags_Leaf : 0)
 		| ImGuiTreeNodeFlags_DefaultOpen;
-	 nodeFlags |= check ? ImGuiTreeNodeFlags_Selected : 0;
-	 nodeFlags |= tf->GetChildNum() == 0 ? ImGuiTreeNodeFlags_Leaf : 0;
 
 	bool isNodeOpen = ImGui::TreeNodeEx(tf->GetGameObject()->Name.c_str(), nodeFlags);
 	if (ImGui::IsItemClicked())
