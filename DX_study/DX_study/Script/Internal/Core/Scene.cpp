@@ -9,9 +9,9 @@
 #include "../Graphics/Shaders.h"
 #include "../Graphics/AnimationClip.h"
 
-#include "../Engine/Engine.h"
-#include "../Graphics/Graphics.h"
 #include "GameObject.h"
+#include "ImportHelper.h"
+#include "../Engine/Engine.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Custom/CamMove.h"
@@ -27,6 +27,7 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 
 void Scene::Initialize()
 {
+	auto val = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
 	auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
 	gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);

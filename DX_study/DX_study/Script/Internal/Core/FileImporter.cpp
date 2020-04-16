@@ -488,5 +488,6 @@ CsvImporter::ColumnMap CsvImporter::LoadCSV(const std::string & filePath)
 		}
 	}
 
+	fin.close();
 	return map;
 }
