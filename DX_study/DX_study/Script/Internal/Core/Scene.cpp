@@ -27,8 +27,6 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 
 void Scene::Initialize()
 {
-	
-
 	auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
 	gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
@@ -40,7 +38,7 @@ void Scene::Initialize()
 	gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
 	gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 
-	for (int i = 0; i < 5; i++) {
+	/*for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 5; j++) {
 			for (int k = 0; k < 5; k++) {
 				auto tempObj = Pool::CreateInstance<GameObject>("BoxTest" + std::to_string(i) + std::to_string(j) + std::to_string(k));
@@ -51,7 +49,7 @@ void Scene::Initialize()
 				tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 			}
 		}
-	}
+	}*/
 
 	auto light = Pool::CreateInstance<Light>();
 	light->GetRenderer().Model = Pool::Find<Model>("light");

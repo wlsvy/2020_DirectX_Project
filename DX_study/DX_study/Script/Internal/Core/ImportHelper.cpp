@@ -13,6 +13,8 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <DirectXMath.h>
+#include <fstream>
+#include <sstream>
 
 void Importer::LoadData()
 {
@@ -184,6 +186,21 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 	{
 		Pool::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
 	}
+}
+
+void Importer::LoadCSV(const std::string & dirPath, const std::string & name)
+{
+	std::string ext = StringHelper::GetFileExtension(name);
+	if (ext == "csv")
+	{
+
+	}
+}
+
+std::unordered_map<std::string, std::vector<std::string>> Importer::LoadCSV(const std::string & filePath)
+{
+	CsvImporter importer;
+	return importer.LoadCSV(filePath);
 }
 
 void Importer::TraverseDirectory(const std::string & dirPath, void(*callBack)(const std::string &, const std::string &))

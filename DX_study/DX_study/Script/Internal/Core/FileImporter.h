@@ -89,3 +89,9 @@ private:
 
 	std::shared_ptr<SkinnedModel> m_BaseModel;
 };
+
+class CsvImporter {
+public:
+	using ColumnMap = std::unordered_map<std::string, std::vector<std::string>>;
+	ColumnMap LoadCSV(const std::string & filePath);
+};

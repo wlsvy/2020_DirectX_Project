@@ -4,13 +4,14 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <DirectXMath.h>
+#include <fstream>
+#include <sstream>
 
-
+#include "ObjectPool.h"
 #include "../Graphics/Mesh.h"
 #include "../Graphics/Model.h"
-#include "../../Util/StringHelper.h"
-#include "ObjectPool.h"
 #include "../Graphics/AnimationClip.h"
+#include "../../Util/StringHelper.h"
 
 
 //int GetTextureIndex(aiString * pStr);
@@ -456,4 +457,36 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 			ProcessBoneHierarchy(childNode, animClip, parentBone, globalTransform);
 		}
 	}
+}
+
+CsvImporter::ColumnMap CsvImporter::LoadCSV(const std::string & filePath)
+{
+	std::ifstream fin;
+	fin.open(filePath, std::ios::in);
+
+	ColumnMap map;
+	std::string line, word;
+	int columnNum = 0;
+	std::unordered_map<int, std::vector<std::string>*> columnIndexMap;
+
+	fin >> line;
+	std::stringstream s(line);
+	while (getline(s, word, ','))
+	{
+		map.insert(std::make_pair(word, std::vector<std::string>()));
+		columnIndexMap.insert(make_pair(columnNum++, &map[word]));
+	}
+
+	while (fin >> line) {
+		columnNum = 0;
+
+		std::stringstream s(line);
+		while (getline(s, word, ','))
+		{
+			auto& colVector = *columnIndexMap[columnNum++];
+			colVector.push_back(word);
+		}
+	}
+
+	return map;
 }
