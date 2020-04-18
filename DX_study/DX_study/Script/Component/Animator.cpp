@@ -26,6 +26,7 @@ void Animator::Update()
 		if (m_BlendClipPlayTime > m_BlendTime) {
 			m_IsBlending = false;
 			m_PlayTime = m_BlendClipPlayTime;
+			m_BlendClipPlayTime = 0.0f;
 		}
 	}
 	else {
@@ -47,11 +48,15 @@ void Animator::Stop()
 
 void Animator::ChangeClip(const std::shared_ptr<AnimationClip>& target, float blendTime)
 {
+	if (m_IsBlending) {
+		m_PlayTime = m_BlendClipPlayTime;
+		m_BlendClipPlayTime = (1 - m_BlendClipPlayTime / m_BlendTime) * blendTime;
+	}
+
 	m_BlendClip = m_Clip;
 	m_Clip = target;
 
 	m_BlendTime = blendTime;
-	m_BlendClipPlayTime = 0.0f;
 	m_IsBlending = true;
 }
 
