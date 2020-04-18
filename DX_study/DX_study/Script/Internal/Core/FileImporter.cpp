@@ -393,11 +393,6 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 			channel.mScaleKeys.emplace_back(scaleValue.x, scaleValue.y, scaleValue.z, scaleKey.mTime);
 		}
 
-		/*DirectX::XMMATRIX globalInverseTransform = GetAiMatrixData(scene->mRootNode->mTransformation);
-		globalInverseTransform = DirectX::XMMatrixTranspose(globalInverseTransform);
-		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
-		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
-		channel.mGlobalInverseTransform = globalInverseTransform;*/
 		clip->Channels[channel.mBoneIndex] = channel;
 	}
 
@@ -433,7 +428,6 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 		if (parentBone != nullptr)
 			parentBone->mChildBoneIndex.push_back(currentBoneChannel->mBoneIndex);
 
-		//currentBoneChannel->mParentNodeTransform = parentTransform;
 		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
 
 		for (int i = 0; i < childNum; i++) {

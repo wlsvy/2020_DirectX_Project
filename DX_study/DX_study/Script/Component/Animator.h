@@ -19,13 +19,12 @@ public:
 	bool IsRunning() const { return m_IsRunning; }
 
 	const std::vector<DirectX::XMMATRIX> & GetAnimResult() const { return m_AnimResult; }
-	void ChangeClip(const std::shared_ptr<AnimationClip>& target, float blendTime);
+	void ChangeClipWithBlending(const std::shared_ptr<AnimationClip>& target, float blendTime);
 	void SetClip(const std::shared_ptr<AnimationClip>& clip);
 	std::shared_ptr<AnimationClip> GetClip() { return m_Clip; }
 
 	void OnGui() override;
 
-	std::shared_ptr<BoneAvatar> Avatar;
 	float Speed = 1.0f;
 
 private:

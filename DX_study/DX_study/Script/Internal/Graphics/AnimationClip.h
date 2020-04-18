@@ -24,12 +24,11 @@ struct ScaleKey {
 
 struct BoneChannel {
 	std::string mChannelName = "";
-	int mChannelIndex = -1;
 	int mBoneIndex = -1;
 
-	int mNumPositionKeys = 0;
-	int mNumRotationKeys = 0;
-	int mNumScaleKeys = 0;
+	short mNumPositionKeys = 0;
+	short mNumRotationKeys = 0;
+	short mNumScaleKeys = 0;
 
 	short mNumChildBone = 0;
 
@@ -38,36 +37,12 @@ struct BoneChannel {
 	std::vector<ScaleKey> mScaleKeys;
 	
 	std::vector<int> mChildBoneIndex;
-
-	DirectX::XMMATRIX mParentNodeTransform;
 	DirectX::XMMATRIX mBoneOffset;
-	DirectX::XMMATRIX mGlobalInverseTransform;
 
 public:
 	const DirectX::XMVECTOR & positionInterpolate(float time) const;
 	const DirectX::XMVECTOR & rotationInterpolate(float time) const;
 	const DirectX::XMVECTOR & scaleInterpolate(float time) const;
-};
-
-struct BoneResult {
-	BoneResult(const DirectX::XMVECTOR & pos,
-		const DirectX::XMVECTOR & rot,
-		const DirectX::XMVECTOR & scale) :
-		Position(pos), 
-		Rotation(rot), 
-		Scale(scale) 
-	{}
-
-	BoneResult Blend(const BoneResult & other, float ratio = 0.5f);
-	const DirectX::XMMATRIX & GetBoneTransform() {
-		return DirectX::XMMatrixScalingFromVector(Scale) * 
-			DirectX::XMMatrixRotationQuaternion(Rotation) * 
-			DirectX::XMMatrixTranslationFromVector(Position);
-	}
-
-	DirectX::XMVECTOR Position;
-	DirectX::XMVECTOR Rotation;
-	DirectX::XMVECTOR Scale;
 };
 
 class AnimationClip : public Object {
@@ -97,11 +72,3 @@ private:
 		std::vector<bool> & check,
 		std::vector<DirectX::XMMATRIX> & result);
 };
-
-void BlendAnimation(
-	const std::shared_ptr<AnimationClip> & clip1,
-	const std::shared_ptr<AnimationClip> & clip2,
-	float time1,
-	float time2,
-	float blendFactor,
-	std::vector<DirectX::XMMATRIX> & result);
