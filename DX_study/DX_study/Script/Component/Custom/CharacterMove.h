@@ -9,7 +9,7 @@ class CharacterMove : public Behaviour {
 	BEHAVIOUR_CONSTRUCTOR(CharacterMove)
 public:
 	void Update() override;
-	void Init();
+	void Awake() override;
 
 private:
 	std::weak_ptr<Animator> m_Anim;

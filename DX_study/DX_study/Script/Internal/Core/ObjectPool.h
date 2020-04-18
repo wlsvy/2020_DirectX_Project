@@ -8,9 +8,11 @@
 #include "Object.h"
 
 class Engine;
+class Scene;
 
 class Pool {
 	friend class Engine;
+	friend class Scene;
 private:
 	template<typename T>
 	class ObjectPool : public Singleton<ObjectPool<T>> {

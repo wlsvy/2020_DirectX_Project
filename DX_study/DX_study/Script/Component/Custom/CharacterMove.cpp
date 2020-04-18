@@ -43,11 +43,14 @@ void CharacterMove::Update() {
 	}
 }
 
-void CharacterMove::Init()
+void CharacterMove::Awake()
 {
 	m_Transform = &m_GameObject->GetTransform();
 	m_Anim = m_GameObject->GetComponent<Animator>();
-	m_RunClip = Pool::Find<AnimationClip>("Y Bot_Running");
-	m_IdleClip = Pool::Find<AnimationClip>("Y Bot_Idle");
-	m_WalkClip = Pool::Find<AnimationClip>("Y Bot_Walking");
+	m_RunClip = Pool::Find<AnimationClip>("Y_Bot_Running");
+	m_IdleClip = Pool::Find<AnimationClip>("Y_Bot_Idle");
+	m_WalkClip = Pool::Find<AnimationClip>("Y_Bot_Walking");
+
+	m_Anim.lock()->Clip = m_IdleClip.lock();
+	m_Anim.lock()->Play();
 }

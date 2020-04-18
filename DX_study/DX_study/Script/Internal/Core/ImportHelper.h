@@ -14,6 +14,7 @@ namespace Importer {
 	void LoadTexture(const std::string & dirPath, const std::string& name);
 	void LoadCSV(const std::string & dirPath, const std::string& name);
 	std::unordered_map<std::string, std::vector<std::string>> LoadCSV(const std::string & filePath);
+	std::vector<std::string> SplitString(const std::string & str, const char delimiter);
 	
 
 	void TraverseDirectory(

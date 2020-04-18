@@ -6,8 +6,10 @@
 class Component;
 class Transform;
 class Renderable;
+class Scene;
 
 class GameObject : public Object{
+	friend class Scene;
 public:
 	MANAGED_OBJECT(GameObject)
 	explicit GameObject();

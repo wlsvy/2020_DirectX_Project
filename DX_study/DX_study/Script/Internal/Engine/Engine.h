@@ -34,6 +34,7 @@ public:
 	Scene& GetCurrentScene() { return *m_CurrentScene; }
 	KeyboardClass& GetKeyboard() { return keyboard; }
 	MouseClass& GetMouse() { return mouse; }
+
 private:
 	static Engine* s_Ptr;
 

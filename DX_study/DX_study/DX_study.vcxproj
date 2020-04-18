@@ -236,7 +236,6 @@
     <ClInclude Include="Script\Internal\Core\InternalHelper.h" />
     <ClInclude Include="Script\Internal\Core\ObjectPool.h" />
     <ClInclude Include="Script\Internal\Core\Object.h" />
-    <ClInclude Include="Script\Internal\Core\ObjectType.h" />
     <ClInclude Include="Script\Internal\Engine\DeviceResources.h" />
     <ClInclude Include="Script\Internal\Engine\Ui.h" />
     <ClInclude Include="Script\Internal\Graphics\AnimationClip.h" />

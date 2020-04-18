@@ -15,8 +15,10 @@ public:
 	Component(GameObject* gameObj, const std::string& name);
 	virtual ~Component();
 
+	virtual void Awake() {}
 	GameObject* GetGameObject() { return m_GameObject; }
 
 protected:
 	GameObject * const m_GameObject;
 };
+

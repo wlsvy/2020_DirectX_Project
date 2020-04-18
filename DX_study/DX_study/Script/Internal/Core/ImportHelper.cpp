@@ -203,6 +203,17 @@ std::unordered_map<std::string, std::vector<std::string>> Importer::LoadCSV(cons
 	return importer.LoadCSV(filePath);
 }
 
+std::vector<std::string> Importer::SplitString(const std::string & str, char delimiter)
+{
+	std::vector<std::string> vs;
+	std::string word;
+
+	std::stringstream stream(str);
+
+	while (std::getline(stream, word, delimiter)) vs.push_back(word);
+	return vs;
+}
+
 void Importer::TraverseDirectory(const std::string & dirPath, void(*callBack)(const std::string &, const std::string &))
 {
 	struct _finddata_t fd;

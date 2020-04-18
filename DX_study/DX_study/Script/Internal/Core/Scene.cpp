@@ -27,17 +27,20 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 
 void Scene::Initialize()
 {
-	auto val = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
-	auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
+	ProcessGameObjectTable();
+	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("X_Bot_Idle");
+	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Play();
+
+	/*auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
 	gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
 	gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
-	gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y Bot");
+	gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y_Bot");
 	gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-	gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y Bot_Idle");
+	gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y_Bot_Idle");
 	gameObject->GetRenderer().Anim->Play();
 	gameObject->AddComponent<CharacterMove>()->Init();
 	gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
-	gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+	gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");*/
 
 	/*for (int i = 0; i < 5; i++) {
 		for (int j = 0; j < 5; j++) {
@@ -65,6 +68,54 @@ void Scene::Initialize()
 		0.1f, 
 		1000.0f);
 	m_MainCam->AddComponent<CamMove>();
+}
+
+void Scene::ProcessGameObjectTable()
+{
+	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
+	for (int i = 0; i < table["Name"].size(); i++) {
+		auto gameObject = Pool::CreateInstance<GameObject>(table["Name"][i]);
+
+		auto splitted = Importer::SplitString(table["Position"][i], '/');
+		gameObject->GetTransform().SetPosition(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
+
+		splitted = Importer::SplitString(table["Rotation"][i], '/');
+		gameObject->GetTransform().SetRotation(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
+
+		splitted = Importer::SplitString(table["Scale"][i], '/');
+		gameObject->GetTransform().SetScale(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
+
+		if (table["TransformParent"][i] != "null") {
+			gameObject->GetTransform().SetParent(Pool::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
+		}
+
+		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
+		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
+
+		if (table["Model"][i] != "null") {
+			gameObject->GetRenderer().Model = Pool::Find<Model>(table["Model"][i]);
+		}
+		if (table["SkinnedModel"][i] != "null") {
+			gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
+		}
+
+		splitted = Importer::SplitString(table["AddComponent"][i], '/');
+		for (auto& str : splitted) {
+			if (str == "") continue;
+			else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
+			else if (str == "Animator") gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
+		}
+	}
+
+	Pool::ObjectPool<GameObject>::GetInstance().ForEach(AwakeGameObject);
+}
+
+void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
+	for (auto weakPtr : obj->m_Components) {
+		if (auto component = weakPtr.lock()) {
+			component->Awake();
+		}
+	}
 }
 
 void Scene::Update()
