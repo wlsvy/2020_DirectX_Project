@@ -49,22 +49,59 @@ public:
 	const DirectX::XMVECTOR & scaleInterpolate(float time) const;
 };
 
+struct BoneResult {
+	BoneResult(const DirectX::XMVECTOR & pos,
+		const DirectX::XMVECTOR & rot,
+		const DirectX::XMVECTOR & scale) :
+		Position(pos), 
+		Rotation(rot), 
+		Scale(scale) 
+	{}
+
+	BoneResult Blend(const BoneResult & other, float ratio = 0.5f);
+	const DirectX::XMMATRIX & GetBoneTransform() {
+		return DirectX::XMMatrixScalingFromVector(Scale) * 
+			DirectX::XMMatrixRotationQuaternion(Rotation) * 
+			DirectX::XMMatrixTranslationFromVector(Position);
+	}
+
+	DirectX::XMVECTOR Position;
+	DirectX::XMVECTOR Rotation;
+	DirectX::XMVECTOR Scale;
+};
+
 class AnimationClip : public Object {
 	MANAGED_OBJECT(AnimationClip)
 public:
+	static void BlendAnimation(
+			const std::shared_ptr<AnimationClip> & clip1,
+			const std::shared_ptr<AnimationClip> & clip2,
+			float time1,
+			float time2,
+			float blendFactor,
+			std::vector<DirectX::XMMATRIX> & result);
+
 	void GetResultInTime(float time, std::vector<DirectX::XMMATRIX> & result);
 
 	short mNumChannel;
-	std::vector<BoneChannel> mChannel;
+	std::vector<BoneChannel> Channels;
 
 	float mDuration;
 	float mTickPerSecond;
 
 private:
 	void HierarchyBoneAnim(
-		const BoneChannel & bone, 
+		const BoneChannel & channel,
 		float animTime, 
 		const DirectX::XMMATRIX & parentTransform, 
 		std::vector<bool> & check,
 		std::vector<DirectX::XMMATRIX> & result);
 };
+
+void BlendAnimation(
+	const std::shared_ptr<AnimationClip> & clip1,
+	const std::shared_ptr<AnimationClip> & clip2,
+	float time1,
+	float time2,
+	float blendFactor,
+	std::vector<DirectX::XMMATRIX> & result);

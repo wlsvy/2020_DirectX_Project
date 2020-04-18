@@ -13,7 +13,7 @@ void CamMove::Update()
 	Transform& tf = m_GameObject->GetTransform();
 
 	if (Input::IsMouseRightDown()) {
-		tf.rotate(Input::GetMouseDeltaY() * m_RotateSpeed * dt, Input::GetMouseDeltaX() * m_RotateSpeed * dt, 0.0f);
+		tf.rotate(Input::GetMouseDeltaY() * m_RotateSpeed * dt, Input::GetMouseDeltaX() * m_RotateSpeed * dt, 1.0f);
 	}
 
 	float speed = m_MoveSpeed;

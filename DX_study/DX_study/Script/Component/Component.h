@@ -21,4 +21,3 @@ public:
 protected:
 	GameObject * const m_GameObject;
 };
-

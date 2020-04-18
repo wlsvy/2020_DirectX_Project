@@ -21,6 +21,8 @@
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
 
+bool Scene::s_IsInitialized = false;
+
 Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Transform"))
 {
 }
@@ -28,7 +30,7 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 void Scene::Initialize()
 {
 	ProcessGameObjectTable();
-	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("X_Bot_Idle");
+	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
 	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Play();
 
 	/*auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
@@ -68,6 +70,8 @@ void Scene::Initialize()
 		0.1f, 
 		1000.0f);
 	m_MainCam->AddComponent<CamMove>();
+
+	s_IsInitialized = true;
 }
 
 void Scene::ProcessGameObjectTable()

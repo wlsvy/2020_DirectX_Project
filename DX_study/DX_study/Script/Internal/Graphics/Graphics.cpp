@@ -113,7 +113,7 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	}
 	else if (renderer->SkinnedModel &&
 		renderer->Anim &&
-		renderer->Anim->Clip) 
+		renderer->Anim->GetClip()) 
 	{
 		CopyMemory(cb_BoneInfo.data.boneTransform, 
 			renderer->Anim->GetAnimResult().data(), 

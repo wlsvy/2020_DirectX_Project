@@ -7,6 +7,8 @@ class GameObject;
 
 class Scene {
 public:
+	static bool IsInitialized() { return s_IsInitialized; }
+
 	Scene();
 	void Initialize();
 	void ProcessGameObjectTable();
@@ -21,6 +23,8 @@ public:
 
 private:
 	void ProcessGuiHirarchy(std::weak_ptr<Transform> tf);
+
+	static bool s_IsInitialized;
 
 	std::shared_ptr<Transform> m_WorldTransform;
 	std::shared_ptr<Camera> m_MainCam;

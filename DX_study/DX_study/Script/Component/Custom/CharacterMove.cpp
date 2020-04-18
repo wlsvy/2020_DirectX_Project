@@ -32,13 +32,13 @@ void CharacterMove::Update() {
 	}
 
 	if (isMove) {
-		if (m_Anim.lock()->Clip == m_IdleClip.lock()) {
-			m_Anim.lock()->Clip = m_WalkClip.lock();
+		if (m_Anim.lock()->GetClip() == m_IdleClip.lock()) {
+			m_Anim.lock()->ChangeClip(m_WalkClip.lock(), 0.3f);
 		}
 	}
 	else {
-		if (m_Anim.lock()->Clip == m_WalkClip.lock()) {
-			m_Anim.lock()->Clip = m_IdleClip.lock();
+		if (m_Anim.lock()->GetClip() == m_WalkClip.lock()) {
+			m_Anim.lock()->ChangeClip(m_IdleClip.lock(), 0.3f);
 		}
 	}
 }
@@ -51,6 +51,6 @@ void CharacterMove::Awake()
 	m_IdleClip = Pool::Find<AnimationClip>("Y_Bot_Idle");
 	m_WalkClip = Pool::Find<AnimationClip>("Y_Bot_Walking");
 
-	m_Anim.lock()->Clip = m_IdleClip.lock();
+	m_Anim.lock()->SetClip(m_IdleClip.lock());
 	m_Anim.lock()->Play();
 }

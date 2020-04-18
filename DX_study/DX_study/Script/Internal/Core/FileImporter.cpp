@@ -349,7 +349,7 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 	auto& boneOffsets = m_BaseModel->GetBoneOffsets();
 	auto clip = Pool::CreateInstance<AnimationClip>();
 	clip->Name = name;
-	clip->mChannel.resize(boneIdMap.size());
+	clip->Channels.resize(boneIdMap.size());
 	clip->mTickPerSecond = (float)(anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f);
 	clip->mDuration = (float)anim->mDuration;
 
@@ -393,20 +393,20 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 			channel.mScaleKeys.emplace_back(scaleValue.x, scaleValue.y, scaleValue.z, scaleKey.mTime);
 		}
 
-		DirectX::XMMATRIX globalInverseTransform = GetAiMatrixData(scene->mRootNode->mTransformation);
+		/*DirectX::XMMATRIX globalInverseTransform = GetAiMatrixData(scene->mRootNode->mTransformation);
 		globalInverseTransform = DirectX::XMMatrixTranspose(globalInverseTransform);
 		DirectX::XMVECTOR d = DirectX::XMMatrixDeterminant(globalInverseTransform);
 		globalInverseTransform = DirectX::XMMatrixInverse(&d, globalInverseTransform);
-		channel.mGlobalInverseTransform = globalInverseTransform;
-		clip->mChannel[channel.mBoneIndex] = channel;
+		channel.mGlobalInverseTransform = globalInverseTransform;*/
+		clip->Channels[channel.mBoneIndex] = channel;
 	}
 
 	aiNode * ainode = scene->mRootNode;
 
 	ProcessBoneHierarchy(ainode, clip.get(), nullptr, DirectX::XMMatrixIdentity());
 
-	clip->mNumChannel = (short)clip->mChannel.size();
-	for (auto& channel : clip->mChannel) {
+	clip->mNumChannel = (short)clip->Channels.size();
+	for (auto& channel : clip->Channels) {
 		channel.mNumChildBone = (short)channel.mChildBoneIndex.size();
 	}
 }
@@ -424,7 +424,7 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 	auto it = boneIdMap.find(nodeName);
 	if (it != boneIdMap.end()) {
 		nodeIndex = it->second;
-		currentBoneChannel = &animClip->mChannel[nodeIndex];
+		currentBoneChannel = &animClip->Channels[nodeIndex];
 	}
 
 	int childNum = node->mNumChildren;
@@ -433,7 +433,7 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 		if (parentBone != nullptr)
 			parentBone->mChildBoneIndex.push_back(currentBoneChannel->mBoneIndex);
 
-		currentBoneChannel->mParentNodeTransform = parentTransform;
+		//currentBoneChannel->mParentNodeTransform = parentTransform;
 		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
 
 		for (int i = 0; i < childNum; i++) {
@@ -442,10 +442,7 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 
 			if (boneIdMap.find(childName) == boneIdMap.end()) {
 				ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
-				continue;
 			}
-
-			ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
 		}
 	}
 	else {

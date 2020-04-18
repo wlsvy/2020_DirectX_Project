@@ -1,19 +1,36 @@
 #include "Animator.h"
 
+#include "Renderable.h"
 #include "../Internal/Graphics/AnimationClip.h"
+#include "../Internal/Graphics/imGui/imgui.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/GameObject.h"
 #include "../Util/Time.h"
 
+void Animator::Awake() {
+	m_GameObject->GetRenderer().Anim = m_GameObject->GetComponent<Animator>();
+}
+
 void Animator::Update()
 {
-	if (!Clip ||
+	if (!m_Clip ||
 		!m_IsRunning) 
 	{
 		return;
 	}
+	if (m_IsBlending) {
+		float blendFactor = m_BlendClipPlayTime / m_BlendTime;
+		AnimationClip::BlendAnimation(m_Clip, m_BlendClip, m_BlendClipPlayTime, m_PlayTime, 1 - blendFactor, m_AnimResult);
+		m_BlendClipPlayTime += Time::GetDeltaTime() * Speed;
 
-	Clip->GetResultInTime(m_PlayTime, m_AnimResult);
+		if (m_BlendClipPlayTime > m_BlendTime) {
+			m_IsBlending = false;
+			m_PlayTime = m_BlendClipPlayTime;
+		}
+	}
+	else {
+		m_Clip->GetResultInTime(m_PlayTime, m_AnimResult);
+	}
 
 	m_PlayTime += Time::GetDeltaTime() * Speed;
 }
@@ -28,13 +45,34 @@ void Animator::Stop()
 	m_IsRunning = false;
 }
 
+void Animator::ChangeClip(const std::shared_ptr<AnimationClip>& target, float blendTime)
+{
+	m_BlendClip = m_Clip;
+	m_Clip = target;
+
+	m_BlendTime = blendTime;
+	m_BlendClipPlayTime = 0.0f;
+	m_IsBlending = true;
+}
+
+void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip)
+{
+	m_Clip = clip;
+	m_IsBlending = false;
+	m_PlayTime = 0.0f;
+	m_AnimResult.resize(clip->mNumChannel);
+}
+
 void Animator::OnGui()
 {
-	/*if (m_IsRunning) {
-		if (ImGui::Button("Stop", ImVec2(150, 0))) Stop();
-	} else if (ImGui::Button("Play", ImVec2(150, 0))) Play();*/
-	
-	//애니메이션 클립 이름
-	//애니메이션 진행 속도 바
-	//ImGui::Button
+	ImGui::Text("Clip : ");
+	ImGui::SameLine();
+	ImGui::Text(m_Clip->Name.c_str());
+
+	if (m_IsBlending) {
+		ImGui::Text("Blending Clip : ");
+		ImGui::SameLine();
+		ImGui::Text(m_BlendClip->Name.c_str());
+		ImGui::Text(("Blending Time : " + std::to_string(m_BlendClipPlayTime) +  " - " + std::to_string(m_BlendClipPlayTime / m_BlendTime)).c_str());
+	}
 }

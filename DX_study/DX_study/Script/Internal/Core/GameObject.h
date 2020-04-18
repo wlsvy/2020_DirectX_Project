@@ -2,11 +2,12 @@
 #include <vector>
 #include <memory>
 #include "ObjectPool.h"
+#include "Scene.h"
+#include "../../Component/Component.h"
 
 class Component;
 class Transform;
 class Renderable;
-class Scene;
 
 class GameObject : public Object{
 	friend class Scene;
@@ -40,6 +41,10 @@ inline std::shared_ptr<T> GameObject::AddComponent()
 {
 	auto ptr = Pool::CreateInstance<T>(this);
 	m_Components.emplace_back(ptr);
+
+	if (Scene::IsInitialized()) {
+		ptr->Awake();
+	}
 
 	return ptr;
 }
