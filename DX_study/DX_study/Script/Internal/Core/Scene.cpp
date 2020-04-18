@@ -33,30 +33,6 @@ void Scene::Initialize()
 	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
 	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Play();
 
-	/*auto gameObject = Pool::CreateInstance<GameObject>("Y Boy");
-	gameObject->GetTransform().SetPosition(0.0f, 0.0f, 0.0f);
-	gameObject->GetTransform().SetScale(0.1f, 0.1f, 0.1f);
-	gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>("Y_Bot");
-	gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
-	gameObject->GetRenderer().Anim->Clip = Pool::Find<AnimationClip>("Y_Bot_Idle");
-	gameObject->GetRenderer().Anim->Play();
-	gameObject->AddComponent<CharacterMove>()->Init();
-	gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>("skinned_vertex");
-	gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");*/
-
-	/*for (int i = 0; i < 5; i++) {
-		for (int j = 0; j < 5; j++) {
-			for (int k = 0; k < 5; k++) {
-				auto tempObj = Pool::CreateInstance<GameObject>("BoxTest" + std::to_string(i) + std::to_string(j) + std::to_string(k));
-				tempObj->GetTransform().SetPosition(5.0f + i * 3.0f, j * 3.0f, k * 3.0f);
-				tempObj->GetTransform().SetParent(gameObject->GetTransformPtr());
-				tempObj->GetRenderer().Model = Pool::Find<Model>("Box");
-				tempObj->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
-				tempObj->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
-			}
-		}
-	}*/
-
 	auto light = Pool::CreateInstance<Light>();
 	light->GetRenderer().Model = Pool::Find<Model>("light");
 	light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
