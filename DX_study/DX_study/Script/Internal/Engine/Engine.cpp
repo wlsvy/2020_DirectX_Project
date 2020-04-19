@@ -18,6 +18,7 @@ using DirectX::operator*;
 using namespace DirectX;
 
 Engine* Engine::s_Ptr = nullptr;
+const float Engine::s_FixedFrameRate = 0.05f;
 
 Engine & Engine::Get()
 {
@@ -69,8 +70,12 @@ void Engine::Update() {
 	keyboard.Update();
 	mouse.Update();
 	Pool::ObjectPool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
-	Pool::ObjectPool<Animator>::GetInstance().ForEach(UpdateBehaviour);
 	m_CurrentScene->Update();
+}
+
+void Engine::FixedUpdate()
+{
+	Pool::ObjectPool<Animator>::GetInstance().ForEach(UpdateBehaviour);
 }
 
 void Engine::RenderFrame()

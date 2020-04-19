@@ -22,7 +22,7 @@ void Animator::Update()
 	if (m_IsBlending) {
 		float blendFactor = m_BlendClipPlayTime / m_BlendTime;
 		AnimationClip::BlendAnimation(m_Clip, m_BlendClip, m_BlendClipPlayTime, m_PlayTime, 1 - blendFactor, m_AnimResult);
-		m_BlendClipPlayTime += Time::GetDeltaTime() * Speed;
+		m_BlendClipPlayTime += Time::GetFixedDeltaTime() * Speed;
 
 		if (m_BlendClipPlayTime > m_BlendTime) {
 			m_IsBlending = false;
@@ -34,7 +34,7 @@ void Animator::Update()
 		m_Clip->GetResultInTime(m_PlayTime, m_AnimResult);
 	}
 
-	m_PlayTime += Time::GetDeltaTime() * Speed;
+	m_PlayTime += Time::GetFixedDeltaTime() * Speed;
 }
 
 void Animator::Play()

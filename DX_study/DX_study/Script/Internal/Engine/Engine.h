@@ -27,6 +27,7 @@ public:
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
 	bool ProcessMessage();
 	void Update();
+	void FixedUpdate();
 	void RenderFrame();
 
 	Graphics& GetGraphics() { return *m_Graphics; }
@@ -34,6 +35,8 @@ public:
 	Scene& GetCurrentScene() { return *m_CurrentScene; }
 	KeyboardClass& GetKeyboard() { return keyboard; }
 	MouseClass& GetMouse() { return mouse; }
+
+	static const float s_FixedFrameRate;
 
 private:
 	static Engine* s_Ptr;
