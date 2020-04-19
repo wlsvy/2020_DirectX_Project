@@ -10,7 +10,7 @@ class Scene;
 class Transform : public Component {
 	friend class Scene;
 public:
-	COMPONENT_CONSTRUCTOR(Transform)
+	COMPONENT_CONSTRUCTOR(Transform, Component)
 	~Transform();
 	void OnGui() override;
 

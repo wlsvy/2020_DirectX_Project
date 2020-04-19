@@ -10,7 +10,7 @@ class BoneAvatar;
 
 class Animator : public Behaviour {
 	MANAGED_OBJECT(Animator)
-	BEHAVIOUR_CONSTRUCTOR(Animator)
+	COMPONENT_CONSTRUCTOR(Animator, Behaviour)
 public:
 	void Awake() override;
 	void Update() override;

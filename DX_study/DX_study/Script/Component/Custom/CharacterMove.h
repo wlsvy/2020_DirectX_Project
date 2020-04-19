@@ -6,7 +6,7 @@ class AnimationClip;
 class Transform;
 
 class CharacterMove : public Behaviour {
-	BEHAVIOUR_CONSTRUCTOR(CharacterMove)
+	COMPONENT_CONSTRUCTOR(CharacterMove, Behaviour)
 public:
 	void Update() override;
 	void Awake() override;

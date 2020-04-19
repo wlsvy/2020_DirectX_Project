@@ -2,7 +2,7 @@
 #include "../Behaviour.h"
 
 class CamMove : public Behaviour {
-	BEHAVIOUR_CONSTRUCTOR(CamMove)
+	COMPONENT_CONSTRUCTOR(CamMove, Behaviour)
 public:
 	void Update() override;
 

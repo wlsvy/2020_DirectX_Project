@@ -4,10 +4,10 @@
 
 class GameObject;
 
-#define COMPONENT_CONSTRUCTOR(type) \
+#define COMPONENT_CONSTRUCTOR(type, baseType) \
 public: \
-explicit type(GameObject* gameObj) : Component(gameObj, #type) {} \
-explicit type(GameObject * gameObj, const std::string & name) : Component(gameObj, name) {} \
+explicit type(GameObject* gameObj) : baseType(gameObj, #type) {} \
+explicit type(GameObject * gameObj, const std::string & name) : baseType(gameObj, name) {} \
 
 class Component abstract : public Object {
 public:

@@ -11,7 +11,7 @@ class Animator;
 
 class Renderable : public Component {
 	MANAGED_OBJECT(Renderable)
-	COMPONENT_CONSTRUCTOR(Renderable)
+	COMPONENT_CONSTRUCTOR(Renderable, Component)
 public:
 
 	std::shared_ptr<VertexShader> Vshader;
