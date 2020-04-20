@@ -79,11 +79,13 @@ void Scene::ProcessGameObjectTable()
 			gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
 		}
 
-		splitted = Importer::SplitString(table["AddComponent"][i], '/');
-		for (auto& str : splitted) {
-			if (str == "") continue;
-			else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
-			else if (str == "Animator") gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
+		if (table["AddComponent"][i] != "null") {
+			splitted = Importer::SplitString(table["AddComponent"][i], '/');
+			for (auto& str : splitted) {
+				if (str == "") continue;
+				else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
+				else if (str == "Animator") gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
+			}
 		}
 	}
 

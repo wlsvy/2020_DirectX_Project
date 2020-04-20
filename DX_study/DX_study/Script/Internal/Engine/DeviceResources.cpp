@@ -124,7 +124,42 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 {
 	//∑ª¥ı≈∏∞Ÿ √ﬂ∞°«œ±‚
 	try {
-		D3D11_TEXTURE2D_DESC textureDesc;
+		for (int i = 0; i < RenderTargetCount; i++) {
+			D3D11_TEXTURE2D_DESC textureDesc;
+			ZeroMemory(&textureDesc, sizeof(textureDesc));
+			textureDesc.Width = width;
+			textureDesc.Height = height;
+			textureDesc.MipLevels = 1;
+			textureDesc.ArraySize = 1;
+			textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			textureDesc.SampleDesc.Count = 1;
+			textureDesc.Usage = D3D11_USAGE_DEFAULT;
+			textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+			textureDesc.CPUAccessFlags = 0;
+			textureDesc.MiscFlags = 0;
+			ThrowIfFailed(
+				device->CreateTexture2D(&textureDesc, NULL, renderTargetTextureArr[i].GetAddressOf()),
+				"Failed to create renderTargetTextureArr.");
+
+			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+			renderTargetViewDesc.Format = textureDesc.Format;
+			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+			renderTargetViewDesc.Texture2D.MipSlice = 0;
+			ThrowIfFailed(
+				device->CreateRenderTargetView(renderTargetTextureArr[i].Get(), &renderTargetViewDesc, renderTargetViewArr[i].GetAddressOf()),
+				"Failed to create renderTargetViewArr.");
+
+			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+			shaderResourceViewDesc.Format = textureDesc.Format;
+			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+			shaderResourceViewDesc.Texture2D.MipLevels = 1;
+			ThrowIfFailed(
+				device->CreateShaderResourceView(renderTargetTextureArr[i].Get(), &shaderResourceViewDesc, shaderResourceViewArr[i].GetAddressOf()),
+				"Failed to create shaderResourceViewArr.");
+		}
+
+		/*D3D11_TEXTURE2D_DESC textureDesc;
 		ZeroMemory(&textureDesc, sizeof(textureDesc));
 		textureDesc.Width = width;
 		textureDesc.Height = height;
@@ -136,10 +171,9 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
-		for (auto& target : renderTargetTextureArr)
-		{
+		for (int i = 0; i < RenderTargetCount; i++) {
 			ThrowIfFailed(
-				device->CreateTexture2D(&textureDesc, NULL, target.GetAddressOf()),
+				device->CreateTexture2D(&textureDesc, NULL, renderTargetTextureArr[i].GetAddressOf()),
 				"Failed to create renderTargetTextureArr.");
 		}
 
@@ -162,7 +196,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 			ThrowIfFailed(
 				device->CreateShaderResourceView(renderTargetTextureArr[i].Get(), &shaderResourceViewDesc, shaderResourceViewArr[i].GetAddressOf()),
 				"Failed to create shaderResourceViewArr.");
-		}
+		}*/
 	}
 	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
