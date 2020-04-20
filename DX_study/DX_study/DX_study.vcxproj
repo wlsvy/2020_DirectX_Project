@@ -209,7 +209,6 @@
     <ClCompile Include="Script\Internal\Engine\Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Model.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Mesh.cpp" />
-    <ClCompile Include="Script\GameObject\Light.cpp" />
     <ClCompile Include="Script\Internal\Engine\Mouse\MouseClass.cpp" />
     <ClCompile Include="Script\Internal\Engine\Mouse\MouseEvent.cpp" />
     <ClCompile Include="Script\Internal\Engine\RenderWindow.cpp" />
