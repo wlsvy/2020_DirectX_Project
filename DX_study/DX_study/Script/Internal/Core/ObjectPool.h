@@ -9,10 +9,12 @@
 
 class Engine;
 class Scene;
+class Graphics;
 
 class Pool {
 	friend class Engine;
 	friend class Scene;
+	friend class Graphics;
 private:
 	template<typename T>
 	class ObjectPool : public Singleton<ObjectPool<T>> {

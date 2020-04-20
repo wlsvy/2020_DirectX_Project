@@ -65,7 +65,6 @@ void GameObject::OnGui()
 		if (auto ptr = wp.lock())
 		{
 			//ImGui::Checkbox("", &ptr->enabled);
-			ImGui::SameLine();
 			if (ImGui::CollapsingHeader(ptr->Name.c_str(), node_flags))
 			{
 				ImGui::Spacing();
@@ -75,12 +74,12 @@ void GameObject::OnGui()
 		}
 	}
 
-	/*if (ImGui::CollapsingHeader(renderer.mComponentName, node_flags))
+	if (ImGui::CollapsingHeader(m_Renderer->Name.c_str(), node_flags))
 	{
 		ImGui::Spacing();
-		renderer.OnGui();
+		m_Renderer->OnGui();
 	}
-	ImGui::Spacing();*/
+	ImGui::Spacing();
 
 	ImGui::Separator();
 	ImGui::Spacing();

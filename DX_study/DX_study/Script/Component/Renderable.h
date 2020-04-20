@@ -14,6 +14,8 @@ class Renderable : public Component {
 	COMPONENT_CONSTRUCTOR(Renderable, Component)
 public:
 
+	void OnGui() override;
+
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;
 	std::shared_ptr<Model> Model;

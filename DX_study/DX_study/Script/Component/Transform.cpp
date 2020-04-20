@@ -1,6 +1,5 @@
 #include "Transform.h"
 
-#include <DirectXMath.h>
 #include "../Internal/Graphics/imGui/imgui.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/ObjectPool.h"
@@ -69,31 +68,6 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 	for (auto& child : m_Children) {
 		child.lock()->UpdateMatrix(worldMatrix);
 	}
-}
-
-const DirectX::XMVECTOR Transform::GetPositionVector() const
-{
-	return DirectX::XMVectorSet(position.x, position.y, position.z, 0.0f);
-}
-
-const DirectX::XMFLOAT3 & Transform::GetPositionFloat3() const
-{
-	return this->position;
-}
-
-const DirectX::XMVECTOR Transform::GetRotationVector() const
-{
-	return DirectX::XMVectorSet(rotation.x, rotation.y, rotation.z, 0.0f);
-}
-
-const DirectX::XMFLOAT3 & Transform::GetRotationFloat3() const
-{
-	return this->rotation;
-}
-
-const DirectX::XMFLOAT3 & Transform::GetScaleFloat3() const
-{
-	return this->scale;
 }
 
 void Transform::SetPosition(const DirectX::XMVECTOR & pos)

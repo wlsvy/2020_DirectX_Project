@@ -5,18 +5,7 @@
 #include "ConstantBuffer.h"
 #include "Texture.h"
 #include "../Core/Object.h"
-
-struct AABB {
-	AABB() {}
-	AABB(
-		float max_x, float max_y, float max_z,
-		float min_x, float min_y, float min_z) :
-		Min(min_x, min_y, min_z),
-		Max(max_x, max_y, max_z) {}
-
-	DirectX::XMFLOAT3 Min = DirectX::XMFLOAT3(-9999.0f, -9999.0f, -9999.0f);
-	DirectX::XMFLOAT3 Max = DirectX::XMFLOAT3(9999.0f, 9999.0f, 9999.0f);
-};
+#include <DirectXCollision.h>
 
 class MeshBase : public Object {
 public:
@@ -30,12 +19,13 @@ public:
 	const DirectX::XMMATRIX & GetTransformMatrix() const { return transformMatrix; }
 	const IndexBuffer & GetIndexBuffer() const { return indexbuffer; }
 	const std::vector<Texture> & GetTextures() const { return textures; }
+	const DirectX::BoundingBox & GetLocalAABB() const { return m_Aabb; }
 
 protected:
 	IndexBuffer indexbuffer;
 	std::vector<Texture> textures;
 	DirectX::XMMATRIX transformMatrix;
-	AABB m_AABB;
+	DirectX::BoundingBox m_Aabb;
 };
 
 class Mesh : public MeshBase {

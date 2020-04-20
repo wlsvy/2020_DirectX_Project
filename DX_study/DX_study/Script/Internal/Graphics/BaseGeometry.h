@@ -2,12 +2,17 @@
 #include <vector>
 #include <memory>
 #include <DirectXMath.h>
+#include <DirectXCollision.h>
 #include "Mesh.h"
 #include "Model.h"
 #include "Texture.h"
 #include "../Core/ObjectPool.h"
 
 namespace BaseGeometry {
+	using DirectX::operator+;
+	using DirectX::operator-;
+	using DirectX::operator/=;
+
 	static void CreateBox() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 			{-0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		 0.0f, 0.0f, -1.0f},
@@ -172,7 +177,7 @@ namespace BaseGeometry {
 		);
 		model->Name = "Sphere";
 	}
-
+	
 	static void Initialize() {
 		CreateBox();
 		CreatePlane();

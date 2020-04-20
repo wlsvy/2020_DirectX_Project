@@ -12,7 +12,7 @@
 #include "../Core//GameObject.h"
 #include "../../Component/Transform.h"
 
-void UI::InitImGUI(HWND _hwnd)
+void GUI::InitImGUI(HWND _hwnd)
 {
 	//Setup ImGui
 	IMGUI_CHECKVERSION();
@@ -25,7 +25,7 @@ void UI::InitImGUI(HWND _hwnd)
 	ImGui::StyleColorsClassic();
 }
 
-void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
+void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 {
 	static bool show_editor = true;
 	static bool show_statistics = false;
@@ -138,7 +138,7 @@ void UI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	ImGui::End();
 }
 
-void UI::DrawDeferredChannelImage()
+void GUI::DrawDeferredChannelImage()
 {
 	auto& deviceResources = Engine::Get().GetGraphics().GetDeviceResources();
 	ImGuiIO& io = ImGui::GetIO();

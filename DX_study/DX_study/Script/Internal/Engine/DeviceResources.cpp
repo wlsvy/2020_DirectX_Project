@@ -101,8 +101,12 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = this->device->CreateBlendState(&blendDesc, this->blendState.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create blend state.");
 
-		spriteBatch = std::make_unique<DirectX::SpriteBatch>(this->deviceContext.Get());
-		spriteFont = std::make_unique<DirectX::SpriteFont>(this->device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
+		spriteBatch = std::make_unique<DirectX::SpriteBatch>(deviceContext.Get());
+		spriteFont = std::make_unique<DirectX::SpriteFont>(device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
+		commonState = std::make_unique<DirectX::CommonStates>(device.Get());
+		basicEffect = std::make_unique<DirectX::BasicEffect>(device.Get());
+		debugEffect = std::make_unique<DirectX::DebugEffect>(device.Get());
+		primitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(deviceContext.Get());
 
 		//Create sampler description for sampler state
 		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
@@ -204,4 +208,21 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 	}
 
 	return true;
+}
+
+void DeviceResources::SetDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
+{
+	void const* shaderByteCode;
+	size_t byteCodeLength;
+	basicEffect->SetVertexColorEnabled(true);
+	basicEffect->SetView(v);
+	basicEffect->SetProjection(p);
+	basicEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+
+	ThrowIfFailed(
+		device->CreateInputLayout(
+			DirectX::VertexPositionColor::InputElements, DirectX::VertexPositionColor::InputElementCount,
+			shaderByteCode, byteCodeLength,
+			debugInputLayout.GetAddressOf()),
+		"Failed to create debug input layout.");
 }

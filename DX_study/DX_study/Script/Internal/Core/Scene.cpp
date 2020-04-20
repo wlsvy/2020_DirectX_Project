@@ -106,7 +106,7 @@ void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
 void Scene::Update()
 {
 	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity());
-	m_MainCam->UpdateViewMatrix();
+	m_MainCam->UpdateView();
 }
 
 void Scene::OnGui()

@@ -39,9 +39,11 @@ public:
 	void DrawMesh(const Mesh & mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
+	void DebugDraw(const std::shared_ptr<Renderable>& renderer);
 	void PostProcess();
-	void DrawUI();
+	void DrawGui();
 	void DrawSkybox();
+	void DrawGuiDebug();
 	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
 	void SwapBuffer();
 
@@ -66,7 +68,7 @@ private:
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
 	std::shared_ptr<Model> m_PostProcesWindowModel;
-	
+
 	int windowWidth = 0;
 	int windowHeight = 0;
 	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };

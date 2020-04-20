@@ -1,9 +1,8 @@
 #pragma once
 #include "Component.h"
+#include "../Util/Math.h"
 
 #include <vector>
-#include <DirectXMath.h>
-
 
 class Scene;
 
@@ -13,12 +12,13 @@ public:
 	COMPONENT_CONSTRUCTOR(Transform, Component)
 	~Transform();
 	void OnGui() override;
-
-	const DirectX::XMVECTOR GetPositionVector() const;
-	const DirectX::XMFLOAT3 & GetPositionFloat3() const;
-	const DirectX::XMVECTOR GetRotationVector() const;
-	const DirectX::XMFLOAT3 & GetRotationFloat3() const;
-	const DirectX::XMFLOAT3 & GetScaleFloat3() const;
+	
+	const DirectX::XMVECTOR & GetPositionVector() const		{ return DirectX::XMVectorSet(position.x, position.y, position.z, 0.0f); }
+	const DirectX::XMFLOAT3 & GetPositionFloat3() const		{ return position; }
+	const DirectX::XMVECTOR & GetRotationVector() const		{ return DirectX::XMVectorSet(rotation.x, rotation.y, rotation.z, 0.0f); }
+	const DirectX::XMFLOAT3 & GetRotationFloat3() const		{ return rotation; }
+	const DirectX::XMVECTOR & GetQuaternion() const			{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(GetRotationVector() * Math::Deg2Rad); }
+	const DirectX::XMFLOAT3 & GetScaleFloat3() const		{ return scale; }
 
 	void SetPosition(const DirectX::XMVECTOR & pos);
 	void SetPosition(const DirectX::XMFLOAT3 & pos);
@@ -47,6 +47,7 @@ public:
 	const DirectX::XMVECTOR & GetUpwardVector() const { return vec_upward; }
 
 	const DirectX::XMMATRIX & GetWorldMatrix() const { return worldMatrix; }
+	const DirectX::XMMATRIX & GetRotationMatrix() const { return DirectX::XMMatrixRotationQuaternion(GetQuaternion()); }
 
 	std::shared_ptr<Transform> GetParent();
 	std::shared_ptr<Transform> GetChild(int index);
@@ -65,7 +66,7 @@ public:
 	static const DirectX::XMVECTOR DEFAULT_LEFT_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_RIGHT_VECTOR;
 
-protected:
+private:
 	void UpdateMatrix(const DirectX::XMMATRIX & parentMatrix);
 	void UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat);
 

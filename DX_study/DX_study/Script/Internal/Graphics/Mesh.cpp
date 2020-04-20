@@ -1,5 +1,7 @@
 #include "Mesh.h"
 
+#include "../../Util/Math.h"
+
 Mesh::Mesh(
 	const std::vector<Vertex3D>& vertices, 
 	const std::vector<DWORD>& indices, 
@@ -9,14 +11,23 @@ Mesh::Mesh(
 	:
 	MeshBase(indices, textures, transformMatrix, name)
 {
+	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
+	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
+
 	for (auto vertex : vertices) {
-		m_AABB.Max.x = std::max(m_AABB.Max.x, vertex.pos.x);
-		m_AABB.Max.y = std::max(m_AABB.Max.y, vertex.pos.y);
-		m_AABB.Max.z = std::max(m_AABB.Max.z, vertex.pos.z);
-		m_AABB.Min.x = std::min(m_AABB.Min.x, vertex.pos.x);
-		m_AABB.Min.y = std::min(m_AABB.Min.y, vertex.pos.y);
-		m_AABB.Min.z = std::min(m_AABB.Min.z, vertex.pos.z);
+		Max.x = std::max(Max.x, vertex.pos.x);
+		Max.y = std::max(Max.y, vertex.pos.y);
+		Max.z = std::max(Max.z, vertex.pos.z);
+		Min.x = std::min(Min.x, vertex.pos.x);
+		Min.y = std::min(Min.y, vertex.pos.y);
+		Min.z = std::min(Min.z, vertex.pos.z);
 	}
+	m_Aabb.Center.x = (Max.x + Min.x) / 2;
+	m_Aabb.Center.y = (Max.y + Min.y) / 2;
+	m_Aabb.Center.z = (Max.z + Min.z) / 2;
+	m_Aabb.Extents.x = (Max.x - Min.x) / 2;
+	m_Aabb.Extents.y = (Max.y - Min.y) / 2;
+	m_Aabb.Extents.z = (Max.z - Min.z) / 2;
 
 	try {
 		ThrowIfFailed(
@@ -43,14 +54,23 @@ SkinnedMesh::SkinnedMesh(
 	:
 	MeshBase(indices, textures, transformMatrix, name)
 {
+	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
+	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
+
 	for (auto vertex : vertices) {
-		m_AABB.Max.x = std::max(m_AABB.Max.x, vertex.pos.x);
-		m_AABB.Max.y = std::max(m_AABB.Max.y, vertex.pos.y);
-		m_AABB.Max.z = std::max(m_AABB.Max.z, vertex.pos.z);
-		m_AABB.Min.x = std::min(m_AABB.Min.x, vertex.pos.x);
-		m_AABB.Min.y = std::min(m_AABB.Min.y, vertex.pos.y);
-		m_AABB.Min.z = std::min(m_AABB.Min.z, vertex.pos.z);
+		Max.x = std::max(Max.x, vertex.pos.x);
+		Max.y = std::max(Max.y, vertex.pos.y);
+		Max.z = std::max(Max.z, vertex.pos.z);
+		Min.x = std::min(Min.x, vertex.pos.x);
+		Min.y = std::min(Min.y, vertex.pos.y);
+		Min.z = std::min(Min.z, vertex.pos.z);
 	}
+	m_Aabb.Center.x = (Max.x + Min.x) / 2;
+	m_Aabb.Center.y = (Max.y + Min.y) / 2;
+	m_Aabb.Center.z = (Max.z + Min.z) / 2;
+	m_Aabb.Extents.x = (Max.x - Min.x) / 2;
+	m_Aabb.Extents.y = (Max.y - Min.y) / 2;
+	m_Aabb.Extents.z = (Max.z - Min.z) / 2;
 
 	try {
 		ThrowIfFailed(
@@ -93,6 +113,6 @@ MeshBase::MeshBase(const MeshBase& mesh) :
 	indexbuffer(mesh.indexbuffer),
 	textures(mesh.textures),
 	transformMatrix(mesh.transformMatrix),
-	m_AABB(mesh.m_AABB)
+	m_Aabb(mesh.m_Aabb)
 {
 }

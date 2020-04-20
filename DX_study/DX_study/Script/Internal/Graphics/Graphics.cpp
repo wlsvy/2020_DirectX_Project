@@ -8,7 +8,9 @@
 #include "Skybox.h"
 #include "BaseGeometry.h"
 #include "AnimationClip.h"
+#include "DebugDraw.h"
 #include "../../Util/Time.h"
+#include "../../Util/Math.h"
 #include "../Engine/Engine.h"
 #include "../Engine/DeviceResources.h"
 #include "../Engine/Ui.h"
@@ -21,6 +23,7 @@
 #include "../../Component/Animator.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Camera.h"
+
 
 using DirectX::operator*;
 
@@ -52,7 +55,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		};
 		ThrowIfFailed(m_Skybox->Initialize(filename), "Failed to Initialize Skybox");
 
-		UI::InitImGUI(hwnd);
+		GUI::InitImGUI(hwnd);
 
 		m_PostProcesWindowModel = Pool::Find<Model>("Plane");
 		m_PostProcesVshader = Pool::Find<VertexShader>("vertexshader_WindowPlane");
@@ -109,12 +112,24 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
 	
 	if (renderer->Model) {
+		bool isCull =	Math::CheckFrustumCull(
+			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
+			*renderer->Model,
+			renderer->GetGameObject()->GetTransform());
+		if (isCull) return;
+
 		DrawModel(renderer->Model, worldMat, wvpMat);
 	}
 	else if (renderer->SkinnedModel &&
 		renderer->Anim &&
 		renderer->Anim->GetClip()) 
 	{
+		bool isCull = Math::CheckFrustumCull(
+			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
+			*renderer->SkinnedModel,
+			renderer->GetGameObject()->GetTransform());
+		if (isCull) return;
+
 		CopyMemory(cb_BoneInfo.data.boneTransform, 
 			renderer->Anim->GetAnimResult().data(), 
 			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
@@ -179,6 +194,26 @@ void Graphics::DrawMesh(
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
 }
 
+void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
+{
+	auto * context = m_DeviceResources.GetDeviceContext();
+	auto * states = m_DeviceResources.GetCommonState();
+	auto * effect = m_DeviceResources.GetDebugEffect();
+	auto * batch = m_DeviceResources.GetPrimitiveBatch();
+
+	if (renderer->Model) {
+		for (auto& mesh : renderer->Model->GetMeshes()) {
+			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+		}
+	}
+	else if (renderer->SkinnedModel)
+	{
+		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
+			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+		}
+	}
+}
+
 void Graphics::PostProcess()
 {
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
@@ -196,13 +231,13 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(indexBuffer.IndexCount(), 0, 0);
 }
 
-void Graphics::DrawUI()
+void Graphics::DrawGui()
 {
 	
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	UI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(3));
+	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(3));
 	
 	static auto light = std::dynamic_pointer_cast<Light>(Pool::Find<GameObject>("Light"));
 	ImGui::Begin("Light Controls");
@@ -218,7 +253,7 @@ void Graphics::DrawUI()
 	ImGui::End();
 
 	
-	UI::DrawDeferredChannelImage();
+	GUI::DrawDeferredChannelImage();
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -241,6 +276,34 @@ void Graphics::DrawSkybox()
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
+}
+
+void Graphics::DrawGuiDebug()
+{
+	auto * context = m_DeviceResources.GetDeviceContext();
+	auto * states = m_DeviceResources.GetCommonState();
+	auto * effect = m_DeviceResources.GetBasicEffect();
+	auto * batch = m_DeviceResources.GetPrimitiveBatch();
+	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
+
+	effect->SetVertexColorEnabled(true);
+	effect->SetView(camera.GetViewMatrix());
+	effect->SetProjection(camera.GetProjectionMatrix());
+
+	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
+	context->OMSetDepthStencilState(states->DepthNone(), 0);
+	context->RSSetState(states->CullNone());
+
+	effect->Apply(context);
+
+	context->IASetInputLayout(m_DeviceResources.GetDebugInputLayout());
+
+	batch->Begin();
+
+	static auto drawFunc = std::bind(&Graphics::DebugDraw, this, std::placeholders::_1);
+	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
+	batch->End();
+
 }
 
 void Graphics::SetRenderTarget(ID3D11RenderTargetView * const * rtv, int bufferCount)

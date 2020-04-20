@@ -43,7 +43,7 @@ VS_OUTPUT main(VS_INPUT input)
 
     output.outPosition = mul(float4(input.inPos, 1.0f), animatedWvpMatrix);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = mul(float4(input.inNormal, 0.0f), animatedWorldMatrix);
+    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), animatedWorldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
     return output;
 }
