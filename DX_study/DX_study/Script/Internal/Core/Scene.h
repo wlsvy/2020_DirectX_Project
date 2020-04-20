@@ -21,6 +21,9 @@ public:
 
 	static void AwakeGameObject(const std::shared_ptr<GameObject> & obj);
 
+	static const float SCENE_MAX_SIZE;
+	static const float SCENE_MIN_SIZE;
+
 private:
 	void ProcessGuiHirarchy(std::weak_ptr<Transform> tf);
 

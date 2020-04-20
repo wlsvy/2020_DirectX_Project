@@ -24,6 +24,9 @@ public:
 	Texture(const Color * colorData, UINT width, UINT height, aiTextureType type);
 	Texture(const std::string & filePath, aiTextureType type);
 	Texture(const uint8_t* pData, size_t size, aiTextureType type);
+	Texture(const Texture&);
+	Texture(Texture &&);
+	Texture& operator=(const Texture &);
 
 	const aiTextureType GetType()										const { return type; }
 	ID3D11ShaderResourceView *			GetTextureResourceView()		const { return textureView.Get(); }
@@ -32,6 +35,7 @@ public:
 private:
 	void Initialize1x1ColorTexture(const Color & colorData, aiTextureType type);
 	void InitializeColorTexture(const Color * colorData, UINT width, UINT height, aiTextureType type);
+
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView = nullptr;
 	aiTextureType type = aiTextureType::aiTextureType_UNKNOWN;

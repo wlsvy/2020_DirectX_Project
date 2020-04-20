@@ -47,6 +47,32 @@ Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type)
 	ThrowIfFailed(hr, "Failed to create Texture from memory.");
 }
 
+Texture::Texture(const Texture & texture) :
+	Object(texture),
+	texture(texture.texture),
+	textureView(texture.textureView),
+	type(texture.type)
+{
+}
+
+Texture::Texture(Texture && texture) :
+	Object(std::forward<Texture>(texture)),
+	texture(std::move(texture.texture)),
+	textureView(std::move(texture.textureView)),
+	type(std::move(texture.type))
+{
+}
+
+Texture & Texture::operator=(const Texture & texture)
+{
+	Object::operator=(texture);
+	this->texture = texture.texture;
+	this->textureView = texture.textureView;
+	this->type = texture.type;
+
+	return *this;
+}
+
 void Texture::Initialize1x1ColorTexture(const Color & colorData, aiTextureType type)
 {
 	InitializeColorTexture(&colorData, 1, 1, type);

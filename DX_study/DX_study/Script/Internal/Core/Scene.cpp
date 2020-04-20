@@ -22,6 +22,8 @@
 #include "../../GameObject/Sprite.h"
 
 bool Scene::s_IsInitialized = false;
+const float Scene::SCENE_MAX_SIZE = 9999.0f;
+const float Scene::SCENE_MIN_SIZE = -9999.0f;
 
 Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Transform"))
 {
