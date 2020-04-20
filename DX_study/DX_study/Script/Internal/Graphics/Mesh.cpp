@@ -9,6 +9,15 @@ Mesh::Mesh(
 	:
 	MeshBase(indices, textures, transformMatrix, name)
 {
+	for (auto vertex : vertices) {
+		m_AABB.Max.x = std::max(m_AABB.Max.x, vertex.pos.x);
+		m_AABB.Max.y = std::max(m_AABB.Max.y, vertex.pos.y);
+		m_AABB.Max.z = std::max(m_AABB.Max.z, vertex.pos.z);
+		m_AABB.Min.x = std::min(m_AABB.Min.x, vertex.pos.x);
+		m_AABB.Min.y = std::min(m_AABB.Min.y, vertex.pos.y);
+		m_AABB.Min.z = std::min(m_AABB.Min.z, vertex.pos.z);
+	}
+
 	try {
 		ThrowIfFailed(
 			vertexbuffer.Initialize(vertices.data(), vertices.size()),
@@ -34,6 +43,15 @@ SkinnedMesh::SkinnedMesh(
 	:
 	MeshBase(indices, textures, transformMatrix, name)
 {
+	for (auto vertex : vertices) {
+		m_AABB.Max.x = std::max(m_AABB.Max.x, vertex.pos.x);
+		m_AABB.Max.y = std::max(m_AABB.Max.y, vertex.pos.y);
+		m_AABB.Max.z = std::max(m_AABB.Max.z, vertex.pos.z);
+		m_AABB.Min.x = std::min(m_AABB.Min.x, vertex.pos.x);
+		m_AABB.Min.y = std::min(m_AABB.Min.y, vertex.pos.y);
+		m_AABB.Min.z = std::min(m_AABB.Min.z, vertex.pos.z);
+	}
+
 	try {
 		ThrowIfFailed(
 			vertexbuffer.Initialize(vertices.data(), vertices.size()), 
@@ -51,9 +69,9 @@ SkinnedMesh::SkinnedMesh(const SkinnedMesh & mesh) :
 }
 
 MeshBase::MeshBase(
-	const std::vector<DWORD>& indices, 
-	const std::vector<Texture>& textures, 
-	const DirectX::XMMATRIX & transformMatrix, 
+	const std::vector<DWORD>& indices,
+	const std::vector<Texture>& textures,
+	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
 	Object(name),
@@ -74,6 +92,7 @@ MeshBase::MeshBase(const MeshBase& mesh) :
 	Object(mesh),
 	indexbuffer(mesh.indexbuffer),
 	textures(mesh.textures),
-	transformMatrix(mesh.transformMatrix)
+	transformMatrix(mesh.transformMatrix),
+	m_AABB(mesh.m_AABB)
 {
 }

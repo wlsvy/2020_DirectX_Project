@@ -56,8 +56,8 @@ namespace BaseGeometry {
 					vertices,
 					indices,
 					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-					DirectX::XMMatrixIdentity())
-				))
+					DirectX::XMMatrixIdentity()
+			)))
 		);
 		model->Name = "Box";
 	}
@@ -79,8 +79,8 @@ namespace BaseGeometry {
 				vertices,
 				indices,
 				std::vector<Texture>(1, *Pool::Find<Texture>("test")),
-				DirectX::XMMatrixIdentity())
-				))
+				DirectX::XMMatrixIdentity()
+			)))
 		);
 		model->Name = "Plane";
 	}
@@ -167,8 +167,8 @@ namespace BaseGeometry {
 					vertices,
 					indices,
 					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-					DirectX::XMMatrixIdentity())
-				))
+					DirectX::XMMatrixIdentity()
+			)))
 		);
 		model->Name = "Sphere";
 	}

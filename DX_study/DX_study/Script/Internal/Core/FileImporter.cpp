@@ -57,7 +57,6 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	// Data to fill
 	std::vector<Vertex3D> vertices;
 	std::vector<DWORD> indices;
-	AABB aabb;
 	
 	//Get vertices
 	for (UINT i = 0; i < mesh->mNumVertices; i++)
@@ -79,12 +78,6 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 		}
 
 		vertices.push_back(vertex);
-		aabb.Max.x = std::max(aabb.Max.x, vertex.pos.x);
-		aabb.Max.y = std::max(aabb.Max.y, vertex.pos.y);
-		aabb.Max.z = std::max(aabb.Max.z, vertex.pos.z);
-		aabb.Min.x = std::min(aabb.Min.x, vertex.pos.x);
-		aabb.Min.y = std::min(aabb.Min.y, vertex.pos.y);
-		aabb.Min.z = std::min(aabb.Min.z, vertex.pos.z);
 	}
 
 	//Get indices
@@ -101,7 +94,7 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix);
+	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix, mesh->mName.data);
 }
 
 TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -327,7 +320,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		aiTextureType::aiTextureType_DIFFUSE,
 		scene);
 
-	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix);
+	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix, mesh->mName.data);
 }
 
 DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)

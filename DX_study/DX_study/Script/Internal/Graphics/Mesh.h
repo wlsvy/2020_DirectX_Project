@@ -7,6 +7,13 @@
 #include "../Core/Object.h"
 
 struct AABB {
+	AABB() {}
+	AABB(
+		float max_x, float max_y, float max_z,
+		float min_x, float min_y, float min_z) :
+		Min(min_x, min_y, min_z),
+		Max(max_x, max_y, max_z) {}
+
 	DirectX::XMFLOAT3 Min = DirectX::XMFLOAT3(-9999.0f, -9999.0f, -9999.0f);
 	DirectX::XMFLOAT3 Max = DirectX::XMFLOAT3(9999.0f, 9999.0f, 9999.0f);
 };
@@ -24,11 +31,11 @@ public:
 	const IndexBuffer & GetIndexBuffer() const { return indexbuffer; }
 	const std::vector<Texture> & GetTextures() const { return textures; }
 
-private:
+protected:
 	IndexBuffer indexbuffer;
 	std::vector<Texture> textures;
 	DirectX::XMMATRIX transformMatrix;
-	//AABB m_
+	AABB m_AABB;
 };
 
 class Mesh : public MeshBase {

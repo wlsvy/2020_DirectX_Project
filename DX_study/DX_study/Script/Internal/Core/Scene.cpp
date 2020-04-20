@@ -36,12 +36,13 @@ void Scene::Initialize()
 	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Play();
 
 	auto light = Pool::CreateInstance<Light>();
+	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
 	light->GetRenderer().Model = Pool::Find<Model>("light");
 	light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
 	light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 
 	m_MainCam = Pool::CreateInstance<Camera>();
-	m_MainCam->GetTransform().SetPosition(0.0f, 0.0f, -2.0f);
+	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
 	m_MainCam->SetProjectionValues(
 		90.0f, 
 		Engine::Get().GetGraphics().GetWindowWidth() / Engine::Get().GetGraphics().GetWindowHeight(), 
