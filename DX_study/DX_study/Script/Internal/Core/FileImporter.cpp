@@ -13,11 +13,6 @@
 #include "../Graphics/AnimationClip.h"
 #include "../../Util/StringHelper.h"
 
-
-//int GetTextureIndex(aiString * pStr);
-//TextureStorageType DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType);
-//Mesh ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix);
-
 bool ModelImporter::CreateModel(
 	const std::string & dirPath,
 	const std::string & fileName,
@@ -27,12 +22,7 @@ bool ModelImporter::CreateModel(
 
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Pool::CreateInstance<Model>();
-	model->Name = StringHelper::GetFileNameFromPath(fileName);
-	if (!model->Initialize(m_Meshes)) {
-		Pool::Destroy(model.get());
-		return false;
-	}
+	auto model = Pool::CreateInstance<Model>(m_Meshes, StringHelper::GetFileNameFromPath(fileName));
 	return true;
 }
 
@@ -226,12 +216,12 @@ bool SkinnedModelImporter::CreateModel(
 	
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Pool::CreateInstance<SkinnedModel>();
-	model->Name = fileName;
+	auto model = Pool::CreateInstance<SkinnedModel>(m_Meshes, m_BoneOffsets, m_BoneIdMap, fileName);
+	/*model->Name = fileName;
 	if (!model->Initialize(m_Meshes, m_BoneOffsets, m_BoneIdMap)) {
 		Pool::Destroy(model.get());
 		return false;
-	}
+	}*/
 
 	return true;
 }

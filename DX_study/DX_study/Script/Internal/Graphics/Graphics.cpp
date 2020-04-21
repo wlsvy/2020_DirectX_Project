@@ -146,90 +146,6 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	}
 }
 
-void Graphics::Draw_OtherMethod(const std::shared_ptr<Renderable>& renderer)
-{
-	if (!renderer->Vshader ||
-		!renderer->Pshader ||
-		!renderer->Mesh.lock())
-	{
-		return;
-	}
-	
-	renderer->m_IsVisible = !Math::CheckFrustumCull(
-		Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
-		*renderer,
-		renderer->GetGameObject()->GetTransform());
-	if (!renderer->m_IsVisible) {
-		return;
-	}
-
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(renderer->Vshader->GetInputLayout());
-	m_DeviceResources.GetDeviceContext()->VSSetShader(renderer->Vshader->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(renderer->Pshader->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
-
-	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
-	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
-
-	if (renderer->Anim) {
-		CopyMemory(cb_BoneInfo.data.boneTransform,
-			renderer->Anim->GetAnimResult().data(),
-			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
-		cb_BoneInfo.ApplyChanges();
-
-		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
-	}
-
-	auto& mesh = *renderer->Mesh.lock();
-	cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-	cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
-	cb_vs_vertexshader.ApplyChanges();
-
-	for (auto& texture : mesh.GetTextures()) {
-		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
-			break;
-		}
-	}
-
-	UINT offset = 0;
-	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBufferAddr(), mesh.GetVertexBufferStridePtr(), &offset);
-	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
-}
-
-void Graphics::DrawModel(
-	const std::shared_ptr<Model>& model, 
-	const DirectX::XMMATRIX & worldMat, 
-	const DirectX::XMMATRIX & wvpMat)
-{
-	for (auto& mesh : model->GetMeshes()) {
-		DrawMesh(mesh, worldMat, wvpMat);
-	}
-}
-void Graphics::DrawModel(
-	const std::shared_ptr<SkinnedModel>& model,
-	const DirectX::XMMATRIX & worldMat,
-	const DirectX::XMMATRIX & wvpMat)
-{
-	for (auto& mesh : model->GetMeshes()) {
-		cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-		cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
-		cb_vs_vertexshader.ApplyChanges();
-
-		for (auto& texture : mesh->GetTextures()) {
-			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
-				break;
-			}
-		}
-
-		UINT offset = 0;
-		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
-		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
-	}
-}
 void Graphics::DrawMesh(
 	const std::shared_ptr<MeshBase>& mesh,
 	const DirectX::XMMATRIX & worldMat, 
@@ -328,7 +244,9 @@ void Graphics::DrawSkybox()
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
-	DrawModel(m_Skybox->GetModel(), worldMat, wvpMat);
+	for (auto & mesh : m_Skybox->GetModel()->GetMeshes()) {
+		DrawMesh(mesh, worldMat, wvpMat);
+	}
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);

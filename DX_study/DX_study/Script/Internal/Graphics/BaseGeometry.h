@@ -55,16 +55,15 @@ namespace BaseGeometry {
 			20,	22,	23
 		};
 
-		auto model = Pool::CreateInstance<Model>();
-		model->Initialize(
-			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
-				vertices,
-				indices,
-				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-				DirectX::XMMatrixIdentity(),
-				"Box"
-				)));
-		model->Name = "Box";
+		auto mesh = Pool::CreateInstance<Mesh>(
+			vertices,
+			indices,
+			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			DirectX::XMMatrixIdentity(),
+			"Box"
+			);
+		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
+		Pool::CreateInstance<Model>(meshVec, "Box");
 	}
 	static void CreatePlane() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
@@ -78,16 +77,15 @@ namespace BaseGeometry {
 			0, 2, 3,
 		};
 
-		auto model = Pool::CreateInstance<Model>();
-		model->Initialize(
-			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
-				vertices,
-				indices,
-				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-				DirectX::XMMatrixIdentity(),
-				"Plane"
-				)));
-		model->Name = "Plane";
+		auto mesh = Pool::CreateInstance<Mesh>(
+			vertices,
+			indices,
+			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			DirectX::XMMatrixIdentity(),
+			"Plane"
+			);
+		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
+		Pool::CreateInstance<Model>(meshVec, "Plane");
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
@@ -166,16 +164,15 @@ namespace BaseGeometry {
 			indices.push_back(baseIndex + i + 1);
 		}
 
-		auto model = Pool::CreateInstance<Model>();
-		model->Initialize(
-			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
-				vertices,
-				indices,
-				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-				DirectX::XMMatrixIdentity(),
-				"Sphere"
-				)));
-		model->Name = "Sphere";
+		auto mesh = Pool::CreateInstance<Mesh>(
+			vertices,
+			indices,
+			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			DirectX::XMMatrixIdentity(),
+			"Sphere"
+			);
+		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
+		Pool::CreateInstance<Model>(meshVec, "Sphere");
 	}
 	
 	static void Initialize() {
