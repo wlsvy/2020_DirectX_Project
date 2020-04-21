@@ -32,14 +32,14 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 void Scene::Initialize()
 {
 	ProcessGameObjectTable();
-	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
-	Pool::Find<GameObject>("X_Bot")->GetRenderer().Anim->Play();
+	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
+	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	auto light = Pool::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
-	light->GetRenderer().Model = Pool::Find<Model>("light");
-	light->GetRenderer().Vshader = Pool::Find<VertexShader>("vertexshader");
-	light->GetRenderer().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+	light->GetRendererable().Model = Pool::Find<Model>("light");
+	light->GetRendererable().Vshader = Pool::Find<VertexShader>("vertexshader");
+	light->GetRendererable().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
 
 	m_MainCam = Pool::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
@@ -72,14 +72,14 @@ void Scene::ProcessGameObjectTable()
 			gameObject->GetTransform().SetParent(Pool::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
 		}
 
-		gameObject->GetRenderer().Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
-		gameObject->GetRenderer().Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
+		gameObject->GetRendererable().Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
+		gameObject->GetRendererable().Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
 
 		if (table["Model"][i] != "null") {
-			gameObject->GetRenderer().Model = Pool::Find<Model>(table["Model"][i]);
+			gameObject->GetRendererable().Model = Pool::Find<Model>(table["Model"][i]);
 		}
 		if (table["SkinnedModel"][i] != "null") {
-			gameObject->GetRenderer().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
+			gameObject->GetRendererable().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
 		}
 
 		if (table["AddComponent"][i] != "null") {
@@ -87,7 +87,7 @@ void Scene::ProcessGameObjectTable()
 			for (auto& str : splitted) {
 				if (str == "") continue;
 				else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
-				else if (str == "Animator") gameObject->GetRenderer().Anim = gameObject->AddComponent<Animator>();
+				else if (str == "Animator") gameObject->GetRendererable().Anim = gameObject->AddComponent<Animator>();
 			}
 		}
 	}

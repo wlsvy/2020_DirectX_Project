@@ -28,6 +28,7 @@ public:
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<Renderable>& renderer);
+	void Draw_OtherMethod(const std::shared_ptr<Renderable>& renderer);
 	void DrawModel(
 		const std::shared_ptr<Model>& model,
 		const DirectX::XMMATRIX & worldMat, 

@@ -112,11 +112,11 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
 	
 	if (renderer->Model) {
-		bool isCull =	Math::CheckFrustumCull(
+		renderer->m_IsVisible =	!Math::CheckFrustumCull(
 			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
 			*renderer->Model,
 			renderer->GetGameObject()->GetTransform());
-		if (isCull) return;
+		if (!renderer->m_IsVisible) return;
 
 		DrawModel(renderer->Model, worldMat, wvpMat);
 	}
@@ -124,11 +124,11 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 		renderer->Anim &&
 		renderer->Anim->GetClip()) 
 	{
-		bool isCull = Math::CheckFrustumCull(
+		renderer->m_IsVisible = !Math::CheckFrustumCull(
 			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
 			*renderer->SkinnedModel,
 			renderer->GetGameObject()->GetTransform());
-		if (isCull) return;
+		if (!renderer->m_IsVisible) return;
 
 		CopyMemory(cb_BoneInfo.data.boneTransform, 
 			renderer->Anim->GetAnimResult().data(), 
@@ -138,6 +138,58 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
 		DrawModel(renderer->SkinnedModel, worldMat, wvpMat);
 	}
+}
+
+void Graphics::Draw_OtherMethod(const std::shared_ptr<Renderable>& renderer)
+{
+	if (!renderer->Vshader ||
+		!renderer->Pshader ||
+		!renderer->Mesh.lock())
+	{
+		return;
+	}
+	
+	renderer->m_IsVisible = !Math::CheckFrustumCull(
+		Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
+		*renderer,
+		renderer->GetGameObject()->GetTransform());
+	if (!renderer->m_IsVisible) {
+		return;
+	}
+
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(renderer->Vshader->GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->VSSetShader(renderer->Vshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(renderer->Pshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
+
+	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
+	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
+
+	if (renderer->Anim) {
+		CopyMemory(cb_BoneInfo.data.boneTransform,
+			renderer->Anim->GetAnimResult().data(),
+			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
+		cb_BoneInfo.ApplyChanges();
+
+		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
+	}
+
+	auto& mesh = *renderer->Mesh.lock();
+	cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+	cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+	cb_vs_vertexshader.ApplyChanges();
+
+	for (auto& texture : mesh.GetTextures()) {
+		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+			break;
+		}
+	}
+
+	UINT offset = 0;
+	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBufferAddr(), mesh.GetVertexBufferStridePtr(), &offset);
+	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
 }
 
 void Graphics::DrawModel(
@@ -196,9 +248,6 @@ void Graphics::DrawMesh(
 
 void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
 {
-	auto * context = m_DeviceResources.GetDeviceContext();
-	auto * states = m_DeviceResources.GetCommonState();
-	auto * effect = m_DeviceResources.GetDebugEffect();
 	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 
 	if (renderer->Model) {
@@ -206,8 +255,7 @@ void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
 			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
-	else if (renderer->SkinnedModel)
-	{
+	else if (renderer->SkinnedModel) {
 		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
 			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}

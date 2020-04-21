@@ -7,6 +7,7 @@
 
 class AnimationClip;
 class BoneAvatar;
+class Renderable;
 
 class Animator : public Behaviour {
 	MANAGED_OBJECT(Animator)
@@ -19,7 +20,7 @@ public:
 	bool IsRunning() const { return m_IsRunning; }
 
 	const std::vector<DirectX::XMMATRIX> & GetAnimResult() const { return m_AnimResult; }
-	void ChangeClipWithBlending(const std::shared_ptr<AnimationClip>& target, float blendTime);
+	void SetClip(const std::shared_ptr<AnimationClip>& clip, float blendTime);
 	void SetClip(const std::shared_ptr<AnimationClip>& clip);
 	std::shared_ptr<AnimationClip> GetClip() { return m_Clip; }
 
@@ -28,6 +29,7 @@ public:
 	float Speed = 1.0f;
 
 private:
+	std::weak_ptr<Renderable> m_Renderable;
 	std::shared_ptr<AnimationClip> m_Clip;
 	std::shared_ptr<AnimationClip> m_BlendClip;
 	std::vector<DirectX::XMMATRIX> m_AnimResult;

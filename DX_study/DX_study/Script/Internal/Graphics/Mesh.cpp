@@ -1,6 +1,8 @@
 #include "Mesh.h"
 
 #include "../../Util/Math.h"
+#include "../Core/InternalHelper.h"
+#include "../Engine/AdapterReader.h"
 
 Mesh::Mesh(
 	const std::vector<Vertex3D>& vertices, 

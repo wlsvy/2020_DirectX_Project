@@ -33,12 +33,12 @@ void CharacterMove::Update() {
 
 	if (isMove) {
 		if (m_Anim.lock()->GetClip() == m_IdleClip.lock()) {
-			m_Anim.lock()->ChangeClipWithBlending(m_WalkClip.lock(), 0.3f);
+			m_Anim.lock()->SetClip(m_WalkClip.lock(), 0.3f);
 		}
 	}
 	else {
 		if (m_Anim.lock()->GetClip() == m_WalkClip.lock()) {
-			m_Anim.lock()->ChangeClipWithBlending(m_IdleClip.lock(), 0.3f);
+			m_Anim.lock()->SetClip(m_IdleClip.lock(), 0.3f);
 		}
 	}
 }

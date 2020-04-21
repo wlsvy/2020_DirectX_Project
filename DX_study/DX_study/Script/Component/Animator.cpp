@@ -8,7 +8,8 @@
 #include "../Util/Time.h"
 
 void Animator::Awake() {
-	m_GameObject->GetRenderer().Anim = m_GameObject->GetComponent<Animator>();
+	m_GameObject->GetRendererable().Anim = m_GameObject->GetComponent<Animator>();
+	m_Renderable = m_GameObject->GetRenderablePtr();
 }
 
 void Animator::Update()
@@ -19,9 +20,8 @@ void Animator::Update()
 		return;
 	}
 
+	m_PlayTime += Time::GetFixedDeltaTime() * Speed;
 	if (m_IsBlending) {
-		float blendFactor = m_BlendClipPlayTime / m_BlendTime;
-		AnimationClip::BlendAnimation(m_Clip, m_BlendClip, m_BlendClipPlayTime, m_PlayTime, 1 - blendFactor, m_AnimResult);
 		m_BlendClipPlayTime += Time::GetFixedDeltaTime() * Speed;
 
 		if (m_BlendClipPlayTime > m_BlendTime) {
@@ -30,11 +30,18 @@ void Animator::Update()
 			m_BlendClipPlayTime = 0.0f;
 		}
 	}
+
+	if (!m_Renderable.lock()->IsVisible()) {
+		return;
+	}
+
+	if (m_IsBlending) {
+		float blendFactor = m_BlendClipPlayTime / m_BlendTime;
+		AnimationClip::BlendAnimation(m_Clip, m_BlendClip, m_BlendClipPlayTime, m_PlayTime, 1 - blendFactor, m_AnimResult);
+	}
 	else {
 		m_Clip->GetResultInTime(m_PlayTime, m_AnimResult);
 	}
-
-	m_PlayTime += Time::GetFixedDeltaTime() * Speed;
 }
 
 void Animator::Play()
@@ -47,7 +54,7 @@ void Animator::Stop()
 	m_IsRunning = false;
 }
 
-void Animator::ChangeClipWithBlending(const std::shared_ptr<AnimationClip>& target, float blendTime)
+void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip, float blendTime)
 {
 	if (m_IsBlending) {
 		m_PlayTime = m_BlendClipPlayTime;
@@ -55,10 +62,10 @@ void Animator::ChangeClipWithBlending(const std::shared_ptr<AnimationClip>& targ
 	}
 
 	m_BlendClip = m_Clip;
-	m_Clip = target;
+	m_Clip = clip;
 
 	m_BlendTime = blendTime;
-	m_IsBlending = true;
+	m_IsBlending = blendTime > 0.0f;
 }
 
 void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip)

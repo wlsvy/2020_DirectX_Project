@@ -8,13 +8,14 @@
 class Component;
 class Transform;
 class Renderable;
+class Model;
 
 class GameObject : public Object{
 	friend class Scene;
 public:
 	MANAGED_OBJECT(GameObject)
-	explicit GameObject();
-	explicit GameObject(const std::string & name);
+	GameObject(const std::string & name = "GameObject");
+	GameObject(const Model& model, const std::string & name = "GameObject");
 	virtual ~GameObject();
 
 	template<typename T>
@@ -24,8 +25,9 @@ public:
 	void RemoveExpiredComponent();
 
 	Transform& GetTransform() { return *m_Transform; }
+	Renderable& GetRendererable() { return *m_Renderer; }
 	std::shared_ptr<Transform> GetTransformPtr() { return m_Transform; }
-	Renderable& GetRenderer() { return *m_Renderer; }
+	std::shared_ptr<Renderable> GetRenderablePtr() { return m_Renderer; }
 
 	void OnGui();
 
