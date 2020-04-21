@@ -78,9 +78,9 @@ void Scene::ProcessGameObjectTable()
 		if (table["Model"][i] != "null") {
 			gameObject->GetRendererable().Model = Pool::Find<Model>(table["Model"][i]);
 		}
-		if (table["SkinnedModel"][i] != "null") {
+		/*if (table["SkinnedModel"][i] != "null") {
 			gameObject->GetRendererable().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
-		}
+		}*/
 
 		if (table["AddComponent"][i] != "null") {
 			splitted = Importer::SplitString(table["AddComponent"][i], '/');

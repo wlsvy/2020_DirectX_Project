@@ -113,34 +113,24 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
 	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
 	
-	if (renderer->Model) {
+	if (auto model = renderer->Model) {
 		renderer->m_IsVisible =	!Math::CheckFrustumCull(
 			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
-			*renderer->Model,
+			*model,
 			renderer->GetGameObject()->GetTransform());
 		if (!renderer->m_IsVisible) return;
 
-		for (auto& mesh : renderer->Model->GetMeshes()) {
-			DrawMesh(mesh, worldMat, wvpMat);
+		if (renderer->Anim &&
+			renderer->Anim->GetClip())
+		{
+			CopyMemory(cb_BoneInfo.data.boneTransform,
+				renderer->Anim->GetAnimResult().data(),
+				renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
+			cb_BoneInfo.ApplyChanges();
+			m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
 		}
-	}
-	else if (renderer->SkinnedModel &&
-		renderer->Anim &&
-		renderer->Anim->GetClip()) 
-	{
-		renderer->m_IsVisible = !Math::CheckFrustumCull(
-			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
-			*renderer->SkinnedModel,
-			renderer->GetGameObject()->GetTransform());
-		if (!renderer->m_IsVisible) return;
 
-		CopyMemory(cb_BoneInfo.data.boneTransform, 
-			renderer->Anim->GetAnimResult().data(), 
-			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
-		cb_BoneInfo.ApplyChanges();
-		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
-
-		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
+		for (auto& mesh : model->GetMeshes()) {
 			DrawMesh(mesh, worldMat, wvpMat);
 		}
 	}
@@ -174,11 +164,6 @@ void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
 
 	if (renderer->Model) {
 		for (auto& mesh : renderer->Model->GetMeshes()) {
-			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
-		}
-	}
-	else if (renderer->SkinnedModel) {
-		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
 			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}

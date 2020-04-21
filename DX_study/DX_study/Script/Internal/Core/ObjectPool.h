@@ -121,11 +121,13 @@ public:
 	}
 	template<typename T>
 	static std::shared_ptr<T> Find(const int objId) {
-		return ObjectPool<T>::GetInstance().Find(objId);
+		auto ptr = ObjectPool<typename T::ManagedType>::GetInstance().Find(objId);
+		return std::dynamic_pointer_cast<T>(ptr);
 	}
 	template<typename T>
 	static std::shared_ptr<T> Find(const std::string & objName) {
-		return ObjectPool<T>::GetInstance().Find(objName);
+		auto ptr = ObjectPool<typename T::ManagedType>::GetInstance().Find(objName);
+		return std::dynamic_pointer_cast<T>(ptr);
 	}
 
 	static void Destroy(Object* obj);

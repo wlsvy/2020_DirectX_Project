@@ -13,13 +13,6 @@ void Renderable::OnGui() {
 			ImGui::Text((mesh->Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
 		}
 	}
-	if (auto& model = SkinnedModel) {
-		for (auto& mesh : model->GetMeshes()) {
-			auto& c = mesh->GetLocalAABB().Center;
-			auto& e = mesh->GetLocalAABB().Extents;
-			ImGui::Text((mesh->Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
-		}
-	}
 
 	ImGui::Checkbox("Is Visible", &m_IsVisible);
 }
