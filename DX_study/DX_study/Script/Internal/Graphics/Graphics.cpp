@@ -188,6 +188,27 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 3, nullSrv);
 }
 
+void Graphics::DrawSkybox()
+{
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->GSSetShader(NULL, NULL, 0);
+	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
+	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
+
+	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
+	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
+	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
+	for (auto & mesh : m_Skybox->GetModel()->GetMeshes()) {
+		DrawMesh(mesh, worldMat, wvpMat);
+	}
+
+	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
+	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
+}
+
 void Graphics::DrawGui()
 {
 	
@@ -214,27 +235,6 @@ void Graphics::DrawGui()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
-void Graphics::DrawSkybox()
-{
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
-	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->GSSetShader(NULL, NULL, 0);
-	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
-	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
-
-	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
-	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
-	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
-	for (auto & mesh : m_Skybox->GetModel()->GetMeshes()) {
-		DrawMesh(mesh, worldMat, wvpMat);
-	}
-
-	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
-	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 }
 
 void Graphics::DrawGuiDebug()

@@ -7,7 +7,7 @@ void AnimationClip::HierarchyBoneAnim(
 	std::vector<bool> & check, 
 	std::vector<DirectX::XMMATRIX> & result)
 {
-	check[channel.mBoneIndex] = false;
+	check[channel.BoneIndex] = false;
 
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslationFromVector(channel.positionInterpolate(time));
 	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationQuaternion(channel.rotationInterpolate(time));
@@ -15,11 +15,11 @@ void AnimationClip::HierarchyBoneAnim(
 
 	DirectX::XMMATRIX boneTransform = scaleMat * rotMat * posMat;
 	DirectX::XMMATRIX boneGlobalMatrix = boneTransform * parentTransform;
-	DirectX::XMMATRIX FinalMatrix = channel.mBoneOffset * boneGlobalMatrix;
+	DirectX::XMMATRIX FinalMatrix = channel.BoneOffset * boneGlobalMatrix;
 
-	result[channel.mBoneIndex] = FinalMatrix;
+	result[channel.BoneIndex] = FinalMatrix;
 
-	for (auto i : channel.mChildBoneIndex) {
+	for (auto i : channel.ChildBoneIndex) {
 		if (check[i])
 			HierarchyBoneAnim(Channels[i], time, boneGlobalMatrix, check, result);
 	}
@@ -27,87 +27,84 @@ void AnimationClip::HierarchyBoneAnim(
 
 void AnimationClip::GetResultInTime(float time, std::vector<DirectX::XMMATRIX> & result)
 {
-	float TimeInTicks = time * mTickPerSecond;
-	float AnimationTime = fmod(TimeInTicks, mDuration);
+	float TimeInTicks = time * TickPerSecond;
+	float AnimationTime = fmod(TimeInTicks, Duration);
 
 	std::vector<bool> check(Channels.size(), true);
-	for (int i = 0; i < mNumChannel; i++) {
+	for (int i = 0; i < NumChannel; i++) {
 		if (check[i])
 			HierarchyBoneAnim(Channels[i], AnimationTime, DirectX::XMMatrixIdentity(), check, result);
 	}
 }
 
-const DirectX::XMVECTOR &  BoneChannel::positionInterpolate(float time) const
+DirectX::XMVECTOR BoneChannel::positionInterpolate(float time) const
 {
-	if (mNumPositionKeys == 1) {
-		return DirectX::XMLoadFloat3(&mPositionKeys[0].mPosition);
+	if (NumPositionKeys == 1) {
+		return PositionKeys[0].Position;
 	}
 
 	int keyIndex;
-	for (int i = 0; i < mNumPositionKeys - 1; i++) {
-		if (time < (float)mPositionKeys[i + 1].mTime) {
+	for (int i = 0; i < NumPositionKeys - 1; i++) {
+		if (time < (float)PositionKeys[i + 1].Time) {
 			keyIndex = i;
 			break;
 		}
 	}
 
-	int nextKeyIndex = keyIndex + 1;
+	float keyDuration = (float)(PositionKeys[keyIndex + 1].Time - PositionKeys[keyIndex].Time);
+	float factor = (time - (float)PositionKeys[keyIndex].Time) / keyDuration;
 
-	float keyDuration = (float)(mPositionKeys[nextKeyIndex].mTime - mPositionKeys[keyIndex].mTime);
-	float factor = (time - (float)mPositionKeys[keyIndex].mTime) / keyDuration;
-
-	DirectX::XMVECTOR from = DirectX::XMLoadFloat3(&mPositionKeys[keyIndex].mPosition);
-	DirectX::XMVECTOR to = DirectX::XMLoadFloat3(&mPositionKeys[nextKeyIndex].mPosition);
-	return DirectX::XMVectorLerp(from, to, factor);
+	return DirectX::XMVectorLerp(
+		PositionKeys[keyIndex].Position, 
+		PositionKeys[keyIndex + 1].Position,
+		factor);
 }
 
-const DirectX::XMVECTOR &  BoneChannel::rotationInterpolate(float time) const
+DirectX::XMVECTOR BoneChannel::rotationInterpolate(float time) const
 {
-	if (mNumRotationKeys == 1) {
-		return DirectX::XMLoadFloat4(&mRotationKeys[0].mQuaternion);
+	if (NumRotationKeys == 1) {
+		return RotationKeys[0].Quaternion;
 	}
 
 	int keyIndex;
-	for (int i = 0; i < mNumRotationKeys - 1; i++) {
-		if (time < (float)mRotationKeys[i + 1].mTime) {
+	for (int i = 0; i < NumRotationKeys - 1; i++) {
+		if (time < (float)RotationKeys[i + 1].Time) {
 			keyIndex = i;
 			break;
 		}
 	}
 
-	int nextKeyIndex = keyIndex + 1;
+	float keyDuration = (float)(RotationKeys[keyIndex + 1].Time - RotationKeys[keyIndex].Time);
+	float factor = (time - (float)RotationKeys[keyIndex].Time) / keyDuration;
 
-	float keyDuration = (float)(mRotationKeys[nextKeyIndex].mTime - mRotationKeys[keyIndex].mTime);
-	float factor = (time - (float)mRotationKeys[keyIndex].mTime) / keyDuration;
-
-	DirectX::XMVECTOR from = DirectX::XMLoadFloat4(&mRotationKeys[keyIndex].mQuaternion);
-	DirectX::XMVECTOR to = DirectX::XMLoadFloat4(&mRotationKeys[nextKeyIndex].mQuaternion);
 	return DirectX::XMQuaternionNormalize(
-		DirectX::XMQuaternionSlerp(from, to, factor));
+		DirectX::XMQuaternionSlerp(
+			RotationKeys[keyIndex].Quaternion, 
+			RotationKeys[keyIndex + 1].Quaternion,
+			factor));
 }
 
-const DirectX::XMVECTOR & BoneChannel::scaleInterpolate(float time) const
+DirectX::XMVECTOR BoneChannel::scaleInterpolate(float time) const
 {
-	if (mNumScaleKeys == 1) {
-		return DirectX::XMLoadFloat3(&mScaleKeys[0].mScale);
+	if (NumScaleKeys == 1) {
+		return ScaleKeys[0].Scale;
 	}
 
 	int keyIndex;
-	for (int i = 0; i < mNumScaleKeys - 1; i++) {
-		if (time < (float)mScaleKeys[i + 1].mTime) {
+	for (int i = 0; i < NumScaleKeys - 1; i++) {
+		if (time < (float)ScaleKeys[i + 1].Time) {
 			keyIndex = i;
 			break;
 		}
 	}
 
-	int nextKeyIndex = keyIndex + 1;
+	float keyDuration = (float)(ScaleKeys[keyIndex + 1].Time - ScaleKeys[keyIndex].Time);
+	float factor = (time - (float)ScaleKeys[keyIndex].Time) / keyDuration;
 
-	float keyDuration = (float)(mScaleKeys[nextKeyIndex].mTime - mScaleKeys[keyIndex].mTime);
-	float factor = (time - (float)mScaleKeys[keyIndex].mTime) / keyDuration;
-
-	DirectX::XMVECTOR from = DirectX::XMLoadFloat3(&mScaleKeys[keyIndex].mScale);
-	DirectX::XMVECTOR to = DirectX::XMLoadFloat3(&mScaleKeys[nextKeyIndex].mScale);
-	return DirectX::XMVectorLerp(from, to, factor);
+	return DirectX::XMVectorLerp(
+		ScaleKeys[keyIndex].Scale, 
+		ScaleKeys[keyIndex + 1].Scale, 
+		factor);
 }
 
 
@@ -140,13 +137,13 @@ void HierarchyBlendBoneAnim(
 
 	DirectX::XMMATRIX boneTransform = scaleMat * rotMat * posMat;
 	DirectX::XMMATRIX boneGlobalMatrix = boneTransform * parentTransform;
-	DirectX::XMMATRIX FinalMatrix = channel1.mBoneOffset * boneGlobalMatrix;
+	DirectX::XMMATRIX FinalMatrix = channel1.BoneOffset * boneGlobalMatrix;
 
 	result[boneIndex] = FinalMatrix;
 
-	for (auto i : channel1.mChildBoneIndex) {
+	for (auto i : channel1.ChildBoneIndex) {
 		if (check[i])
-			HierarchyBlendBoneAnim(clip1->Channels[i].mBoneIndex, blendFactor, clip1, clip2, time1, time2, boneGlobalMatrix, check, result);
+			HierarchyBlendBoneAnim(clip1->Channels[i].BoneIndex, blendFactor, clip1, clip2, time1, time2, boneGlobalMatrix, check, result);
 	}
 }
 
@@ -158,12 +155,12 @@ void AnimationClip::BlendAnimation(
 	float blendFactor,
 	std::vector<DirectX::XMMATRIX> & result)
 {
-	float clip1Time = fmod(time1 * clip1->mTickPerSecond, clip1->mDuration);
-	float clip2Time = fmod(time2 * clip2->mTickPerSecond, clip2->mDuration);
+	float clip1Time = fmod(time1 * clip1->TickPerSecond, clip1->Duration);
+	float clip2Time = fmod(time2 * clip2->TickPerSecond, clip2->Duration);
 
 	std::vector<bool> check(clip1->Channels.size(), true);
-	for (int i = 0; i < clip1->mNumChannel; i++) {
+	for (int i = 0; i < clip1->NumChannel; i++) {
 		if (check[i])
-			HierarchyBlendBoneAnim(clip1->Channels[i].mBoneIndex, blendFactor, clip1, clip2, clip1Time, clip2Time, DirectX::XMMatrixIdentity(), check, result);
+			HierarchyBlendBoneAnim(clip1->Channels[i].BoneIndex, blendFactor, clip1, clip2, clip1Time, clip2Time, DirectX::XMMatrixIdentity(), check, result);
 	}
 }

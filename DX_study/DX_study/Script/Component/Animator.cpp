@@ -73,7 +73,7 @@ void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip)
 	m_Clip = clip;
 	m_IsBlending = false;
 	m_PlayTime = 0.0f;
-	m_AnimResult.resize(clip->mNumChannel);
+	m_AnimResult.resize(clip->NumChannel);
 }
 
 void Animator::OnGui()

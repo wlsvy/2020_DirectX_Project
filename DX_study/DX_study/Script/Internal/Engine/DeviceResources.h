@@ -13,30 +13,30 @@ class DeviceResources {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
 	bool InitializeRenderTarget(int width, int height);
-	void SetDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
+	void InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
-	ID3D11Device*					GetDevice()	const								{ return device.Get(); }
-	ID3D11DeviceContext*			GetDeviceContext()	const						{ return deviceContext.Get(); }
-	ID3D11RenderTargetView*			GetBaseRenderTargetView() const					{ return mainRenderTargetView.Get(); }
-	ID3D11RenderTargetView* const*	GetBaseRTVaddress() const						{ return mainRenderTargetView.GetAddressOf(); }
-	ID3D11DepthStencilView*			GetBaseDepthStencilView() const					{ return depthStencilView.Get(); }
-	ID3D11DepthStencilState*		GetBaseDepthStencilState() const				{ return depthStencilState.Get(); }
-	ID3D11RasterizerState*			GetRasterizerState() const						{ return rasterizerState.Get(); }
-	ID3D11BlendState*				GetBlendState() const							{ return blendState.Get();	}
-	ID3D11SamplerState* const*		GetSamplerStateAddr() const						{ return samplerState.GetAddressOf(); }
-	ID3D11RenderTargetView*			GetRenderTargetView(int index) const			{ return renderTargetViewArr[index].Get(); }
-	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const					{ return renderTargetViewArr[index].GetAddressOf(); }
-	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const				{ return shaderResourceViewArr[index].Get(); }
-	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const		{ return shaderResourceViewArr[index].GetAddressOf(); }
-	IDXGISwapChain*					GetSwapChain() const							{ return swapchain.Get(); }
+	ID3D11Device*					GetDevice()	const									{ return device.Get(); }
+	ID3D11DeviceContext*			GetDeviceContext()	const							{ return deviceContext.Get(); }
+	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return mainRenderTargetView.Get(); }
+	ID3D11RenderTargetView* const*	GetBaseRTVaddress() const							{ return mainRenderTargetView.GetAddressOf(); }
+	ID3D11DepthStencilView*			GetBaseDepthStencilView() const						{ return depthStencilView.Get(); }
+	ID3D11DepthStencilState*		GetBaseDepthStencilState() const					{ return depthStencilState.Get(); }
+	ID3D11RasterizerState*			GetRasterizerState() const							{ return rasterizerState.Get(); }
+	ID3D11BlendState*				GetBlendState() const								{ return blendState.Get();	}
+	ID3D11SamplerState* const*		GetSamplerStateAddr() const							{ return samplerState.GetAddressOf(); }
+	ID3D11RenderTargetView*			GetRenderTargetView(int index) const				{ return renderTargetViewArr[index].Get(); }
+	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return renderTargetViewArr[index].GetAddressOf(); }
+	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return shaderResourceViewArr[index].Get(); }
+	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return shaderResourceViewArr[index].GetAddressOf(); }
+	IDXGISwapChain*					GetSwapChain() const								{ return swapchain.Get(); }
 
-	DirectX::SpriteBatch*			GetSpriteBatch() const							{ return spriteBatch.get(); }
-	DirectX::SpriteFont*			GetSpriteFont() const							{ return spriteFont.get(); }
-	DirectX::CommonStates*			GetCommonState() const							{ return commonState.get(); }
-	DirectX::DebugEffect*			GetDebugEffect() const							{ return debugEffect.get(); }
-	DirectX::BasicEffect*			GetBasicEffect() const							{ return basicEffect.get(); }
+	DirectX::SpriteBatch*			GetSpriteBatch() const								{ return spriteBatch.get(); }
+	DirectX::SpriteFont*			GetSpriteFont() const								{ return spriteFont.get(); }
+	DirectX::CommonStates*			GetCommonState() const								{ return commonState.get(); }
+	DirectX::DebugEffect*			GetDebugEffect() const								{ return debugEffect.get(); }
+	DirectX::BasicEffect*			GetBasicEffect() const								{ return basicEffect.get(); }
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return primitiveBatch.get(); }
-	ID3D11InputLayout*				GetDebugInputLayout() const						{ return debugInputLayout.Get(); }
+	ID3D11InputLayout*				GetDebugInputLayout() const							{ return debugInputLayout.Get(); }
 
 	static const int RenderTargetCount = 4;	//Position, Normal, Color	+ Result
 	static const int DeferredRenderChannelCount = 3; 

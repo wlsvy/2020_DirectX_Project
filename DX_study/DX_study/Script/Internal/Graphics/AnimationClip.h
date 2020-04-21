@@ -4,45 +4,47 @@
 #include <DirectXMath.h>
 #include "../Core/Object.h"
 
+class SkinnedModel;
+
 struct PositionKey {
-	PositionKey(float x, float y, float z, float time) : mPosition(x, y, z), mTime(time) {}
-	DirectX::XMFLOAT3 mPosition;
-	float mTime;
+	PositionKey(float x, float y, float z, float time) : Position(DirectX::XMVectorSet(x, y, z, 0.0f)), Time(time) {}
+	DirectX::XMVECTOR Position;
+	float Time;
 };
 
 struct RotationKey {
-	RotationKey(float x, float y, float z, float w, float time) : mQuaternion(x, y, z, w), mTime(time) {}
-	DirectX::XMFLOAT4 mQuaternion;
-	float mTime;
+	RotationKey(float x, float y, float z, float w, float time) : Quaternion(DirectX::XMVectorSet(x, y, z, w)), Time(time) {}
+	DirectX::XMVECTOR Quaternion;
+	float Time;
 };
 
 struct ScaleKey {
-	ScaleKey(float x, float y, float z, float time) : mScale(x, y, z), mTime(time) {}
-	DirectX::XMFLOAT3 mScale;
-	float mTime;
+	ScaleKey(float x, float y, float z, float time) : Scale(DirectX::XMVectorSet(x, y, z, 0.0f)), Time(time) {}
+	DirectX::XMVECTOR Scale;
+	float Time;
 };
 
 struct BoneChannel {
-	std::string mChannelName = "";
-	int mBoneIndex = -1;
+	std::string ChannelName = "";
+	int BoneIndex = -1;
 
-	short mNumPositionKeys = 0;
-	short mNumRotationKeys = 0;
-	short mNumScaleKeys = 0;
+	short NumPositionKeys = 0;
+	short NumRotationKeys = 0;
+	short NumScaleKeys = 0;
 
-	short mNumChildBone = 0;
+	short NumChildBone = 0;
 
-	std::vector<PositionKey> mPositionKeys;
-	std::vector<RotationKey> mRotationKeys;
-	std::vector<ScaleKey> mScaleKeys;
+	std::vector<PositionKey> PositionKeys;
+	std::vector<RotationKey> RotationKeys;
+	std::vector<ScaleKey> ScaleKeys;
 	
-	std::vector<int> mChildBoneIndex;
-	DirectX::XMMATRIX mBoneOffset;
+	std::vector<int> ChildBoneIndex;
+	DirectX::XMMATRIX BoneOffset;
 
 public:
-	const DirectX::XMVECTOR & positionInterpolate(float time) const;
-	const DirectX::XMVECTOR & rotationInterpolate(float time) const;
-	const DirectX::XMVECTOR & scaleInterpolate(float time) const;
+	DirectX::XMVECTOR positionInterpolate(float time) const;
+	DirectX::XMVECTOR rotationInterpolate(float time) const;
+	DirectX::XMVECTOR scaleInterpolate(float time) const;
 };
 
 class AnimationClip : public Object {
@@ -58,11 +60,12 @@ public:
 
 	void GetResultInTime(float time, std::vector<DirectX::XMMATRIX> & result);
 
-	short mNumChannel;
+	short NumChannel;
 	std::vector<BoneChannel> Channels;
+	std::shared_ptr<SkinnedModel> Avatar;
 
-	float mDuration;
-	float mTickPerSecond;
+	float Duration;
+	float TickPerSecond;
 
 private:
 	void HierarchyBoneAnim(

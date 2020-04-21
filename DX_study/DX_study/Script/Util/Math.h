@@ -17,6 +17,5 @@ namespace Math {
 
 	bool CheckFrustumCull(const DirectX::BoundingFrustum & f, const Model & model, const Transform & tf);
 	bool CheckFrustumCull(const DirectX::BoundingFrustum & f, const SkinnedModel & model, const Transform & tf);
-	bool CheckFrustumCull(const DirectX::BoundingFrustum & f, const Renderable & renderable, const Transform & tf);
 	DirectX::BoundingBox GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf);
 }

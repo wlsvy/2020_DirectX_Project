@@ -23,7 +23,6 @@ public:
 	std::shared_ptr<PixelShader> Pshader;
 	std::shared_ptr<Model> Model;
 	std::shared_ptr<Animator> Anim;
-	std::weak_ptr<MeshBase> Mesh;
 
 private:
 	bool m_IsVisible;

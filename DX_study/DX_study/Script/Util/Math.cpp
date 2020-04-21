@@ -29,14 +29,6 @@ bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const SkinnedMod
 	return true;
 }
 
-bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const Renderable & renderable, const Transform & tf)
-{
-	if (auto mesh = renderable.Mesh.lock()) {
-		return f.Contains(Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), tf)) == DirectX::DISJOINT;
-	}
-	return true;
-}
-
 DirectX::BoundingBox Math::GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf)
 {
 	return DirectX::BoundingBox(
