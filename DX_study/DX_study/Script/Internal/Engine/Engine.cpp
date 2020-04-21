@@ -54,6 +54,8 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	m_Graphics->GetDeviceResources().SetDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
 
+	
+
 	return true;
 }
 
@@ -86,7 +88,7 @@ void Engine::RenderFrame()
 	auto& dr = m_Graphics->GetDeviceResources();
 
 	m_Graphics->RenderFrame();
-	m_Graphics->SetRenderTarget(dr.GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
+	m_Graphics->SetRenderTarget(m_Graphics->GetDeviceResources().GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
 	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
 	m_Graphics->DrawSkybox();
 	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));

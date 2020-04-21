@@ -93,6 +93,8 @@ void Graphics::RenderFrame()
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), m_BlendFactors, 0xFFFFFFFF);
 	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, m_DeviceResources.GetSamplerStateAddr());
+
+	
 }
 
 void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
@@ -277,6 +279,9 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
 	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(indexBuffer.IndexCount(), 0, 0);
+
+	ID3D11ShaderResourceView * nullSrv[3] = { NULL, NULL, NULL };
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 3, nullSrv);
 }
 
 void Graphics::DrawGui()
@@ -356,6 +361,8 @@ void Graphics::DrawGuiDebug()
 
 void Graphics::SetRenderTarget(ID3D11RenderTargetView * const * rtv, int bufferCount)
 {
+	ID3D11RenderTargetView * nullRTV[3] = { NULL, NULL, NULL };
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(3, nullRTV, NULL);
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(bufferCount, rtv, m_DeviceResources.GetBaseDepthStencilView());
 }
 
