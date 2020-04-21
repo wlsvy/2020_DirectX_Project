@@ -12,6 +12,7 @@ class Material;
 class Model;
 class SkinnedModel;
 class Mesh;
+class MeshBase;
 class Renderable;
 class Engine;
 class Camera;
@@ -37,7 +38,7 @@ public:
 		const std::shared_ptr<SkinnedModel>& model,
 		const DirectX::XMMATRIX & worldMat,
 		const DirectX::XMMATRIX & wvpMat);
-	void DrawMesh(const Mesh & mesh,
+	void DrawMesh(const std::shared_ptr<MeshBase>& mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
 	void DebugDraw(const std::shared_ptr<Renderable>& renderer);

@@ -12,7 +12,7 @@ using DirectX::operator/=;
 bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const Model & model, const Transform & tf)
 {
 	for (auto & mesh : model.GetMeshes()) {
-		if (f.Contains(Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), tf)) != DirectX::DISJOINT) {
+		if (f.Contains(Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), tf)) != DirectX::DISJOINT) {
 			return false;
 		}
 	}
@@ -22,7 +22,7 @@ bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const Model & mo
 bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const SkinnedModel & model, const Transform & tf)
 {
 	for (auto & mesh : model.GetMeshes()) {
-		if (f.Contains(Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), tf)) != DirectX::DISJOINT) {
+		if (f.Contains(Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), tf)) != DirectX::DISJOINT) {
 			return false;
 		}
 	}

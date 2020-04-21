@@ -94,7 +94,7 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
-	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix, mesh->mName.data);
+	m_Meshes.emplace_back(Pool::CreateInstance<Mesh>(vertices, indices, textures, transformMatrix, mesh->mName.data));
 }
 
 TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -320,7 +320,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		aiTextureType::aiTextureType_DIFFUSE,
 		scene);
 
-	m_Meshes.emplace_back(vertices, indices, textures, transformMatrix, mesh->mName.data);
+	m_Meshes.emplace_back(Pool::CreateInstance<SkinnedMesh>(vertices, indices, textures, transformMatrix, mesh->mName.data));
 }
 
 DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)

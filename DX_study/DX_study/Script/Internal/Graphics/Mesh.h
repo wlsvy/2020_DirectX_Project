@@ -10,6 +10,7 @@
 struct ID3D11Buffer;
 
 class MeshBase : public Object {
+	MANAGED_OBJECT(MeshBase)
 public:
 	MeshBase(
 		const std::vector<DWORD> & indices,

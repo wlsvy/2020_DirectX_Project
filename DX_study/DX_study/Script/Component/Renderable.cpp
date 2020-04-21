@@ -8,16 +8,16 @@
 void Renderable::OnGui() {
 	if (auto& model = Model) {
 		for (auto& mesh : model->GetMeshes()) {
-			auto& c = mesh.GetLocalAABB().Center;
-			auto& e = mesh.GetLocalAABB().Extents;
-			ImGui::Text((mesh.Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
+			auto& c = mesh->GetLocalAABB().Center;
+			auto& e = mesh->GetLocalAABB().Extents;
+			ImGui::Text((mesh->Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
 		}
 	}
 	if (auto& model = SkinnedModel) {
 		for (auto& mesh : model->GetMeshes()) {
-			auto& c = mesh.GetLocalAABB().Center;
-			auto& e = mesh.GetLocalAABB().Extents;
-			ImGui::Text((mesh.Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
+			auto& c = mesh->GetLocalAABB().Center;
+			auto& e = mesh->GetLocalAABB().Extents;
+			ImGui::Text((mesh->Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
 		}
 	}
 

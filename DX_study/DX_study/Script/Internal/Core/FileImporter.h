@@ -41,7 +41,7 @@ public:
 private:
 	void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) override;
 
-	std::vector<Mesh> m_Meshes;
+	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
 };
 
 class SkinnedModelImporter : public ModelImporterBase {
@@ -62,7 +62,7 @@ private:
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
-	std::vector<SkinnedMesh> m_Meshes;
+	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
 	std::unordered_map<std::string, UINT> m_BoneIdMap;
 	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
 	

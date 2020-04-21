@@ -120,7 +120,9 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 			renderer->GetGameObject()->GetTransform());
 		if (!renderer->m_IsVisible) return;
 
-		DrawModel(renderer->Model, worldMat, wvpMat);
+		for (auto& mesh : renderer->Model->GetMeshes()) {
+			DrawMesh(mesh, worldMat, wvpMat);
+		}
 	}
 	else if (renderer->SkinnedModel &&
 		renderer->Anim &&
@@ -136,9 +138,11 @@ void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
 			renderer->Anim->GetAnimResult().data(), 
 			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
 		cb_BoneInfo.ApplyChanges();
-
 		m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
-		DrawModel(renderer->SkinnedModel, worldMat, wvpMat);
+
+		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
+			DrawMesh(mesh, worldMat, wvpMat);
+		}
 	}
 }
 
@@ -209,11 +213,11 @@ void Graphics::DrawModel(
 	const DirectX::XMMATRIX & wvpMat)
 {
 	for (auto& mesh : model->GetMeshes()) {
-		cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-		cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+		cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+		cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
 		cb_vs_vertexshader.ApplyChanges();
 
-		for (auto& texture : mesh.GetTextures()) {
+		for (auto& texture : mesh->GetTextures()) {
 			if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
 				m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
 				break;
@@ -221,21 +225,21 @@ void Graphics::DrawModel(
 		}
 
 		UINT offset = 0;
-		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
-		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
+		m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
+		m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+		m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 	}
 }
 void Graphics::DrawMesh(
-	const Mesh & mesh,
+	const std::shared_ptr<MeshBase>& mesh,
 	const DirectX::XMMATRIX & worldMat, 
 	const DirectX::XMMATRIX & wvpMat)
 {
-	cb_vs_vertexshader.data.wvpMatrix = mesh.GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-	cb_vs_vertexshader.data.worldMatrix = mesh.GetTransformMatrix() * worldMat; //Calculate World Matrix
+	cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
+	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
 	cb_vs_vertexshader.ApplyChanges();
 
-	for (auto& texture : mesh.GetTextures()) {
+	for (auto& texture : mesh->GetTextures()) {
 		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
 			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
 			break;
@@ -243,9 +247,9 @@ void Graphics::DrawMesh(
 	}
 
 	UINT offset = 0;
-	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh.GetVertexBuffer().GetAddressOf(), mesh.GetVertexBuffer().StridePtr(), &offset);
-	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh.GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh.GetIndexBuffer().IndexCount(), 0, 0);
+	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
+	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 }
 
 void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
@@ -254,12 +258,12 @@ void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
 
 	if (renderer->Model) {
 		for (auto& mesh : renderer->Model->GetMeshes()) {
-			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
 	else if (renderer->SkinnedModel) {
 		for (auto& mesh : renderer->SkinnedModel->GetMeshes()) {
-			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh.GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
 }
@@ -273,12 +277,11 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));
 
-	auto& vertexBuffer = m_PostProcesWindowModel->GetMeshes()[0].GetVertexBuffer();
-	auto& indexBuffer = m_PostProcesWindowModel->GetMeshes()[0].GetIndexBuffer();
+	auto& mesh = m_PostProcesWindowModel->GetMeshes()[0];
 	UINT offset = 0;
-	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), vertexBuffer.StridePtr(), &offset);
-	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	m_DeviceResources.GetDeviceContext()->DrawIndexed(indexBuffer.IndexCount(), 0, 0);
+	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
+	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
 	ID3D11ShaderResourceView * nullSrv[3] = { NULL, NULL, NULL };
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 3, nullSrv);

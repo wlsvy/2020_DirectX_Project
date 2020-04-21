@@ -57,13 +57,13 @@ namespace BaseGeometry {
 
 		auto model = Pool::CreateInstance<Model>();
 		model->Initialize(
-			std::move(std::vector<Mesh>(1, Mesh(
-					vertices,
-					indices,
-					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-					DirectX::XMMatrixIdentity()
-			)))
-		);
+			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
+				vertices,
+				indices,
+				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+				DirectX::XMMatrixIdentity(),
+				"Box"
+				)));
 		model->Name = "Box";
 	}
 	static void CreatePlane() {
@@ -80,13 +80,13 @@ namespace BaseGeometry {
 
 		auto model = Pool::CreateInstance<Model>();
 		model->Initialize(
-			std::move(std::vector<Mesh>(1, Mesh(
+			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
 				vertices,
 				indices,
-				std::vector<Texture>(1, *Pool::Find<Texture>("test")),
-				DirectX::XMMatrixIdentity()
-			)))
-		);
+				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+				DirectX::XMMatrixIdentity(),
+				"Plane"
+				)));
 		model->Name = "Plane";
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
@@ -168,13 +168,13 @@ namespace BaseGeometry {
 
 		auto model = Pool::CreateInstance<Model>();
 		model->Initialize(
-			std::move(std::vector<Mesh>(1, Mesh(
-					vertices,
-					indices,
-					std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
-					DirectX::XMMatrixIdentity()
-			)))
-		);
+			std::vector<std::shared_ptr<MeshBase>>(1, Pool::CreateInstance<Mesh>(
+				vertices,
+				indices,
+				std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+				DirectX::XMMatrixIdentity(),
+				"Sphere"
+				)));
 		model->Name = "Sphere";
 	}
 	
