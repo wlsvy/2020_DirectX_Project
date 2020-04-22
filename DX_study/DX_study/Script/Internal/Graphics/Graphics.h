@@ -8,7 +8,7 @@
 
 class BufferBase;
 class Texture;
-class Material;
+class SharedMaterial;
 class Model;
 class SkinnedModel;
 class Mesh;
@@ -22,6 +22,7 @@ class Skybox;
 class Animator;
 class VertexShader;
 class PixelShader;
+class Material;
 
 class Graphics {
 public:
@@ -34,6 +35,7 @@ public:
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
 	void DebugDraw(const std::shared_ptr<RenderInfo>& renderer);
+	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void PostProcess();
 	void DrawGui();
 	void DrawSkybox();
@@ -45,7 +47,7 @@ public:
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
-	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_BoneInfo; }
+	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
 
 	int GetWindowWidth() const { return windowWidth; }
 	int GetWindowHeight() const { return windowHeight; }
@@ -55,8 +57,9 @@ private:
 
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
+	ConstantBuffer<CB_VS_boneData> cb_vs_BoneInfo;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
-	ConstantBuffer<CB_VS_boneData> cb_BoneInfo;
+	ConstantBuffer<CB_PS_Material> cb_ps_material;
 
 	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;

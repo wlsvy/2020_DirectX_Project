@@ -1,6 +1,11 @@
 #include "Shaders.h"
 #include "../Core/InternalHelper.h"
+#include "../Core/ObjectPool.h"
 #include "../../Util/StringHelper.h"
+
+std::shared_ptr<VertexShader> VertexShader::GetDefault() {
+	return Pool::Find<VertexShader>("vertexshader");
+}
 
 bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
 	Name = StringHelper::GetFileNameFromPath(shaderpath);
@@ -40,6 +45,10 @@ ID3D10Blob * VertexShader::GetBuffer() {
 ID3D11InputLayout * VertexShader::GetInputLayout()
 {
 	return this->inputLayout.Get();
+}
+
+std::shared_ptr<PixelShader> PixelShader::GetDefault() {
+	return Pool::Find<PixelShader>("pixelshader_deferred");
 }
 
 bool PixelShader::Initialize(const std::string & shaderpath) {

@@ -7,11 +7,10 @@
 Mesh::Mesh(
 	const std::vector<Vertex3D>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const std::vector<std::shared_ptr<Texture>> & textures, 
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
-	MeshBase(indices, textures, transformMatrix, name)
+	MeshBase(indices, transformMatrix, name)
 {
 	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
 	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
@@ -50,11 +49,10 @@ Mesh::Mesh(const Mesh & mesh) :
 SkinnedMesh::SkinnedMesh(
 	const std::vector<SkinnedVertex>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const std::vector<std::shared_ptr<Texture>>& textures, 
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
-	MeshBase(indices, textures, transformMatrix, name)
+	MeshBase(indices, transformMatrix, name)
 {
 	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
 	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
@@ -92,12 +90,10 @@ SkinnedMesh::SkinnedMesh(const SkinnedMesh & mesh) :
 
 MeshBase::MeshBase(
 	const std::vector<DWORD>& indices,
-	const std::vector<std::shared_ptr<Texture>>& textures,
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
 	Object(name),
-	textures(textures),
 	transformMatrix(transformMatrix)
 {
 	try {
@@ -113,7 +109,6 @@ MeshBase::MeshBase(
 MeshBase::MeshBase(const MeshBase& mesh) :
 	Object(mesh),
 	indexbuffer(mesh.indexbuffer),
-	textures(mesh.textures),
 	transformMatrix(mesh.transformMatrix),
 	m_Aabb(mesh.m_Aabb)
 {

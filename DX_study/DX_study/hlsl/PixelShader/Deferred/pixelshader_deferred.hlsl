@@ -13,6 +13,11 @@ struct PS_OUTPUT
     float4 color : COLOR;
 };
 
+cbuffer Material : register(b1)
+{
+    float4 color;
+};
+
 Texture2D objTexture : TEXTURE : register(t0);
 SamplerState objSamplerState : SAMPLER : register(s0);
 
@@ -21,6 +26,6 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     PS_OUTPUT output;
     output.pos = float4(input.inWorldPos, 1.0f);
     output.normal = float4(input.inNormal, 1.0f);
-    output.color = objTexture.Sample(objSamplerState, input.inTexCoord);
+    output.color = objTexture.Sample(objSamplerState, input.inTexCoord) * color;
     return output;
 }

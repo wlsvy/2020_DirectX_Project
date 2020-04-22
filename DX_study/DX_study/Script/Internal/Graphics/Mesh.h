@@ -14,7 +14,6 @@ class MeshBase : public Object {
 public:
 	MeshBase(
 		const std::vector<DWORD> & indices,
-		const std::vector<std::shared_ptr<Texture>> & textures,
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
 	MeshBase(const MeshBase& mesh);
@@ -23,12 +22,10 @@ public:
 	virtual const UINT *								GetVertexBufferStridePtr() const = 0;
 	const DirectX::XMMATRIX &							GetTransformMatrix() const { return transformMatrix; }
 	const IndexBuffer &									GetIndexBuffer() const { return indexbuffer; }
-	const std::vector<std::shared_ptr<Texture>> &		GetTextures() const { return textures; }
 	const DirectX::BoundingBox &						GetLocalAABB() const { return m_Aabb; }
 
 protected:
 	IndexBuffer indexbuffer;
-	std::vector<std::shared_ptr<Texture>> textures;
 	DirectX::XMMATRIX transformMatrix;
 	DirectX::BoundingBox m_Aabb;
 };
@@ -38,7 +35,6 @@ public:
 	Mesh(
 		const std::vector<Vertex3D> & vertices, 
 		const std::vector<DWORD> & indices, 
-		const std::vector<std::shared_ptr<Texture>> & textures,
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
 	Mesh(const Mesh & mesh);
@@ -56,7 +52,6 @@ public:
 	SkinnedMesh(
 		const std::vector<SkinnedVertex> & vertices,
 		const std::vector<DWORD> & indices,
-		const std::vector<std::shared_ptr<Texture>> & textures,
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
 	SkinnedMesh(const SkinnedMesh & mesh);

@@ -11,6 +11,7 @@
 #include "../Graphics/Mesh.h"
 #include "../Graphics/Model.h"
 #include "../Graphics/AnimationClip.h"
+#include "../Graphics/Shaders.h"
 #include "../../Util/StringHelper.h"
 
 bool ModelImporter::CreateModel(
@@ -22,7 +23,7 @@ bool ModelImporter::CreateModel(
 
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Pool::CreateInstance<Model>(m_Meshes, StringHelper::GetFileNameFromPath(fileName));
+	auto model = Pool::CreateInstance<Model>(m_Meshes, m_Materials, StringHelper::GetFileNameFromPath(fileName));
 	return true;
 }
 
@@ -79,12 +80,13 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 			indices.push_back(face.mIndices[j]);
 	}
 
-	std::vector<std::shared_ptr<Texture>> textures;
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<std::shared_ptr<Texture>> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
+	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	mat->Vshader = Pool::Find<VertexShader>("vertexshader");
+	mat->Pshader = PixelShader::GetDefault();
 
-	m_Meshes.emplace_back(Pool::CreateInstance<Mesh>(vertices, indices, textures, transformMatrix, mesh->mName.data));
+	m_Materials.push_back(mat);
+	m_Meshes.emplace_back(Pool::CreateInstance<Mesh>(vertices, indices, transformMatrix, mesh->mName.data));
 }
 
 TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -130,11 +132,14 @@ TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene 
 	return TextureStorageType::None; // No texture exists
 }
 
-std::vector<std::shared_ptr<Texture>> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
+std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
 {
-	std::vector<std::shared_ptr<Texture>> materialTextures;
 	TextureStorageType storetype = TextureStorageType::Invalid;
 	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
+
+	aiString matName;
+	pMaterial->Get(AI_MATKEY_NAME, matName);
+	auto mat = Pool::CreateInstance<SharedMaterial>(matName.data);
 
 	if (textureCount == 0) //If there are no textures
 	{
@@ -144,22 +149,8 @@ std::vector<std::shared_ptr<Texture>> ModelImporterBase::LoadMaterialTextures(ai
 		{
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			if (aiColor.IsBlack()) //If color = black, just use grey
-			{
-				materialTextures.push_back(Pool::Find<Texture>("BlackTexture"));
-				return materialTextures;
-			}
-			auto name = "Color : " + std::to_string((UINT)(aiColor.r * 255)) + ", " + std::to_string((UINT)(aiColor.g * 255)) + ", " + std::to_string((UINT)(aiColor.b * 255));
-			std::shared_ptr<Texture> texture;
-			if (texture = Pool::Find<Texture>(name)) {
-				materialTextures.push_back(texture);
-			}
-			else {
-				texture = Pool::CreateInstance<Texture>(Color4Byte(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType);
-				texture->Name = name;
-				materialTextures.push_back(texture);
-			}
-			return materialTextures;
+			mat->MainTexture = Pool::Find<Texture>("WhiteTexture");
+			mat->Color.Set(aiColor.r, aiColor.g, aiColor.b);
 		}
 	}
 	else
@@ -169,48 +160,47 @@ std::vector<std::shared_ptr<Texture>> ModelImporterBase::LoadMaterialTextures(ai
 			aiString path;
 			pMaterial->GetTexture(textureType, i, &path);
 			TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, i, textureType);
+			std::shared_ptr<Texture> texturePtr;
 			switch (storetype)
 			{
 			case TextureStorageType::EmbeddedIndexCompressed:
 			{
 				int index = GetTextureIndex(&path);
-				auto embeddedIndexedTexture = Pool::CreateInstance<Texture>(
+				texturePtr = Pool::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
 					pScene->mTextures[index]->mWidth,
 					textureType);
-				embeddedIndexedTexture->Name = pScene->mTextures[index]->mFilename.data;
-				materialTextures.push_back(embeddedIndexedTexture);
+				texturePtr->Name = pScene->mTextures[index]->mFilename.data;
 				break;
 			}
 			case TextureStorageType::EmbeddedCompressed:
 			{
 				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				auto embeddedTexture = Pool::CreateInstance<Texture>(
+				texturePtr = Pool::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pTexture->pcData),
 					pTexture->mWidth,
 					textureType);
-				embeddedTexture->Name = pTexture->mFilename.data;
-				materialTextures.push_back(embeddedTexture);
+				texturePtr->Name = pTexture->mFilename.data;
 				break;
 			}
 			case TextureStorageType::Disk:
 			{
 				std::string filename = m_Directory + '\\' + path.C_Str();
-				auto diskTexture = Pool::CreateInstance<Texture>(filename, textureType);
-				diskTexture->Name = StringHelper::GetFileNameFromPath(filename);
-				materialTextures.push_back(diskTexture);
+				texturePtr = Pool::CreateInstance<Texture>(filename, textureType);
+				texturePtr->Name = StringHelper::GetFileNameFromPath(filename);
 				break;
 			}
 			}
+			if (i == 0) mat->MainTexture = texturePtr;
+			else mat->SubTextures.push_back(texturePtr);
 		}
 	}
 
-	if (materialTextures.size() == 0)
+	if (!mat->MainTexture)
 	{
-		materialTextures.push_back(Pool::Find<Texture>("UnhandledTexture"));
+		mat->MainTexture = Pool::Find<Texture>("UnhandledTexture");
 	}
-	return materialTextures;
-
+	return mat;
 }
 
 int ModelImporterBase::GetTextureIndex(aiString * pStr)
@@ -228,13 +218,7 @@ bool SkinnedModelImporter::CreateModel(
 	
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Pool::CreateInstance<SkinnedModel>(m_Meshes, m_BoneOffsets, m_BoneIdMap, fileName);
-	/*model->Name = fileName;
-	if (!model->Initialize(m_Meshes, m_BoneOffsets, m_BoneIdMap)) {
-		Pool::Destroy(model.get());
-		return false;
-	}*/
-
+	auto model = Pool::CreateInstance<SkinnedModel>(m_Meshes, m_Materials, m_BoneOffsets, m_BoneIdMap, fileName);
 	return true;
 }
 
@@ -318,11 +302,12 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 
 	//Get Material & Textures
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	textures = LoadMaterialTextures(material,
-		aiTextureType::aiTextureType_DIFFUSE,
-		scene);
+	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	mat->Vshader = Pool::Find<VertexShader>("skinned_vertex");
+	mat->Pshader = PixelShader::GetDefault();
 
-	m_Meshes.emplace_back(Pool::CreateInstance<SkinnedMesh>(vertices, indices, textures, transformMatrix, mesh->mName.data));
+	m_Materials.push_back(mat);
+	m_Meshes.emplace_back(Pool::CreateInstance<SkinnedMesh>(vertices, indices, transformMatrix, mesh->mName.data));
 }
 
 DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)

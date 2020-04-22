@@ -39,12 +39,15 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 			"Failed to initialize Device Resources");
 		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
+		ThrowIfFailed(cb_vs_BoneInfo.Initialize(), "Failed to Initialize cb_vs_BoneInfo buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
-		ThrowIfFailed(cb_BoneInfo.Initialize(), "Failed to Initialize cb_BoneInfo buffer.");
+		ThrowIfFailed(cb_ps_material.Initialize(), "Failed to Initialize cb_ps_material buffer.");
 
-		Importer::LoadData();
-		BaseGeometry::Initialize();
+		Importer::LoadBaseResources();
 		ProcessMaterialTable();
+
+		BaseGeometry::Initialize();
+		Importer::LoadModelResources();
 
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { //순서는 나중에
@@ -76,11 +79,11 @@ void Graphics::ProcessMaterialTable()
 	auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
 	int rowcount = table["Name"].size();
 	for (int i = 0; i < rowcount; i++) {
-		auto material = Pool::CreateInstance<Material>(table["Name"][i]);
+		auto material = Pool::CreateInstance<SharedMaterial>(table["Name"][i]);
 
 		material->Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
 		material->Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
-		material->Texture = Pool::Find<Texture>(table["Texture"][i]);
+		material->MainTexture = Pool::Find<Texture>(table["Texture"][i]);
 
 		auto splitted = Importer::SplitString(table["Color"][i], '/');
 		material->Color.RGBA[0] = std::stoi(splitted[0]);
@@ -102,6 +105,7 @@ void Graphics::RenderFrame()
 	cb_ps_light.data.range = light->range;
 	cb_ps_light.ApplyChanges();
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
 
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
 	for (int i = 0; i < DeviceResources::RenderTargetCount; i++) {
@@ -125,10 +129,7 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 	{
 		return;
 	}
-
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(renderer->Vshader->GetInputLayout());
-	m_DeviceResources.GetDeviceContext()->VSSetShader(renderer->Vshader->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(renderer->Pshader->GetShader(), NULL, 0);
+	
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
@@ -144,15 +145,16 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 		if (renderer->Anim &&
 			renderer->Anim->GetClip())
 		{
-			CopyMemory(cb_BoneInfo.data.boneTransform,
+			CopyMemory(cb_vs_BoneInfo.data.boneTransform,
 				renderer->Anim->GetAnimResult().data(),
 				renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
-			cb_BoneInfo.ApplyChanges();
-			m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_BoneInfo.GetAddressOf());
+			cb_vs_BoneInfo.ApplyChanges();
+			m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
 		}
 
-		for (auto& mesh : model->GetMeshes()) {
-			DrawMesh(mesh, worldMat, wvpMat);
+		for (int i = 0; i < model->GetMeshes().size(); i++) {
+			ApplyMaterialProperties(model->GetDefaultMaterials()[i]);
+			DrawMesh(model->GetMeshes()[i], worldMat, wvpMat);
 		}
 	}
 }
@@ -166,12 +168,12 @@ void Graphics::DrawMesh(
 	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
 	cb_vs_vertexshader.ApplyChanges();
 
-	for (auto texture : mesh->GetTextures()) {
+	/*for (auto texture : mesh->GetTextures()) {
 		if (texture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
 			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 			break;
 		}
-	}
+	}*/
 
 	UINT offset = 0;
 	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
@@ -188,6 +190,18 @@ void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
+}
+
+void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material)
+{
+	m_DeviceResources.GetDeviceContext()->IASetInputLayout(material->Vshader->GetInputLayout());
+	m_DeviceResources.GetDeviceContext()->VSSetShader(material->Vshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(material->Pshader->GetShader(), NULL, 0);
+	if (material->MainTexture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->MainTexture->GetTextureResourceViewAddress());
+	}
+	cb_ps_material.data.color = material->Color;
+	cb_ps_material.ApplyChanges();
 }
 
 void Graphics::PostProcess()

@@ -6,6 +6,7 @@
 
 #include "../Graphics/Texture.h"
 #include "../Graphics/Mesh.h"
+#include "../Graphics/Material.h"
 
 struct aiScene;
 struct aiNode;
@@ -26,9 +27,11 @@ protected:
 
 	void ProcessNode(aiNode * node, const aiScene * scene, const DirectX::XMMATRIX & parentTransformMatrix);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
-	std::vector<std::shared_ptr<Texture>> LoadMaterialTextures(aiMaterial* pMaterial, aiTextureType textureType, const aiScene* pScene);
+	std::shared_ptr<SharedMaterial> LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
 	int GetTextureIndex(aiString * pStr);
 
+	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
+	std::vector<std::shared_ptr<SharedMaterial>> m_Materials;
 	std::string m_Directory;
 };
 
@@ -40,8 +43,6 @@ public:
 
 private:
 	void ProcessMesh(aiMesh * mesh, const aiScene * scene, const DirectX::XMMATRIX & transformMatrix) override;
-
-	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
 };
 
 class SkinnedModelImporter : public ModelImporterBase {
@@ -62,10 +63,8 @@ private:
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
-	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
 	std::unordered_map<std::string, UINT> m_BoneIdMap;
 	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
-	
 };
 
 class AnimationImporter {

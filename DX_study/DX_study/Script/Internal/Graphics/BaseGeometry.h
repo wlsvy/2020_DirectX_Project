@@ -58,12 +58,12 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Box"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		Pool::CreateInstance<Model>(meshVec, "Box");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
+		Pool::CreateInstance<Model>(meshVec, matVec, "Box");
 	}
 	static void CreatePlane() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
@@ -80,12 +80,12 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Plane"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		Pool::CreateInstance<Model>(meshVec, "Plane");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
+		Pool::CreateInstance<Model>(meshVec, matVec, "Plane");
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
@@ -167,12 +167,12 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Sphere"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		Pool::CreateInstance<Model>(meshVec, "Sphere");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
+		Pool::CreateInstance<Model>(meshVec, matVec, "Sphere");
 	}
 	
 	static void Initialize() {

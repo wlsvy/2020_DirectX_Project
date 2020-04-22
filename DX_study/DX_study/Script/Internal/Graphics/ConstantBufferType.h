@@ -33,3 +33,7 @@ struct CB_PS_light {
 	DirectX::XMFLOAT3 attenuation;
 	float pad;
 };
+
+struct CB_PS_Material {
+	DirectX::XMFLOAT4 color;
+};

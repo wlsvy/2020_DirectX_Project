@@ -8,6 +8,7 @@
 #include "../Graphics/Model.h"
 #include "../Graphics/Shaders.h"
 #include "../Graphics/AnimationClip.h"
+#include "../Graphics/Material.h"
 
 #include "GameObject.h"
 #include "ImportHelper.h"
@@ -32,6 +33,12 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 void Scene::Initialize()
 {
 	ProcessGameObjectTable();
+	/*for (auto m : Pool::Find<Model>("X_Bot")->m_DefaultMaterial) {
+		m->Vshader = Pool::Find<VertexShader>("skinned_vertex");
+	}
+	for (auto m : Pool::Find<Model>("Y_Bot")->m_DefaultMaterial) {
+		m->Vshader = Pool::Find<VertexShader>("skinned_vertex");
+	}*/
 	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
 	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 

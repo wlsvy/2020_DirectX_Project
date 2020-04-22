@@ -9,14 +9,14 @@ class VertexShader;
 class PixelShader;
 class Animator;
 class MeshBase;
-class Material;
+class SharedMaterial;
 
 class Renderable {
 public:
 	Renderable() {}
-	Renderable(const std::shared_ptr<Material>& material, const std::shared_ptr<MeshBase> & mesh) : Material(material), Mesh(mesh) {}
+	Renderable(const std::shared_ptr<SharedMaterial>& material, const std::shared_ptr<MeshBase> & mesh) : Material(material), Mesh(mesh) {}
 
-	std::shared_ptr<Material> Material;
+	std::shared_ptr<SharedMaterial> Material;
 	std::shared_ptr<MeshBase> Mesh;
 };
 

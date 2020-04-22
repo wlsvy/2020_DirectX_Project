@@ -16,13 +16,17 @@
 #include <fstream>
 #include <sstream>
 
-void Importer::LoadData()
+void Importer::LoadBaseResources()
 {
 	TraverseDirectory("hlsl/VertexShader/2D/", &Importer::LoadVertexShader2D);
 	TraverseDirectory("hlsl/VertexShader/3D/", &Importer::LoadVertexShader3D);
 	TraverseDirectory("hlsl/VertexShader/3D_Skinned/", &Importer::LoadVertexShader);
 	TraverseDirectory("hlsl/PixelShader/", &Importer::LoadPixelShader);
 	TraverseDirectory("Data/Textures/", &Importer::LoadTexture); 
+}
+
+void Importer::LoadModelResources()
+{
 	TraverseDirectory("Data/Objects/", &Importer::LoadModel);
 	TraverseDirectory("Data/Animation/", &Importer::LoadAnimation);
 }
@@ -185,15 +189,6 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 		ext == "bmp")
 	{
 		Pool::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
-	}
-}
-
-void Importer::LoadCSV(const std::string & dirPath, const std::string & name)
-{
-	std::string ext = StringHelper::GetFileExtension(name);
-	if (ext == "csv")
-	{
-
 	}
 }
 
