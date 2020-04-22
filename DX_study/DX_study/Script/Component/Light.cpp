@@ -57,8 +57,8 @@ const DirectX::XMMATRIX & SpotLight::GetLightViewProjectMat() const
 
 	auto& transform = m_GameObject->GetTransform();
 
-	auto viewTarget = transform.GetForwardVector() + transform.GetPositionVector();
-	auto viewMatrix = DirectX::XMMatrixLookAtLH(transform.GetPositionVector(), viewTarget, transform.GetUpwardVector());
+	auto viewTarget = transform.GetForwardVector() + transform.positionVec;
+	auto viewMatrix = DirectX::XMMatrixLookAtLH(transform.positionVec, viewTarget, transform.GetUpwardVector());
 
 	return viewMatrix * projectionMatrix;
 }

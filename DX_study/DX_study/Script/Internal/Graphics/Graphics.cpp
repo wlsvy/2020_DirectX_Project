@@ -150,8 +150,6 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
 	
 	for (auto & r : renderables) {
-		
-
 		ApplyMaterialProperties(r.GetMaterial());
 		DrawMesh(r.GetMesh(), worldMat, wvpMat);
 	}
@@ -248,7 +246,7 @@ void Graphics::DrawSkybox()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
 
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
-	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().GetPositionVector());
+	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().positionVec);
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
 	for (auto & mesh : m_Skybox->GetModel()->GetMeshes()) {
 		DrawMesh(mesh, worldMat, wvpMat);

@@ -36,12 +36,14 @@ DirectX::BoundingBox Math::GetGlobalBoundingBox(const DirectX::BoundingBox & box
 	DirectX::XMFLOAT3 newCenter;
 	DirectX::XMStoreFloat3(&newCenter, newCenterVec);
 
+	auto globalScale = tf.GetLossyScale();
+
 	return DirectX::BoundingBox(
 		newCenter,
 		DirectX::XMFLOAT3(
-			box.Extents.x * tf.globalScale.x,
-			box.Extents.y * tf.globalScale.y,
-			box.Extents.z * tf.globalScale.z
+			box.Extents.x * globalScale.m128_f32[0],
+			box.Extents.y * globalScale.m128_f32[1],
+			box.Extents.z * globalScale.m128_f32[2]
 		)
 	);
 }

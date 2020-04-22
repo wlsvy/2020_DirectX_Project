@@ -14,8 +14,9 @@ const float Deg2Rad = 0.0174533f;	// pi / 180
 const float Rad2Deg = 57.2958f;	// 180 / pi
 
 const DirectX::XMVECTOR Transform::DEFAULT_FORWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
-const DirectX::XMVECTOR Transform::DEFAULT_UP_VECTOR = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 const DirectX::XMVECTOR Transform::DEFAULT_BACKWARD_VECTOR = DirectX::XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_UP_VECTOR = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+const DirectX::XMVECTOR Transform::DEFAULT_DOWN_VECTOR = DirectX::XMVectorSet(0.0f, -1.0f, 0.0f, 0.0f);
 const DirectX::XMVECTOR Transform::DEFAULT_LEFT_VECTOR = DirectX::XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
 const DirectX::XMVECTOR Transform::DEFAULT_RIGHT_VECTOR = DirectX::XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 
@@ -52,148 +53,44 @@ Transform::~Transform() {
 	}
 }
 
-void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
+void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentWorldMatrix, const DirectX::XMVECTOR & parentQuat)
 {
-	auto quaternion = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Deg2Rad);
-
-	auto scaleMat = DirectX::XMMatrixScalingFromVector(scaleVec);
-	auto rotMat = DirectX::XMMatrixRotationQuaternion(quaternion);
-	auto posMat = DirectX::XMMatrixTranslationFromVector(positionVec);
-	globalPositionVec = DirectX::XMVector3Transform(positionVec, parentMatrix);
-	globalQuaternionVec = DirectX::XMVector4Transform(quaternion, parentMatrix);
-	globalScaleVec = DirectX::XMVector3Transform(scaleVec, parentMatrix);
-
-	worldMatrix = 
-		scaleMat
-		* rotMat
-		* posMat
-		* parentMatrix;
-
-
-
-	this->UpdateDirectionVectors(rotMat);
-	for (auto& child : m_Children) {
-		child.lock()->UpdateMatrix(worldMatrix);
-	}
-}
-
-void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentWorld, const DirectX::XMVECTOR & parentQuat, const DirectX::XMMATRIX & parentScale)
-{
-	auto quaternion = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Deg2Rad);
+	auto quaternion = GetQuaternion();
 
 	auto scaleMat = DirectX::XMMatrixScalingFromVector(scaleVec);
 	auto rotMat = DirectX::XMMatrixRotationQuaternion(quaternion);
 	auto posMat = DirectX::XMMatrixTranslationFromVector(positionVec);
 
-	globalPositionVec = DirectX::XMVector3Transform(positionVec, parentWorld);
-	globalQuaternionVec = DirectX::XMVectorAdd(rotationVec, parentQuat);
-	globalScaleVec = DirectX::XMVector3Transform(scaleVec, parentScale);
-
-	auto scaleMatcc = DirectX::XMMatrixScalingFromVector(globalScaleVec);
-	auto posMatcc = DirectX::XMMatrixTranslationFromVector(globalPositionVec);
-	auto rotMatCheck = DirectX::XMMatrixRotationRollPitchYawFromVector(globalQuaternionVec * Deg2Rad);
-
-	worldMatrix =
+	m_WorldMatrix =
 		scaleMat
 		* rotMat
 		* posMat
-		* parentWorld;
+		* parentWorldMatrix;
 
-	auto w2 = 
-		scaleMatcc
-		* rotMatCheck
-		* posMatcc;
-
-	//bool same = worldMatrix == w2;
+	m_GlobalPositionVec = DirectX::XMVector3Transform(positionVec, parentWorldMatrix);
+	m_GlobalQuaternionVec = DirectX::XMQuaternionMultiply(quaternion, parentQuat);
 
 	this->UpdateDirectionVectors(rotMat);
 	for (auto& child : m_Children) {
-		child.lock()->UpdateMatrix(worldMatrix, globalQuaternionVec, scaleMat);
+		child.lock()->UpdateMatrix(m_WorldMatrix, m_GlobalQuaternionVec);
 	}
 }
 
-void Transform::SetPosition(const DirectX::XMVECTOR & pos)
+DirectX::XMVECTOR Transform::GetLossyScale() const
 {
-	XMStoreFloat3(&this->position, pos);
-}
+	auto globalPosMat = DirectX::XMMatrixTranslationFromVector(m_GlobalPositionVec);
+	auto globalRotMat = DirectX::XMMatrixRotationQuaternion(m_GlobalQuaternionVec);
+	auto rpMat = globalRotMat * globalPosMat;
 
-void Transform::SetPosition(const DirectX::XMFLOAT3 & pos)
-{
+	DirectX::XMVECTOR d;
+	auto inv = DirectX::XMMatrixInverse(&d, rpMat);
+	auto globalScaleMat = m_WorldMatrix * inv;
 
-	this->position = pos;
-}
-
-void Transform::SetPosition(float x, float y, float z)
-{
-	this->position = DirectX::XMFLOAT3(x, y, z);
-}
-
-void Transform::translate(const DirectX::XMVECTOR & _pos)
-{
-	DirectX::XMFLOAT3 translation;
-	DirectX::XMStoreFloat3(&translation, _pos);
-	position.x += translation.x;
-	position.y += translation.y;
-	position.z += translation.z;
-}
-
-void Transform::translate(float x, float y, float z)
-{
-	this->position.x += x;
-	this->position.y += y;
-	this->position.z += z;
-}
-
-void Transform::SetRotation(const DirectX::XMFLOAT3 & rot)
-{
-	rotation = rot;
-}
-
-void Transform::SetRotation(float x, float y, float z)
-{
-	rotation = DirectX::XMFLOAT3(x, y, z);
-}
-
-void Transform::SetRotation(const DirectX::XMVECTOR & _quat)
-{
-	DirectX::XMFLOAT4 quatFloat;
-	DirectX::XMStoreFloat4(&quatFloat, _quat);
-	rotation = QuatenionToEuler(quatFloat.x, quatFloat.y, quatFloat.z, quatFloat.w);
-}
-
-void Transform::rotate(const DirectX::XMVECTOR & _quaternion)
-{
-	DirectX::XMFLOAT4 quatFloat;
-	DirectX::XMStoreFloat4(&quatFloat, _quaternion);
-	rotate(QuatenionToEuler(quatFloat.x, quatFloat.y, quatFloat.z, quatFloat.w));
-}
-
-void Transform::rotate(const DirectX::XMFLOAT3 & rot)
-{
-	rotation.x += rot.x;
-	rotation.y += rot.y;
-	rotation.z += rot.z;
-}
-
-void Transform::rotate(float x, float y, float z)
-{
-	rotation.x += x;
-	rotation.y += y;
-	rotation.z += z;
-}
-
-void Transform::SetScale(float xScale, float yScale, float zScale)
-{
-	scale.x = xScale;
-	scale.y = yScale;
-	scale.z = zScale;
-}
-
-void Transform::SetScale(DirectX::XMFLOAT3 _scale)
-{
-	scale.x = _scale.x;
-	scale.y = _scale.y;
-	scale.z = _scale.z;
+	return DirectX::XMVectorSet(
+		globalScaleMat.r[0].m128_f32[0], 
+		globalScaleMat.r[1].m128_f32[1], 
+		globalScaleMat.r[2].m128_f32[2], 
+		0.0f);
 }
 
 void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
@@ -223,11 +120,9 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 }
 
 void Transform::UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat) {
-	vec_forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, rotationMat);
-	vec_backward = vec_forward * -1;
-	vec_left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, rotationMat);
-	vec_right = vec_left * -1;
-	vec_upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, rotationMat);
+	m_Forward = DirectX::XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, rotationMat);
+	m_Left = DirectX::XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, rotationMat);
+	m_Upward = DirectX::XMVector3TransformCoord(DEFAULT_UP_VECTOR, rotationMat);
 }
 
 void Transform::SetChild(const std::shared_ptr<Transform>& child)
@@ -255,24 +150,6 @@ void Transform::OnGui()
 	ImGui::DragFloat3("Position", &position.x, 0.1f, POSITION_MIN, POSITION_MAX);
 	ImGui::DragFloat3("Rotation", &rotation.x, 0.1f, -1000.0f, 1000.0f);
 	ImGui::DragFloat3("Scale", &scale.x, 0.1f, -1000.0f, 1000.0f);
-	ImGui::DragFloat3("gPosition", &globalPosition.x, 0.1f, POSITION_MIN, POSITION_MAX);
-	ImGui::DragFloat3("gQuaternion", globalQuaternionVec.m128_f32, 0.1f, -1000.0f, 1000.0f);
-	ImGui::DragFloat3("gScale", &globalScale.x, 0.1f, -1000.0f, 1000.0f);
-}
-
-std::shared_ptr<Transform> Transform::GetParent()
-{
-	return m_Parent.lock();
-}
-
-std::shared_ptr<Transform> Transform::GetChild(int index)
-{
-	return m_Children[index].lock();
-}
-
-int Transform::GetChildNum()
-{
-	return m_Children.size();
 }
 
 void Transform::SetParent(const std::shared_ptr<Transform> & transform)

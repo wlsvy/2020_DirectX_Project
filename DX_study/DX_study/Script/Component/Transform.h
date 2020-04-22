@@ -8,50 +8,47 @@ class Scene;
 
 class Transform : public Component {
 	friend class Scene;
-public:
 	COMPONENT_CONSTRUCTOR(Transform, Component)
+public:
 	~Transform();
 	void OnGui() override;
-	
-	const DirectX::XMVECTOR & GetPositionVector() const		{ return positionVec; }
-	const DirectX::XMFLOAT3 & GetPositionFloat3() const		{ return position; }
-	const DirectX::XMVECTOR & GetRotationVector() const		{ return rotationVec; }
-	const DirectX::XMFLOAT3 & GetRotationFloat3() const		{ return rotation; }
-	DirectX::XMVECTOR GetQuaternion() const			{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(GetRotationVector() * Math::Deg2Rad); }
-	const DirectX::XMFLOAT3 & GetScaleFloat3() const		{ return scale; }
 
-	void SetPosition(const DirectX::XMVECTOR & pos);
-	void SetPosition(const DirectX::XMFLOAT3 & pos);
-	void SetPosition(float x, float y, float z);
-
-	void translate(const DirectX::XMVECTOR & _pos);
-	void translate(float x, float y, float z);
-
-	void SetRotation(const DirectX::XMFLOAT3 & rot);
-	void SetRotation(float x, float y, float z);
-	void SetRotation(const DirectX::XMVECTOR & _quat);
-
-	void rotate(const DirectX::XMFLOAT3 & rot);
-	void rotate(float x, float y, float z);
-	void rotate(const DirectX::XMVECTOR & _quaternion);
-
-	void SetScale(float xScale, float yScale, float zScale = 1.0f);
-	void SetScale(DirectX::XMFLOAT3 _scale);
-
+	void SetPosition(const DirectX::XMVECTOR & pos)			{ positionVec = pos; }
+	void SetPosition(const DirectX::XMFLOAT3 & pos)			{ position = pos; }
+	void SetPosition(float x, float y, float z)				{ position = DirectX::XMFLOAT3(x, y, z); }
+	void SetRotation(const DirectX::XMFLOAT3 & rot)			{ rotation = rot; }
+	void SetRotation(const DirectX::XMVECTOR & rot)			{ rotationVec = rot; }
+	void SetRotation(float x, float y, float z)				{ rotation = DirectX::XMFLOAT3(x, y, z); }
+	void SetScale(DirectX::XMVECTOR scale)					{ scaleVec = scale; }
+	void SetScale(DirectX::XMFLOAT3 scale)					{ scaleVec = DirectX::XMVectorSet(scale.x, scale.y, scale.z, 0.0f); }
+	void SetScale(float x, float y, float z)				{ scaleVec = DirectX::XMVectorSet(x, y, z, 0.0f); }
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 
-	const DirectX::XMVECTOR & GetForwardVector() const { return vec_forward; }
-	const DirectX::XMVECTOR & GetRightVector() const { return vec_right; }
-	const DirectX::XMVECTOR & GetLeftVector() const { return vec_left; }
-	const DirectX::XMVECTOR & GetBackwardVector() const { return vec_backward; }
-	const DirectX::XMVECTOR & GetUpwardVector() const { return vec_upward; }
+	void translate(const DirectX::XMVECTOR & pos)			{ using DirectX::operator+=; positionVec += pos; }
+	void translate(const DirectX::XMFLOAT3 & pos)			{ using DirectX::operator+=; positionVec += DirectX::XMVectorSet(pos.x, pos.y, pos.z, 0.0f); }
+	void translate(float x, float y, float z)				{ using DirectX::operator+=; positionVec += DirectX::XMVectorSet(x, y, z, 0.0f); }
+	void rotate(const DirectX::XMVECTOR & rot)				{ using DirectX::operator+=; rotationVec += rot; }
+	void rotate(const DirectX::XMFLOAT3 & rot)				{ using DirectX::operator+=; rotationVec += DirectX::XMVectorSet(rot.x, rot.y, rot.z, 0.0f); }
+	void rotate(float x, float y, float z)					{ using DirectX::operator+=; rotationVec += DirectX::XMVectorSet(x, y, z, 0.0f); }
 
-	const DirectX::XMMATRIX & GetWorldMatrix() const { return worldMatrix; }
-	const DirectX::XMMATRIX & GetRotationMatrix() const { return DirectX::XMMatrixRotationQuaternion(GetQuaternion()); }
+	DirectX::XMVECTOR GetGlobalPosition() const				{ return m_GlobalPositionVec; }
+	DirectX::XMVECTOR GetGlobalQuaternion() const			{ return m_GlobalQuaternionVec; }
+	DirectX::XMVECTOR GetLossyScale() const;
+	DirectX::XMVECTOR GetQuaternion() const					{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Math::Deg2Rad); }
 
-	std::shared_ptr<Transform> GetParent();
-	std::shared_ptr<Transform> GetChild(int index);
-	int GetChildNum();
+	const DirectX::XMVECTOR & GetForwardVector() const		{ return m_Forward; }
+	const DirectX::XMVECTOR & GetUpwardVector() const		{ return m_Upward; }
+	const DirectX::XMVECTOR & GetLeftVector() const			{ return m_Left; }
+	const DirectX::XMVECTOR & GetBackwardVector() const		{ using DirectX::operator*; return m_Forward * -1; }
+	const DirectX::XMVECTOR & GetDownwardVector() const		{ using DirectX::operator*; return m_Upward * -1; }
+	const DirectX::XMVECTOR & GetRightVector() const		{ using DirectX::operator*; return m_Left * -1; }
+																					    
+	const DirectX::XMMATRIX & GetWorldMatrix() const		{ return m_WorldMatrix; }
+	const DirectX::XMMATRIX & GetRotationMatrix() const		{ return DirectX::XMMatrixRotationQuaternion(GetQuaternion()); }
+
+	std::shared_ptr<Transform> GetParent() const			{ return m_Parent.lock(); }
+	std::shared_ptr<Transform> GetChild(int index) const	{ return m_Children[index].lock(); }
+	size_t GetChildNum() const								{ return m_Children.size(); }
 
 	void SetParent(const std::shared_ptr<Transform> & transform);
 	bool HaveChildTransform(Transform * _transform);
@@ -68,42 +65,37 @@ public:
 		DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		DirectX::XMVECTOR scaleVec;
 	}; 
-	union {
-		DirectX::XMFLOAT3 globalPosition;
-		DirectX::XMVECTOR globalPositionVec;
-	};
-	union {
-		DirectX::XMFLOAT4 globalQuaternion;
-		DirectX::XMVECTOR globalQuaternionVec;
-	};
-	union {
-		DirectX::XMFLOAT3 globalScale;
-		DirectX::XMVECTOR globalScaleVec;
-	};
+	
 	
 	static const DirectX::XMVECTOR DEFAULT_FORWARD_VECTOR;
-	static const DirectX::XMVECTOR DEFAULT_UP_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_BACKWARD_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_UP_VECTOR;
+	static const DirectX::XMVECTOR DEFAULT_DOWN_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_LEFT_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_RIGHT_VECTOR;
 
 private:
-	void UpdateMatrix(const DirectX::XMMATRIX & parentMatrix);
 	void UpdateMatrix(
-		const DirectX::XMMATRIX & pos,
-		const DirectX::XMVECTOR & parentQuat,
-		const DirectX::XMMATRIX & scale);
+		const DirectX::XMMATRIX & parentm_WorldMatrix,
+		const DirectX::XMVECTOR & parentQuat);
 	void UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat);
 
 	void SetChild(const std::shared_ptr<Transform> & child);
 	void EraseChild(Transform* child);
 
-	DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixIdentity();
-	DirectX::XMVECTOR vec_forward;
-	DirectX::XMVECTOR vec_left;
-	DirectX::XMVECTOR vec_right;
-	DirectX::XMVECTOR vec_backward;
-	DirectX::XMVECTOR vec_upward;
+	union {
+		DirectX::XMFLOAT3 m_GlobalPosition;
+		DirectX::XMVECTOR m_GlobalPositionVec;
+	};
+	union {
+		DirectX::XMFLOAT4 m_GlobalQuaternion;
+		DirectX::XMVECTOR m_GlobalQuaternionVec;
+	};
+
+	DirectX::XMMATRIX m_WorldMatrix = DirectX::XMMatrixIdentity();
+	DirectX::XMVECTOR m_Forward;
+	DirectX::XMVECTOR m_Left;
+	DirectX::XMVECTOR m_Upward;
 
 	std::weak_ptr<Transform> m_Parent;
 	std::vector<std::weak_ptr<Transform>> m_Children;

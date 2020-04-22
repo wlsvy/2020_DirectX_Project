@@ -39,7 +39,6 @@ void Scene::Initialize()
 	auto light = Pool::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
 	light->GetRendererable().SetModel(Pool::Find<Model>("light"));
-	Pool::Find<GameObject>("Ground")->GetTransform().SetParent(light->GetTransformPtr());
 
 	m_MainCam = Pool::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
@@ -53,8 +52,20 @@ void Scene::Initialize()
 	s_IsInitialized = true;
 }
 
+class TTT {
+public:
+	virtual void dos() = 0;
+	int i;
+};
+class TTT2 : public TTT {
+public:
+	
+};
+
 void Scene::ProcessGameObjectTable()
 {
+	auto size1 = sizeof(TTT);
+	auto size2 = sizeof(TTT2);
 	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
 	int rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {
@@ -100,7 +111,7 @@ void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
 
 void Scene::Update()
 {
-	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity(), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMMatrixIdentity());
+	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity(), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f));
 	m_MainCam->UpdateView();
 }
 
