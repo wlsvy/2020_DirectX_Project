@@ -106,6 +106,8 @@ void Graphics::RenderFrame()
 	cb_ps_light.ApplyChanges();
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
 	for (int i = 0; i < DeviceResources::RenderTargetCount; i++) {
@@ -124,18 +126,37 @@ void Graphics::RenderFrame()
 
 void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 {
-	if (!renderer->Vshader ||
-		!renderer->Pshader)
+	auto & renderables = renderer->GetRenerables();
+	if (renderables.size() == 0) return;
+
+	/*renderer->m_IsVisible = !Math::CheckFrustumCull(
+		Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
+		*model,
+		renderer->GetGameObject()->GetTransform());
+	if (!renderer->m_IsVisible) return;*/
+
+
+
+	if (renderer->Anim &&
+		renderer->Anim->GetClip())
 	{
-		return;
+		CopyMemory(cb_vs_BoneInfo.data.boneTransform,
+			renderer->Anim->GetAnimResult().data(),
+			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
+		cb_vs_BoneInfo.ApplyChanges();
 	}
-	
-	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 
 	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
 	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
 	
-	if (auto model = renderer->Model) {
+	for (auto & r : renderables) {
+		
+
+		ApplyMaterialProperties(r.GetMaterial());
+		DrawMesh(r.GetMesh(), worldMat, wvpMat);
+	}
+	
+	/*if (auto model = renderer->m_Model) {
 		renderer->m_IsVisible =	!Math::CheckFrustumCull(
 			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
 			*model,
@@ -156,7 +177,7 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 			ApplyMaterialProperties(model->GetDefaultMaterials()[i]);
 			DrawMesh(model->GetMeshes()[i], worldMat, wvpMat);
 		}
-	}
+	}*/
 }
 
 void Graphics::DrawMesh(
@@ -168,13 +189,6 @@ void Graphics::DrawMesh(
 	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
 	cb_vs_vertexshader.ApplyChanges();
 
-	/*for (auto texture : mesh->GetTextures()) {
-		if (texture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
-			break;
-		}
-	}*/
-
 	UINT offset = 0;
 	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
 	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
@@ -185,8 +199,8 @@ void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 {
 	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 
-	if (renderer->Model) {
-		for (auto& mesh : renderer->Model->GetMeshes()) {
+	if (renderer->m_Model) {
+		for (auto& mesh : renderer->m_Model->GetMeshes()) {
 			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
@@ -269,6 +283,27 @@ void Graphics::DrawGui()
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
 	Pool::ObjectPool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
+	ImGui::End();
+
+	ImGui::Begin("Global AAbb Test");
+	auto go = Pool::Find<GameObject>("Ground");
+	auto& tf = go->GetTransform();
+	auto& r = go->GetRendererable();
+	auto mesh = r.GetModel()->GetMeshes()[0];
+	auto aabb = mesh->GetLocalAABB();
+	auto position = tf.position;
+	auto rotation = tf.rotation;
+	auto scale = tf.scale;
+	auto c = aabb.Center;
+	auto cv = DirectX::XMVectorSet(c.x, c.y, c.z, 0.0f);
+	auto e = aabb.Extents;
+	auto ev = DirectX::XMVectorSet(e.x, e.y, e.z, 0.0f);
+	auto cm1 = DirectX::XMVector3Transform(cv, tf.GetWorldMatrix());
+	auto em1 = DirectX::XMVector3Transform(ev, tf.GetWorldMatrix());
+	ImGui::DragFloat3("Center", &c.x, 0.01f, -30000.0f, 30010.0f);
+	ImGui::DragFloat3("Extents", &e.x, 0.01f, -30000.0f, 30010.0f);
+	ImGui::DragFloat3("Tranformed Center", cm1.m128_f32, 0.01f, -30000.0f, 30010.0f);
+	ImGui::DragFloat3("Tranformed Extents", em1.m128_f32, 0.01f, -30000.0f, 30010.0f);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

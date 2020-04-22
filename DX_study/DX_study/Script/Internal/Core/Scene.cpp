@@ -33,20 +33,13 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 void Scene::Initialize()
 {
 	ProcessGameObjectTable();
-	/*for (auto m : Pool::Find<Model>("X_Bot")->m_DefaultMaterial) {
-		m->Vshader = Pool::Find<VertexShader>("skinned_vertex");
-	}
-	for (auto m : Pool::Find<Model>("Y_Bot")->m_DefaultMaterial) {
-		m->Vshader = Pool::Find<VertexShader>("skinned_vertex");
-	}*/
 	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
 	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	auto light = Pool::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
-	light->GetRendererable().Model = Pool::Find<Model>("light");
-	light->GetRendererable().Vshader = Pool::Find<VertexShader>("vertexshader");
-	light->GetRendererable().Pshader = Pool::Find<PixelShader>("pixelshader_deferred");
+	light->GetRendererable().SetModel(Pool::Find<Model>("light"));
+	Pool::Find<GameObject>("Ground")->GetTransform().SetParent(light->GetTransformPtr());
 
 	m_MainCam = Pool::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
@@ -80,11 +73,8 @@ void Scene::ProcessGameObjectTable()
 			gameObject->GetTransform().SetParent(Pool::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
 		}
 
-		gameObject->GetRendererable().Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
-		gameObject->GetRendererable().Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
-
 		if (table["Model"][i] != "null") {
-			gameObject->GetRendererable().Model = Pool::Find<Model>(table["Model"][i]);
+			gameObject->GetRendererable().SetModel(Pool::Find<Model>(table["Model"][i]));
 		}
 
 		if (table["AddComponent"][i] != "null") {
@@ -110,7 +100,7 @@ void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
 
 void Scene::Update()
 {
-	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity());
+	m_WorldTransform->UpdateMatrix(DirectX::XMMatrixIdentity(), DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f), DirectX::XMMatrixIdentity());
 	m_MainCam->UpdateView();
 }
 

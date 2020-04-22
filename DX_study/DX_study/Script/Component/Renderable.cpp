@@ -5,15 +5,20 @@
 #include "../Util/Math.h"
 #include "../Util/StringHelper.h"
 
-//void RenderInfo::SetModel(const std::shared_ptr<Model>& model)
-//{
-//	//for (auto& mesh : model->GetMeshes()) {
-//	//	//m_Renderables.emplace_back()
-//	//}
-//}
+void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
+	m_Model = model;
+	m_Renderables.clear();
+
+	auto & meshes = model->GetMeshes();
+	auto & mats = model->GetDefaultMaterials();
+
+	for (int i = 0; i < meshes.size(); i++) {
+		m_Renderables.emplace_back(meshes[i], mats[i]);
+	}
+}
 
 void RenderInfo::OnGui() {
-	if (auto& model = Model) {
+	if (auto& model = m_Model) {
 		for (auto& mesh : model->GetMeshes()) {
 			auto& c = mesh->GetLocalAABB().Center;
 			auto& e = mesh->GetLocalAABB().Extents;

@@ -18,11 +18,11 @@ public:
 		const std::string & name = "Mesh");
 	MeshBase(const MeshBase& mesh);
 
-	virtual ID3D11Buffer* const*						GetVertexBufferAddr() const = 0;
-	virtual const UINT *								GetVertexBufferStridePtr() const = 0;
-	const DirectX::XMMATRIX &							GetTransformMatrix() const { return transformMatrix; }
-	const IndexBuffer &									GetIndexBuffer() const { return indexbuffer; }
-	const DirectX::BoundingBox &						GetLocalAABB() const { return m_Aabb; }
+	virtual ID3D11Buffer* const*	GetVertexBufferAddr() const = 0;
+	virtual const UINT *			GetVertexBufferStridePtr() const = 0;
+	const DirectX::XMMATRIX &		GetTransformMatrix() const { return transformMatrix; }
+	const IndexBuffer &				GetIndexBuffer() const { return indexbuffer; }
+	const DirectX::BoundingBox &	GetLocalAABB() const { return m_Aabb; }
 
 protected:
 	IndexBuffer indexbuffer;
@@ -39,9 +39,9 @@ public:
 		const std::string & name = "Mesh");
 	Mesh(const Mesh & mesh);
 
-	ID3D11Buffer* const*	GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
-	const UINT *				GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
-	const VertexBuffer<Vertex3D> & GetVertexBuffer() const	{ return vertexbuffer; }
+	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
+	const UINT *					GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
+	const VertexBuffer<Vertex3D> &	GetVertexBuffer() const	{ return vertexbuffer; }
 
 private:
 	VertexBuffer<Vertex3D> vertexbuffer;
@@ -56,8 +56,8 @@ public:
 		const std::string & name = "Mesh");
 	SkinnedMesh(const SkinnedMesh & mesh);
 
-	ID3D11Buffer* const*	GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
-	const UINT *				GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
+	ID3D11Buffer* const*				GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
+	const UINT *						GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
 	const VertexBuffer<SkinnedVertex> & GetVertexBuffer() const { return vertexbuffer; }
 
 private:

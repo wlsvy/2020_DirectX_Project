@@ -13,11 +13,11 @@ public:
 	~Transform();
 	void OnGui() override;
 	
-	const DirectX::XMVECTOR & GetPositionVector() const		{ return DirectX::XMVectorSet(position.x, position.y, position.z, 0.0f); }
+	const DirectX::XMVECTOR & GetPositionVector() const		{ return positionVec; }
 	const DirectX::XMFLOAT3 & GetPositionFloat3() const		{ return position; }
-	const DirectX::XMVECTOR & GetRotationVector() const		{ return DirectX::XMVectorSet(rotation.x, rotation.y, rotation.z, 0.0f); }
+	const DirectX::XMVECTOR & GetRotationVector() const		{ return rotationVec; }
 	const DirectX::XMFLOAT3 & GetRotationFloat3() const		{ return rotation; }
-	const DirectX::XMVECTOR & GetQuaternion() const			{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(GetRotationVector() * Math::Deg2Rad); }
+	DirectX::XMVECTOR GetQuaternion() const			{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(GetRotationVector() * Math::Deg2Rad); }
 	const DirectX::XMFLOAT3 & GetScaleFloat3() const		{ return scale; }
 
 	void SetPosition(const DirectX::XMVECTOR & pos);
@@ -56,10 +56,31 @@ public:
 	void SetParent(const std::shared_ptr<Transform> & transform);
 	bool HaveChildTransform(Transform * _transform);
 
-	DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
-	DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-
+	union {
+		DirectX::XMFLOAT3 position = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		DirectX::XMVECTOR positionVec;
+	};
+	union {
+		DirectX::XMFLOAT3 rotation = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+		DirectX::XMVECTOR rotationVec;
+	};
+	union {
+		DirectX::XMFLOAT3 scale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+		DirectX::XMVECTOR scaleVec;
+	}; 
+	union {
+		DirectX::XMFLOAT3 globalPosition;
+		DirectX::XMVECTOR globalPositionVec;
+	};
+	union {
+		DirectX::XMFLOAT4 globalQuaternion;
+		DirectX::XMVECTOR globalQuaternionVec;
+	};
+	union {
+		DirectX::XMFLOAT3 globalScale;
+		DirectX::XMVECTOR globalScaleVec;
+	};
+	
 	static const DirectX::XMVECTOR DEFAULT_FORWARD_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_UP_VECTOR;
 	static const DirectX::XMVECTOR DEFAULT_BACKWARD_VECTOR;
@@ -68,6 +89,10 @@ public:
 
 private:
 	void UpdateMatrix(const DirectX::XMMATRIX & parentMatrix);
+	void UpdateMatrix(
+		const DirectX::XMMATRIX & pos,
+		const DirectX::XMVECTOR & parentQuat,
+		const DirectX::XMMATRIX & scale);
 	void UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat);
 
 	void SetChild(const std::shared_ptr<Transform> & child);

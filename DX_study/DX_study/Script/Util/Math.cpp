@@ -31,16 +31,17 @@ bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const SkinnedMod
 
 DirectX::BoundingBox Math::GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf)
 {
+	auto centerVec = DirectX::XMLoadFloat3(&box.Center);
+	auto newCenterVec = DirectX::XMVector3Transform(centerVec, tf.GetWorldMatrix());
+	DirectX::XMFLOAT3 newCenter;
+	DirectX::XMStoreFloat3(&newCenter, newCenterVec);
+
 	return DirectX::BoundingBox(
+		newCenter,
 		DirectX::XMFLOAT3(
-			box.Center.x * tf.scale.x + tf.position.x,
-			box.Center.y * tf.scale.y + tf.position.y,
-			box.Center.z * tf.scale.z + tf.position.z
-		),
-		DirectX::XMFLOAT3(
-			box.Extents.x * tf.scale.x,
-			box.Extents.y * tf.scale.y,
-			box.Extents.z * tf.scale.z
+			box.Extents.x * tf.globalScale.x,
+			box.Extents.y * tf.globalScale.y,
+			box.Extents.z * tf.globalScale.z
 		)
 	);
 }

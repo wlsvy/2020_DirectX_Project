@@ -54,9 +54,14 @@ Transform::~Transform() {
 
 void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 {
-	auto scaleMat = DirectX::XMMatrixScaling(scale.x, scale.y, scale.z);
-	auto rotMat = DirectX::XMMatrixRotationRollPitchYaw(rotation.x * Deg2Rad, rotation.y * Deg2Rad, rotation.z * Deg2Rad);
-	auto posMat = DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+	auto quaternion = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Deg2Rad);
+
+	auto scaleMat = DirectX::XMMatrixScalingFromVector(scaleVec);
+	auto rotMat = DirectX::XMMatrixRotationQuaternion(quaternion);
+	auto posMat = DirectX::XMMatrixTranslationFromVector(positionVec);
+	globalPositionVec = DirectX::XMVector3Transform(positionVec, parentMatrix);
+	globalQuaternionVec = DirectX::XMVector4Transform(quaternion, parentMatrix);
+	globalScaleVec = DirectX::XMVector3Transform(scaleVec, parentMatrix);
 
 	worldMatrix = 
 		scaleMat
@@ -64,9 +69,46 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentMatrix)
 		* posMat
 		* parentMatrix;
 
+
+
 	this->UpdateDirectionVectors(rotMat);
 	for (auto& child : m_Children) {
 		child.lock()->UpdateMatrix(worldMatrix);
+	}
+}
+
+void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentWorld, const DirectX::XMVECTOR & parentQuat, const DirectX::XMMATRIX & parentScale)
+{
+	auto quaternion = DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Deg2Rad);
+
+	auto scaleMat = DirectX::XMMatrixScalingFromVector(scaleVec);
+	auto rotMat = DirectX::XMMatrixRotationQuaternion(quaternion);
+	auto posMat = DirectX::XMMatrixTranslationFromVector(positionVec);
+
+	globalPositionVec = DirectX::XMVector3Transform(positionVec, parentWorld);
+	globalQuaternionVec = DirectX::XMVectorAdd(rotationVec, parentQuat);
+	globalScaleVec = DirectX::XMVector3Transform(scaleVec, parentScale);
+
+	auto scaleMatcc = DirectX::XMMatrixScalingFromVector(globalScaleVec);
+	auto posMatcc = DirectX::XMMatrixTranslationFromVector(globalPositionVec);
+	auto rotMatCheck = DirectX::XMMatrixRotationRollPitchYawFromVector(globalQuaternionVec * Deg2Rad);
+
+	worldMatrix =
+		scaleMat
+		* rotMat
+		* posMat
+		* parentWorld;
+
+	auto w2 = 
+		scaleMatcc
+		* rotMatCheck
+		* posMatcc;
+
+	//bool same = worldMatrix == w2;
+
+	this->UpdateDirectionVectors(rotMat);
+	for (auto& child : m_Children) {
+		child.lock()->UpdateMatrix(worldMatrix, globalQuaternionVec, scaleMat);
 	}
 }
 
@@ -213,6 +255,9 @@ void Transform::OnGui()
 	ImGui::DragFloat3("Position", &position.x, 0.1f, POSITION_MIN, POSITION_MAX);
 	ImGui::DragFloat3("Rotation", &rotation.x, 0.1f, -1000.0f, 1000.0f);
 	ImGui::DragFloat3("Scale", &scale.x, 0.1f, -1000.0f, 1000.0f);
+	ImGui::DragFloat3("gPosition", &globalPosition.x, 0.1f, POSITION_MIN, POSITION_MAX);
+	ImGui::DragFloat3("gQuaternion", globalQuaternionVec.m128_f32, 0.1f, -1000.0f, 1000.0f);
+	ImGui::DragFloat3("gScale", &globalScale.x, 0.1f, -1000.0f, 1000.0f);
 }
 
 std::shared_ptr<Transform> Transform::GetParent()
