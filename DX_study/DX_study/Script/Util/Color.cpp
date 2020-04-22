@@ -1,56 +1,56 @@
 #include "Color.h"
 
-Color::Color() : color(0) {}
+Color4Byte::Color4Byte() : Value(0) {}
 
-Color::Color(unsigned int val) : color(val) {}
+Color4Byte::Color4Byte(unsigned int val) : Value(val) {}
 
-Color::Color(BYTE r, BYTE g, BYTE b) : Color(r, g, b, 255) {}
+Color4Byte::Color4Byte(BYTE r, BYTE g, BYTE b) : Color4Byte(r, g, b, 255) {}
 
-Color::Color(BYTE r, BYTE g, BYTE b, BYTE a) {
-	rgba[0] = r;
-	rgba[1] = g;
-	rgba[2] = b;
-	rgba[3] = a;
+Color4Byte::Color4Byte(BYTE r, BYTE g, BYTE b, BYTE a) {
+	RGBA[0] = r;
+	RGBA[1] = g;
+	RGBA[2] = b;
+	RGBA[3] = a;
 }
 
-Color::Color(const Color & src) : color(src.color) {}
+Color4Byte::Color4Byte(const Color4Byte & src) : Value(src.Value) {}
 
-constexpr BYTE Color::GetR() const
+constexpr BYTE Color4Byte::GetR() const
 {
-	return this->rgba[0];
+	return this->RGBA[0];
 }
 
-constexpr BYTE Color::GetG() const
+constexpr BYTE Color4Byte::GetG() const
 {
-	return this->rgba[1];
+	return this->RGBA[1];
 }
 
-constexpr BYTE Color::GetB() const
+constexpr BYTE Color4Byte::GetB() const
 {
-	return this->rgba[2];
+	return this->RGBA[2];
 }
 
-constexpr BYTE Color::GetA() const
+constexpr BYTE Color4Byte::GetA() const
 {
-	return this->rgba[3];
+	return this->RGBA[3];
 }
 
-void Color::SetR(BYTE r)
+void Color4Byte::SetR(BYTE r)
 {
-	this->rgba[0] = r;
+	this->RGBA[0] = r;
 }
 
-void Color::SetG(BYTE g)
+void Color4Byte::SetG(BYTE g)
 {
-	this->rgba[1] = g;
+	this->RGBA[1] = g;
 }
 
-void Color::SetB(BYTE b)
+void Color4Byte::SetB(BYTE b)
 {
-	this->rgba[2] = b;
+	this->RGBA[2] = b;
 }
 
-void Color::SetA(BYTE a)
+void Color4Byte::SetA(BYTE a)
 {
-	this->rgba[3] = a;
+	this->RGBA[3] = a;
 }

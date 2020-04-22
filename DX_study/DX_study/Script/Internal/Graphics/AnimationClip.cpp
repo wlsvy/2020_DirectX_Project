@@ -20,7 +20,7 @@ void AnimationClip::HierarchyBoneAnim(
 	result[channel.BoneIndex] = FinalMatrix;
 
 	for (auto i : channel.ChildBoneIndex) {
-		if (check[i])
+		//if (check[i])
 			HierarchyBoneAnim(Channels[i], time, boneGlobalMatrix, check, result);
 	}
 }
@@ -51,8 +51,8 @@ DirectX::XMVECTOR BoneChannel::positionInterpolate(float time) const
 		}
 	}
 
-	float keyDuration = (float)(PositionKeys[keyIndex + 1].Time - PositionKeys[keyIndex].Time);
-	float factor = (time - (float)PositionKeys[keyIndex].Time) / keyDuration;
+	float keyDuration = PositionKeys[keyIndex + 1].Time - PositionKeys[keyIndex].Time;
+	float factor = (time - PositionKeys[keyIndex].Time) / keyDuration;
 
 	return DirectX::XMVectorLerp(
 		PositionKeys[keyIndex].Position, 
@@ -74,8 +74,8 @@ DirectX::XMVECTOR BoneChannel::rotationInterpolate(float time) const
 		}
 	}
 
-	float keyDuration = (float)(RotationKeys[keyIndex + 1].Time - RotationKeys[keyIndex].Time);
-	float factor = (time - (float)RotationKeys[keyIndex].Time) / keyDuration;
+	float keyDuration = RotationKeys[keyIndex + 1].Time - RotationKeys[keyIndex].Time;
+	float factor = (time - RotationKeys[keyIndex].Time) / keyDuration;
 
 	return DirectX::XMQuaternionNormalize(
 		DirectX::XMQuaternionSlerp(
@@ -98,8 +98,8 @@ DirectX::XMVECTOR BoneChannel::scaleInterpolate(float time) const
 		}
 	}
 
-	float keyDuration = (float)(ScaleKeys[keyIndex + 1].Time - ScaleKeys[keyIndex].Time);
-	float factor = (time - (float)ScaleKeys[keyIndex].Time) / keyDuration;
+	float keyDuration = ScaleKeys[keyIndex + 1].Time - ScaleKeys[keyIndex].Time;
+	float factor = (time - ScaleKeys[keyIndex].Time) / keyDuration;
 
 	return DirectX::XMVectorLerp(
 		ScaleKeys[keyIndex].Scale, 

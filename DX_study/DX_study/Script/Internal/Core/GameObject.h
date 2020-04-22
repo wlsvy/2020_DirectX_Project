@@ -7,7 +7,7 @@
 
 class Component;
 class Transform;
-class Renderable;
+class RenderInfo;
 class Model;
 
 class GameObject : public Object{
@@ -15,7 +15,6 @@ class GameObject : public Object{
 public:
 	MANAGED_OBJECT(GameObject)
 	GameObject(const std::string & name = "GameObject");
-	GameObject(const Model& model, const std::string & name = "GameObject");
 	virtual ~GameObject();
 
 	template<typename T>
@@ -25,16 +24,16 @@ public:
 	void RemoveExpiredComponent();
 
 	Transform& GetTransform() { return *m_Transform; }
-	Renderable& GetRendererable() { return *m_Renderer; }
+	RenderInfo& GetRendererable() { return *m_Renderer; }
 	std::shared_ptr<Transform> GetTransformPtr() { return m_Transform; }
-	std::shared_ptr<Renderable> GetRenderablePtr() { return m_Renderer; }
+	std::shared_ptr<RenderInfo> GetRenderablePtr() { return m_Renderer; }
 
 	void OnGui();
 
 protected:
 
 	std::shared_ptr<Transform> m_Transform;
-	std::shared_ptr<Renderable> m_Renderer;
+	std::shared_ptr<RenderInfo> m_Renderer;
 	std::vector<std::weak_ptr<Component>> m_Components;
 };
 

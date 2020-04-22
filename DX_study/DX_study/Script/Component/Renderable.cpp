@@ -5,7 +5,14 @@
 #include "../Util/Math.h"
 #include "../Util/StringHelper.h"
 
-void Renderable::OnGui() {
+//void RenderInfo::SetModel(const std::shared_ptr<Model>& model)
+//{
+//	//for (auto& mesh : model->GetMeshes()) {
+//	//	//m_Renderables.emplace_back()
+//	//}
+//}
+
+void RenderInfo::OnGui() {
 	if (auto& model = Model) {
 		for (auto& mesh : model->GetMeshes()) {
 			auto& c = mesh->GetLocalAABB().Center;
@@ -16,3 +23,4 @@ void Renderable::OnGui() {
 
 	ImGui::Checkbox("Is Visible", &m_IsVisible);
 }
+

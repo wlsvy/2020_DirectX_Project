@@ -1,5 +1,5 @@
 #pragma once
-
+#include <vector>
 #include "Component.h"
 
 class Graphics;
@@ -9,13 +9,24 @@ class VertexShader;
 class PixelShader;
 class Animator;
 class MeshBase;
+class Material;
 
-class Renderable : public Component {
+class Renderable {
+public:
+	Renderable() {}
+	Renderable(const std::shared_ptr<Material>& material, const std::shared_ptr<MeshBase> & mesh) : Material(material), Mesh(mesh) {}
+
+	std::shared_ptr<Material> Material;
+	std::shared_ptr<MeshBase> Mesh;
+};
+
+class RenderInfo : public Component {
 	friend class Graphics;
-	MANAGED_OBJECT(Renderable)
-	COMPONENT_CONSTRUCTOR(Renderable, Component)
+	MANAGED_OBJECT(RenderInfo)
+	COMPONENT_CONSTRUCTOR(RenderInfo, Component)
 public:
 	
+	//void SetModel(const std::shared_ptr<Model>& model);
 	bool IsVisible() const { return m_IsVisible; }
 	void OnGui() override;
 
@@ -24,6 +35,10 @@ public:
 	std::shared_ptr<Model> Model;
 	std::shared_ptr<Animator> Anim;
 
+	
+
 private:
 	bool m_IsVisible;
+
+	std::vector<Renderable> m_Renderables;
 };

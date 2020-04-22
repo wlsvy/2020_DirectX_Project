@@ -22,9 +22,9 @@ void Importer::LoadData()
 	TraverseDirectory("hlsl/VertexShader/3D/", &Importer::LoadVertexShader3D);
 	TraverseDirectory("hlsl/VertexShader/3D_Skinned/", &Importer::LoadVertexShader);
 	TraverseDirectory("hlsl/PixelShader/", &Importer::LoadPixelShader);
+	TraverseDirectory("Data/Textures/", &Importer::LoadTexture); 
 	TraverseDirectory("Data/Objects/", &Importer::LoadModel);
 	TraverseDirectory("Data/Animation/", &Importer::LoadAnimation);
-	TraverseDirectory("Data/Textures/", &Importer::LoadTexture); 
 }
 
 bool CreateModel(const std::string & dirPath, const std::string& name) {

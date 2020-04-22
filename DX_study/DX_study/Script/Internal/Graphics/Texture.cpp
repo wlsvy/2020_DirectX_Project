@@ -6,12 +6,12 @@
 #include "../Core/InternalHelper.h"
 #include "../../Util/StringHelper.h"
 
-Texture::Texture(const Color & color, aiTextureType type)
+Texture::Texture(const Color4Byte & color, aiTextureType type)
 {
 	this->Initialize1x1ColorTexture(color, type);
 }
 
-Texture::Texture(const Color * colorData, UINT width, UINT height, aiTextureType type)
+Texture::Texture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type)
 {
 	this->InitializeColorTexture(colorData, width, height, type);
 }
@@ -73,19 +73,19 @@ Texture & Texture::operator=(const Texture & texture)
 	return *this;
 }
 
-void Texture::Initialize1x1ColorTexture(const Color & colorData, aiTextureType type)
+void Texture::Initialize1x1ColorTexture(const Color4Byte & colorData, aiTextureType type)
 {
 	InitializeColorTexture(&colorData, 1, 1, type);
 }
 
-void Texture::InitializeColorTexture(const Color * colorData, UINT width, UINT height, aiTextureType type)
+void Texture::InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type)
 {
 	this->type = type;
 	CD3D11_TEXTURE2D_DESC textureDesc(DXGI_FORMAT_R8G8B8A8_UNORM, width, height);
 	ID3D11Texture2D * p2DTexture = nullptr;
 	D3D11_SUBRESOURCE_DATA initialData{};
 	initialData.pSysMem = colorData;
-	initialData.SysMemPitch = width * sizeof(Color);
+	initialData.SysMemPitch = width * sizeof(Color4Byte);
 	HRESULT hr = Core::GetDevice()->CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
 	ThrowIfFailed(hr, "Failed to initialize texture from color data.");
 	texture = static_cast<ID3D11Texture2D*>(p2DTexture);

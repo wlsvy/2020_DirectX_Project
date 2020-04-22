@@ -13,7 +13,7 @@ class Model;
 class SkinnedModel;
 class Mesh;
 class MeshBase;
-class Renderable;
+class RenderInfo;
 class Engine;
 class Camera;
 class Light;
@@ -26,13 +26,14 @@ class PixelShader;
 class Graphics {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
+	void ProcessMaterialTable();
 
 	void RenderFrame();
-	void Draw(const std::shared_ptr<Renderable>& renderer);
+	void Draw(const std::shared_ptr<RenderInfo>& renderer);
 	void DrawMesh(const std::shared_ptr<MeshBase>& mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
-	void DebugDraw(const std::shared_ptr<Renderable>& renderer);
+	void DebugDraw(const std::shared_ptr<RenderInfo>& renderer);
 	void PostProcess();
 	void DrawGui();
 	void DrawSkybox();

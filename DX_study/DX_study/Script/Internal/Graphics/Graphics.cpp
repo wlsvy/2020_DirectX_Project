@@ -8,6 +8,7 @@
 #include "Skybox.h"
 #include "BaseGeometry.h"
 #include "AnimationClip.h"
+#include "Material.h"
 #include "DebugDraw.h"
 #include "../../Util/Time.h"
 #include "../../Util/Math.h"
@@ -43,6 +44,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 		Importer::LoadData();
 		BaseGeometry::Initialize();
+		ProcessMaterialTable();
 
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { //순서는 나중에
@@ -66,6 +68,25 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	catch (CustomException & e) {
 		ErrorLogger::Log(e);
 		return false;
+	}
+}
+
+void Graphics::ProcessMaterialTable()
+{
+	auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
+	int rowcount = table["Name"].size();
+	for (int i = 0; i < rowcount; i++) {
+		auto material = Pool::CreateInstance<Material>(table["Name"][i]);
+
+		material->Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
+		material->Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
+		material->Texture = Pool::Find<Texture>(table["Texture"][i]);
+
+		auto splitted = Importer::SplitString(table["Color"][i], '/');
+		material->Color.RGBA[0] = std::stoi(splitted[0]);
+		material->Color.RGBA[1] = std::stoi(splitted[1]);
+		material->Color.RGBA[2] = std::stoi(splitted[2]);
+		material->Color.RGBA[3] = std::stoi(splitted[3]);
 	}
 }
 
@@ -97,7 +118,7 @@ void Graphics::RenderFrame()
 	
 }
 
-void Graphics::Draw(const std::shared_ptr<Renderable>& renderer)
+void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 {
 	if (!renderer->Vshader ||
 		!renderer->Pshader)
@@ -145,9 +166,9 @@ void Graphics::DrawMesh(
 	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
 	cb_vs_vertexshader.ApplyChanges();
 
-	for (auto& texture : mesh->GetTextures()) {
-		if (texture.GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture.GetTextureResourceViewAddress());
+	for (auto texture : mesh->GetTextures()) {
+		if (texture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, texture->GetTextureResourceViewAddress());
 			break;
 		}
 	}
@@ -158,7 +179,7 @@ void Graphics::DrawMesh(
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 }
 
-void Graphics::DebugDraw(const std::shared_ptr<Renderable>& renderer)
+void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 {
 	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 
@@ -230,7 +251,12 @@ void Graphics::DrawGui()
 	ImGui::DragFloat("Range", &light->range, 0.1f, 0.1f, 1000.0f);
 	ImGui::End();
 
-	
+	ImGui::Begin("Texture Resources");
+	ImGuiIO& io = ImGui::GetIO();
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+	Pool::ObjectPool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
+	ImGui::End();
+
 	GUI::DrawDeferredChannelImage();
 
 	ImGui::Render();
@@ -260,7 +286,7 @@ void Graphics::DrawGuiDebug()
 	batch->Begin();
 
 	static auto drawFunc = std::bind(&Graphics::DebugDraw, this, std::placeholders::_1);
-	Pool::ObjectPool<Renderable>::GetInstance().ForEach(drawFunc);
+	Pool::ObjectPool<RenderInfo>::GetInstance().ForEach(drawFunc);
 	batch->End();
 
 }

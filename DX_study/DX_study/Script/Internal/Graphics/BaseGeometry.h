@@ -58,7 +58,7 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Box"
 			);
@@ -80,7 +80,7 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Plane"
 			);
@@ -167,7 +167,7 @@ namespace BaseGeometry {
 		auto mesh = Pool::CreateInstance<Mesh>(
 			vertices,
 			indices,
-			std::vector<Texture>(1, *Pool::Find<Texture>("WhiteTexture")),
+			std::vector<std::shared_ptr<Texture>>(1, Pool::Find<Texture>("WhiteTexture")),
 			DirectX::XMMatrixIdentity(),
 			"Sphere"
 			);

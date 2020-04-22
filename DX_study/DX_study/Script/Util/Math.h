@@ -6,7 +6,7 @@
 class Model;
 class SkinnedModel;
 class Transform;
-class Renderable;
+class RenderInfo;
 
 namespace Math {
 

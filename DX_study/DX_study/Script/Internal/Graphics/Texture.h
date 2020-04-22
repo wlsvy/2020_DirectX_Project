@@ -20,8 +20,8 @@ class Texture : public Object {
 public:
 	MANAGED_OBJECT(Texture)
 
-	Texture(const Color & color, aiTextureType type);
-	Texture(const Color * colorData, UINT width, UINT height, aiTextureType type);
+	Texture(const Color4Byte & color, aiTextureType type);
+	Texture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type);
 	Texture(const std::string & filePath, aiTextureType type);
 	Texture(const uint8_t* pData, size_t size, aiTextureType type);
 	Texture(const Texture&);
@@ -33,8 +33,8 @@ public:
 	ID3D11ShaderResourceView * const *	GetTextureResourceViewAddress()	const { return textureView.GetAddressOf(); }
 
 private:
-	void Initialize1x1ColorTexture(const Color & colorData, aiTextureType type);
-	void InitializeColorTexture(const Color * colorData, UINT width, UINT height, aiTextureType type);
+	void Initialize1x1ColorTexture(const Color4Byte & colorData, aiTextureType type);
+	void InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type);
 
 	Microsoft::WRL::ComPtr<ID3D11Resource> texture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView = nullptr;

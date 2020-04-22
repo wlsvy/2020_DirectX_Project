@@ -79,9 +79,9 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 			indices.push_back(face.mIndices[j]);
 	}
 
-	std::vector<Texture> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	std::vector<std::shared_ptr<Texture>> diffuseTextures = LoadMaterialTextures(material, aiTextureType::aiTextureType_DIFFUSE, scene);
 	textures.insert(textures.end(), diffuseTextures.begin(), diffuseTextures.end());
 
 	m_Meshes.emplace_back(Pool::CreateInstance<Mesh>(vertices, indices, textures, transformMatrix, mesh->mName.data));
@@ -130,9 +130,9 @@ TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene 
 	return TextureStorageType::None; // No texture exists
 }
 
-std::vector<Texture> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
+std::vector<std::shared_ptr<Texture>> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
 {
-	std::vector<Texture> materialTextures;
+	std::vector<std::shared_ptr<Texture>> materialTextures;
 	TextureStorageType storetype = TextureStorageType::Invalid;
 	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
 
@@ -146,10 +146,19 @@ std::vector<Texture> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMater
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 			if (aiColor.IsBlack()) //If color = black, just use grey
 			{
-				materialTextures.push_back(Texture(Colors::UnloadedTextureColor, textureType));
+				materialTextures.push_back(Pool::Find<Texture>("BlackTexture"));
 				return materialTextures;
 			}
-			materialTextures.push_back(Texture(Color(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType));
+			auto name = "Color : " + std::to_string((UINT)(aiColor.r * 255)) + ", " + std::to_string((UINT)(aiColor.g * 255)) + ", " + std::to_string((UINT)(aiColor.b * 255));
+			std::shared_ptr<Texture> texture;
+			if (texture = Pool::Find<Texture>(name)) {
+				materialTextures.push_back(texture);
+			}
+			else {
+				texture = Pool::CreateInstance<Texture>(Color4Byte(aiColor.r * 255, aiColor.g * 255, aiColor.b * 255), textureType);
+				texture->Name = name;
+				materialTextures.push_back(texture);
+			}
 			return materialTextures;
 		}
 	}
@@ -165,27 +174,30 @@ std::vector<Texture> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMater
 			case TextureStorageType::EmbeddedIndexCompressed:
 			{
 				int index = GetTextureIndex(&path);
-				Texture embeddedIndexedTexture(
+				auto embeddedIndexedTexture = Pool::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
 					pScene->mTextures[index]->mWidth,
 					textureType);
+				embeddedIndexedTexture->Name = pScene->mTextures[index]->mFilename.data;
 				materialTextures.push_back(embeddedIndexedTexture);
 				break;
 			}
 			case TextureStorageType::EmbeddedCompressed:
 			{
 				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				Texture embeddedTexture(
+				auto embeddedTexture = Pool::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pTexture->pcData),
 					pTexture->mWidth,
 					textureType);
+				embeddedTexture->Name = pTexture->mFilename.data;
 				materialTextures.push_back(embeddedTexture);
 				break;
 			}
 			case TextureStorageType::Disk:
 			{
 				std::string filename = m_Directory + '\\' + path.C_Str();
-				Texture diskTexture(filename, textureType);
+				auto diskTexture = Pool::CreateInstance<Texture>(filename, textureType);
+				diskTexture->Name = StringHelper::GetFileNameFromPath(filename);
 				materialTextures.push_back(diskTexture);
 				break;
 			}
@@ -195,7 +207,7 @@ std::vector<Texture> ModelImporterBase::LoadMaterialTextures(aiMaterial * pMater
 
 	if (materialTextures.size() == 0)
 	{
-		materialTextures.push_back(Texture(Colors::UnhandledTextureColor, aiTextureType::aiTextureType_DIFFUSE));
+		materialTextures.push_back(Pool::Find<Texture>("UnhandledTexture"));
 	}
 	return materialTextures;
 
@@ -234,7 +246,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	const UINT vericesSize = mesh->mNumVertices;
 
 	std::vector<DWORD> indices;
-	std::vector<Texture> textures;
+	std::vector<std::shared_ptr<Texture>> textures;
 	std::vector<Vertex_Bone_Data> bones;
 	std::vector<SkinnedVertex> vertices(vericesSize);
 

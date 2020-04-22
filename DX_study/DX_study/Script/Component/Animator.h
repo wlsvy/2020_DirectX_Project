@@ -7,7 +7,7 @@
 
 class AnimationClip;
 class BoneAvatar;
-class Renderable;
+class RenderInfo;
 
 class Animator : public Behaviour {
 	MANAGED_OBJECT(Animator)
@@ -29,7 +29,7 @@ public:
 	float Speed = 1.0f;
 
 private:
-	std::weak_ptr<Renderable> m_Renderable;
+	std::weak_ptr<RenderInfo> m_Renderable;
 	std::shared_ptr<AnimationClip> m_Clip;
 	std::shared_ptr<AnimationClip> m_BlendClip;
 	std::vector<DirectX::XMMATRIX> m_AnimResult;

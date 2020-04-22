@@ -19,7 +19,6 @@ private:
 };
 
 class SkinnedModel : public Model {
-	//MANAGED_OBJECT(SkinnedModel)
 public:
 	SkinnedModel(
 		const std::vector<std::shared_ptr<MeshBase>>& meshes,

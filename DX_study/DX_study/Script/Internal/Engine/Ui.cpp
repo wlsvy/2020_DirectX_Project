@@ -2,6 +2,7 @@
 #include <d3d11.h>
 
 #include "../Graphics/Graphics.h"
+#include "../Graphics/Texture.h"
 #include "../Graphics/imGui/imgui.h"
 #include "../Graphics/imGui/imgui_impl_win32.h"
 #include "../Graphics/imGui/imgui_impl_dx11.h"
@@ -12,12 +13,14 @@
 #include "../Core//GameObject.h"
 #include "../../Component/Transform.h"
 
+ImGuiIO * s_io;
+
 void GUI::InitImGUI(HWND _hwnd)
 {
 	//Setup ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
+	s_io = &ImGui::GetIO();
 	ImGui_ImplWin32_Init(_hwnd);
 	ImGui_ImplDX11_Init(Core::GetDevice(), Core::GetDeviceContext());
 	//ImGui::StyleColorsDark();
@@ -149,4 +152,11 @@ void GUI::DrawDeferredChannelImage()
 	ImGui::Image(deviceResources.GetRenderTargetSrv(2), scene_size);
 	ImGui::Image(deviceResources.GetRenderTargetSrv(3), scene_size);
 	ImGui::End();
+}
+
+void GUI::DrawTexture(const std::shared_ptr<Texture>& texture)
+{
+	ImGui::Text(texture->Name.c_str());
+	ImVec2 scene_size = ImVec2(s_io->DisplaySize.x * 0.15f, s_io->DisplaySize.y * 0.15f);
+	ImGui::Image(texture->GetTextureResourceView(), scene_size);
 }

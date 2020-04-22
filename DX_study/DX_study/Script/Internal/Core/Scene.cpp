@@ -56,7 +56,8 @@ void Scene::Initialize()
 void Scene::ProcessGameObjectTable()
 {
 	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
-	for (int i = 0; i < table["Name"].size(); i++) {
+	int rowcount = table["Name"].size();
+		for (int i = 0; i < rowcount; i++) {
 		auto gameObject = Pool::CreateInstance<GameObject>(table["Name"][i]);
 
 		auto splitted = Importer::SplitString(table["Position"][i], '/');
@@ -78,9 +79,6 @@ void Scene::ProcessGameObjectTable()
 		if (table["Model"][i] != "null") {
 			gameObject->GetRendererable().Model = Pool::Find<Model>(table["Model"][i]);
 		}
-		/*if (table["SkinnedModel"][i] != "null") {
-			gameObject->GetRendererable().SkinnedModel = Pool::Find<SkinnedModel>(table["SkinnedModel"][i]);
-		}*/
 
 		if (table["AddComponent"][i] != "null") {
 			splitted = Importer::SplitString(table["AddComponent"][i], '/');

@@ -225,6 +225,9 @@
     <ClCompile Include="Script\Internal\Graphics\DebugDraw.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\Material.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -405,6 +408,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Graphics\DebugDraw.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\Material.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

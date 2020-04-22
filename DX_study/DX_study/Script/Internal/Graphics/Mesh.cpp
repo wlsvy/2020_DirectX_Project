@@ -7,7 +7,7 @@
 Mesh::Mesh(
 	const std::vector<Vertex3D>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const std::vector<Texture> & textures, 
+	const std::vector<std::shared_ptr<Texture>> & textures, 
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
@@ -50,7 +50,7 @@ Mesh::Mesh(const Mesh & mesh) :
 SkinnedMesh::SkinnedMesh(
 	const std::vector<SkinnedVertex>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const std::vector<Texture>& textures, 
+	const std::vector<std::shared_ptr<Texture>>& textures, 
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
@@ -92,7 +92,7 @@ SkinnedMesh::SkinnedMesh(const SkinnedMesh & mesh) :
 
 MeshBase::MeshBase(
 	const std::vector<DWORD>& indices,
-	const std::vector<Texture>& textures,
+	const std::vector<std::shared_ptr<Texture>>& textures,
 	const DirectX::XMMATRIX & transformMatrix,
 	const std::string & name)
 	:
