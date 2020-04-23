@@ -52,20 +52,8 @@ void Scene::Initialize()
 	s_IsInitialized = true;
 }
 
-class TTT {
-public:
-	virtual void dos() = 0;
-	int i;
-};
-class TTT2 : public TTT {
-public:
-	
-};
-
 void Scene::ProcessGameObjectTable()
 {
-	auto size1 = sizeof(TTT);
-	auto size2 = sizeof(TTT2);
 	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
 	int rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {

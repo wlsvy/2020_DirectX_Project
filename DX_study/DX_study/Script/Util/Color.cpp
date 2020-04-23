@@ -1,5 +1,8 @@
 #include "Color.h"
 
+const Color4Byte Color4Byte::UnloadedTextureColor = Color4Byte(100, 100, 100);
+const Color4Byte Color4Byte::UnhandledTextureColor = Color4Byte(196, 48, 203);
+
 Color4Byte::Color4Byte() : Value(0) {}
 
 Color4Byte::Color4Byte(unsigned int val) : Value(val) {}

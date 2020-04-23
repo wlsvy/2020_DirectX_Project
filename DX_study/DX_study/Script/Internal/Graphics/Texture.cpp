@@ -25,7 +25,7 @@ Texture::Texture(const std::string & filePath, aiTextureType type) : Object(Stri
 		HRESULT hr = DirectX::CreateDDSTextureFromFile(Core::GetDevice(), StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
-			this->Initialize1x1ColorTexture(Colors::UnloadedTextureColor, type);
+			this->Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor, type);
 		}
 		return;
 	}
@@ -34,7 +34,7 @@ Texture::Texture(const std::string & filePath, aiTextureType type) : Object(Stri
 		HRESULT hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
 		if (FAILED(hr))
 		{
-			this->Initialize1x1ColorTexture(Colors::UnloadedTextureColor, type);
+			this->Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor, type);
 		}
 		return;
 	}

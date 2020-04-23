@@ -47,9 +47,6 @@ public:
 		unsigned int Value;
 	};
 
+	static const Color4Byte UnloadedTextureColor; 
+	static const Color4Byte UnhandledTextureColor;
 };
-
-namespace Colors {
-	const Color4Byte UnloadedTextureColor(100, 100, 100);
-	const Color4Byte UnhandledTextureColor(196, 48, 203);
-}
