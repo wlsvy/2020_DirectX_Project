@@ -30,7 +30,7 @@ public:
 	bool ProcessMaterialTable();
 
 	void RenderFrame();
-	void Draw(const std::shared_ptr<RenderInfo>& renderer);
+	void PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer);
 	void DrawMesh(const std::shared_ptr<MeshBase>& mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);

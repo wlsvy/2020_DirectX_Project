@@ -16,11 +16,7 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 
 void Camera::UpdateView()
 {
-	auto forward = m_Transform->GetForwardVector();
-	auto position = m_Transform->positionVec;
-	auto viewTarget = forward + position;
-
-	viewMatrix = DirectX::XMMatrixLookAtLH(position, viewTarget, m_Transform->GetUpwardVector());
+	viewMatrix = m_Transform->GetViewMatrix();
 	viewProjectionMatrix = viewMatrix * projectionMatrix;
 
 	viewFrustum.Origin = m_Transform->position;

@@ -75,7 +75,7 @@ bool Graphics::ProcessMaterialTable()
 {
 	try {
 		auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
-		int rowcount = table["Name"].size();
+		size_t rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {
 			auto material = Pool::CreateInstance<SharedMaterial>(table["Name"][i]);
 
@@ -91,7 +91,8 @@ bool Graphics::ProcessMaterialTable()
 		}
 		return true;
 	}
-	catch (std::exception &e) {
+	catch (CustomException &e) {
+		ErrorLogger::Log(e);
 		return false;
 	}
 }
@@ -127,7 +128,7 @@ void Graphics::RenderFrame()
 	
 }
 
-void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
+void Graphics::PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer)
 {
 	auto & renderables = renderer->GetRenerables();
 	renderer->m_IsVisible = false;
@@ -142,7 +143,9 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 	bool isVisible = true;
 	for (auto & r : renderables) {
 		auto globalAABB = Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), tf);
-		isVisible &= mainCam->GetViewFrustum().Contains(globalAABB);
+		auto containment = mainCam->GetViewFrustum().Contains(globalAABB);
+		isVisible &= containment != DirectX::DISJOINT;
+		
 	}
 	renderer->m_IsVisible = isVisible;
 

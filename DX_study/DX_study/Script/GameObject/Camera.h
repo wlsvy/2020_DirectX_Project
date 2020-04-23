@@ -1,7 +1,9 @@
 #pragma once
+#include <Queue>
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include "../Internal/Core/GameObject.h"
+#include "../Component/Renderable.h"
 
 class Camera : public GameObject {
 public:
@@ -19,4 +21,6 @@ private:
 	DirectX::XMMATRIX projectionMatrix;
 	DirectX::XMMATRIX viewProjectionMatrix;
 	DirectX::BoundingFrustum viewFrustum;
+
+	std::queue<Renderable> m_RenderQueue;
 };

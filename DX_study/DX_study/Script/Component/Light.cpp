@@ -50,17 +50,14 @@ void LightBase::Awake() {
 	}
 }
 
-const DirectX::XMMATRIX & SpotLight::GetLightViewProjectMat() const
+DirectX::XMMATRIX SpotLight::GetLightViewProjectMat() const
 {
-	float fovRadians = (SpotAngle / 360.0f) * DirectX::XM_2PI;
-	auto projectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1.0f, 0.1f, Range);
+	return m_GameObject->GetTransform().GetViewMatrix() * m_ProjectionMatrix;
+}
 
-	auto& transform = m_GameObject->GetTransform();
-
-	auto viewTarget = transform.GetForwardVector() + transform.positionVec;
-	auto viewMatrix = DirectX::XMMatrixLookAtLH(transform.positionVec, viewTarget, transform.GetUpwardVector());
-
-	return viewMatrix * projectionMatrix;
+bool SpotLight::CullRenderable(const DirectX::BoundingBox & src)
+{
+	return m_Frustum.Contains(src) != DirectX::DISJOINT;
 }
 
 void SpotLight::ProcessLight()
@@ -70,12 +67,40 @@ void SpotLight::ProcessLight()
 void SpotLight::OnGui()
 {
 	LightBase::OnGui();
-	ImGui::DragFloat("Range", &Range, 0.1f, 0.0f, 300.0f);
-	ImGui::DragFloat("SpotAngle", &SpotAngle, 0.1f, -180.0f, 180.0f);
+	float range = m_Range;
+	float angle = m_SpotAngle;
+
+	ImGui::DragFloat("Range", &range, 0.1f, 0.0f, 300.0f);
+	ImGui::DragFloat("SpotAngle", &angle, 0.1f, -180.0f, 180.0f);
+
+	if (range != m_Range) SetRange(range);
+	if (angle != m_SpotAngle) SetSpotAngle(angle);
+}
+
+void SpotLight::SetRange(float range)
+{
+	m_Range = range;
+	SetProjectionMatrix();
+}
+
+void SpotLight::SetSpotAngle(float angle)
+{
+	m_SpotAngle = angle;
+	SetProjectionMatrix();
+}
+
+void SpotLight::SetProjectionMatrix()
+{
+	float fovRadians = (m_SpotAngle / 360.0f) * DirectX::XM_2PI;
+	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1.0f, 0.1f, m_Range);
 }
 
 void LightBase::OnGui()
 {
 	ImGui::ColorEdit3("Color", &Color.x, ImGuiColorEditFlags_NoAlpha);
 	ImGui::DragFloat("Strength", &Strength, 0.1f, 0.0f, LIGHT_STRENGTH_MAX);
+}
+
+bool PointLight::CullRenderable(const DirectX::BoundingBox & target) {
+	return Math::GetDistance(m_GameObject->GetTransform(), target.Center) < Range;
 }

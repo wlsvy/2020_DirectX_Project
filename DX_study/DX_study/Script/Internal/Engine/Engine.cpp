@@ -84,7 +84,7 @@ void Engine::FixedUpdate()
 
 void Engine::RenderFrame()
 {
-	static auto drawFunc = std::bind(&Graphics::Draw, m_Graphics.get(), std::placeholders::_1);
+	static auto drawFunc = std::bind(&Graphics::PushToRenderQueue, m_Graphics.get(), std::placeholders::_1);
 	auto& dr = m_Graphics->GetDeviceResources();
 
 	m_Graphics->RenderFrame();

@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "Texture.h"
 #include "../Core/ObjectPool.h"
+#include "../../Util/ErrorLogger.h"
 
 namespace BaseGeometry {
 	using DirectX::operator+;
@@ -182,7 +183,8 @@ namespace BaseGeometry {
 			CreateSphere(10, 10);
 			return true;
 		}
-		catch (std::exception & e) {
+		catch (CustomException & e) {
+			ErrorLogger::Log(e);
 			return false;
 		}
 	}

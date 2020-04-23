@@ -9,6 +9,29 @@ using DirectX::operator+;
 using DirectX::operator-;
 using DirectX::operator/=;
 
+float Math::GetDistance(const Transform & src, const DirectX::XMFLOAT3 & target)
+{
+	DirectX::XMVECTOR vec = DirectX::XMLoadFloat3(&target);
+	return GetDistance(src, vec);
+}
+
+float Math::GetDistance(const Transform & src, const DirectX::XMVECTOR & target)
+{
+	auto diff = target -src.positionVec;
+	return DirectX::XMVector3Length(diff).m128_f32[0];
+}
+
+float Math::GetDistance(const Transform & src, const Transform & target)
+{
+	auto diff = target.positionVec - src.positionVec;
+	return DirectX::XMVector3Length(diff).m128_f32[0];
+}
+
+float Math::GetDistance(const DirectX::XMVECTOR & src, const DirectX::XMVECTOR & target)
+{
+	return DirectX::XMVector3Length(target - src).m128_f32[0];
+}
+
 DirectX::BoundingBox Math::GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf)
 {
 	auto centerVec = DirectX::XMLoadFloat3(&box.Center);

@@ -39,12 +39,12 @@ public:
 	const DirectX::XMVECTOR & GetForwardVector() const		{ return m_Forward; }
 	const DirectX::XMVECTOR & GetUpwardVector() const		{ return m_Upward; }
 	const DirectX::XMVECTOR & GetLeftVector() const			{ return m_Left; }
-	const DirectX::XMVECTOR & GetBackwardVector() const		{ using DirectX::operator*; return m_Forward * -1; }
-	const DirectX::XMVECTOR & GetDownwardVector() const		{ using DirectX::operator*; return m_Upward * -1; }
-	const DirectX::XMVECTOR & GetRightVector() const		{ using DirectX::operator*; return m_Left * -1; }
+	DirectX::XMVECTOR GetBackwardVector() const		{ using DirectX::operator*; return m_Forward * -1; }
+	DirectX::XMVECTOR GetDownwardVector() const		{ using DirectX::operator*; return m_Upward * -1; }
+	DirectX::XMVECTOR GetRightVector() const		{ using DirectX::operator*; return m_Left * -1; }
 																					    
 	const DirectX::XMMATRIX & GetWorldMatrix() const		{ return m_WorldMatrix; }
-	const DirectX::XMMATRIX & GetRotationMatrix() const		{ return DirectX::XMMatrixRotationQuaternion(GetQuaternion()); }
+	DirectX::XMMATRIX		  GetViewMatrix() const			{ using DirectX::operator+; return DirectX::XMMatrixLookAtLH(positionVec, m_Forward + positionVec, m_Upward); }
 
 	std::shared_ptr<Transform> GetParent() const			{ return m_Parent.lock(); }
 	std::shared_ptr<Transform> GetChild(int index) const	{ return m_Children[index].lock(); }

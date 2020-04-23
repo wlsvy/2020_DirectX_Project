@@ -15,5 +15,9 @@ namespace Math {
 	const float Deg2Rad = 0.0174533f;	// pi / 180
 	const float Rad2Deg = 57.2958f;	// 180 / pi
 
+	float GetDistance(const Transform& src, const DirectX::XMFLOAT3 & target);
+	float GetDistance(const Transform& src, const DirectX::XMVECTOR & target);
+	float GetDistance(const Transform& src, const Transform & target);
+	float GetDistance(const DirectX::XMVECTOR & src, const DirectX::XMVECTOR & target);
 	DirectX::BoundingBox GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf);
 }
