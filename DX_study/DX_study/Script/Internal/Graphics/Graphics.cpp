@@ -30,24 +30,21 @@ using DirectX::operator*;
 
 bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	try {
-		this->windowWidth = width;
-		this->windowHeight = height;
+		windowWidth = width;
+		windowHeight = height;
 
-		ThrowIfFailed(
-			m_DeviceResources.Initialize(hwnd, width, height) &&
-			m_DeviceResources.InitializeRenderTarget(width, height),
-			"Failed to initialize Device Resources");
+		ThrowIfFailed(m_DeviceResources.Initialize(hwnd, width, height), "Failed to initialize Device Resources");
+		ThrowIfFailed(m_DeviceResources.InitializeRenderTarget(width, height), "Failed to initialize Device Resources RenderTarget");
 		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_vs_BoneInfo.Initialize(), "Failed to Initialize cb_vs_BoneInfo buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_ps_material.Initialize(), "Failed to Initialize cb_ps_material buffer.");
 
-		Importer::LoadBaseResources();
-		ProcessMaterialTable();
-
-		BaseGeometry::Initialize();
-		Importer::LoadModelResources();
+		ThrowIfFailed(Importer::LoadBaseResources(), "Failed to LoadBaseResources.");
+		ThrowIfFailed(ProcessMaterialTable(), "Failed to ProcessMaterialTable.");
+		ThrowIfFailed(BaseGeometry::Initialize(), "Failed to Initialize BaseGeometry.");
+		ThrowIfFailed(Importer::LoadModelResources(), "Failed to LoadModelResources.");
 
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { //순서는 나중에
@@ -74,22 +71,28 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 	}
 }
 
-void Graphics::ProcessMaterialTable()
+bool Graphics::ProcessMaterialTable()
 {
-	auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
-	int rowcount = table["Name"].size();
-	for (int i = 0; i < rowcount; i++) {
-		auto material = Pool::CreateInstance<SharedMaterial>(table["Name"][i]);
+	try {
+		auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
+		int rowcount = table["Name"].size();
+		for (int i = 0; i < rowcount; i++) {
+			auto material = Pool::CreateInstance<SharedMaterial>(table["Name"][i]);
 
-		material->Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
-		material->Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
-		material->MainTexture = Pool::Find<Texture>(table["Texture"][i]);
+			material->Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
+			material->Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
+			material->MainTexture = Pool::Find<Texture>(table["Texture"][i]);
 
-		auto splitted = Importer::SplitString(table["Color"][i], '/');
-		material->Color.RGBA[0] = std::stoi(splitted[0]);
-		material->Color.RGBA[1] = std::stoi(splitted[1]);
-		material->Color.RGBA[2] = std::stoi(splitted[2]);
-		material->Color.RGBA[3] = std::stoi(splitted[3]);
+			auto splitted = Importer::SplitString(table["Color"][i], '/');
+			material->Color.RGBA[0] = std::stoi(splitted[0]);
+			material->Color.RGBA[1] = std::stoi(splitted[1]);
+			material->Color.RGBA[2] = std::stoi(splitted[2]);
+			material->Color.RGBA[3] = std::stoi(splitted[3]);
+		}
+		return true;
+	}
+	catch (std::exception &e) {
+		return false;
 	}
 }
 
@@ -127,15 +130,25 @@ void Graphics::RenderFrame()
 void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 {
 	auto & renderables = renderer->GetRenerables();
-	if (renderables.size() == 0) return;
+	renderer->m_IsVisible = false;
 
-	/*renderer->m_IsVisible = !Math::CheckFrustumCull(
-		Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
-		*model,
-		renderer->GetGameObject()->GetTransform());
-	if (!renderer->m_IsVisible) return;*/
+	if (renderables.size() == 0) {
+		return;
+	}
 
+	auto& tf = renderer->m_GameObject->GetTransform();
+	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
+	
+	bool isVisible = true;
+	for (auto & r : renderables) {
+		auto globalAABB = Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), tf);
+		isVisible &= mainCam->GetViewFrustum().Contains(globalAABB);
+	}
+	renderer->m_IsVisible = isVisible;
 
+	if (!isVisible) {
+		return;
+	}
 
 	if (renderer->Anim &&
 		renderer->Anim->GetClip())
@@ -146,36 +159,13 @@ void Graphics::Draw(const std::shared_ptr<RenderInfo>& renderer)
 		cb_vs_BoneInfo.ApplyChanges();
 	}
 
-	auto& worldMat = renderer->GetGameObject()->GetTransform().GetWorldMatrix();
-	auto wvpMat = worldMat * Engine::Get().GetCurrentScene().GetMainCam()->GetViewProjectionMatrix();
+	auto& worldMat = tf.GetWorldMatrix();
+	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
 	
 	for (auto & r : renderables) {
 		ApplyMaterialProperties(r.GetMaterial());
 		DrawMesh(r.GetMesh(), worldMat, wvpMat);
 	}
-	
-	/*if (auto model = renderer->m_Model) {
-		renderer->m_IsVisible =	!Math::CheckFrustumCull(
-			Engine::Get().GetCurrentScene().GetMainCam()->GetViewFrustum(),
-			*model,
-			renderer->GetGameObject()->GetTransform());
-		if (!renderer->m_IsVisible) return;
-
-		if (renderer->Anim &&
-			renderer->Anim->GetClip())
-		{
-			CopyMemory(cb_vs_BoneInfo.data.boneTransform,
-				renderer->Anim->GetAnimResult().data(),
-				renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
-			cb_vs_BoneInfo.ApplyChanges();
-			m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
-		}
-
-		for (int i = 0; i < model->GetMeshes().size(); i++) {
-			ApplyMaterialProperties(model->GetDefaultMaterials()[i]);
-			DrawMesh(model->GetMeshes()[i], worldMat, wvpMat);
-		}
-	}*/
 }
 
 void Graphics::DrawMesh(
@@ -281,27 +271,6 @@ void Graphics::DrawGui()
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
 	Pool::ObjectPool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
-	ImGui::End();
-
-	ImGui::Begin("Global AAbb Test");
-	auto go = Pool::Find<GameObject>("Ground");
-	auto& tf = go->GetTransform();
-	auto& r = go->GetRendererable();
-	auto mesh = r.GetModel()->GetMeshes()[0];
-	auto aabb = mesh->GetLocalAABB();
-	auto position = tf.position;
-	auto rotation = tf.rotation;
-	auto scale = tf.scale;
-	auto c = aabb.Center;
-	auto cv = DirectX::XMVectorSet(c.x, c.y, c.z, 0.0f);
-	auto e = aabb.Extents;
-	auto ev = DirectX::XMVectorSet(e.x, e.y, e.z, 0.0f);
-	auto cm1 = DirectX::XMVector3Transform(cv, tf.GetWorldMatrix());
-	auto em1 = DirectX::XMVector3Transform(ev, tf.GetWorldMatrix());
-	ImGui::DragFloat3("Center", &c.x, 0.01f, -30000.0f, 30010.0f);
-	ImGui::DragFloat3("Extents", &e.x, 0.01f, -30000.0f, 30010.0f);
-	ImGui::DragFloat3("Tranformed Center", cm1.m128_f32, 0.01f, -30000.0f, 30010.0f);
-	ImGui::DragFloat3("Tranformed Extents", em1.m128_f32, 0.01f, -30000.0f, 30010.0f);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

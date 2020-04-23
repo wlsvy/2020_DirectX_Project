@@ -16,19 +16,31 @@
 #include <fstream>
 #include <sstream>
 
-void Importer::LoadBaseResources()
+bool Importer::LoadBaseResources()
 {
-	TraverseDirectory("hlsl/VertexShader/2D/", &Importer::LoadVertexShader2D);
-	TraverseDirectory("hlsl/VertexShader/3D/", &Importer::LoadVertexShader3D);
-	TraverseDirectory("hlsl/VertexShader/3D_Skinned/", &Importer::LoadVertexShader);
-	TraverseDirectory("hlsl/PixelShader/", &Importer::LoadPixelShader);
-	TraverseDirectory("Data/Textures/", &Importer::LoadTexture); 
+	try {
+		TraverseDirectory("hlsl/VertexShader/2D/", &Importer::LoadVertexShader2D);
+		TraverseDirectory("hlsl/VertexShader/3D/", &Importer::LoadVertexShader3D);
+		TraverseDirectory("hlsl/VertexShader/3D_Skinned/", &Importer::LoadVertexShader);
+		TraverseDirectory("hlsl/PixelShader/", &Importer::LoadPixelShader);
+		TraverseDirectory("Data/Textures/", &Importer::LoadTexture);
+		return true;
+	}
+	catch (std::exception & e) {
+		return false;
+	}
 }
 
-void Importer::LoadModelResources()
+bool Importer::LoadModelResources()
 {
-	TraverseDirectory("Data/Objects/", &Importer::LoadModel);
-	TraverseDirectory("Data/Animation/", &Importer::LoadAnimation);
+	try {
+		TraverseDirectory("Data/Objects/", &Importer::LoadModel);
+		TraverseDirectory("Data/Animation/", &Importer::LoadAnimation);
+		return true;
+	}
+	catch (std::exception & e) {
+		return false;
+	}
 }
 
 bool CreateModel(const std::string & dirPath, const std::string& name) {

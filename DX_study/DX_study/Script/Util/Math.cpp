@@ -9,26 +9,6 @@ using DirectX::operator+;
 using DirectX::operator-;
 using DirectX::operator/=;
 
-bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const Model & model, const Transform & tf)
-{
-	for (auto & mesh : model.GetMeshes()) {
-		if (f.Contains(Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), tf)) != DirectX::DISJOINT) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool Math::CheckFrustumCull(const DirectX::BoundingFrustum & f, const SkinnedModel & model, const Transform & tf)
-{
-	for (auto & mesh : model.GetMeshes()) {
-		if (f.Contains(Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), tf)) != DirectX::DISJOINT) {
-			return false;
-		}
-	}
-	return true;
-}
-
 DirectX::BoundingBox Math::GetGlobalBoundingBox(const DirectX::BoundingBox & box, const Transform & tf)
 {
 	auto centerVec = DirectX::XMLoadFloat3(&box.Center);

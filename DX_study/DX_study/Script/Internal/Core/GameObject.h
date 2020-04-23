@@ -15,7 +15,7 @@ class GameObject : public Object{
 public:
 	MANAGED_OBJECT(GameObject)
 	GameObject(const std::string & name = "GameObject");
-	virtual ~GameObject();
+	virtual ~GameObject() {}
 
 	template<typename T>
 	std::shared_ptr<T> AddComponent();

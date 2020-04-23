@@ -69,6 +69,7 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentWorldMatrix, const 
 
 	m_GlobalPositionVec = DirectX::XMVector3Transform(positionVec, parentWorldMatrix);
 	m_GlobalQuaternionVec = DirectX::XMQuaternionMultiply(quaternion, parentQuat);
+	m_GlobalLossyScaleVec = CalculateLossyScale();
 
 	this->UpdateDirectionVectors(rotMat);
 	for (auto& child : m_Children) {
@@ -76,7 +77,7 @@ void Transform::UpdateMatrix(const DirectX::XMMATRIX & parentWorldMatrix, const 
 	}
 }
 
-DirectX::XMVECTOR Transform::GetLossyScale() const
+DirectX::XMVECTOR Transform::CalculateLossyScale() const
 {
 	auto globalPosMat = DirectX::XMMatrixTranslationFromVector(m_GlobalPositionVec);
 	auto globalRotMat = DirectX::XMMatrixRotationQuaternion(m_GlobalQuaternionVec);

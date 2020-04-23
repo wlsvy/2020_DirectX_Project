@@ -16,10 +16,6 @@ GameObject::GameObject(const std::string & name) :
 	m_Transform->SetParent(Core::GetWorldTransform());
 }
 
-GameObject::~GameObject()
-{
-}
-
 void GameObject::RemoveExpiredComponent()
 {
 	if (m_Components.size() == 0) return;

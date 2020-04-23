@@ -33,7 +33,7 @@ public:
 
 	DirectX::XMVECTOR GetGlobalPosition() const				{ return m_GlobalPositionVec; }
 	DirectX::XMVECTOR GetGlobalQuaternion() const			{ return m_GlobalQuaternionVec; }
-	DirectX::XMVECTOR GetLossyScale() const;
+	DirectX::XMVECTOR GetLossyScale() const					{ return m_GlobalLossyScaleVec; }
 	DirectX::XMVECTOR GetQuaternion() const					{ using DirectX::operator*;  return DirectX::XMQuaternionRotationRollPitchYawFromVector(rotationVec * Math::Deg2Rad); }
 
 	const DirectX::XMVECTOR & GetForwardVector() const		{ return m_Forward; }
@@ -82,6 +82,7 @@ private:
 
 	void SetChild(const std::shared_ptr<Transform> & child);
 	void EraseChild(Transform* child);
+	DirectX::XMVECTOR CalculateLossyScale() const;
 
 	union {
 		DirectX::XMFLOAT3 m_GlobalPosition;
@@ -90,6 +91,10 @@ private:
 	union {
 		DirectX::XMFLOAT4 m_GlobalQuaternion;
 		DirectX::XMVECTOR m_GlobalQuaternionVec;
+	};
+	union {
+		DirectX::XMFLOAT3 m_GlobalLossyScale;
+		DirectX::XMVECTOR m_GlobalLossyScaleVec;
 	};
 
 	DirectX::XMMATRIX m_WorldMatrix = DirectX::XMMatrixIdentity();

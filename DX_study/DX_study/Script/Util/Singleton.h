@@ -15,5 +15,4 @@ public:
 protected:
 	Singleton() {}
 	virtual ~Singleton() {}
-
 };

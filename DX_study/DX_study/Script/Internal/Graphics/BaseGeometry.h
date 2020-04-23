@@ -175,9 +175,15 @@ namespace BaseGeometry {
 		Pool::CreateInstance<Model>(meshVec, matVec, "Sphere");
 	}
 	
-	static void Initialize() {
-		CreateBox();
-		CreatePlane();
-		CreateSphere(10, 10);
+	static bool Initialize() {
+		try {
+			CreateBox();
+			CreatePlane();
+			CreateSphere(10, 10);
+			return true;
+		}
+		catch (std::exception & e) {
+			return false;
+		}
 	}
 };

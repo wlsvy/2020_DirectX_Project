@@ -4,8 +4,8 @@
 #include <unordered_map>
 
 namespace Importer {
-	void LoadBaseResources();
-	void LoadModelResources();
+	bool LoadBaseResources();
+	bool LoadModelResources();
 	void LoadModel(const std::string & dirPath, const std::string& name);
 	void LoadAnimation(const std::string & dirPath, const std::string& name);
 	void LoadVertexShader(const std::string & dirPath, const std::string& name);

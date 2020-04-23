@@ -27,7 +27,7 @@ class Material;
 class Graphics {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
-	void ProcessMaterialTable();
+	bool ProcessMaterialTable();
 
 	void RenderFrame();
 	void Draw(const std::shared_ptr<RenderInfo>& renderer);
