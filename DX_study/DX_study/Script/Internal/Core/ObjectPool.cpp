@@ -1,11 +1,15 @@
 #include "ObjectPool.h"
 
-void Pool::Destroy(Object * obj)
-{
-	ObjectPool<Object>::GetInstance().DeRegister(obj->GetId());
+std::shared_ptr<Object> Core::Find(const int objId) {
+	return Pool<Object>::GetInstance().Find(objId);
 }
 
-void Pool::Destroy(std::shared_ptr<Object> obj)
+void Core::Destroy(Object * obj)
 {
-	ObjectPool<Object>::GetInstance().DeRegister(obj->GetId());
+	Pool<Object>::GetInstance().DeRegister(obj->GetId());
+}
+
+void Core::Destroy(std::shared_ptr<Object> obj)
+{
+	Pool<Object>::GetInstance().DeRegister(obj->GetId());
 }

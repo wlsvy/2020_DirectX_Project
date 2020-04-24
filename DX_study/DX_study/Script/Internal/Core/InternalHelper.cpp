@@ -47,7 +47,7 @@ std::shared_ptr<Transform> Core::GetWorldTransform()
 
 std::shared_ptr<Object> Core::GetObjectById(int id)
 {
-	return Pool::Find(id);
+	return Core::Find(id);
 }
 
 std::string Core::GetBuildPath()

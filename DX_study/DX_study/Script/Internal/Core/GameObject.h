@@ -40,7 +40,7 @@ protected:
 template<typename T>
 inline std::shared_ptr<T> GameObject::AddComponent()
 {
-	auto ptr = Pool::CreateInstance<T>(this);
+	auto ptr = Core::CreateInstance<T>(this);
 	m_Components.emplace_back(ptr);
 
 	if (Scene::IsInitialized()) {

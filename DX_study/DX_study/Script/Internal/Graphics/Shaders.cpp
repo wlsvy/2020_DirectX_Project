@@ -4,7 +4,7 @@
 #include "../../Util/StringHelper.h"
 
 std::shared_ptr<VertexShader> VertexShader::GetDefault() {
-	return Pool::Find<VertexShader>("vertexshader");
+	return Core::Find<VertexShader>("vertexshader");
 }
 
 bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
@@ -48,7 +48,7 @@ ID3D11InputLayout * VertexShader::GetInputLayout()
 }
 
 std::shared_ptr<PixelShader> PixelShader::GetDefault() {
-	return Pool::Find<PixelShader>("pixelshader_deferred");
+	return Core::Find<PixelShader>("pixelshader_deferred");
 }
 
 bool PixelShader::Initialize(const std::string & shaderpath) {

@@ -11,13 +11,9 @@ class Engine;
 class Scene;
 class Graphics;
 
-class Pool {
-	friend class Engine;
-	friend class Scene;
-	friend class Graphics;
-private:
+namespace Core {
 	template<typename T>
-	class ObjectPool : public Singleton<ObjectPool<T>> {
+	class Pool : public Singleton<Pool<T>> {
 	public:
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.push_back(obj);
@@ -57,7 +53,7 @@ private:
 	};
 
 	template<>
-	class ObjectPool<Object> : public Singleton<ObjectPool<Object>> {
+	class Pool<Object> : public Singleton<Pool<Object>> {
 	public:
 		template<typename T>
 		void Register(const std::shared_ptr<T>& obj) {
@@ -93,10 +89,10 @@ private:
 		class ObjectWrapper : public ObjWrapperBase {
 		public:
 			ObjectWrapper(const std::shared_ptr<T>& obj) : Ptr(obj) {
-				ObjectPool<typename T::ManagedType>::GetInstance().Register(obj);
+				Pool<typename T::ManagedType>::GetInstance().Register(obj);
 			}
 			~ObjectWrapper() {
-				ObjectPool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
+				Pool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
 			}
 			virtual std::shared_ptr<Object> Get() override { return Ptr; }
 
@@ -107,29 +103,25 @@ private:
 		std::unordered_map<int, std::shared_ptr<ObjWrapperBase>> m_Objects;
 	};
 
-public:
-
 	template<typename T, typename ...Arg>
-	static std::shared_ptr<T> CreateInstance(Arg&&... arg) {
+	std::shared_ptr<T> CreateInstance(Arg&&... arg) {
 		auto ptr = std::make_shared<T>(arg...);
-		ObjectPool<Object>::GetInstance().Register<T>(ptr);
+		Pool<Object>::GetInstance().Register<T>(ptr);
 		return ptr;
 	}
 
-	static std::shared_ptr<Object> Find(const int objId) {
-		return ObjectPool<Object>::GetInstance().Find(objId);
-	}
 	template<typename T>
-	static std::shared_ptr<T> Find(const int objId) {
-		auto ptr = ObjectPool<typename T::ManagedType>::GetInstance().Find(objId);
+	std::shared_ptr<T> Find(const int objId) {
+		auto ptr = Pool<typename T::ManagedType>::GetInstance().Find(objId);
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
 	template<typename T>
-	static std::shared_ptr<T> Find(const std::string & objName) {
-		auto ptr = ObjectPool<typename T::ManagedType>::GetInstance().Find(objName);
+	std::shared_ptr<T> Find(const std::string & objName) {
+		auto ptr = Pool<typename T::ManagedType>::GetInstance().Find(objName);
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
 
-	static void Destroy(Object* obj);
-	static void Destroy(std::shared_ptr<Object> obj);
+	std::shared_ptr<Object> Find(const int objId);
+	void Destroy(Object* obj);
+	void Destroy(std::shared_ptr<Object> obj);
 };

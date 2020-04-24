@@ -1,0 +1,2 @@
+Name,VertexShader,PixelShader,Texture,Color
+Default,vertexshader,pixelshader_deferred,WhiteTexture,255/255/255/255

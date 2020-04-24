@@ -41,9 +41,9 @@ bool Skybox::Initialize(const std::string * filePath)
 	if (!Make_CubeMap())
 		return false;
 
-	m_Model = Pool::Find<Model>("Box");
-	m_Vshader = Pool::Find<VertexShader>("vertexshader_skybox");
-	m_Pshader = Pool::Find<PixelShader>("pixelshader_deferredSkybox");
+	m_Model = Core::Find<Model>("Box");
+	m_Vshader = Core::Find<VertexShader>("vertexshader_skybox");
+	m_Pshader = Core::Find<PixelShader>("pixelshader_deferredSkybox");
 
 	return true;
 

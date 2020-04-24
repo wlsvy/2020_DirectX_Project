@@ -73,13 +73,13 @@ void Engine::Update() {
 	m_Timer->Tick();
 	keyboard.Update();
 	mouse.Update();
-	Pool::ObjectPool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
+	Core::Pool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
 	m_CurrentScene->Update();
 }
 
 void Engine::FixedUpdate()
 {
-	Pool::ObjectPool<Animator>::GetInstance().ForEach(UpdateBehaviour);
+	Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
 }
 
 void Engine::RenderFrame()
@@ -89,7 +89,7 @@ void Engine::RenderFrame()
 
 	m_Graphics->RenderFrame();
 	m_Graphics->SetRenderTarget(m_Graphics->GetDeviceResources().GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
-	Pool::ObjectPool<RenderInfo>::GetInstance().ForEach(drawFunc);
+	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 	m_Graphics->DrawSkybox();
 	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));
 	m_Graphics->PostProcess();

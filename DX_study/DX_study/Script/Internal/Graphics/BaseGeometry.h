@@ -56,15 +56,15 @@ namespace BaseGeometry {
 			20,	22,	23
 		};
 
-		auto mesh = Pool::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),
 			"Box"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
-		Pool::CreateInstance<Model>(meshVec, matVec, "Box");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
+		Core::CreateInstance<Model>(meshVec, matVec, "Box");
 	}
 	static void CreatePlane() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
@@ -78,15 +78,15 @@ namespace BaseGeometry {
 			0, 2, 3,
 		};
 
-		auto mesh = Pool::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),
 			"Plane"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
-		Pool::CreateInstance<Model>(meshVec, matVec, "Plane");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
+		Core::CreateInstance<Model>(meshVec, matVec, "Plane");
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
@@ -165,15 +165,15 @@ namespace BaseGeometry {
 			indices.push_back(baseIndex + i + 1);
 		}
 
-		auto mesh = Pool::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),
 			"Sphere"
 			);
 		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Pool::Find<SharedMaterial>("Default"));
-		Pool::CreateInstance<Model>(meshVec, matVec, "Sphere");
+		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
+		Core::CreateInstance<Model>(meshVec, matVec, "Sphere");
 	}
 	
 	static bool Initialize() {

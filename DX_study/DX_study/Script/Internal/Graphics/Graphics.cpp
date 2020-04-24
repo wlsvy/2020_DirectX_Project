@@ -22,6 +22,7 @@
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Animator.h"
+#include "../../Component/Light.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Camera.h"
 
@@ -33,18 +34,17 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		windowWidth = width;
 		windowHeight = height;
 
-		ThrowIfFailed(m_DeviceResources.Initialize(hwnd, width, height), "Failed to initialize Device Resources");
-		ThrowIfFailed(m_DeviceResources.InitializeRenderTarget(width, height), "Failed to initialize Device Resources RenderTarget");
-		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(), "Failed to Initialize CB_VS_vertexshader_2d buffer.");
-		ThrowIfFailed(cb_vs_vertexshader.Initialize(), "Failed to Initialize CB_VS_vertexshader buffer.");
-		ThrowIfFailed(cb_vs_BoneInfo.Initialize(), "Failed to Initialize cb_vs_BoneInfo buffer.");
-		ThrowIfFailed(cb_ps_light.Initialize(), "Failed to Initialize cb_ps_light buffer.");
-		ThrowIfFailed(cb_ps_material.Initialize(), "Failed to Initialize cb_ps_material buffer.");
-
-		ThrowIfFailed(Importer::LoadBaseResources(), "Failed to LoadBaseResources.");
-		ThrowIfFailed(ProcessMaterialTable(), "Failed to ProcessMaterialTable.");
-		ThrowIfFailed(BaseGeometry::Initialize(), "Failed to Initialize BaseGeometry.");
-		ThrowIfFailed(Importer::LoadModelResources(), "Failed to LoadModelResources.");
+		ThrowIfFailed(m_DeviceResources.Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
+		ThrowIfFailed(m_DeviceResources.InitializeRenderTarget(width, height),	"Failed to initialize Device Resources RenderTarget");
+		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(),						"Failed to Initialize CB_VS_vertexshader_2d buffer.");
+		ThrowIfFailed(cb_vs_vertexshader.Initialize(),							"Failed to Initialize CB_VS_vertexshader buffer.");
+		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
+		ThrowIfFailed(cb_ps_light.Initialize(),									"Failed to Initialize cb_ps_light buffer.");
+		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
+		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
+		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
+		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
+		ThrowIfFailed(Importer::LoadModelResources(),							"Failed to LoadModelResources.");
 
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { //순서는 나중에
@@ -59,9 +59,9 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 		GUI::InitImGUI(hwnd);
 
-		m_PostProcesWindowModel = Pool::Find<Model>("Plane");
-		m_PostProcesVshader = Pool::Find<VertexShader>("vertexshader_WindowPlane");
-		m_PostProcesPshader = Pool::Find<PixelShader>("pixelshader_deferredLight");
+		m_PostProcesWindowModel = Core::Find<Model>("Plane");
+		m_PostProcesVshader = Core::Find<VertexShader>("vertexshader_WindowPlane");
+		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_deferredLight");
 
 		return true;
 	}
@@ -77,11 +77,11 @@ bool Graphics::ProcessMaterialTable()
 		auto table = Importer::LoadCSV("Data/CSV/MaterialTable.csv");
 		size_t rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {
-			auto material = Pool::CreateInstance<SharedMaterial>(table["Name"][i]);
+			auto material = Core::CreateInstance<SharedMaterial>(table["Name"][i]);
 
-			material->Vshader = Pool::Find<VertexShader>(table["VertexShader"][i]);
-			material->Pshader = Pool::Find<PixelShader>(table["PixelShader"][i]);
-			material->MainTexture = Pool::Find<Texture>(table["Texture"][i]);
+			material->Vshader = Core::Find<VertexShader>(table["VertexShader"][i]);
+			material->Pshader = Core::Find<PixelShader>(table["PixelShader"][i]);
+			material->MainTexture = Core::Find<Texture>(table["Texture"][i]);
 
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
 			material->Color.RGBA[0] = std::stoi(splitted[0]);
@@ -99,7 +99,7 @@ bool Graphics::ProcessMaterialTable()
 
 void Graphics::RenderFrame()
 {
-	static auto light = std::dynamic_pointer_cast<Light>(Pool::Find<GameObject>("Light"));
+	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
 	cb_ps_light.data.color = light->color;
 	cb_ps_light.data.strength = light->strength;
 	cb_ps_light.data.position = light->GetTransform().position;
@@ -148,6 +148,10 @@ void Graphics::PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer)
 		
 	}
 	renderer->m_IsVisible = isVisible;
+
+	{
+		Core::Pool<LightBase>::GetInstance();
+	}
 
 	if (!isVisible) {
 		return;
@@ -257,7 +261,7 @@ void Graphics::DrawGui()
 	ImGui::NewFrame();
 	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(3));
 	
-	static auto light = std::dynamic_pointer_cast<Light>(Pool::Find<GameObject>("Light"));
+	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
 	ImGui::Begin("Light Controls");
 	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
 	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
@@ -273,7 +277,7 @@ void Graphics::DrawGui()
 	ImGui::Begin("Texture Resources");
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
-	Pool::ObjectPool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
+	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();
@@ -305,7 +309,7 @@ void Graphics::DrawGuiDebug()
 	batch->Begin();
 
 	static auto drawFunc = std::bind(&Graphics::DebugDraw, this, std::placeholders::_1);
-	Pool::ObjectPool<RenderInfo>::GetInstance().ForEach(drawFunc);
+	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 	batch->End();
 
 }

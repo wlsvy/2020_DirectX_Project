@@ -41,7 +41,6 @@ public:
 
 	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *					GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
-	const VertexBuffer<Vertex3D> &	GetVertexBuffer() const	{ return vertexbuffer; }
 
 private:
 	VertexBuffer<Vertex3D> vertexbuffer;
@@ -58,7 +57,6 @@ public:
 
 	ID3D11Buffer* const*				GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *						GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
-	const VertexBuffer<SkinnedVertex> & GetVertexBuffer() const { return vertexbuffer; }
 
 private:
 	VertexBuffer<SkinnedVertex> vertexbuffer;

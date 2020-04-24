@@ -47,9 +47,9 @@ void CharacterMove::Awake()
 {
 	m_Transform = &m_GameObject->GetTransform();
 	m_Anim = m_GameObject->GetComponent<Animator>();
-	m_RunClip = Pool::Find<AnimationClip>("Y_Bot_Running");
-	m_IdleClip = Pool::Find<AnimationClip>("Y_Bot_Idle");
-	m_WalkClip = Pool::Find<AnimationClip>("Y_Bot_Walking");
+	m_RunClip = Core::Find<AnimationClip>("Y_Bot_Running");
+	m_IdleClip = Core::Find<AnimationClip>("Y_Bot_Idle");
+	m_WalkClip = Core::Find<AnimationClip>("Y_Bot_Walking");
 
 	m_Anim.lock()->SetClip(m_IdleClip.lock());
 	m_Anim.lock()->Play();

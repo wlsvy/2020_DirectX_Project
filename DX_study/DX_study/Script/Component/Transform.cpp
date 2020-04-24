@@ -45,7 +45,7 @@ DirectX::XMFLOAT3 QuatenionToEuler(float x, float y, float z, float w) {
 
 Transform::~Transform() {
 	for (auto& child : m_Children) {
-		Pool::Destroy(child.lock()->m_GameObject);
+		Core::Destroy(child.lock()->m_GameObject);
 	}
 
 	if (auto ptr = m_Parent.lock()) {

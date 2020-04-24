@@ -25,8 +25,8 @@ public:
 		assert("Not Valid Parameters" && m_Material && m_Mesh);
 	}
 
-	const std::shared_ptr<Material> GetMaterial() const { return m_Material; }
-	const std::shared_ptr<MeshBase> GetMesh() const { return m_Mesh; }
+	const std::shared_ptr<Material> GetMaterial() const		{ return m_Material; }
+	const std::shared_ptr<MeshBase> GetMesh() const			{ return m_Mesh; }
 
 private:
 	std::shared_ptr<Material> m_Material;
@@ -39,10 +39,11 @@ class RenderInfo : public Component {
 	COMPONENT_CONSTRUCTOR(RenderInfo, Component)
 public:
 	
+	const std::shared_ptr<Model> GetModel() const			{ return m_Model; }
+	const std::vector<Renderable> & GetRenerables() const	{ return m_Renderables; }
+	bool IsVisible() const									{ return m_IsVisible; }
+
 	void SetModel(const std::shared_ptr<Model>& model);
-	const std::shared_ptr<Model> GetModel() const { return m_Model; }
-	const std::vector<Renderable> & GetRenerables() const { return m_Renderables; }
-	bool IsVisible() const { return m_IsVisible; }
 	void OnGui() override;
 
 	std::shared_ptr<VertexShader> Vshader;

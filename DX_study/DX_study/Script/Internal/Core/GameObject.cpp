@@ -10,7 +10,7 @@
 
 GameObject::GameObject(const std::string & name) :
 	m_Transform(std::make_shared<Transform>(this)),
-	m_Renderer(Pool::CreateInstance<RenderInfo>(this)),
+	m_Renderer(Core::CreateInstance<RenderInfo>(this)),
 	Object(name)
 {
 	m_Transform->SetParent(Core::GetWorldTransform());

@@ -94,7 +94,7 @@ bool CreateAnimation(const std::string & dirPath, const std::string& name) {
 
 		animImporter.LoadAnimation(
 			avatarName + "_" + StringHelper::EraseFileExtension(name),
-			Pool::Find<SkinnedModel>(avatarName), pScene);
+			Core::Find<SkinnedModel>(avatarName), pScene);
 	}
 
 	return true;
@@ -122,7 +122,7 @@ void Importer::LoadVertexShader2D(const std::string & dirPath, const std::string
 			{"TEXCOORD", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
 		};
 
-		auto vs = Pool::CreateInstance<VertexShader>();
+		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
 			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
@@ -144,7 +144,7 @@ void Importer::LoadVertexShader3D(const std::string & dirPath, const std::string
 			{"NORMAL", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
 		};
 
-		auto vs = Pool::CreateInstance<VertexShader>();
+		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
 			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
@@ -168,13 +168,13 @@ void Importer::LoadVertexShader(const std::string & dirPath, const std::string& 
 			{"BONEWEIGHT", 0, DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_CLASSIFICATION::D3D11_INPUT_PER_VERTEX_DATA}
 		};
 
-		auto vs = Pool::CreateInstance<VertexShader>();
+		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
 			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
 			ARRAYSIZE(layout)))
 		{
-			Pool::Destroy(vs);
+			Core::Destroy(vs);
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
 	}
@@ -185,7 +185,7 @@ void Importer::LoadPixelShader(const std::string & dirPath, const std::string& n
 	std::string ext = StringHelper::GetFileExtension(name);
 	if (ext == "hlsl")
 	{
-		auto ps = Pool::CreateInstance<PixelShader>();
+		auto ps = Core::CreateInstance<PixelShader>();
 		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
@@ -200,7 +200,7 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 		ext == "png" ||
 		ext == "bmp")
 	{
-		Pool::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
+		Core::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
 	}
 }
 

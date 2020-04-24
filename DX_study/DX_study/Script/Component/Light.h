@@ -16,6 +16,7 @@ public:
 	void Awake() override;
 	virtual void ProcessLight() {}
 	virtual bool CullRenderable(const DirectX::BoundingBox &) { return false; }
+	virtual bool IsShadowEnable() { return false; }
 
 	void PushToRenderQueue(const Renderable & renderable)							{ m_ShaderMapRenderQueue.push(renderable); }
 	ID3D11RenderTargetView *			GetShadowMapRenderTargetView() const		{ return m_ShadowMapRenderTargetView.Get(); }
@@ -43,6 +44,7 @@ class SpotLight : public LightBase {
 public:
 	DirectX::XMMATRIX GetLightViewProjectMat() const;
 	bool CullRenderable(const DirectX::BoundingBox &) override;
+	bool IsShadowEnable() override { return m_IsShadowEnable; }
 	void ProcessLight() override;
 	void OnGui() override;
 
@@ -54,6 +56,7 @@ public:
 private:
 	void SetProjectionMatrix();
 
+	bool m_IsShadowEnable = true;
 	float m_Range = 10.0f;
 	float m_SpotAngle = 1.0f;
 
@@ -64,7 +67,12 @@ private:
 class DirectionalLight : public LightBase {
 	COMPONENT_CONSTRUCTOR(DirectionalLight, LightBase)
 public:
+	bool IsShadowEnable() override { return m_IsShadowEnable; }
 	bool CullRenderable(const DirectX::BoundingBox &) override { return true; }
+
+private:
+
+	bool m_IsShadowEnable = true;
 };
 
 class PointLight : public LightBase {

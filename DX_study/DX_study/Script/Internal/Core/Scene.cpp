@@ -33,14 +33,14 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 void Scene::Initialize()
 {
 	ProcessGameObjectTable();
-	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Pool::Find<AnimationClip>("X_Bot_Idle"));
-	Pool::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
+	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
+	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
-	auto light = Pool::CreateInstance<Light>();
+	auto light = Core::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
-	light->GetRendererable().SetModel(Pool::Find<Model>("light"));
+	light->GetRendererable().SetModel(Core::Find<Model>("light"));
 
-	m_MainCam = Pool::CreateInstance<Camera>();
+	m_MainCam = Core::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
 	m_MainCam->SetProjectionValues(
 		90.0f, 
@@ -57,7 +57,7 @@ void Scene::ProcessGameObjectTable()
 	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
 	int rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {
-		auto gameObject = Pool::CreateInstance<GameObject>(table["Name"][i]);
+		auto gameObject = Core::CreateInstance<GameObject>(table["Name"][i]);
 
 		auto splitted = Importer::SplitString(table["Position"][i], '/');
 		gameObject->GetTransform().SetPosition(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
@@ -69,11 +69,11 @@ void Scene::ProcessGameObjectTable()
 		gameObject->GetTransform().SetScale(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
 
 		if (table["TransformParent"][i] != "null") {
-			gameObject->GetTransform().SetParent(Pool::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
+			gameObject->GetTransform().SetParent(Core::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
 		}
 
 		if (table["Model"][i] != "null") {
-			gameObject->GetRendererable().SetModel(Pool::Find<Model>(table["Model"][i]));
+			gameObject->GetRendererable().SetModel(Core::Find<Model>(table["Model"][i]));
 		}
 
 		if (table["AddComponent"][i] != "null") {
@@ -86,7 +86,7 @@ void Scene::ProcessGameObjectTable()
 		}
 	}
 
-	Pool::ObjectPool<GameObject>::GetInstance().ForEach(AwakeGameObject);
+	Core::Pool<GameObject>::GetInstance().ForEach(AwakeGameObject);
 }
 
 void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
