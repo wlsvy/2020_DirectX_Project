@@ -15,9 +15,10 @@
 #include "../Engine/Engine.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
+#include "../../Component/Animator.h"
+#include "../../Component/Light.h"
 #include "../../Component/Custom/CamMove.h"
 #include "../../Component/Custom/CharacterMove.h"
-#include "../../Component/Animator.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
@@ -39,6 +40,7 @@ void Scene::Initialize()
 	auto light = Core::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
 	light->GetRendererable().SetModel(Core::Find<Model>("light"));
+	light->AddComponent<SpotLight>()->Awake();
 
 	m_MainCam = Core::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);

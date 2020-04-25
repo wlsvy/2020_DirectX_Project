@@ -35,6 +35,11 @@ ConstantBuffer<CB_VS_vertexshader>& Core::GetCbVertexShader()
 	return Engine::Get().GetGraphics().GetCbVertexShader();
 }
 
+ConstantBuffer<CB_VS_boneData> & Core::GetCbBoneData()
+{
+	return Engine::Get().GetGraphics().GetCbBoneInfo();
+}
+
 Scene & Core::GetCurrentScene()
 {
 	return Engine::Get().GetCurrentScene();

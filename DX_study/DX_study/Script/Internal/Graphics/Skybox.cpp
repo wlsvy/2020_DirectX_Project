@@ -76,8 +76,6 @@ bool Skybox::Make_CubeMap()
 		ThrowIfFailed(hr, "Failed to create CubeMap Texture.");
 
 		//Copy individual texture elements into texture array.
-		ID3D11DeviceContext* pd3dContext;
-		Core::GetDevice()->GetImmediateContext(&pd3dContext);
 		D3D11_BOX sourceRegion;
 
 		//Here i copy the mip map levels of the textures

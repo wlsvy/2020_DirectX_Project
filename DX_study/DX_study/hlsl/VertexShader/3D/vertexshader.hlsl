@@ -6,7 +6,14 @@ cbuffer perObjectBuffer : register(b0)
     float4x4 worldMatrix;
     float4x4 vpMatrix;
 };
-//상수버퍼 : 셰이더가 접근할 수 있는 다양한 자료를 저장하는 유연한 자료 블록
+
+cbuffer ShadowMapData : register(b2)
+{
+    float4x4 lightVPmatrix;
+    float3 lightpos;
+    float pad;
+}
+
 struct VS_INPUT
 {
     float3 inPos : POSITION;
@@ -16,10 +23,12 @@ struct VS_INPUT
 
 struct VS_OUTPUT
 {
-	float4 outPosition : SV_POSITION;
-    float2 outTexCoord : TEXCOORD;
+    float4 outPosition : SV_Position;
+    float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL;
     float3 outWorldPos : WORLD_POSITION;
+    float4 outLightPosition : TEXCOORD1;
+    float4 outToLightDir : TEXCOORD2;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -29,7 +38,10 @@ VS_OUTPUT main(VS_INPUT input)
     output.outTexCoord = input.inTexCoord;
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), worldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), worldMatrix);
+    //output.outPosition = mul(float4(output.outWorldPos.xyz, 1.0f), lightVPmatrix);
 
-    output.outPosition = mul(output.outPosition, 10.0f);
+
+    output.outLightPosition = mul(float4(output.outWorldPos.xyz, 1.0f), lightVPmatrix);
+    output.outToLightDir = float4(normalize(lightpos.xyz - output.outWorldPos.xyz), 0.0f);
     return output;
 }

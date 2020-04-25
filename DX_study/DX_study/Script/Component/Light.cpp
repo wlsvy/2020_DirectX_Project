@@ -18,14 +18,19 @@ void LightBase::Awake() {
 		textureDesc.Height = 720;
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R8_UNORM;
+		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 		textureDesc.SampleDesc.Count = 1;
 		textureDesc.Usage = D3D11_USAGE_DEFAULT;
 		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
+
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2;
 		ThrowIfFailed(
 			Core::GetDevice()->CreateTexture2D(&textureDesc, NULL, m_ShadowMapRenderTargetTexture.GetAddressOf()),
+			"Failed to create renderTargetTextureArr.");
+		ThrowIfFailed(
+			Core::GetDevice()->CreateTexture2D(&textureDesc, NULL, texture2.GetAddressOf()),
 			"Failed to create renderTargetTextureArr.");
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
@@ -35,6 +40,9 @@ void LightBase::Awake() {
 		ThrowIfFailed(
 			Core::GetDevice()->CreateRenderTargetView(m_ShadowMapRenderTargetTexture.Get(), &renderTargetViewDesc, m_ShadowMapRenderTargetView.GetAddressOf()),
 			"Failed to create renderTargetViewArr.");
+		ThrowIfFailed(
+			Core::GetDevice()->CreateRenderTargetView(texture2.Get(), &renderTargetViewDesc, m_ResultRenderTargetView.GetAddressOf()),
+			"Failed to create renderTargetViewArr.");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
 		shaderResourceViewDesc.Format = textureDesc.Format;
@@ -43,6 +51,9 @@ void LightBase::Awake() {
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
 		ThrowIfFailed(
 			Core::GetDevice()->CreateShaderResourceView(m_ShadowMapRenderTargetTexture.Get(), &shaderResourceViewDesc, m_ShadowMapShaderResourceView.GetAddressOf()),
+			"Failed to create shaderResourceViewArr.");
+		ThrowIfFailed(
+			Core::GetDevice()->CreateShaderResourceView(texture2.Get(), &shaderResourceViewDesc, m_ResultShaderResourceView.GetAddressOf()),
 			"Failed to create shaderResourceViewArr.");
 	}
 	catch (CustomException & exception) {
@@ -57,7 +68,7 @@ DirectX::XMMATRIX SpotLight::GetLightViewProjectMat() const
 
 bool SpotLight::CullRenderable(const DirectX::BoundingBox & src)
 {
-	return m_Frustum.Contains(src) != DirectX::DISJOINT;
+	return m_Frustum.Contains(src) == DirectX::DISJOINT;
 }
 
 void SpotLight::ProcessLight()
@@ -70,11 +81,17 @@ void SpotLight::OnGui()
 	float range = m_Range;
 	float angle = m_SpotAngle;
 
-	ImGui::DragFloat("Range", &range, 0.1f, 0.0f, 300.0f);
+	ImGui::DragFloat("Range", &range, 0.1f, 0.2f, 300.0f);
+	ImGui::DragFloat("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
 	ImGui::DragFloat("SpotAngle", &angle, 0.1f, -180.0f, 180.0f);
 
 	if (range != m_Range) SetRange(range);
 	if (angle != m_SpotAngle) SetSpotAngle(angle);
+
+	ImGuiIO& io = ImGui::GetIO();
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+	ImGui::Image(m_ShadowMapShaderResourceView.Get(), scene_size);
+	ImGui::Image(m_ResultShaderResourceView.Get(), scene_size);
 }
 
 void SpotLight::SetRange(float range)
@@ -92,7 +109,7 @@ void SpotLight::SetSpotAngle(float angle)
 void SpotLight::SetProjectionMatrix()
 {
 	float fovRadians = (m_SpotAngle / 360.0f) * DirectX::XM_2PI;
-	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1.0f, 0.1f, m_Range);
+	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1280/720, 0.1f, m_Range);
 }
 
 void LightBase::OnGui()
@@ -102,5 +119,5 @@ void LightBase::OnGui()
 }
 
 bool PointLight::CullRenderable(const DirectX::BoundingBox & target) {
-	return Math::GetDistance(m_GameObject->GetTransform(), target.Center) < Range;
+	return Math::GetDistance(m_GameObject->GetTransform(), target.Center) > Range;
 }

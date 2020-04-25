@@ -15,6 +15,12 @@ struct CB_VS_boneData {
 	DirectX::XMMATRIX boneTransform[MAX_BONE];
 };
 
+struct CB_VS_ShadowMapData {
+	DirectX::XMMATRIX lightVPmat;
+	DirectX::XMFLOAT3 lightPosition;
+	float pad;
+};
+
 //8 bytes -> 16 bytes(padding) -> 데이터 정렬 반드시 해야 함. 변수 위치 중요
 
 struct CB_SpottLight {
@@ -64,7 +70,10 @@ struct CB_PS_light {
 
 	DirectX::XMFLOAT3 attenuation;
 	float pad;
+
+	DirectX::XMMATRIX vpMat;
 };
+
 
 struct CB_PS_Material {
 	DirectX::XMFLOAT4 color;

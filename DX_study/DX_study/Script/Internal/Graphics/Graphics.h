@@ -5,6 +5,7 @@
 
 #include "ConstantBuffer.h"
 #include "../Engine/DeviceResources.h"
+#include "ShadowMap.h"
 
 class BufferBase;
 class Texture;
@@ -23,6 +24,7 @@ class Animator;
 class VertexShader;
 class PixelShader;
 class Material;
+class LightBase;
 
 class Graphics {
 public:
@@ -38,6 +40,7 @@ public:
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void PostProcess();
 	void DrawGui();
+	void DrawShadowMap(const std::shared_ptr<LightBase> & light);
 	void DrawSkybox();
 	void DrawGuiDebug();
 	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
@@ -60,6 +63,7 @@ private:
 	ConstantBuffer<CB_VS_boneData> cb_vs_BoneInfo;
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
+	ConstantBuffer<CB_VS_ShadowMapData> cb_vs_ShadowMapData;
 
 	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
@@ -70,4 +74,6 @@ private:
 	int windowHeight = 0;
 	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+	ShadowMap m_ShadowMap;
 };

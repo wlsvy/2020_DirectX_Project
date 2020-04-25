@@ -228,6 +228,12 @@
     <ClCompile Include="Script\Internal\Graphics\Material.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Core\ObjectPool_Front.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Graphics\ShadowMap.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -413,6 +419,12 @@
     <ClInclude Include="Script\Internal\Graphics\Material.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Script\Internal\Core\ObjectPool_Front.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\ShadowMap.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">
@@ -468,5 +480,8 @@
     <FxCompile Include="hlsl\VertexShader\2D\vertexshader_skybox.hlsl">
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\3D\vertexshader_depth.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_depth.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\pixelshader_shadowmap.hlsl" />
   </ItemGroup>
 </Project>

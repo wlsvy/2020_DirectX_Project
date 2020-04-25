@@ -7,10 +7,12 @@
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../Core/GameObject.h"
+#include "../core/ObjectPool_Front.h"
 #include "../Graphics/Graphics.h"
 #include "../../Component/Animator.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Behaviour.h"
+#include "../../Component/Light.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 
@@ -40,6 +42,7 @@ Engine::~Engine()
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
+	Core::LightPool::GetInstance();
 	m_Timer->Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
@@ -88,9 +91,14 @@ void Engine::RenderFrame()
 	auto& dr = m_Graphics->GetDeviceResources();
 
 	m_Graphics->RenderFrame();
+
+	//shadowmap
+	m_Graphics->DrawShadowMap(Core::Find<Light>("Light")->GetComponent<SpotLight>());
+
 	m_Graphics->SetRenderTarget(m_Graphics->GetDeviceResources().GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 	m_Graphics->DrawSkybox();
+
 	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));
 	m_Graphics->PostProcess();
 	m_Graphics->DrawGuiDebug();

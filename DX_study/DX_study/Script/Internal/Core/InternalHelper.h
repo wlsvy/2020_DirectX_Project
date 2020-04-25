@@ -10,6 +10,7 @@ class Graphics;
 template<typename T>
 class ConstantBuffer;
 struct CB_VS_vertexshader;
+struct CB_VS_boneData;
 class Scene;
 class Transform;
 class Object;
@@ -22,7 +23,8 @@ namespace Core {
 	ID3D11DeviceContext* GetDeviceContext();
 
 	Graphics& GetGraphics();
-	ConstantBuffer<CB_VS_vertexshader>& GetCbVertexShader();
+	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader();
+	ConstantBuffer<CB_VS_boneData> & GetCbBoneData();
 
 	Scene& GetCurrentScene();
 	std::shared_ptr<Transform> GetWorldTransform();

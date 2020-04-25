@@ -151,6 +151,7 @@ void GUI::DrawDeferredChannelImage()
 	ImGui::Image(deviceResources.GetRenderTargetSrv(1), scene_size);
 	ImGui::Image(deviceResources.GetRenderTargetSrv(2), scene_size);
 	ImGui::Image(deviceResources.GetRenderTargetSrv(3), scene_size);
+	ImGui::Image(deviceResources.GetRenderTargetSrv(4), scene_size);
 	ImGui::End();
 }
 

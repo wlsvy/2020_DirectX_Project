@@ -59,13 +59,16 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, this->depthStencilBuffer.GetAddressOf());
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer, depthStencilBuffer2;
+		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
+		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer2.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
 
-		hr = this->device->CreateDepthStencilView(this->depthStencilBuffer.Get(), NULL, this->depthStencilView.GetAddressOf());
+		hr = this->device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, this->mainDepthStencilView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil view.");
-
-		this->deviceContext->OMSetRenderTargets(1, this->mainRenderTargetView.GetAddressOf(), this->depthStencilView.Get());
+		hr = this->device->CreateDepthStencilView(depthStencilBuffer2.Get(), NULL, this->subDepthStencilView.GetAddressOf());
+		ThrowIfFailed(hr, "Failed to create depth stencil view.");
 
 		//Create depth stencil state ½ºÅÙ½Ç & µª½º
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);

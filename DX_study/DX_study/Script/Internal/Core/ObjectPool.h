@@ -12,9 +12,12 @@ class Scene;
 class Graphics;
 
 namespace Core {
+	//클래스 추상화, Init 달아버리기
 	template<typename T>
 	class Pool : public Singleton<Pool<T>> {
 	public:
+		virtual void Initialize() {}
+
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.push_back(obj);
 		}
@@ -48,7 +51,7 @@ namespace Core {
 			return std::shared_ptr<T>();
 		}
 
-	private:
+	protected:
 		std::vector<std::shared_ptr<T>> m_Objects;
 	};
 

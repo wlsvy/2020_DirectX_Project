@@ -8,17 +8,19 @@
 struct ID3D11RenderTargetView;
 struct ID3D11ShaderResourceView;
 struct ID3D11Texture2D;
+class Graphics;
 
 class LightBase abstract : public Component {
+	friend class Graphics;
 	COMPONENT_CONSTRUCTOR(LightBase, Component)
 	MANAGED_OBJECT(LightBase)
 public:
 	void Awake() override;
 	virtual void ProcessLight() {}
-	virtual bool CullRenderable(const DirectX::BoundingBox &) { return false; }
+	virtual bool CullRenderable(const DirectX::BoundingBox &) { return true; }
 	virtual bool IsShadowEnable() { return false; }
 
-	void PushToRenderQueue(const Renderable & renderable)							{ m_ShaderMapRenderQueue.push(renderable); }
+	void PushToRenderQueue(const std::shared_ptr<RenderInfo> & r)					{ m_ShaderMapRenderQueue.push(r); }
 	ID3D11RenderTargetView *			GetShadowMapRenderTargetView() const		{ return m_ShadowMapRenderTargetView.Get(); }
 	ID3D11RenderTargetView* const *		GetShadowMapRenderTargetViewAddr() const	{ return m_ShadowMapRenderTargetView.GetAddressOf(); }
 	ID3D11ShaderResourceView *			GetShadowMapShaderResourceView() const		{ return m_ShadowMapShaderResourceView.Get(); }
@@ -29,19 +31,24 @@ public:
 	static const float LIGHT_STRENGTH_MAX;
 
 	DirectX::XMFLOAT3 Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	float Strength = 1.0f;
+	float Strength = 3.0f;
 protected:
-	std::queue<Renderable> m_ShaderMapRenderQueue;
+	std::queue<std::shared_ptr<RenderInfo>> m_ShaderMapRenderQueue;
 
-private:
+public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ShadowMapRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShadowMapShaderResourceView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_ShadowMapRenderTargetTexture;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ResultRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ResultShaderResourceView;
+	
 };
 
 class SpotLight : public LightBase {
+	friend class Graphics;
 	COMPONENT_CONSTRUCTOR(SpotLight, LightBase)
 public:
+	void Awake() override { LightBase::Awake(); SetProjectionMatrix(); }
 	DirectX::XMMATRIX GetLightViewProjectMat() const;
 	bool CullRenderable(const DirectX::BoundingBox &) override;
 	bool IsShadowEnable() override { return m_IsShadowEnable; }
@@ -57,8 +64,8 @@ private:
 	void SetProjectionMatrix();
 
 	bool m_IsShadowEnable = true;
-	float m_Range = 10.0f;
-	float m_SpotAngle = 1.0f;
+	float m_Range = 50.0f;
+	float m_SpotAngle = 90.0f;
 
 	DirectX::XMMATRIX m_ProjectionMatrix;
 	DirectX::BoundingFrustum m_Frustum;
@@ -68,7 +75,7 @@ class DirectionalLight : public LightBase {
 	COMPONENT_CONSTRUCTOR(DirectionalLight, LightBase)
 public:
 	bool IsShadowEnable() override { return m_IsShadowEnable; }
-	bool CullRenderable(const DirectX::BoundingBox &) override { return true; }
+	bool CullRenderable(const DirectX::BoundingBox &) override { return false; }
 
 private:
 
