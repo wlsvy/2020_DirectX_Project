@@ -63,7 +63,8 @@ void LightBase::Awake() {
 
 DirectX::XMMATRIX SpotLight::GetLightViewProjectMat() const
 {
-	return m_GameObject->GetTransform().GetViewMatrix() * m_ProjectionMatrix;
+	auto vpMat = m_GameObject->GetTransform().GetViewMatrix() * m_ProjectionMatrix;
+	return vpMat;
 }
 
 bool SpotLight::CullRenderable(const DirectX::BoundingBox & src)

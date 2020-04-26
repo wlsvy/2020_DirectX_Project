@@ -12,13 +12,6 @@ cbuffer boneBuffer : register(b1)
     float4x4 boneTransform[MAX_BONE_NUM];
 };
 
-cbuffer ShadowMapData : register(b2)
-{
-    float4x4 lightVPmatrix;
-    float3 lightpos;
-    float pad;
-}
-
 struct VS_INPUT
 {
     float3 inPos : POSITION;
@@ -34,8 +27,6 @@ struct VS_OUTPUT
     float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL0;
     float3 outWorldPos : WORLD_POSITION0;
-    float4 outLightPosition : TEXCOORD1;
-    float4 outToLightDir : TEXCOORD2;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -54,8 +45,5 @@ VS_OUTPUT main(VS_INPUT input)
     output.outTexCoord = input.inTexCoord;
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), animatedWorldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
-    
-    output.outLightPosition = mul(float4(output.outWorldPos.xyz, 1.0f), lightVPmatrix);
-    output.outToLightDir = float4(normalize(lightpos.xyz - output.outWorldPos.xyz), 0.0f);
     return output;
 }

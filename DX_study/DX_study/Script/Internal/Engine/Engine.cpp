@@ -92,7 +92,6 @@ void Engine::RenderFrame()
 
 	m_Graphics->RenderFrame();
 
-	//shadowmap
 	m_Graphics->DrawShadowMap(Core::Find<Light>("Light")->GetComponent<SpotLight>());
 
 	m_Graphics->SetRenderTarget(m_Graphics->GetDeviceResources().GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
