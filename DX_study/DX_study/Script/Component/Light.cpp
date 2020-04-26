@@ -83,7 +83,7 @@ void SpotLight::OnGui()
 	float angle = m_SpotAngle;
 
 	ImGui::DragFloat("Range", &range, 0.1f, 0.2f, 300.0f);
-	ImGui::DragFloat("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
+	ImGui::DragFloat3("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
 	ImGui::DragFloat("SpotAngle", &angle, 0.1f, -180.0f, 180.0f);
 
 	if (range != m_Range) SetRange(range);
@@ -92,7 +92,6 @@ void SpotLight::OnGui()
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
 	ImGui::Image(m_ShadowMapShaderResourceView.Get(), scene_size);
-	ImGui::Image(m_ResultShaderResourceView.Get(), scene_size);
 }
 
 void SpotLight::SetRange(float range)

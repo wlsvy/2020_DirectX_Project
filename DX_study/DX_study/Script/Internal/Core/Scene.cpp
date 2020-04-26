@@ -39,7 +39,7 @@ void Scene::Initialize()
 
 	auto light = Core::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
-	light->GetRendererable().SetModel(Core::Find<Model>("light"));
+	//light->GetRendererable().SetModel(Core::Find<Model>("light"));
 	light->AddComponent<SpotLight>()->Awake();
 
 	m_MainCam = Core::CreateInstance<Camera>();

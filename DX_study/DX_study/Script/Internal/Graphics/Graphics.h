@@ -5,7 +5,6 @@
 
 #include "ConstantBuffer.h"
 #include "../Engine/DeviceResources.h"
-#include "ShadowMap.h"
 
 class BufferBase;
 class Texture;
@@ -32,12 +31,13 @@ public:
 	bool ProcessMaterialTable();
 
 	void RenderFrame();
+	void RenderModels();
 	void PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer);
 	void DrawMesh(const std::shared_ptr<MeshBase>& mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
 	void DebugDraw(const std::shared_ptr<RenderInfo>& renderer);
-	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
+	
 	void PostProcess();
 	void DrawGui();
 	void DrawShadowMap(const std::shared_ptr<LightBase> & light);
@@ -56,6 +56,10 @@ public:
 	int GetWindowHeight() const { return windowHeight; }
 
 private:
+	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
+	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
+	bool ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer);
+
 	DeviceResources m_DeviceResources;
 
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
@@ -65,6 +69,7 @@ private:
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
 
 	std::shared_ptr<Skybox> m_Skybox;
+	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
 	std::shared_ptr<Model> m_PostProcesWindowModel;
@@ -73,6 +78,21 @@ private:
 	int windowHeight = 0;
 	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	UINT m_DrawFlag = 0;
 
-	ShadowMap m_ShadowMap;
+	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::DeferredRenderChannelCount] = { NULL, };
+
+	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
+
+	struct DrawFlag {
+		enum {
+			None = 0,
+			Apply_MaterialVertexShader = 1,
+			Apply_MaterialPixelShader = 1 << 1,
+			Apply_SkinnedMeshBone = 1 << 2,
+			Apply_MaterialTexture = 1 << 3,
+			Apply_ViewFrustumCulling = 1 << 4,
+			All = (1 << 31) - 1
+		};
+	};
 };
