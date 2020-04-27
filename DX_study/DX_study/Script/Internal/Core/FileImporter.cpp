@@ -13,6 +13,7 @@
 #include "../Graphics/AnimationClip.h"
 #include "../Graphics/Shaders.h"
 #include "../../Util/StringHelper.h"
+#include "../../Util/Math.h"
 
 bool ModelImporter::CreateModel(
 	const std::string & dirPath,
@@ -79,6 +80,8 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
+
+	Math::ComputeVertexTangent(vertices, indices);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
@@ -299,6 +302,8 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		for (UINT j = 0; j < face.mNumIndices; j++)
 			indices.push_back(face.mIndices[j]);
 	}
+
+	Math::ComputeVertexTangent(vertices, indices);
 
 	//Get Material & Textures
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];

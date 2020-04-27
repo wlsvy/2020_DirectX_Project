@@ -12,6 +12,7 @@ struct VS_INPUT
     float3 inPos : POSITION;
     float2 inTexCoord : TEXCOORD;
     float3 inNormal : NORMAL;
+    float4 inTangent : TANGENT0;
 };
 
 struct VS_OUTPUT

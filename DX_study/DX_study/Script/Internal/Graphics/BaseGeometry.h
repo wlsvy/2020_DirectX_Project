@@ -8,6 +8,7 @@
 #include "Texture.h"
 #include "../Core/ObjectPool.h"
 #include "../../Util/ErrorLogger.h"
+#include "../../Util/Math.h"
 
 namespace BaseGeometry {
 	using DirectX::operator+;
@@ -15,7 +16,7 @@ namespace BaseGeometry {
 	using DirectX::operator/=;
 
 	static void CreateBox() {
-		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
+		std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 			{-0.5f, -0.5f, -0.5f,		0.0f, 1.0f,		 0.0f, 0.0f, -1.0f},
 			{-0.5f, +0.5f, -0.5f,		0.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
 			{+0.5f, +0.5f, -0.5f,		1.0f, 0.0f,		 0.0f, 0.0f, -1.0f},
@@ -41,7 +42,7 @@ namespace BaseGeometry {
 			{+0.5f, +0.5f, +0.5f,		1.0f, 0.0f,		  1.0f, 0.0f, 0.0f},
 			{+0.5f, -0.5f, +0.5f,		1.0f, 1.0f,		  1.0f, 0.0f, 0.0f}
 		};
-		const std::vector<DWORD> indices = {
+		std::vector<DWORD> indices = {
 			0,	1,	2,
 			0,	2,	3,
 			4,	5,	6,
@@ -56,6 +57,8 @@ namespace BaseGeometry {
 			20,	22,	23
 		};
 
+		Math::ComputeVertexTangent(vertices, indices);
+
 		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
 			indices,
@@ -65,16 +68,18 @@ namespace BaseGeometry {
 		Core::CreateInstance<Model>(mesh, "Box");
 	}
 	static void CreatePlane() {
-		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
+		std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
 			{-0.5, -0.5, 0.0f,     0.0f, 1.0f,    0.0f, 0.0f, -1.0f},
 			{-0.5, +0.5, 0.0f,     0.0f, 0.0f,    0.0f, 0.0f, -1.0f},
 			{+0.5, +0.5, 0.0f,     1.0f, 0.0f,    0.0f, 0.0f, -1.0f},
 			{+0.5, -0.5, 0.0f,     1.0f, 1.0f,    0.0f, 0.0f, -1.0f}
 		};
-		const std::vector<DWORD> indices = {
+		std::vector<DWORD> indices = {
 			0, 1, 2,
 			0, 2, 3,
 		};
+
+		Math::ComputeVertexTangent(vertices, indices);
 
 		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
@@ -161,6 +166,8 @@ namespace BaseGeometry {
 			indices.push_back(baseIndex + i + 1);
 		}
 
+		Math::ComputeVertexTangent(vertices, indices);
+
 		auto mesh = Core::CreateInstance<Mesh>(
 			vertices,
 			indices,
@@ -182,4 +189,7 @@ namespace BaseGeometry {
 			return false;
 		}
 	}
+
+
+
 };
