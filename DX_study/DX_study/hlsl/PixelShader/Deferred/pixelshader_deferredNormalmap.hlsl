@@ -4,6 +4,7 @@ struct PS_INPUT
 	float2 inTexCoord : TEXCOORD0;
 	float3 inNormal : NORMAL0;
 	float3 inWorldPos : WORLD_POSITION0;
+	float4 inTangent : TANGENT;
 };
 
 struct PS_OUTPUT
@@ -45,6 +46,21 @@ Texture2D shadowMap : TEXTURE : register(t3);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState objSamplerState1 : SAMPLER : register(s1);
+
+float3 CalcPerPixelNormal(float2 vTexcoord, float3 vVertNormal, float3 vVertTangent)
+{
+	//vVertNormal = normalize(vVertNormal);
+	//vVertTangent = normalize(vVertTangent);
+
+	float3 vVertBinormal = normalize(cross(vVertTangent, vVertNormal));
+	float3x3 mTangentSpaceToWorldSpace = float3x3(vVertTangent, vVertBinormal, vVertNormal);
+
+	float3 vBumpNormal = (float3) normalMap.Sample(objSamplerState1, vTexcoord);
+	vBumpNormal = 2.0f * vBumpNormal - 1.0f;
+
+	return mul(vBumpNormal, mTangentSpaceToWorldSpace);
+}
+
 
 float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
 {
@@ -91,11 +107,8 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 	output.pos = float4(input.inWorldPos, 1.0f);
 	output.color = objTexture.Sample(objSamplerState, input.inTexCoord) * materialColor;
 	
-	float3 textureNormal = normalMap.Sample(objSamplerState, input.inTexCoord);
-	textureNormal = (textureNormal * 2.0f) - 1.0f;
-	textureNormal = textureNormal.z * input.inNormal;
-	//output.normal = float4(normalize(textureNormal), 1.0f);
-	output.normal = float4(textureNormal, 1.0f);
+	float3 calNormal = CalcPerPixelNormal(input.inTexCoord, input.inNormal, input.inTangent.xyz);
+	output.normal = float4(calNormal, 1.0f);
 	
 	float4 lightSpacePos = mul(float4(input.inWorldPos, 1.0f), transpose(lightVPmatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
 	output.light = CalculateShadow(0, lightSpacePos) * CalculateLightColor(input.inWorldPos.xyz, input.inNormal);

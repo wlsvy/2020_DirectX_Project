@@ -283,10 +283,12 @@ void Graphics::PostProcess()
 		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
 		m_DeviceResources.GetBaseDepthStencilView());
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, m_DeviceResources.GetRenderTargetSrvAddress(5));	//blur 계산이후
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));	//pos
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));	//normal
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//color
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());	//shadowmap
+	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
+
 
 
 	auto& mesh = m_PostProcesWindowModel->GetMeshes()[0];
@@ -341,6 +343,8 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	auto spotLight = std::dynamic_pointer_cast<SpotLight>(light);
 	m_TargetViewProjectionMatrix = spotLight->GetLightViewProjectMat();
 	m_CullFrustum = DirectX::BoundingFrustum(spotLight->GetProjectionMatrix());
+	m_CullFrustum.Origin = spotLight->GetGameObject()->GetTransformPtr()->position;
+	DirectX::XMStoreFloat4(&m_CullFrustum.Orientation, spotLight->GetGameObject()->GetTransformPtr()->GetQuaternion());
 
 	auto& dr = Engine::Get().GetGraphics().GetDeviceResources();
 	

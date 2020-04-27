@@ -4,6 +4,7 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL0;
     float3 inWorldPos : WORLD_POSITION0;
+    float4 inTangent : TANGENT;
 };
 
 struct PS_OUTPUT
@@ -66,7 +67,6 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
     }
     return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
-
 
 float4 CalculateLightColor(float3 worldPos, float3 normal)
 {

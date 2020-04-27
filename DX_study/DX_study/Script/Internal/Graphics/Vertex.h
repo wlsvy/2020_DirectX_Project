@@ -18,10 +18,10 @@ struct Vertex3D {
 		: pos(x, y, z), 
 		texCoord(u, v), 
 		normal(nx, ny, nz) {}
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT2 texCoord;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT4 tangent;
+	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT2 texCoord = DirectX::XMFLOAT2(0.0f, 0.0f);
+	DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT4 tangent = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 };
 
 struct SkinnedVertex {
@@ -38,10 +38,10 @@ struct SkinnedVertex {
 		boneIDs(boneID0, boneID1, boneID2, boneID3),
 		boneWeights(weight0, weight1, weight2, weight3) {}
 
-	DirectX::XMFLOAT3 pos;
-	DirectX::XMFLOAT2 texCoord;
-	DirectX::XMFLOAT3 normal;
-	DirectX::XMFLOAT4 tangent;
+	DirectX::XMFLOAT3 pos = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT2 texCoord = DirectX::XMFLOAT2(0.0f, 0.0f);
+	DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
+	DirectX::XMFLOAT4 tangent = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 
 	DirectX::XMINT4 boneIDs = DirectX::XMINT4(-1, -1, -1, -1);
 	DirectX::XMFLOAT4 boneWeights = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
