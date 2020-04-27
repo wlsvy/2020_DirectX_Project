@@ -483,5 +483,6 @@
     <FxCompile Include="hlsl\VertexShader\3D\vertexshader_depth.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowmap.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowMapDepth.hlsl" />
+    <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
   </ItemGroup>
 </Project>

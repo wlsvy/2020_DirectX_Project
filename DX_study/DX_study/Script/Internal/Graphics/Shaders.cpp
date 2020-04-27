@@ -1,4 +1,7 @@
 #include "Shaders.h"
+
+#pragma comment(lib, "D3DCompiler.lib")
+#include <d3dcompiler.h>
 #include "../Core/InternalHelper.h"
 #include "../Core/ObjectPool.h"
 #include "../../Util/StringHelper.h"
@@ -11,40 +14,27 @@ bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMEN
 	Name = StringHelper::GetFileNameFromPath(shaderpath);
 	auto wstr = StringHelper::StringToWide(shaderpath);
 
-	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->m_ShaderBuffer.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
 
-	hr = Core::GetDevice()->CreateVertexShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
+	hr = Core::GetDevice()->CreateVertexShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create vertex shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
 
-	hr = Core::GetDevice()->CreateInputLayout(layoutDesc, numElements, this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), this->inputLayout.GetAddressOf());
+	hr = Core::GetDevice()->CreateInputLayout(layoutDesc, numElements, this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), this->inputLayout.GetAddressOf());
 	if (FAILED(hr)) {
 		ErrorLogger::Log(hr, "Failed to create input layer.");
 		return false;
 	}
 
 	return true;
-}
-
-ID3D11VertexShader * VertexShader::GetShader() {
-	return this->shader.Get();
-}
-
-ID3D10Blob * VertexShader::GetBuffer() {
-	return this->shader_buffer.Get();
-}
-
-ID3D11InputLayout * VertexShader::GetInputLayout()
-{
-	return this->inputLayout.Get();
 }
 
 std::shared_ptr<PixelShader> PixelShader::GetDefault() {
@@ -54,7 +44,7 @@ std::shared_ptr<PixelShader> PixelShader::GetDefault() {
 bool PixelShader::Initialize(const std::string & shaderpath) {
 	Name = StringHelper::GetFileNameFromPath(shaderpath);
 	auto wstr = StringHelper::StringToWide(shaderpath);
-	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->shader_buffer.GetAddressOf());
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->m_ShaderBuffer.GetAddressOf());
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + wstr;
@@ -62,9 +52,9 @@ bool PixelShader::Initialize(const std::string & shaderpath) {
 		return false;
 	}
 
-	hr = Core::GetDevice()->CreatePixelShader(this->shader_buffer->GetBufferPointer(), this->shader_buffer->GetBufferSize(), NULL, this->shader.GetAddressOf());
+	hr = Core::GetDevice()->CreatePixelShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
-		std::wstring errorMsg = L"Failed to create vertex shader: " + wstr;
+		std::wstring errorMsg = L"Failed to create Pixel shader: " + wstr;
 		ErrorLogger::Log(hr, errorMsg);
 		return false;
 	}
@@ -72,10 +62,23 @@ bool PixelShader::Initialize(const std::string & shaderpath) {
 	return true;
 }
 
-ID3D11PixelShader * PixelShader::GetShader() {
-	return this->shader.Get();
-}
+bool ComputeShader::Initialize(const std::string & shaderpath) {
+	Name = StringHelper::GetFileNameFromPath(shaderpath);
+	auto wstr = StringHelper::StringToWide(shaderpath);
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->m_ShaderBuffer.GetAddressOf());
 
-ID3D10Blob * PixelShader::GetBuffer() {
-	return this->shader_buffer.Get();
+	if (FAILED(hr)) {
+		std::wstring errorMsg = L"Failed to load shader: " + wstr;
+		ErrorLogger::Log(hr, errorMsg);
+		return false;
+	}
+
+	hr = Core::GetDevice()->CreateComputeShader(m_ShaderBuffer->GetBufferPointer(), m_ShaderBuffer->GetBufferSize(), NULL, m_Shader.GetAddressOf());
+	if (FAILED(hr)) {
+		std::wstring errorMsg = L"Failed to create Compute shader: " + wstr;
+		ErrorLogger::Log(hr, errorMsg);
+		return false;
+	}
+
+	return true;
 }

@@ -23,6 +23,7 @@ bool Importer::LoadBaseResources()
 		TraverseDirectory("hlsl/VertexShader/3D/", &Importer::LoadVertexShader3D);
 		TraverseDirectory("hlsl/VertexShader/3D_Skinned/", &Importer::LoadVertexShader);
 		TraverseDirectory("hlsl/PixelShader/", &Importer::LoadPixelShader);
+		TraverseDirectory("hlsl/ComputeShader/", &Importer::LoadComputeShader);
 		TraverseDirectory("Data/Textures/", &Importer::LoadTexture);
 		return true;
 	}
@@ -187,6 +188,19 @@ void Importer::LoadPixelShader(const std::string & dirPath, const std::string& n
 	{
 		auto ps = Core::CreateInstance<PixelShader>();
 		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
+		{
+			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
+		}
+	}
+}
+
+void Importer::LoadComputeShader(const std::string & dirPath, const std::string & name)
+{
+	std::string ext = StringHelper::GetFileExtension(name);
+	if (ext == "hlsl")
+	{
+		auto cs = Core::CreateInstance<ComputeShader>();
+		if (!cs->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}

@@ -114,6 +114,8 @@ void Graphics::RenderBegin()
 	cb_ps_light.data.vpMat = lightc->GetLightViewProjectMat();
 	cb_ps_light.ApplyChanges();
 
+	auto cs = Core::Find<ComputeShader>("Blur");
+
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
