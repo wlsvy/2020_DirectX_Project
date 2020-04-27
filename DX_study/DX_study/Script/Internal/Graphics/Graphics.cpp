@@ -43,11 +43,12 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		ThrowIfFailed(cb_ps_light.Initialize(),									"Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
 		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
+		ThrowIfFailed(cb_cs_DownSample.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
 		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
 		ThrowIfFailed(Importer::LoadModelResources(),							"Failed to LoadModelResources.");
-
+		
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { //순서는 나중에
 			"Data\\Skybox\\Test1\\oasisnight_ft_p.png",	// +X
@@ -263,11 +264,15 @@ void Graphics::PostProcess()
 
 	auto l = Core::Find<Light>("Light")->GetComponent<SpotLight>();
 
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		1, 
+		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
+		m_DeviceResources.GetBaseDepthStencilView());
+
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));
-	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, m_DeviceResources.GetRenderTargetSrvAddress(5));	//blur 계산이후
 
 
 	auto& mesh = m_PostProcesWindowModel->GetMeshes()[0];
@@ -276,8 +281,11 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	ID3D11ShaderResourceView * nullSrv[DeviceResources::DeferredRenderChannelCount + 1] = { NULL, };
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DeviceResources::DeferredRenderChannelCount + 1, nullSrv);
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DeviceResources::DeferredRenderChannelCount, m_NullSrv);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		DeviceResources::DeferredRenderChannelCount,
+		m_NullRtv,
+		NULL);
 }
 
 void Graphics::DrawSkybox()
@@ -347,17 +355,20 @@ void Graphics::DrawGui()
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DeviceResources::DeferredRenderChannelCount));
-
+	
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
 
+	
 
 	ImGui::Begin("Texture Resources");
 	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
 	ImGui::End();
 
 	ImGui::Begin("Blur Test");
-	ImGui::Image(light->GetShadowMapShaderResourceView(), scene_size);
+	ImGui::DragFloat("ThresHold", &cb_cs_DownSample.data.threshold, 0.01f, 0.0f, 10.0f);
+	//ImGui::DragFloat3("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
+	ImGui::Image(dr.GetRenderTargetSrv(3), scene_size);
 	ImGui::Image(dr.GetRenderTargetSrv(5), scene_size);
 	ImGui::Image(dr.GetRenderTargetSrv(6), scene_size);
 	ImGui::End();
@@ -375,6 +386,11 @@ void Graphics::DrawGuiDebug()
 	auto * effect = m_DeviceResources.GetBasicEffect();
 	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		1,
+		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
+		m_DeviceResources.GetBaseDepthStencilView());
 
 	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
 	static auto bulbModel = Core::Find<Model>("light");
@@ -403,6 +419,11 @@ void Graphics::DrawGuiDebug()
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	batch->End();
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		DeviceResources::DeferredRenderChannelCount,
+		m_NullRtv,
+		NULL);
 }
 
 void Graphics::ComputeShdaderTest()
@@ -413,7 +434,6 @@ void Graphics::ComputeShdaderTest()
 	auto& dr = m_DeviceResources;
 	
 	{
-		cb_cs_ThresholdBlur.data.threshold = 0.5f;
 		cb_cs_ThresholdBlur.data.radius = CB_CS_ThresholdBlur::GAUSSIAN_RADIUS;
 
 		// compute Gaussian kernel
@@ -439,12 +459,14 @@ void Graphics::ComputeShdaderTest()
 			cb_cs_ThresholdBlur.data.coefficients[i] *= normalizationFactor;
 		}
 		cb_cs_ThresholdBlur.ApplyChanges();
-		m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
+		
 	}
 
 	{
+		cb_cs_DownSample.ApplyChanges();
 		m_DeviceResources.GetDeviceContext()->CSSetShader(csDownsample->GetShader(), 0, 0);
-		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, light->GetShadowMapShaderResourceViewAddr());
+		m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_DownSample.GetAddressOf());
+		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, dr.GetRenderTargetSrvAddress(3));
 		m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, dr.GetRenderTargetUavAddr(5), 0);
 
 		m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
@@ -471,7 +493,6 @@ void Graphics::ComputeShdaderTest()
 
 			m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
 
-			// unbind UAV and SRVs
 			m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, m_NullSrv);
 			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
 		}

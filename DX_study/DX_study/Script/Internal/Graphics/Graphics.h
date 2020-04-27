@@ -70,7 +70,8 @@ private:
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
 
 	ConstantBuffer<CB_CS_ThresholdBlur> cb_cs_ThresholdBlur;
-
+	ConstantBuffer<CB_CS_DownSample> cb_cs_DownSample;
+	
 	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;

@@ -73,6 +73,11 @@ struct CB_PS_Material {
 	DirectX::XMFLOAT4 color;
 };
 
+struct CB_CS_DownSample {
+	float threshold = 0.5f;;
+	DirectX::XMFLOAT3 pad;
+};
+
 struct CB_CS_ThresholdBlur {
 	static const UINT GAUSSIAN_RADIUS = 7;
 

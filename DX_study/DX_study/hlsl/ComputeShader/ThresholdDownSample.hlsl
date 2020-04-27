@@ -6,11 +6,8 @@ RWTexture2D<float4> outputTexture : register(u0);
 
 cbuffer ThresholdParams : register(b0)
 {
-    float coefficients[GAUSSIAN_RADIUS + 1];
-    int radius; // must be <= MAX_GAUSSIAN_RADIUS
-    int direction; // 0 = horizontal, 1 = vertical
     float threshold;
-    float pad;
+    float3 pad;
 }
 
 [numthreads(8, 8, 1)]

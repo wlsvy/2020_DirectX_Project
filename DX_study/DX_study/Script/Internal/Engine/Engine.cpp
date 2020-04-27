@@ -94,11 +94,8 @@ void Engine::RenderFrame()
 
 	m_Graphics->DrawShadowMap(Core::Find<Light>("Light")->GetComponent<SpotLight>());
 	m_Graphics->RenderModels();
-	//m_Graphics->SetRenderTarget(m_Graphics->GetDeviceResources().GetRTVaddress(0), DeviceResources::DeferredRenderChannelCount);
-	//Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 	m_Graphics->DrawSkybox();
 
-	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));
 	m_Graphics->ComputeShdaderTest();
 	m_Graphics->PostProcess();
 	m_Graphics->DrawGuiDebug();
