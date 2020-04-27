@@ -7,7 +7,7 @@ void RunApplication(HINSTANCE& hInstance) {
 	static float val = 0.0f;
 
 	Engine engine;
-	engine.Initialize(hInstance, "title", "class", 1280, 720);
+	engine.Initialize(hInstance, "title", "class", 1024, 768);
 	while (engine.ProcessMessage()) {
 		val += Time::GetDeltaTime();
 		if (val > Engine::s_FixedFrameRate) {

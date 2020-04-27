@@ -42,6 +42,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(),									"Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
+		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
 		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
@@ -113,8 +114,6 @@ void Graphics::RenderBegin()
 	lightc->SetProjectionMatrix();
 	cb_ps_light.data.vpMat = lightc->GetLightViewProjectMat();
 	cb_ps_light.ApplyChanges();
-
-	auto cs = Core::Find<ComputeShader>("Blur");
 
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
@@ -283,6 +282,11 @@ void Graphics::PostProcess()
 
 void Graphics::DrawSkybox()
 {
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		DeviceResources::DeferredRenderChannelCount,
+		m_DeviceResources.GetRTVaddress(0),
+		m_DeviceResources.GetBaseDepthStencilView());
+
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
 	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
@@ -290,6 +294,8 @@ void Graphics::DrawSkybox()
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
+
+	m_DrawFlag = DrawFlag::None;
 
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().positionVec);
@@ -300,6 +306,11 @@ void Graphics::DrawSkybox()
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		DeviceResources::DeferredRenderChannelCount,
+		m_NullRtv,
+		NULL);
 }
 
 void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
@@ -329,16 +340,26 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 
 void Graphics::DrawGui()
 {
-	
+	auto& dr = m_DeviceResources;
+	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DeviceResources::DeferredRenderChannelCount));
-	
-	ImGui::Begin("Texture Resources");
+
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+
+
+	ImGui::Begin("Texture Resources");
 	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
+	ImGui::End();
+
+	ImGui::Begin("Blur Test");
+	ImGui::Image(light->GetShadowMapShaderResourceView(), scene_size);
+	ImGui::Image(dr.GetRenderTargetSrv(5), scene_size);
+	ImGui::Image(dr.GetRenderTargetSrv(6), scene_size);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();
@@ -382,6 +403,79 @@ void Graphics::DrawGuiDebug()
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	batch->End();
+}
+
+void Graphics::ComputeShdaderTest()
+{
+	static auto csBlur = Core::Find<ComputeShader>("Blur");
+	static auto csDownsample = Core::Find<ComputeShader>("ThresholdDownSample");
+	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+	auto& dr = m_DeviceResources;
+	
+	{
+		cb_cs_ThresholdBlur.data.threshold = 0.5f;
+		cb_cs_ThresholdBlur.data.radius = CB_CS_ThresholdBlur::GAUSSIAN_RADIUS;
+
+		// compute Gaussian kernel
+		float sigma = 10.f;
+		float sigmaRcp = 1.f / sigma;
+		float twoSigmaSq = 2 * sigma * sigma;
+
+		float sum = 0.f;
+		for (UINT i = 0; i <= CB_CS_ThresholdBlur::GAUSSIAN_RADIUS; ++i)
+		{
+			// we omit the normalization factor here for the discrete version and normalize using the sum afterwards
+			cb_cs_ThresholdBlur.data.coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
+			// we use each entry twice since we only compute one half of the curve
+			sum += 2 * cb_cs_ThresholdBlur.data.coefficients[i];
+		}
+		// the center (index 0) has been counted twice, so we subtract it once
+		sum -= cb_cs_ThresholdBlur.data.coefficients[0];
+
+		// we normalize all entries using the sum so that the entire kernel gives us a sum of coefficients = 0
+		float normalizationFactor = 1.f / sum;
+		for (UINT i = 0; i <= CB_CS_ThresholdBlur::GAUSSIAN_RADIUS; ++i)
+		{
+			cb_cs_ThresholdBlur.data.coefficients[i] *= normalizationFactor;
+		}
+		cb_cs_ThresholdBlur.ApplyChanges();
+		m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
+	}
+
+	{
+		m_DeviceResources.GetDeviceContext()->CSSetShader(csDownsample->GetShader(), 0, 0);
+		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, light->GetShadowMapShaderResourceViewAddr());
+		m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, dr.GetRenderTargetUavAddr(5), 0);
+
+		m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+
+		m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
+		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, m_NullSrv);
+	}
+	{
+		m_DeviceResources.GetDeviceContext()->CSSetShader(csBlur->GetShader(), 0, 0);
+		ID3D11ShaderResourceView* csSRVs[2] = { 
+			dr.GetRenderTargetSrv(5), 
+			dr.GetRenderTargetSrv(6) };
+		ID3D11UnorderedAccessView* csUAVs[2] = {
+			dr.GetRenderTargetUav(6),
+			dr.GetRenderTargetUav(5) };
+
+		for (UINT direction = 0; direction < 2; ++direction)
+		{
+			cb_cs_ThresholdBlur.data.direction = direction;
+			cb_cs_ThresholdBlur.ApplyChanges();
+			m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
+			m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, &csSRVs[direction]);
+			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &csUAVs[direction], 0);
+
+			m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+
+			// unbind UAV and SRVs
+			m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, m_NullSrv);
+			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
+		}
+	}
 }
 
 void Graphics::SetRenderTarget(ID3D11RenderTargetView * const * rtv, int bufferCount)

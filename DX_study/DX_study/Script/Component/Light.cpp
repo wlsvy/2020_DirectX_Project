@@ -5,6 +5,7 @@
 #include "../Internal/Engine/AdapterReader.h"
 #include "../Internal/Graphics/imGui/imgui.h"
 #include "../Util/ErrorLogger.h"
+#include "../Internal/Graphics/Graphics.h"
 
 using DirectX::operator+;
 
@@ -14,8 +15,8 @@ void LightBase::Awake() {
 	try {
 		D3D11_TEXTURE2D_DESC textureDesc;
 		ZeroMemory(&textureDesc, sizeof(textureDesc));
-		textureDesc.Width = 1280;
-		textureDesc.Height = 720;
+		textureDesc.Width = Core::GetGraphics().GetWindowWidth();
+		textureDesc.Height = Core::GetGraphics().GetWindowHeight();
 		textureDesc.MipLevels = 1;
 		textureDesc.ArraySize = 1;
 		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;

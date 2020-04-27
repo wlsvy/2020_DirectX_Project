@@ -29,6 +29,8 @@ public:
 	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return renderTargetViewArr[index].GetAddressOf(); }
 	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return shaderResourceViewArr[index].Get(); }
 	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return shaderResourceViewArr[index].GetAddressOf(); }
+	ID3D11UnorderedAccessView*		GetRenderTargetUav(int index) const					{ return unorderedAccessView[index].Get();}
+	ID3D11UnorderedAccessView*const*GetRenderTargetUavAddr(int index) const				{ return unorderedAccessView[index].GetAddressOf();}
 	IDXGISwapChain*					GetSwapChain() const								{ return swapchain.Get(); }
 
 	DirectX::SpriteBatch*			GetSpriteBatch() const								{ return spriteBatch.get(); }

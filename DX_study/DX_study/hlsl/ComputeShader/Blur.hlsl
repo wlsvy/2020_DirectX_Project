@@ -1,3 +1,4 @@
+//√‚√≥ : https://github.com/aaronscherzinger/directx11_bloom/blob/master/include/resource.h
 #define GAUSSIAN_RADIUS 7
 
 Texture2D<float4> inputTexture : register(t0);
@@ -7,8 +8,10 @@ cbuffer BlurParams : register(b0)
 {
     // = float coefficients[GAUSSIAN_RADIUS + 1]
     float4 coefficients[(GAUSSIAN_RADIUS + 1) / 4];
-    // radius <= GAUSSIAN_RADIUS, direction 0 = horizontal, 1 = vertical
-    int2 radiusAndDirection;
+    int radius; // must be <= MAX_GAUSSIAN_RADIUS
+    int direction; // 0 = horizontal, 1 = vertical
+    float threshold;
+    float pad;
 }
 
 [numthreads(8, 8, 1)]
@@ -16,8 +19,7 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID, ui
 {
     int2 pixel = int2(dispatchID.x, dispatchID.y);
 
-    int radius = radiusAndDirection.x;
-    int2 dir = int2(1 - radiusAndDirection.y, radiusAndDirection.y);
+    int2 dir = int2(1 - direction, direction);
 
     float4 accumulatedValue = float4(0.0, 0.0, 0.0, 0.0);
 

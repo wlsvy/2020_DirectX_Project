@@ -72,3 +72,16 @@ struct CB_PS_light {
 struct CB_PS_Material {
 	DirectX::XMFLOAT4 color;
 };
+
+struct CB_CS_ThresholdBlur {
+	static const UINT GAUSSIAN_RADIUS = 7;
+
+	float coefficients[GAUSSIAN_RADIUS + 1];
+	int radius;
+	int direction;
+	float threshold;
+	float pad;
+
+	DirectX::XMVECTOR padVec[5];
+};
+

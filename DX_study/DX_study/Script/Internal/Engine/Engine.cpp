@@ -99,6 +99,7 @@ void Engine::RenderFrame()
 	m_Graphics->DrawSkybox();
 
 	m_Graphics->SetRenderTarget(dr.GetRTVaddress(DeviceResources::DeferredRenderChannelCount));
+	m_Graphics->ComputeShdaderTest();
 	m_Graphics->PostProcess();
 	m_Graphics->DrawGuiDebug();
 	m_Graphics->SetRenderTarget(dr.GetBaseRTVaddress());

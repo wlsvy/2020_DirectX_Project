@@ -484,5 +484,6 @@
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowmap.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowMapDepth.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
+    <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
   </ItemGroup>
 </Project>

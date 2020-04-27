@@ -43,6 +43,7 @@ public:
 	void DrawShadowMap(const std::shared_ptr<LightBase> & light);
 	void DrawSkybox();
 	void DrawGuiDebug();
+	void ComputeShdaderTest();
 	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
 	void RenderEnd();
 
@@ -68,6 +69,8 @@ private:
 	ConstantBuffer<CB_PS_light> cb_ps_light;
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
 
+	ConstantBuffer<CB_CS_ThresholdBlur> cb_cs_ThresholdBlur;
+
 	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
@@ -80,7 +83,7 @@ private:
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT m_DrawFlag = 0;
 
-	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::DeferredRenderChannelCount] = { NULL, };
+	
 
 	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
 	DirectX::BoundingFrustum m_CullFrustum;
@@ -96,4 +99,9 @@ private:
 			All = (1 << 31) - 1
 		};
 	};
+
+	//const UINT m_NullOffset = -1;
+	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::RenderTargetCount] = { NULL, };
+	ID3D11ShaderResourceView * const m_NullSrv[DeviceResources::RenderTargetCount] = { NULL, };
+	ID3D11UnorderedAccessView * const m_NullUav[DeviceResources::RenderTargetCount] = { NULL, };
 };
