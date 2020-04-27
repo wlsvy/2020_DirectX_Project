@@ -50,9 +50,9 @@ public:
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
-	ConstantBuffer<CB_PS_light> & GetCbPsLight() { return cb_ps_light; }
 	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
-	ConstantBuffer<CB_AmbientLight> & GetCbAmbientLight() { return cb_ps_ambientLight; }
+	ConstantBuffer<CB_PS_AmbientLight> & GetCbAmbientLight() { return cb_ps_ambientLight; }
+	ConstantBuffer<CB_PS_Scene> & GetCbScene() { return cb_ps_SceneBase; }
 
 	int GetWindowWidth() const { return windowWidth; }
 	int GetWindowHeight() const { return windowHeight; }
@@ -67,9 +67,11 @@ private:
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
 	ConstantBuffer<CB_VS_boneData> cb_vs_BoneInfo;
-	ConstantBuffer<CB_PS_light> cb_ps_light;
+
+	ConstantBuffer<CB_PS_Scene> cb_ps_SceneBase;
+	ConstantBuffer<CB_PS_SpottLight> cb_ps_SpotLight;
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
-	ConstantBuffer<CB_AmbientLight> cb_ps_ambientLight;
+	ConstantBuffer<CB_PS_AmbientLight> cb_ps_ambientLight;
 	
 	ConstantBuffer<CB_CS_ThresholdBlur> cb_cs_ThresholdBlur;
 	ConstantBuffer<CB_CS_DownSample> cb_cs_DownSample;
@@ -104,6 +106,8 @@ private:
 	};
 
 	//const UINT m_NullOffset = -1;
+	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
+	std::weak_ptr<Texture> m_DefaultTexture;
 	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11ShaderResourceView * const m_NullSrv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11UnorderedAccessView * const m_NullUav[DeviceResources::RenderTargetCount] = { NULL, };

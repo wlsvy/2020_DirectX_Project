@@ -19,7 +19,7 @@ public:
 	std::shared_ptr<Texture> MainTexture;
 	std::shared_ptr<Texture> NormalMap;
 	std::vector<std::shared_ptr<Texture>> SubTextures;
-	Color4Byte Color = Color4Byte(255, 255, 255, 255);
+	DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 };
 
 class SharedMaterial : public Material {

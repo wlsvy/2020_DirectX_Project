@@ -243,9 +243,6 @@
     <ClCompile Include="Script\Component\Custom\PrototypeManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredNormalmap.hlsl">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -466,13 +463,13 @@
     <FxCompile Include="hlsl\VertexShader\2D\vertexshader_skybox.hlsl">
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\pixelshader_shadowmap.hlsl" />
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowMapDepth.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
     <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_PostProcess.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="hlsl\PixelShader\pixelshader.hlsli" />
+    <None Include="hlsl\PixelShader\pixelshader_ObjectCommon.hlsli" />
+    <None Include="hlsl\PixelShader\pixelshader_Common.hlsli" />
   </ItemGroup>
 </Project>

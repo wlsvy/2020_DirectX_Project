@@ -2,8 +2,6 @@
 Texture2D<float4> inputTexture : register(t0);
 RWTexture2D<float4> outputTexture : register(u0);
 
-#define GAUSSIAN_RADIUS  7
-
 cbuffer ThresholdParams : register(b0)
 {
     float threshold;

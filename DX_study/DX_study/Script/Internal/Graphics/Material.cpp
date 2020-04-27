@@ -27,6 +27,6 @@ void Material::OnGui()
 	for (auto & sub : SubTextures) {
 		ImGui::Text(("sub Texture : " + sub->Name).c_str());
 	}
-	//ImGui::ColorEdit3("Color", &col.x, ImGuiColorEditFlags_NoAlpha);
+	//ImGui::ColorEdit4("Color", &Color.x);	//Color Edit이 동시에 두 개가 활성화 되면 문제발생 주의할 것.
 
 }

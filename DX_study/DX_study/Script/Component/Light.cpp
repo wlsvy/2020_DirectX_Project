@@ -84,7 +84,7 @@ void SpotLight::OnGui()
 	float angle = m_SpotAngle;
 
 	ImGui::DragFloat("Range", &range, 0.1f, 0.2f, 300.0f);
-	ImGui::DragFloat3("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
+	ImGui::DragFloat3("Attenuation", &Attentuation.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("SpotAngle", &angle, 0.1f, -180.0f, 180.0f);
 
 	if (range != m_Range) SetRange(range);

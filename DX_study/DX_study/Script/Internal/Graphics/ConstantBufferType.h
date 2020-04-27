@@ -17,7 +17,8 @@ struct CB_VS_boneData {
 
 //8 bytes -> 16 bytes(padding) -> 데이터 정렬 반드시 해야 함. 변수 위치 중요
 
-struct CB_SpottLight {
+struct CB_PS_SpottLight {
+
 	DirectX::XMFLOAT3 position;
 	float range;
 
@@ -29,6 +30,9 @@ struct CB_SpottLight {
 
 	DirectX::XMFLOAT3 attenuation;
 	float pad;
+
+	DirectX::XMMATRIX vpMat;
+
 };
 
 struct CB_DirectionalLight {
@@ -39,35 +43,10 @@ struct CB_DirectionalLight {
 	float pad;
 };
 
-struct CB_AmbientLight {
-	DirectX::XMFLOAT3 ambientLightColor;
-	float ambientLightStrength;
+struct CB_PS_AmbientLight {
+	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	float ambientLightStrength = 0.2f;
 };
-
-struct CB_PS_light {
-	static const int MAX_SPOTLIGHT = 10;
-
-	//CB_SpottLight spotLights[MAX_SPOTLIGHT];
-	//CB_DirectionalLight directionalLight;
-
-	DirectX::XMFLOAT3 position;
-	float range;
-
-	DirectX::XMFLOAT3 forwardVector;
-	float spotAngle;
-
-	DirectX::XMFLOAT3 color;
-	float strength;
-
-	DirectX::XMFLOAT3 ambientLightColor;
-	float ambientLightStrength;
-
-	DirectX::XMFLOAT3 attenuation;
-	float pad;
-
-	DirectX::XMMATRIX vpMat;
-};
-
 
 struct CB_PS_Material {
 	DirectX::XMFLOAT4 color;
@@ -82,11 +61,17 @@ struct CB_CS_ThresholdBlur {
 	static const UINT GAUSSIAN_RADIUS = 7;
 
 	float coefficients[GAUSSIAN_RADIUS + 1];
+
 	int radius;
 	int direction;
-	float threshold;
-	float pad;
-
-	DirectX::XMVECTOR padVec[5];
+	DirectX::XMFLOAT2 pad;
 };
 
+
+
+struct CB_PS_Scene {
+	DirectX::XMVECTOR CamPosition;
+
+	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	float ambientLightStrength = 0.2f;
+};

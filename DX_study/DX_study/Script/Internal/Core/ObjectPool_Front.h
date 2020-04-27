@@ -40,7 +40,6 @@ namespace Core {
 			if (!light->IsShadowEnable()) {
 				return;
 			}
-			light->PushToRenderQueue(ri);
 			/*for (auto& renderable : ri->GetRenerables()) {
 				auto& aabb = renderable.GetMesh()->GetLocalAABB();
 

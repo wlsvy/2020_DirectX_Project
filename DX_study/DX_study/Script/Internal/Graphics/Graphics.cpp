@@ -40,9 +40,10 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(),						"Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(),							"Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
-		ThrowIfFailed(cb_ps_light.Initialize(),									"Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
 		ThrowIfFailed(cb_ps_ambientLight.Initialize(), "Failed to Initialize cb_ps_ambientLight buffer.");
+		ThrowIfFailed(cb_ps_SceneBase.Initialize(), "Failed to Initialize cb_ps_SceneBase buffer.");
+		ThrowIfFailed(cb_ps_SpotLight.Initialize(), "Failed to Initialize cb_ps_SpotLight buffer.");
 		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
 		ThrowIfFailed(cb_cs_DownSample.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
@@ -67,7 +68,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_PostProcesVshader = Core::Find<VertexShader>("vertexshader_WindowPlane");
 		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
-
+		m_DefaultMaterial = Core::Find<SharedMaterial>("Default");
+		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
 		return true;
 	}
 	catch (CustomException & e) {
@@ -89,10 +91,10 @@ bool Graphics::ProcessMaterialTable()
 			material->MainTexture = Core::Find<Texture>(table["Texture"][i]);
 
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
-			material->Color.RGBA[0] = std::stoi(splitted[0]);
-			material->Color.RGBA[1] = std::stoi(splitted[1]);
-			material->Color.RGBA[2] = std::stoi(splitted[2]);
-			material->Color.RGBA[3] = std::stoi(splitted[3]);
+			material->Color.x = std::stof(splitted[0]) / 255;
+			material->Color.y = std::stof(splitted[1]) / 255;
+			material->Color.z = std::stof(splitted[2]) / 255;
+			material->Color.w = std::stof(splitted[3]) / 255;
 		}
 		return true;
 	}
@@ -104,22 +106,25 @@ bool Graphics::ProcessMaterialTable()
 
 void Graphics::RenderBegin()
 {
+	static auto mainCam = Core::GetCurrentScene().GetMainCam();
 	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
 	static auto lightc = light->GetComponent<SpotLight>();
-	cb_ps_light.data.color = lightc->Color;
-	cb_ps_light.data.strength = lightc->Strength;
-	cb_ps_light.data.position = light->GetTransform().position;
-	cb_ps_light.data.attenuation = lightc->Attentuation;
-	DirectX::XMStoreFloat3(&cb_ps_light.data.forwardVector, light->GetTransform().GetForwardVector());
-	cb_ps_light.data.spotAngle = lightc->m_SpotAngle;
-	cb_ps_light.data.range = lightc->m_Range;
+	cb_ps_SpotLight.data.color = lightc->Color;
+	cb_ps_SpotLight.data.strength = lightc->Strength;
+	cb_ps_SpotLight.data.position = light->GetTransform().position;
+	cb_ps_SpotLight.data.attenuation = lightc->Attentuation;
+	DirectX::XMStoreFloat3(&cb_ps_SpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
+	cb_ps_SpotLight.data.spotAngle = lightc->m_SpotAngle;
+	cb_ps_SpotLight.data.range = lightc->m_Range;
 	lightc->SetProjectionMatrix();
-	cb_ps_light.data.vpMat = lightc->GetLightViewProjectMat();
-	cb_ps_light.ApplyChanges();
+	cb_ps_SpotLight.data.vpMat = lightc->GetLightViewProjectMat();
+	cb_ps_SpotLight.ApplyChanges();
+	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
+	cb_ps_SceneBase.ApplyChanges();
 
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(2, 1, cb_ps_ambientLight.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_SpotLight.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(2, 1, cb_ps_material.GetAddressOf());
 
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
@@ -229,13 +234,13 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->MainTexture->GetTextureResourceViewAddress());
 		}
 		else {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_NullSrv);
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DefaultTexture.lock()->GetTextureResourceViewAddress());
 		}
 		if (material->NormalMap) {
 			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->NormalMap->GetTextureResourceViewAddress());
 		}
 		else {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_NullSrv);
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DefaultTexture.lock()->GetTextureResourceViewAddress());
 		}
 	}
 	cb_ps_material.data.color = material->Color;
@@ -273,15 +278,17 @@ bool Graphics::ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer)
 
 void Graphics::PostProcess()
 {
-	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
-
 	auto l = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+
+	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
 		1, 
 		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
 		m_DeviceResources.GetBaseDepthStencilView());
+
+	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
+	m_DeviceResources.GetDeviceContext()->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
 
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));	//pos
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));	//normal
@@ -341,10 +348,12 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 {
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto spotLight = std::dynamic_pointer_cast<SpotLight>(light);
+	auto& lightTransform = spotLight->GetGameObject()->GetTransform();
+
 	m_TargetViewProjectionMatrix = spotLight->GetLightViewProjectMat();
 	m_CullFrustum = DirectX::BoundingFrustum(spotLight->GetProjectionMatrix());
-	m_CullFrustum.Origin = spotLight->GetGameObject()->GetTransformPtr()->position;
-	DirectX::XMStoreFloat4(&m_CullFrustum.Orientation, spotLight->GetGameObject()->GetTransformPtr()->GetQuaternion());
+	m_CullFrustum.Origin = lightTransform.position;
+	DirectX::XMStoreFloat4(&m_CullFrustum.Orientation, lightTransform.GetQuaternion());
 
 	auto& dr = Engine::Get().GetGraphics().GetDeviceResources();
 	
@@ -368,6 +377,11 @@ void Graphics::DrawGui()
 {
 	auto& dr = m_DeviceResources;
 	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		1,
+		m_DeviceResources.GetBaseRTVaddress(),
+		m_DeviceResources.GetBaseDepthStencilView());
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -395,6 +409,8 @@ void Graphics::DrawGui()
 
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_NullRtv, NULL);
 }
 
 void Graphics::DrawGuiDebug()
@@ -404,20 +420,6 @@ void Graphics::DrawGuiDebug()
 	auto * effect = m_DeviceResources.GetBasicEffect();
 	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
-
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		1,
-		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
-		m_DeviceResources.GetBaseDepthStencilView());
-
-	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
-	static auto bulbModel = Core::Find<Model>("light");
-	auto worldMat = light->GetGameObject()->GetTransform().GetWorldMatrix();
-	auto wvpMat = worldMat * camera.GetViewProjectionMatrix();
-	for (int i = 0; i < bulbModel->GetMeshes().size(); i++) {
-		ApplyMaterialProperties(bulbModel->GetDefaultMaterials()[i]);
-		DrawMesh(bulbModel->GetMeshes()[i], worldMat, wvpMat);
-	}
 
 	effect->SetVertexColorEnabled(true);
 	effect->SetView(camera.GetViewMatrix());
@@ -430,6 +432,11 @@ void Graphics::DrawGuiDebug()
 	effect->Apply(context);
 
 	context->IASetInputLayout(m_DeviceResources.GetDebugInputLayout());
+
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+		1,
+		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
+		m_DeviceResources.GetBaseDepthStencilView());
 
 	batch->Begin();
 

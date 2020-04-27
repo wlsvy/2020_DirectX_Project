@@ -47,7 +47,6 @@ void Scene::Initialize()
 
 	{
 		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->NormalMap = Core::Find<Texture>("normalMapSample");
-		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Pshader = Core::Find<PixelShader>("pixelshader_deferredNormalmap");
 	}
 
 	auto light = Core::CreateInstance<Light>();

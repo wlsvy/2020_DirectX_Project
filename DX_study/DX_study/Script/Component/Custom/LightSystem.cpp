@@ -6,12 +6,12 @@
 #include "../../Internal/Core/InternalHelper.h"
 
 void LightSystem::Update() {
-	Core::GetGraphics().GetCbAmbientLight().ApplyChanges();
+	//Core::GetGraphics().GetCbAmbientLight().ApplyChanges();
 }
 
 void LightSystem::OnGui()
 {
-	auto & cbAmbientLight = Core::GetGraphics().GetCbAmbientLight();
-	ImGui::DragFloat("Ambient Strength", &cbAmbientLight.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
-	ImGui::ColorEdit3("Ambient Color", &cbAmbientLight.data.ambientLightColor.x, ImGuiColorEditFlags_NoAlpha);
+	auto & cbScene = Core::GetGraphics().GetCbScene();
+	ImGui::DragFloat("Ambient Strength", &cbScene.data.ambientLightStrength, 0.01f, 0.0f, 10.0f);
+	ImGui::ColorEdit3("Ambient Color", &cbScene.data.ambientLightColor.x, ImGuiColorEditFlags_NoAlpha);
 }

@@ -20,7 +20,6 @@ public:
 	virtual bool CullRenderable(const DirectX::BoundingBox &) { return true; }
 	virtual bool IsShadowEnable() { return false; }
 
-	void PushToRenderQueue(const std::shared_ptr<RenderInfo> & r)					{ m_ShaderMapRenderQueue.push(r); }
 	ID3D11RenderTargetView *			GetShadowMapRenderTargetView() const		{ return m_ShadowMapRenderTargetView.Get(); }
 	ID3D11RenderTargetView* const *		GetShadowMapRenderTargetViewAddr() const	{ return m_ShadowMapRenderTargetView.GetAddressOf(); }
 	ID3D11ShaderResourceView *			GetShadowMapShaderResourceView() const		{ return m_ShadowMapShaderResourceView.Get(); }
@@ -31,9 +30,7 @@ public:
 	static const float LIGHT_STRENGTH_MAX;
 
 	DirectX::XMFLOAT3 Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	float Strength = 3.0f;
-protected:
-	std::queue<std::shared_ptr<RenderInfo>> m_ShaderMapRenderQueue;
+	float Strength = 1.5f;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ShadowMapRenderTargetView;
@@ -61,14 +58,14 @@ public:
 	void SetRange(float range);
 	void SetSpotAngle(float angle);
 
-	DirectX::XMFLOAT3 Attentuation = DirectX::XMFLOAT3(1.0f, 0.1f, 0.1f);
+	DirectX::XMFLOAT3 Attentuation = DirectX::XMFLOAT3(0.1f, 0.1f, 0.01f);
 
 private:
 	void SetProjectionMatrix();
 
 	bool m_IsShadowEnable = true;
 	float m_Range = 50.0f;
-	float m_SpotAngle = 90.0f;
+	float m_SpotAngle = 130.0f;
 
 	DirectX::XMMATRIX m_ProjectionMatrix;
 	DirectX::BoundingFrustum m_Frustum;

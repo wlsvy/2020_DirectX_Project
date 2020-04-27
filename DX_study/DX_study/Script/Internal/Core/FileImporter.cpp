@@ -153,7 +153,7 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
 			mat->MainTexture = Core::Find<Texture>("WhiteTexture");
-			mat->Color.Set(aiColor.r, aiColor.g, aiColor.b);
+			mat->Color = DirectX::XMFLOAT4(aiColor.r, aiColor.g, aiColor.b, 1.0f);
 		}
 	}
 	else
