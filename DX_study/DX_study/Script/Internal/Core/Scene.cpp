@@ -19,6 +19,7 @@
 #include "../../Component/Light.h"
 #include "../../Component/Custom/CamMove.h"
 #include "../../Component/Custom/CharacterMove.h"
+#include "../../Component/Custom/LightSystem.h"
 #include "../../GameObject/Camera.h"
 #include "../../GameObject/Light.h"
 #include "../../GameObject/Sprite.h"
@@ -33,9 +34,21 @@ Scene::Scene() : m_WorldTransform(std::make_shared<Transform>(nullptr, "World Tr
 
 void Scene::Initialize()
 {
+	{
+		auto manager = Core::CreateInstance<GameObject>("Prototype Manager");
+		auto ls = Core::CreateInstance<GameObject>("Light System");
+		ls->AddComponent<LightSystem>();
+		ls->GetTransform().SetParent(manager->GetTransformPtr());
+	}
+
 	ProcessGameObjectTable();
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
+
+	{
+		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->NormalMap = Core::Find<Texture>("normalMapSample");
+		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Pshader = Core::Find<PixelShader>("pixelshader_deferredNormalmap");
+	}
 
 	auto light = Core::CreateInstance<Light>();
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);

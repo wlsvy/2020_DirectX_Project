@@ -3,6 +3,7 @@
 #include "../../Util/Math.h"
 #include "../Core/InternalHelper.h"
 #include "../Engine/AdapterReader.h"
+#include "imGui/imgui.h"
 
 Mesh::Mesh(
 	const std::vector<Vertex3D>& vertices, 
@@ -46,6 +47,11 @@ Mesh::Mesh(const Mesh & mesh) :
 {
 }
 
+void Mesh::OnGui()
+{
+	ImGui::Text(("Mesh : " + Name).c_str());
+}
+
 SkinnedMesh::SkinnedMesh(
 	const std::vector<SkinnedVertex>& vertices, 
 	const std::vector<DWORD>& indices, 
@@ -86,6 +92,11 @@ SkinnedMesh::SkinnedMesh(const SkinnedMesh & mesh) :
 	MeshBase(mesh),
 	vertexbuffer(mesh.vertexbuffer)
 {
+}
+
+void SkinnedMesh::OnGui()
+{
+	ImGui::Text(("Skinned Mesh : " + Name).c_str());
 }
 
 MeshBase::MeshBase(

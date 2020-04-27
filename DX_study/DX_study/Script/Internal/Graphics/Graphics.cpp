@@ -42,6 +42,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
 		ThrowIfFailed(cb_ps_light.Initialize(),									"Failed to Initialize cb_ps_light buffer.");
 		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
+		ThrowIfFailed(cb_ps_ambientLight.Initialize(), "Failed to Initialize cb_ps_ambientLight buffer.");
 		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
 		ThrowIfFailed(cb_cs_DownSample.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
@@ -64,7 +65,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 
 		m_PostProcesWindowModel = Core::Find<Model>("Plane");
 		m_PostProcesVshader = Core::Find<VertexShader>("vertexshader_WindowPlane");
-		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_deferredLight");
+		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
 
 		return true;
@@ -118,6 +119,8 @@ void Graphics::RenderBegin()
 
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(2, 1, cb_ps_ambientLight.GetAddressOf());
+
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
 
@@ -220,9 +223,20 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
 		m_DeviceResources.GetDeviceContext()->PSSetShader(material->Pshader->GetShader(), NULL, 0);
 	}
-	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture &&
-		material->MainTexture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->MainTexture->GetTextureResourceViewAddress());
+	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
+		if (material->MainTexture &&
+			material->MainTexture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->MainTexture->GetTextureResourceViewAddress());
+		}
+		else {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_NullSrv);
+		}
+		if (material->NormalMap) {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->NormalMap->GetTextureResourceViewAddress());
+		}
+		else {
+			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_NullSrv);
+		}
 	}
 	cb_ps_material.data.color = material->Color;
 	cb_ps_material.ApplyChanges();

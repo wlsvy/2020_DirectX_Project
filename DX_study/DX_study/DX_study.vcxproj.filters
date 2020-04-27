@@ -237,6 +237,15 @@
     <ClCompile Include="Script\Internal\Graphics\Temp.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Component\Custom\LightSystem.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\Custom\PrototypeManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredNormalmap.hlsl">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -425,6 +434,12 @@
     <ClInclude Include="Script\Internal\Core\ObjectPool_Front.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Script\Component\Custom\LightSystem.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\Custom\PrototypeManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">
@@ -459,7 +474,6 @@
     </FxCompile>
     <FxCompile Include="hlsl\PixelShader\pixelshader_spotlight.hlsl" />
     <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferred.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredLight.hlsl" />
     <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredSkybox.hlsl" />
     <FxCompile Include="hlsl\VertexShader\3D_Skinned\skinned_vertex.hlsl">
       <Filter>쉐이더 파일</Filter>
@@ -485,5 +499,6 @@
     <FxCompile Include="hlsl\PixelShader\pixelshader_shadowMapDepth.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_PostProcess.hlsl" />
   </ItemGroup>
 </Project>

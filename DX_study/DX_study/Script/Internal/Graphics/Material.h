@@ -12,10 +12,12 @@ class Material : public Object {
 public:
 	Material() {}
 	Material(const std::string& name) : Object(name) {}
+	void OnGui() override;
 
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;
 	std::shared_ptr<Texture> MainTexture;
+	std::shared_ptr<Texture> NormalMap;
 	std::vector<std::shared_ptr<Texture>> SubTextures;
 	Color4Byte Color = Color4Byte(255, 255, 255, 255);
 };
@@ -33,6 +35,7 @@ public:
 		material.Vshader = Vshader;
 		material.Pshader = Pshader;
 		material.MainTexture = MainTexture;
+		material.NormalMap = NormalMap;
 		material.SubTextures = SubTextures;
 		material.Color = Color;
 		return material;

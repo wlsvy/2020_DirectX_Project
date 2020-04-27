@@ -175,11 +175,24 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredNormalmap.hlsl">
+      <FileType>Document</FileType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableOptimizations>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</DisableOptimizations>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
     <ClCompile Include="Script\Component\Animator.cpp" />
     <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
     <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
     <ClCompile Include="Script\Component\Custom\CharacterMove.cpp" />
+    <ClCompile Include="Script\Component\Custom\LightSystem.cpp" />
+    <ClCompile Include="Script\Component\Custom\PrototypeManager.cpp" />
     <ClCompile Include="Script\Component\Light.cpp" />
     <ClCompile Include="Script\Component\Renderable.cpp" />
     <ClCompile Include="Script\Internal\Core\FileImporter.cpp" />
@@ -233,6 +246,8 @@
     <ClInclude Include="Script\Component\Component.h" />
     <ClInclude Include="Script\Component\Custom\CamMove.h" />
     <ClInclude Include="Script\Component\Custom\CharacterMove.h" />
+    <ClInclude Include="Script\Component\Custom\LightSystem.h" />
+    <ClInclude Include="Script\Component\Custom\PrototypeManager.h" />
     <ClInclude Include="Script\Component\Light.h" />
     <ClInclude Include="Script\Component\Renderable.h" />
     <ClInclude Include="Script\Internal\Core\FileImporter.h" />
@@ -386,7 +401,7 @@
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</EnableDebuggingInformation>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</EnableDebuggingInformation>
     </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredLight.hlsl">
+    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_PostProcess.hlsl">
       <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableOptimizations>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnableDebuggingInformation>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>

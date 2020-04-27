@@ -26,6 +26,13 @@ cbuffer lightBuffer : register(b0)
     float4x4 lightVPmatrix;
 }
 
+cbuffer AmbientLight : register(b2)
+{
+    float3 _ambientColor;
+    float _ambientStrength;
+    
+}
+
 struct PS_INPUT
 {
     float4 inPosition : SV_POSITION;
@@ -38,7 +45,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 textureNormal = normalTexture.Sample(SampleTypePoint, input.inTexCoord);
     float3 textureColor = colorTexture.Sample(SampleTypePoint, input.inTexCoord);
     float3 textureLight = lightTexture.Sample(SampleTypePoint, input.inTexCoord);
-    float3 ambient = textureColor * ambientColor * ambientStrength;
+    float3 ambient = textureColor * _ambientColor * _ambientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
     
     if (texturePos.w < 0.0f)

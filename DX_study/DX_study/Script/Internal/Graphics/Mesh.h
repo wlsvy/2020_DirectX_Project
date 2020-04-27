@@ -38,6 +38,7 @@ public:
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
 	Mesh(const Mesh & mesh);
+	void OnGui() override;
 
 	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *					GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
@@ -54,6 +55,7 @@ public:
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
 	SkinnedMesh(const SkinnedMesh & mesh);
+	void OnGui() override;
 
 	ID3D11Buffer* const*				GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *						GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }

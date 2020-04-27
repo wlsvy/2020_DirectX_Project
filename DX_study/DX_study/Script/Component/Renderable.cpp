@@ -18,7 +18,13 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 }
 
 void RenderInfo::OnGui() {
+	
 	if (auto& model = m_Model) {
+		ImGui::Text(("Model : " + model->Name).c_str());
+		for (auto & r : m_Renderables) {
+			r.GetMesh()->OnGui();
+			r.GetMaterial()->OnGui();
+		}
 		for (auto& mesh : model->GetMeshes()) {
 			auto& c = mesh->GetLocalAABB().Center;
 			auto& e = mesh->GetLocalAABB().Extents;

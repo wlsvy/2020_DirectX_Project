@@ -212,7 +212,8 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 	std::string ext = StringHelper::GetFileExtension(name);
 	if (ext == "jpg" ||
 		ext == "png" ||
-		ext == "bmp")
+		ext == "bmp" ||
+		ext == "dds")
 	{
 		Core::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
 	}

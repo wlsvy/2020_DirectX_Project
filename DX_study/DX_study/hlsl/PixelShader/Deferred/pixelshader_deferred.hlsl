@@ -40,6 +40,7 @@ cbuffer Material : register(b1)
 };
 
 Texture2D objTexture : TEXTURE : register(t0);
+Texture2D normalMap : TEXTURE : register(t1);
 Texture2D shadowMap : TEXTURE : register(t3);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
