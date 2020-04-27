@@ -16,6 +16,7 @@ public:
 		Object(name), 
 		m_Meshes(meshes),
 		m_DefaultMaterial(defaultMats) {}
+	Model(const std::shared_ptr<MeshBase> & mesh, const std::string & name);
 
 	const std::vector<std::shared_ptr<MeshBase>> & GetMeshes() const { return m_Meshes; }
 	const std::vector<std::shared_ptr<SharedMaterial>> & GetDefaultMaterials() const { return m_DefaultMaterial; }

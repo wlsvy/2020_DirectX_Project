@@ -13,7 +13,7 @@ class DeviceResources {
 public:
 	bool Initialize(HWND hwnd, int width, int height);
 	bool InitializeRenderTarget(int width, int height);
-	void InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
+	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
 	ID3D11Device*					GetDevice()	const									{ return device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return deviceContext.Get(); }
@@ -39,28 +39,31 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return primitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return debugInputLayout.Get(); }
 
-	static const int RenderTargetCount = 5;	//Position, Normal, Color, light	+ Result
+	static const int RenderTargetCount = 7;	//Position, Normal, Color, light	+ Result + blur * 2
 	static const int DeferredRenderChannelCount = 4; 
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Device> device; //디바이스 인터페이스 : 기능 지원 점검과 자원 할당에 쓰임
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext; //디바이스 컨텍스트 인터페이스 : 렌더 대상을 설정하고 자원을 그래픽 파이프라인에 묶고 Gpu가 수행할 렌더링 명령들을 지시하는데 쓰인다.
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain; //프론트 버퍼 백 버퍼 바꿔치기
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mainRenderTargetView;
-
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mainDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> subDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11Device> device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext; 
+	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+	
+	//Depth/Stencil
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mainDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> subDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 
+	//RenderTargets
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mainRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetViewArr[RenderTargetCount];
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceViewArr[RenderTargetCount];
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> renderTargetTextureArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> unorderedAccessView[RenderTargetCount];
 
-#pragma region DirectX Tool Kit
+	//DirectX Tool Kit - DirectX XTK
 	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> spriteFont;
 	std::unique_ptr<DirectX::CommonStates> commonState;
@@ -68,7 +71,6 @@ private:
 	std::unique_ptr<DirectX::DebugEffect> debugEffect;
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> primitiveBatch;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> debugInputLayout;
-#pragma endregion
 
 	
 };

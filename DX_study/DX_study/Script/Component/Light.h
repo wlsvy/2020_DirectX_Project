@@ -49,6 +49,9 @@ class SpotLight : public LightBase {
 	COMPONENT_CONSTRUCTOR(SpotLight, LightBase)
 public:
 	void Awake() override { LightBase::Awake(); SetProjectionMatrix(); }
+
+	const DirectX::XMMATRIX & GetProjectionMatrix() const { return m_ProjectionMatrix; }
+
 	DirectX::XMMATRIX GetLightViewProjectMat() const;
 	bool CullRenderable(const DirectX::BoundingBox &) override;
 	bool IsShadowEnable() override { return m_IsShadowEnable; }

@@ -2,9 +2,9 @@
 #include <vector>
 #include <memory>
 #include <unordered_map>
-
 #include "ConstantBuffer.h"
 #include "../Engine/DeviceResources.h"
+#include "../../Util/Math.h"
 
 class BufferBase;
 class Texture;
@@ -30,9 +30,9 @@ public:
 	bool Initialize(HWND hwnd, int width, int height);
 	bool ProcessMaterialTable();
 
-	void RenderFrame();
+	void RenderBegin();
 	void RenderModels();
-	void PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer);
+	void Render(const std::shared_ptr<RenderInfo>& renderer);
 	void DrawMesh(const std::shared_ptr<MeshBase>& mesh,
 		const DirectX::XMMATRIX & worldMat, 
 		const DirectX::XMMATRIX & wvpMat);
@@ -44,7 +44,7 @@ public:
 	void DrawSkybox();
 	void DrawGuiDebug();
 	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
-	void SwapBuffer();
+	void RenderEnd();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
@@ -83,6 +83,7 @@ private:
 	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::DeferredRenderChannelCount] = { NULL, };
 
 	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
+	DirectX::BoundingFrustum m_CullFrustum;
 
 	struct DrawFlag {
 		enum {

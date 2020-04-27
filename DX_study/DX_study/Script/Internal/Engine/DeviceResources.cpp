@@ -1,4 +1,5 @@
 #include "DeviceResources.h"
+#include "../Core/InternalHelper.h"
 
 bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 {
@@ -133,19 +134,21 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 
 bool DeviceResources::InitializeRenderTarget(int width, int height)
 {
-	//∑ª¥ı≈∏∞Ÿ √ﬂ∞°«œ±‚
 	try {
+		UINT widthArr[RenderTargetCount] = { width , width , width , width  ,width,  width / 2, width / 2 };
+		UINT heightArr[RenderTargetCount] = { height , height , height , height  ,height,  height / 2 , height / 2 };
+		UINT formatArr[RenderTargetCount] = { 2, 2, 2, 2, 2, 28, 28 };
 		for (int i = 0; i < RenderTargetCount; i++) {
 			D3D11_TEXTURE2D_DESC textureDesc;
 			ZeroMemory(&textureDesc, sizeof(textureDesc));
-			textureDesc.Width = width;
-			textureDesc.Height = height;
+			textureDesc.Width = widthArr[i];
+			textureDesc.Height = heightArr[i];
 			textureDesc.MipLevels = 1;
 			textureDesc.ArraySize = 1;
-			textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+			textureDesc.Format = (DXGI_FORMAT)formatArr[i];
 			textureDesc.SampleDesc.Count = 1;
 			textureDesc.Usage = D3D11_USAGE_DEFAULT;
-			textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+			textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
 			textureDesc.CPUAccessFlags = 0;
 			textureDesc.MiscFlags = 0;
 			ThrowIfFailed(
@@ -153,6 +156,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 				"Failed to create renderTargetTextureArr.");
 
 			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+			ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
 			renderTargetViewDesc.Format = textureDesc.Format;
 			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 			renderTargetViewDesc.Texture2D.MipSlice = 0;
@@ -161,6 +165,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 				"Failed to create renderTargetViewArr.");
 
 			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+			ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
 			shaderResourceViewDesc.Format = textureDesc.Format;
 			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -168,46 +173,16 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 			ThrowIfFailed(
 				device->CreateShaderResourceView(renderTargetTextureArr[i].Get(), &shaderResourceViewDesc, shaderResourceViewArr[i].GetAddressOf()),
 				"Failed to create shaderResourceViewArr.");
-		}
 
-		/*D3D11_TEXTURE2D_DESC textureDesc;
-		ZeroMemory(&textureDesc, sizeof(textureDesc));
-		textureDesc.Width = width;
-		textureDesc.Height = height;
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.Usage = D3D11_USAGE_DEFAULT;
-		textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
-		textureDesc.CPUAccessFlags = 0;
-		textureDesc.MiscFlags = 0;
-		for (int i = 0; i < RenderTargetCount; i++) {
+			D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
+			ZeroMemory(&unorderedAccessViewDesc, sizeof(unorderedAccessViewDesc));
+			unorderedAccessViewDesc.Format = textureDesc.Format;
+			unorderedAccessViewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+			unorderedAccessViewDesc.Texture2D.MipSlice = 0;
 			ThrowIfFailed(
-				device->CreateTexture2D(&textureDesc, NULL, renderTargetTextureArr[i].GetAddressOf()),
-				"Failed to create renderTargetTextureArr.");
+				Core::GetDevice()->CreateUnorderedAccessView(renderTargetTextureArr[i].Get(), &unorderedAccessViewDesc, unorderedAccessView[i].GetAddressOf()),
+				"Failed to create UnorderedAccessView.");
 		}
-
-		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-		renderTargetViewDesc.Format = textureDesc.Format;
-		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-		renderTargetViewDesc.Texture2D.MipSlice = 0;
-		for (int i = 0; i < RenderTargetCount; i++) {
-			ThrowIfFailed(
-				device->CreateRenderTargetView(renderTargetTextureArr[i].Get(), &renderTargetViewDesc, renderTargetViewArr[i].GetAddressOf()),
-				"Failed to create renderTargetViewArr.");
-		}
-
-		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-		shaderResourceViewDesc.Format = textureDesc.Format;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		for (int i = 0; i < RenderTargetCount; i++) {
-			ThrowIfFailed(
-				device->CreateShaderResourceView(renderTargetTextureArr[i].Get(), &shaderResourceViewDesc, shaderResourceViewArr[i].GetAddressOf()),
-				"Failed to create shaderResourceViewArr.");
-		}*/
 	}
 	catch (CustomException & exception) {
 		ErrorLogger::Log(exception);
@@ -217,19 +192,28 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 	return true;
 }
 
-void DeviceResources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
+bool DeviceResources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
 {
-	void const* shaderByteCode;
-	size_t byteCodeLength;
-	basicEffect->SetVertexColorEnabled(true);
-	basicEffect->SetView(v);
-	basicEffect->SetProjection(p);
-	basicEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
+	try {
+		void const* shaderByteCode;
+		size_t byteCodeLength;
+		basicEffect->SetVertexColorEnabled(true);
+		basicEffect->SetView(v);
+		basicEffect->SetProjection(p);
+		basicEffect->GetVertexShaderBytecode(&shaderByteCode, &byteCodeLength);
 
-	ThrowIfFailed(
-		device->CreateInputLayout(
-			DirectX::VertexPositionColor::InputElements, DirectX::VertexPositionColor::InputElementCount,
-			shaderByteCode, byteCodeLength,
-			debugInputLayout.GetAddressOf()),
-		"Failed to create debug input layout.");
+		ThrowIfFailed(
+			device->CreateInputLayout(
+				DirectX::VertexPositionColor::InputElements, DirectX::VertexPositionColor::InputElementCount,
+				shaderByteCode, byteCodeLength,
+				debugInputLayout.GetAddressOf()),
+			"Failed to create debug input layout.");
+	}
+	catch (CustomException & exception) {
+		ErrorLogger::Log(exception);
+		return false;
+	}
+
+	return true;
+	
 }

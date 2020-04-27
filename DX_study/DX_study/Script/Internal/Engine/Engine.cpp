@@ -87,10 +87,10 @@ void Engine::FixedUpdate()
 
 void Engine::RenderFrame()
 {
-	static auto drawFunc = std::bind(&Graphics::PushToRenderQueue, m_Graphics.get(), std::placeholders::_1);
+	static auto drawFunc = std::bind(&Graphics::Render, m_Graphics.get(), std::placeholders::_1);
 	auto& dr = m_Graphics->GetDeviceResources();
 
-	m_Graphics->RenderFrame();
+	m_Graphics->RenderBegin();
 
 	m_Graphics->DrawShadowMap(Core::Find<Light>("Light")->GetComponent<SpotLight>());
 	m_Graphics->RenderModels();
@@ -103,5 +103,5 @@ void Engine::RenderFrame()
 	m_Graphics->DrawGuiDebug();
 	m_Graphics->SetRenderTarget(dr.GetBaseRTVaddress());
 	m_Graphics->DrawGui();
-	m_Graphics->SwapBuffer();
+	m_Graphics->RenderEnd();
 }

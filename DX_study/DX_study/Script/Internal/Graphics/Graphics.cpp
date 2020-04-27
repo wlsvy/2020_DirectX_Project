@@ -99,7 +99,7 @@ bool Graphics::ProcessMaterialTable()
 	}
 }
 
-void Graphics::RenderFrame()
+void Graphics::RenderBegin()
 {
 	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
 	static auto lightc = light->GetComponent<SpotLight>();
@@ -113,6 +113,7 @@ void Graphics::RenderFrame()
 	lightc->SetProjectionMatrix();
 	cb_ps_light.data.vpMat = lightc->GetLightViewProjectMat();
 	cb_ps_light.ApplyChanges();
+
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_light.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_material.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
@@ -138,6 +139,7 @@ void Graphics::RenderModels()
 {
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
+	m_CullFrustum = mainCam->GetViewFrustum();
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
 		DeviceResources::DeferredRenderChannelCount, 
@@ -145,7 +147,7 @@ void Graphics::RenderModels()
 		m_DeviceResources.GetBaseDepthStencilView());
 
 	m_DrawFlag = DrawFlag::All;
-	static auto drawFunc = std::bind(&Graphics::PushToRenderQueue, this, std::placeholders::_1);
+	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
@@ -154,7 +156,7 @@ void Graphics::RenderModels()
 		NULL);
 }
 
-void Graphics::PushToRenderQueue(const std::shared_ptr<RenderInfo>& renderer)
+void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
 {
 	auto & renderables = renderer->GetRenerables();
 	renderer->m_IsVisible = false;
@@ -244,10 +246,9 @@ bool Graphics::ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer)
 	bool isVisible = true;
 
 	auto& tf = renderer->m_GameObject->GetTransform();
-	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	for (auto & r : renderer->GetRenerables()) {
 		auto globalAABB = Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), tf);
-		auto containment = mainCam->GetViewFrustum().Contains(globalAABB);
+		auto containment = m_CullFrustum.Contains(globalAABB);
 		isVisible &= containment != DirectX::DISJOINT;
 	}
 
@@ -299,44 +300,12 @@ void Graphics::DrawSkybox()
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 }
 
-void Graphics::DrawGui()
-{
-	
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DeviceResources::DeferredRenderChannelCount));
-	
-	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
-	ImGui::Begin("Light Controls");
-	ImGui::DragFloat3("Ambient Light Color", &cb_ps_light.data.ambientLightColor.x, 0.01f, 0.0f, 1.0f);
-	ImGui::DragFloat("Ambient Light Strenght", &cb_ps_light.data.ambientLightStrength, 0.01f, 0.0f, 1.0f);
-	ImGui::NewLine();
-	ImGui::DragFloat3("Dynamic Light Color", &light->color.x, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("Dynamic Light Strength", &light->strength, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat3("Dynamic Light Attenuation", &light->attenuation.x, 0.01f, 0.1f, 10.0f);
-	ImGui::DragFloat3("Dir", &light->GetTransform().rotation.x, 0.1f, 0.0f, 90.0f);
-	ImGui::DragFloat("spotangle", &light->spotAngle, 0.01f, 0.0f, 180.0f);
-	ImGui::DragFloat("Range", &light->range, 0.1f, 0.1f, 1000.0f);
-	ImGui::End();
-
-	ImGui::Begin("Texture Resources");
-	ImGuiIO& io = ImGui::GetIO();
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
-	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
-	ImGui::End();
-
-	GUI::DrawDeferredChannelImage();
-
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-}
-
 void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 {
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto spotLight = std::dynamic_pointer_cast<SpotLight>(light);
 	m_TargetViewProjectionMatrix = spotLight->GetLightViewProjectMat();
+	m_CullFrustum = DirectX::BoundingFrustum(spotLight->GetProjectionMatrix());
 
 	auto& dr = Engine::Get().GetGraphics().GetDeviceResources();
 	
@@ -349,11 +318,31 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 		DrawFlag::Apply_MaterialVertexShader | 
 		DrawFlag::Apply_SkinnedMeshBone;
 
-	static auto drawFunc = std::bind(&Graphics::PushToRenderQueue, this, std::placeholders::_1);
+	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	dr.GetDeviceContext()->OMSetRenderTargets(1, m_NullRtv, NULL);
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, spotLight->m_ShadowMapShaderResourceView.GetAddressOf());
+}
+
+void Graphics::DrawGui()
+{
+	
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DeviceResources::DeferredRenderChannelCount));
+	
+	ImGui::Begin("Texture Resources");
+	ImGuiIO& io = ImGui::GetIO();
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
+	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
+	ImGui::End();
+
+	GUI::DrawDeferredChannelImage();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Graphics::DrawGuiDebug()
@@ -399,7 +388,7 @@ void Graphics::SetRenderTarget(ID3D11RenderTargetView * const * rtv, int bufferC
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(bufferCount, rtv, m_DeviceResources.GetBaseDepthStencilView());
 }
 
-void Graphics::SwapBuffer()
+void Graphics::RenderEnd()
 {
 	m_DeviceResources.GetSwapChain()->Present(1, NULL);
 }

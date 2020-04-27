@@ -62,9 +62,7 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Box"
 			);
-		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
-		Core::CreateInstance<Model>(meshVec, matVec, "Box");
+		Core::CreateInstance<Model>(mesh, "Box");
 	}
 	static void CreatePlane() {
 		const std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
@@ -84,9 +82,7 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Plane"
 			);
-		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
-		Core::CreateInstance<Model>(meshVec, matVec, "Plane");
+		Core::CreateInstance<Model>(mesh, "Plane");
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
@@ -171,9 +167,7 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Sphere"
 			);
-		auto meshVec = std::vector<std::shared_ptr<MeshBase>>(1, mesh);
-		auto matVec = std::vector<std::shared_ptr<SharedMaterial>>(1, Core::Find<SharedMaterial>("Default"));
-		Core::CreateInstance<Model>(meshVec, matVec, "Sphere");
+		Core::CreateInstance<Model>(mesh, "Sphere");
 	}
 	
 	static bool Initialize() {

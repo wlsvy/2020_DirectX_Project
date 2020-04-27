@@ -195,7 +195,9 @@
     <ClCompile Include="Script\Internal\Graphics\AnimationClip.cpp" />
     <ClCompile Include="Script\Internal\Graphics\DebugDraw.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Material.cpp" />
+    <ClCompile Include="Script\Internal\Graphics\Model.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Skybox.cpp" />
+    <ClCompile Include="Script\Internal\Graphics\Temp.cpp" />
     <ClCompile Include="Script\Util\Color.cpp" />
     <ClCompile Include="Script\Internal\Core\GameObject.cpp" />
     <ClCompile Include="Script\GameObject\Camera.cpp" />
