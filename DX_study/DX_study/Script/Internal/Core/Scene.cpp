@@ -21,8 +21,6 @@
 #include "../../Component/Custom/CharacterMove.h"
 #include "../../Component/Custom/LightSystem.h"
 #include "../../GameObject/Camera.h"
-#include "../../GameObject/Light.h"
-#include "../../GameObject/Sprite.h"
 
 bool Scene::s_IsInitialized = false;
 const float Scene::SCENE_MAX_SIZE = 9999.0f;
@@ -46,10 +44,10 @@ void Scene::Initialize()
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	{
-		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->NormalMap = Core::Find<Texture>("normalMapSample");
+		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->NormalMap = Core::Find<Texture>("OrganicMeat");
 	}
 
-	auto light = Core::CreateInstance<Light>();
+	auto light = Core::CreateInstance<GameObject>("Light");
 	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
 	//light->GetRendererable().SetModel(Core::Find<Model>("light"));
 	light->AddComponent<SpotLight>()->Awake();

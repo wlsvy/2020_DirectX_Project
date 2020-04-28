@@ -7,14 +7,12 @@
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../Core/GameObject.h"
-#include "../core/ObjectPool_Front.h"
 #include "../Graphics/Graphics.h"
 #include "../../Component/Animator.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Behaviour.h"
 #include "../../Component/Light.h"
 #include "../../GameObject/Camera.h"
-#include "../../GameObject/Light.h"
 
 using DirectX::operator*;
 using namespace DirectX;
@@ -42,7 +40,6 @@ Engine::~Engine()
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
 {
-	Core::LightPool::GetInstance();
 	m_Timer->Start();
 
 	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
@@ -92,7 +89,7 @@ void Engine::RenderFrame()
 
 	m_Graphics->RenderBegin();
 
-	m_Graphics->DrawShadowMap(Core::Find<Light>("Light")->GetComponent<SpotLight>());
+	m_Graphics->DrawShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
 	m_Graphics->RenderModels();
 	m_Graphics->DrawSkybox();
 

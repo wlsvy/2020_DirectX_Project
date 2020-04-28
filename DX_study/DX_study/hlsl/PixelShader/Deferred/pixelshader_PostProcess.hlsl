@@ -7,7 +7,8 @@ Texture2D colorTexture : register(t2);
 Texture2D shadowMap :  register(t3);
 Texture2D depthTexture : register(t4);
 
-TextureCube skyBoxCube : TEXTURE_CUBE : register(t9);
+Texture2D randomMap : register(t8);
+TextureCube skyBoxCube : register(t9);
 
 struct PS_INPUT
 {
@@ -76,20 +77,61 @@ float3 CalculateWorldPositionFromDepthMap(float2 screenCoord)
     return worldPosition.xyz;
 }
 
+float2 getRandom(in float2 uv)
+{
+    return normalize(randomMap.Sample(LinearWrap, uv).xy * 2.0f - 1.0f);
+}
+
+//√‚√≥ : https://www.gamedev.net/articles/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
+float ComputeOcclusionPixel(in float2 tcoord, in float2 uv, in float3 p, in float3 cnorm)
+{
+    float3 diff = positionTexture.Sample(PointClamp, tcoord + uv).xyz - p;
+    const float3 v = normalize(diff);
+    const float d = length(diff) * SSAO_scale;
+    return max(0.0, dot(cnorm, v) - SSAO_bias) * (1.0 / (1.0 + d)) * SSAO_strength;
+}
+
+const float SSf = 0.7;
+#define SSAO_FACTOR 0.3
+float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
+{
+    const float2 vec[4] = { float2(1, 0), float2(-1, 0), float2(0, 1), float2(0, -1) };
+    float3 p = position;
+    float3 n = normal;
+    //float2 rand = float2(1, 1);
+    float2 rand = getRandom(texcoord);
+    float ao = 0.0f;
+    float rad = SSAO_radius / p.z;
+  
+  //**SSAO Calculation**// 
+    int iterations = 4; 
+    for (int i = 0; i < iterations; ++i)
+    {
+        float2 coord1 = reflect(vec[i], rand) * rad;
+        float2 coord2 = float2(coord1.x * SSAO_FACTOR - coord1.y * SSAO_FACTOR, coord1.x * SSAO_FACTOR + coord1.y * SSAO_FACTOR);
+    
+        ao += ComputeOcclusionPixel(texcoord, coord1 * 0.25, p, n);
+        ao += ComputeOcclusionPixel(texcoord, coord2 * 0.5, p, n);
+        ao += ComputeOcclusionPixel(texcoord, coord1 * 0.75, p, n);
+        ao += ComputeOcclusionPixel(texcoord, coord2, p, n);
+    }
+  
+    return 1 - saturate(ao / (float) iterations * 4.0);
+}
+
+
 float4 main(PS_INPUT input) : SV_TARGET
 {    
     float4 texturePos = positionTexture.Sample(PointClamp, input.inTexCoord);
     //float3 computedPos = CalculateWorldPositionFromDepthMap(input.inTexCoord);
     float3 textureNormal = normalTexture.Sample(PointClamp, input.inTexCoord);
     float3 textureColor = colorTexture.Sample(PointClamp, input.inTexCoord);
-    //float1 val = 3;
-    //float1 op = 2 >> val;
-    //float textureDepth = float1(depthTexture.Sample(PointClamp, input.inTexCoord).r) >> 8;
+    
     float3 lightVal = AmbientColor * AmbientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
     
     float3 rayDir = normalize(texturePos.xyz - CameraPosition.xyz);
-    float cameraToPixelDistance = length(texturePos - CameraPosition.xyz);
+    float cameraToPixelDistance = length(texturePos.xyz - CameraPosition.xyz);
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
 
     float scatteredLightIntensity = InScatter(texturePos.xyz, rayDir, spotLight.Position.xyz, cameraToPixelDistance);
@@ -105,7 +147,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     float3 reflectionVector = reflect(rayDir, textureNormal);
     float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
     
-    finalColor = scatterLight + saturate(lightVal * textureColor + reflectionColor);
+    float ambientOcclusionFactor = ComputeAmbientOcclusion(texturePos.xyz, textureNormal.xyz, input.inTexCoord);
+    
+    finalColor = scatterLight + saturate(lightVal * textureColor * ambientOcclusionFactor + reflectionColor);
     //finalColor = max(scatterLight, saturate(lightVal * textureColor + reflectionColor));
-    return float4(finalColor, 1.0f);
+    return float4(ambientOcclusionFactor.xxx, 1.0f);
 }

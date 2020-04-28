@@ -6,13 +6,18 @@ SamplerState LinearWrap : SAMPLER : register(s1);
 cbuffer CB_Scene : register(b0)
 {
     float3 CameraPosition;
-    float pad_Scene;
+    float pad0;
     
     float3 AmbientColor;
     float AmbientStrength;
     
     float4x4 InverseViewMatrix;
     float4x4 InverseProjMatrix;
+    
+    float SSAO_strength;
+    float SSAO_radius;
+    float SSAO_bias;
+    float SSAO_scale;
 }
 
 struct SpotLight

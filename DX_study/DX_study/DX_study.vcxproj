@@ -176,7 +176,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Script\Component\Animator.cpp" />
-    <ClCompile Include="Script\Component\Behaviour.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
     <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
     <ClCompile Include="Script\Component\Custom\CharacterMove.cpp" />
@@ -186,7 +185,6 @@
     <ClCompile Include="Script\Component\Renderable.cpp" />
     <ClCompile Include="Script\Internal\Core\FileImporter.cpp" />
     <ClCompile Include="Script\Internal\Core\ImportHelper.cpp" />
-    <ClCompile Include="Script\Internal\Core\ObjectPool_Front.cpp" />
     <ClCompile Include="Script\Internal\Core\Scene.cpp" />
     <ClCompile Include="Script\Component\Transform.cpp" />
     <ClCompile Include="Script\Internal\Core\InternalHelper.cpp" />
@@ -220,7 +218,6 @@
     <ClCompile Include="Script\Internal\Engine\RenderWindow.cpp" />
     <ClCompile Include="Script\App.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Shaders.cpp" />
-    <ClCompile Include="Script\GameObject\Sprite.cpp" />
     <ClCompile Include="Script\Util\Input.cpp" />
     <ClCompile Include="Script\Util\Math.cpp" />
     <ClCompile Include="Script\Util\StringHelper.cpp" />
@@ -241,7 +238,6 @@
     <ClInclude Include="Script\Component\Renderable.h" />
     <ClInclude Include="Script\Internal\Core\FileImporter.h" />
     <ClInclude Include="Script\Internal\Core\ImportHelper.h" />
-    <ClInclude Include="Script\Internal\Core\ObjectPool_Front.h" />
     <ClInclude Include="Script\Internal\Core\Scene.h" />
     <ClInclude Include="Script\Component\Transform.h" />
     <ClInclude Include="Script\Internal\Core\InternalHelper.h" />
@@ -281,12 +277,10 @@
     <ClInclude Include="Script\Internal\Engine\Keyboard\KeyboardEvent.h" />
     <ClInclude Include="Script\Internal\Graphics\Model.h" />
     <ClInclude Include="Script\Internal\Graphics\Mesh.h" />
-    <ClInclude Include="Script\GameObject\Light.h" />
     <ClInclude Include="Script\Internal\Engine\Mouse\MouseClass.h" />
     <ClInclude Include="Script\Internal\Engine\Mouse\MouseEvent.h" />
     <ClInclude Include="Script\Internal\Engine\RenderWindow.h" />
     <ClInclude Include="Script\Internal\Graphics\Shaders.h" />
-    <ClInclude Include="Script\GameObject\Sprite.h" />
     <ClInclude Include="Script\Util\Input.h" />
     <ClInclude Include="Script\Util\Math.h" />
     <ClInclude Include="Script\Util\StringHelper.h" />

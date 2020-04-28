@@ -12,7 +12,6 @@ class Scene;
 class Graphics;
 
 namespace Core {
-	//클래스 추상화, Init 달아버리기
 	template<typename T>
 	class Pool : public Singleton<Pool<T>> {
 	public:

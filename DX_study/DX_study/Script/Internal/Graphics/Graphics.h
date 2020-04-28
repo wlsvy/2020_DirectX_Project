@@ -44,7 +44,6 @@ public:
 	void DrawSkybox();
 	void DrawGuiDebug();
 	void ComputeShdaderTest();
-	void SetRenderTarget(ID3D11RenderTargetView* const* rtv, int bufferCount = 1);
 	void RenderEnd();
 
 	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
@@ -108,6 +107,7 @@ private:
 	//const UINT m_NullOffset = -1;
 	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
 	std::weak_ptr<Texture> m_DefaultTexture;
+	std::weak_ptr<Texture> m_SSAOrefTexture;
 	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11ShaderResourceView * const m_NullSrv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11UnorderedAccessView * const m_NullUav[DeviceResources::RenderTargetCount] = { NULL, };

@@ -78,4 +78,8 @@ struct CB_PS_Scene {
 	DirectX::XMMATRIX InverseViewMat;
 	DirectX::XMMATRIX InverseProjMat;
 
+	float ssao_Strength = 1.0f;
+	float ssao_Radius = 0.01f;
+	float ssao_Bias = 1.25f;
+	float ssao_Scale = 1.0f;
 };

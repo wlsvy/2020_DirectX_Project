@@ -19,12 +19,10 @@
 #include "../Core/GameObject.h"
 #include "../Core/ImportHelper.h"
 #include "../Core/Scene.h"
-#include "../Core/ObjectPool_Front.h"
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 #include "../../Component/Animator.h"
 #include "../../Component/Light.h"
-#include "../../GameObject/Light.h"
 #include "../../GameObject/Camera.h"
 
 
@@ -70,6 +68,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
 		m_DefaultMaterial = Core::Find<SharedMaterial>("Default");
 		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
+		m_SSAOrefTexture = Core::Find<Texture>("NoiseNormal");
 		return true;
 	}
 	catch (CustomException & e) {
@@ -107,7 +106,7 @@ bool Graphics::ProcessMaterialTable()
 void Graphics::RenderBegin()
 {
 	static auto mainCam = Core::GetCurrentScene().GetMainCam();
-	static auto light = std::dynamic_pointer_cast<Light>(Core::Find<GameObject>("Light"));
+	static auto light = Core::Find<GameObject>("Light");
 	static auto lightc = light->GetComponent<SpotLight>();
 	cb_ps_SpotLight.data.color = lightc->Color;
 	cb_ps_SpotLight.data.strength = lightc->Strength;
@@ -200,8 +199,8 @@ void Graphics::DrawMesh(
 	const DirectX::XMMATRIX & worldMat, 
 	const DirectX::XMMATRIX & wvpMat)
 {
-	cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; //Calculate World-View-Projection Matrix
-	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; //Calculate World Matrix
+	cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; 
+	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; 
 	cb_vs_vertexshader.ApplyChanges();
 
 	UINT offset = 0;
@@ -280,7 +279,7 @@ bool Graphics::ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer)
 
 void Graphics::PostProcess()
 {
-	auto l = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount), NULL);
 
@@ -292,6 +291,7 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//color
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());	//shadowmap
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(4));	//depth
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_SSAOrefTexture.lock()->GetTextureResourceViewAddress());	//SSAO random map
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
 
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
@@ -374,7 +374,7 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 void Graphics::DrawGui()
 {
 	auto& dr = m_DeviceResources;
-	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetBaseRTVaddress(), NULL);
 
@@ -452,7 +452,7 @@ void Graphics::ComputeShdaderTest()
 {
 	static auto csBlur = Core::Find<ComputeShader>("Blur");
 	static auto csDownsample = Core::Find<ComputeShader>("ThresholdDownSample");
-	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
+	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	auto& dr = m_DeviceResources;
 	
 	{
@@ -519,12 +519,6 @@ void Graphics::ComputeShdaderTest()
 			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
 		}
 	}
-}
-
-void Graphics::SetRenderTarget(ID3D11RenderTargetView * const * rtv, int bufferCount)
-{
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DeviceResources::DeferredRenderChannelCount, m_NullRtv, NULL);
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(bufferCount, rtv, m_DeviceResources.GetBaseDepthStencilView());
 }
 
 void Graphics::RenderEnd()

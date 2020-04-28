@@ -87,9 +87,6 @@
     <ClCompile Include="Script\GameObject\Camera.cpp">
       <Filter>소스 파일\GameObject</Filter>
     </ClCompile>
-    <ClCompile Include="Script\GameObject\Sprite.cpp">
-      <Filter>소스 파일\GameObject</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Graphics\imGui\imgui.cpp">
       <Filter>소스 파일\Internal\Graphics\ImGui</Filter>
     </ClCompile>
@@ -183,9 +180,6 @@
     <ClCompile Include="Script\Component\Renderable.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Component\Behaviour.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Core\GameObject.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
@@ -228,9 +222,6 @@
     <ClCompile Include="Script\Internal\Graphics\Material.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Internal\Core\ObjectPool_Front.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Graphics\Model.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -246,9 +237,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
-      <Filter>헤더 파일\GameObject</Filter>
-    </ClInclude>
-    <ClInclude Include="Script\GameObject\Sprite.h">
       <Filter>헤더 파일\GameObject</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Graphics\imGui\imconfig.h">
@@ -416,9 +404,6 @@
     <ClInclude Include="Script\Component\Light.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Script\GameObject\Light.h">
-      <Filter>헤더 파일\GameObject</Filter>
-    </ClInclude>
     <ClInclude Include="Script\Util\Math.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -426,9 +411,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Graphics\Material.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Script\Internal\Core\ObjectPool_Front.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Script\Component\Custom\LightSystem.h">

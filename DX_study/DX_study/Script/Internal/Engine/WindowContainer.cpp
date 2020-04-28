@@ -19,7 +19,6 @@ WindowContainer::WindowContainer() {
 	}
 }
 
-//ImGui 함수 가져오기 -> win32 연계
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, uMsg, wParam, lParam)) return false;
@@ -99,7 +98,7 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		}
 		break;
 	}
-	case WM_INPUT: {//MouseMoveRaw 하면서 작성한 코드인데 진짜 이해안됨.
+	case WM_INPUT: {
 		UINT dataSize;
 
 		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER));
