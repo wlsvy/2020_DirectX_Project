@@ -74,4 +74,8 @@ struct CB_PS_Scene {
 
 	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float ambientLightStrength = 0.2f;
+
+	DirectX::XMMATRIX InverseViewMat;
+	DirectX::XMMATRIX InverseProjMat;
+
 };

@@ -20,7 +20,11 @@ public:
 	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return mainRenderTargetView.Get(); }
 	ID3D11RenderTargetView* const*	GetBaseRTVaddress() const							{ return mainRenderTargetView.GetAddressOf(); }
 	ID3D11DepthStencilView*			GetBaseDepthStencilView() const						{ return mainDepthStencilView.Get(); }
+	ID3D11ShaderResourceView*		GetBaseDepthStencilSrv() const						{ return mainDepthStencilSRV.Get(); }
+	ID3D11ShaderResourceView*const*	GetBaseDepthStencilSrvAddress() const				{ return mainDepthStencilSRV.GetAddressOf(); }
 	ID3D11DepthStencilView*			GetSubDepthStencilView() const						{ return subDepthStencilView.Get(); }
+	ID3D11ShaderResourceView*		GetSubDepthStencilSrv() const						{ return subDepthStencilSRV.Get(); }
+	ID3D11ShaderResourceView*const*	GetSubDepthStencilSrvAddress() const				{ return subDepthStencilSRV.GetAddressOf(); }
 	ID3D11DepthStencilState*		GetBaseDepthStencilState() const					{ return depthStencilState.Get(); }
 	ID3D11RasterizerState*			GetRasterizerState() const							{ return rasterizerState.Get(); }
 	ID3D11BlendState*				GetBlendState() const								{ return blendState.Get();	}
@@ -41,8 +45,8 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return primitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return debugInputLayout.Get(); }
 
-	static const int RenderTargetCount = 7;	//Position, Normal, Color, light	+ Result + blur * 2
-	static const int DeferredRenderChannelCount = 4; 
+	static const int RenderTargetCount = 8;	//Position, Normal, Color, light, depth	+ Result + blur * 2
+	static const int DeferredRenderChannelCount = 5; 
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
@@ -55,7 +59,9 @@ private:
 	
 	//Depth/Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mainDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainDepthStencilSRV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> subDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> subDepthStencilSRV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
 
 	//RenderTargets

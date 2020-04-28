@@ -83,8 +83,7 @@ DirectX::XMVECTOR Transform::CalculateLossyScale() const
 	auto globalRotMat = DirectX::XMMatrixRotationQuaternion(m_GlobalQuaternionVec);
 	auto rpMat = globalRotMat * globalPosMat;
 
-	DirectX::XMVECTOR d;
-	auto inv = DirectX::XMMatrixInverse(&d, rpMat);
+	auto inv = DirectX::XMMatrixInverse(nullptr, rpMat);
 	auto globalScaleMat = m_WorldMatrix * inv;
 
 	return DirectX::XMVectorSet(

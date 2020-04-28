@@ -120,6 +120,8 @@ void Graphics::RenderBegin()
 	cb_ps_SpotLight.data.vpMat = lightc->GetLightViewProjectMat();
 	cb_ps_SpotLight.ApplyChanges();
 	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
+	cb_ps_SceneBase.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
+	cb_ps_SceneBase.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	cb_ps_SceneBase.ApplyChanges();
 
 	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
@@ -280,12 +282,7 @@ void Graphics::PostProcess()
 {
 	auto l = Core::Find<Light>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		1, 
-		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
-		m_DeviceResources.GetBaseDepthStencilView());
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount), NULL);
 
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
 	m_DeviceResources.GetDeviceContext()->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
@@ -294,6 +291,10 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));	//normal
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//color
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());	//shadowmap
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(4));	//depth
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
+
+	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
 
 
@@ -304,11 +305,9 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DeviceResources::DeferredRenderChannelCount, m_NullSrv);
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount,
-		m_NullRtv,
-		NULL);
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DeviceResources::DeferredRenderChannelCount + 1, m_NullSrv);
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_NullSrv);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DeviceResources::DeferredRenderChannelCount, m_NullRtv, NULL);
 }
 
 void Graphics::DrawSkybox()
@@ -370,7 +369,6 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	dr.GetDeviceContext()->OMSetRenderTargets(1, m_NullRtv, NULL);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, spotLight->m_ShadowMapShaderResourceView.GetAddressOf());
 }
 
 void Graphics::DrawGui()
@@ -378,10 +376,7 @@ void Graphics::DrawGui()
 	auto& dr = m_DeviceResources;
 	auto light = Core::Find<Light>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		1,
-		m_DeviceResources.GetBaseRTVaddress(),
-		m_DeviceResources.GetBaseDepthStencilView());
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetBaseRTVaddress(), NULL);
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
@@ -399,10 +394,12 @@ void Graphics::DrawGui()
 
 	ImGui::Begin("Blur Test");
 	ImGui::DragFloat("ThresHold", &cb_cs_DownSample.data.threshold, 0.01f, 0.0f, 10.0f);
-	//ImGui::DragFloat3("Attenuation", &Attentuation.x, 0.1f, 0.0f, 300.0f);
 	ImGui::Image(dr.GetRenderTargetSrv(3), scene_size);
 	ImGui::Image(dr.GetRenderTargetSrv(5), scene_size);
 	ImGui::Image(dr.GetRenderTargetSrv(6), scene_size);
+	ImGui::Image(dr.GetBaseDepthStencilSrv(), scene_size);
+	ImGui::Image(dr.GetSubDepthStencilSrv(), scene_size);
+
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

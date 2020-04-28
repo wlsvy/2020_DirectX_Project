@@ -5,8 +5,9 @@ Texture2D normalTexture : register(t1);
 Texture2D colorTexture : register(t2);
 //Texture2D lightTexture : register(t3);
 Texture2D shadowMap :  register(t3);
+Texture2D depthTexture : register(t4);
 
-
+TextureCube skyBoxCube : TEXTURE_CUBE : register(t9);
 
 struct PS_INPUT
 {
@@ -51,30 +52,60 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
     return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
+float FogAttenuation(float density, float distance)
+{
+    return saturate(1 / exp(distance * density));
+}
+
+float3 CalculateWorldPositionFromDepthMap(float2 screenCoord)
+{
+    // Translate from homogeneous coords to texture coords.
+    float2 depthTexCoord = 0.5f * screenCoord + 0.5f;
+    depthTexCoord.y = 1.0f - depthTexCoord.y;
+    
+    //float depth = depthTexture.Sample(PointClamp, depthTexCoord).r;
+    float depth = depthTexture.Sample(PointClamp, depthTexCoord).w;
+
+    float4 screenPos = float4(screenCoord.x, screenCoord.y, depth, 1.0);
+    float4 viewPosition = mul(screenPos, InverseProjMatrix);
+    viewPosition /= viewPosition.w; // Perspective division
+    //float4 worldPosition = mul(viewPosition, viewInverse);
+    float4 worldPosition = mul(screenPos, InverseViewMatrix);
+
+
+    return worldPosition.xyz;
+}
 
 float4 main(PS_INPUT input) : SV_TARGET
 {    
     float4 texturePos = positionTexture.Sample(PointClamp, input.inTexCoord);
+    //float3 computedPos = CalculateWorldPositionFromDepthMap(input.inTexCoord);
     float3 textureNormal = normalTexture.Sample(PointClamp, input.inTexCoord);
     float3 textureColor = colorTexture.Sample(PointClamp, input.inTexCoord);
-    //float3 textureLight = lightTexture.Sample(SampleTypePoint, input.inTexCoord);
-    float3 ambient = textureColor * AmbientColor * AmbientStrength;
+    //float1 val = 3;
+    //float1 op = 2 >> val;
+    //float textureDepth = float1(depthTexture.Sample(PointClamp, input.inTexCoord).r) >> 8;
+    float3 lightVal = AmbientColor * AmbientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
     
-    float3 rayDir = texturePos.xyz - CameraPosition.xyz;
-    float cameraToPixelDistance = length(rayDir);
+    float3 rayDir = normalize(texturePos.xyz - CameraPosition.xyz);
+    float cameraToPixelDistance = length(texturePos - CameraPosition.xyz);
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
-    rayDir /= cameraToPixelDistance;
+
     float scatteredLightIntensity = InScatter(texturePos.xyz, rayDir, spotLight.Position.xyz, cameraToPixelDistance);
-    scatteredLightIntensity = pow(scatteredLightIntensity, 0.25f);
+    scatteredLightIntensity = pow(scatteredLightIntensity, 0.5f);
     float3 scatterLight = scatteredLightIntensity * spotLight.Color;
     
     if (texturePos.w < 0.0f)
         return float4(textureColor + scatterLight, 1.0f);
     
     float4 lightSpacePos = mul(float4(texturePos.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
-    float3 textureLight = CalculateShadow(0, lightSpacePos) * CalculateLightColor(texturePos.xyz, textureNormal.xyz);
+    lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(texturePos.xyz, textureNormal.xyz);
     
-    finalColor = saturate(scatterLight + textureLight * textureColor + ambient);
+    float3 reflectionVector = reflect(rayDir, textureNormal);
+    float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
+    
+    finalColor = scatterLight + saturate(lightVal * textureColor + reflectionColor);
+    //finalColor = max(scatterLight, saturate(lightVal * textureColor + reflectionColor));
     return float4(finalColor, 1.0f);
 }

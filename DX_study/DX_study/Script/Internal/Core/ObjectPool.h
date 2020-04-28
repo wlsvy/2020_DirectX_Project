@@ -83,16 +83,14 @@ namespace Core {
 		}
 
 	private:
-		class ObjWrapperBase {
-		public:
+		struct ObjWrapperBase {
 			virtual std::shared_ptr<Object> Get() = 0;
 		};
 
 		template<typename T>
-		class ObjectWrapper : public ObjWrapperBase {
-		public:
+		struct ObjectWrapper : ObjWrapperBase {
 			ObjectWrapper(const std::shared_ptr<T>& obj) : Ptr(obj) {
-				Pool<typename T::ManagedType>::GetInstance().Register(obj);
+				Pool<typename T::ManagedType>::GetInstance().Register(Ptr);
 			}
 			~ObjectWrapper() {
 				Pool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
@@ -103,13 +101,13 @@ namespace Core {
 			std::shared_ptr<T> Ptr;
 		};
 
-		std::unordered_map<int, std::shared_ptr<ObjWrapperBase>> m_Objects;
+		std::unordered_map<int, std::unique_ptr<ObjWrapperBase>> m_Objects;
 	};
 
 	template<typename T, typename ...Arg>
 	std::shared_ptr<T> CreateInstance(Arg&&... arg) {
 		auto ptr = std::make_shared<T>(arg...);
-		Pool<Object>::GetInstance().Register<T>(ptr);
+		Pool<Object>::GetInstance().Register<typename T::ManagedType>(ptr);
 		return ptr;
 	}
 

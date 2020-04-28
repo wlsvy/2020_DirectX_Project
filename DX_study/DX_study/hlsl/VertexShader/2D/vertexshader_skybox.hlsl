@@ -21,7 +21,7 @@ struct VS_OUTPUT
 VS_OUTPUT main(VS_INPUT input)
 {
     VS_OUTPUT output;
-    output.outPosition = mul(float4(input.inPos, 1.0f), wvpMatrix).xyww; // z = 1이 되도록(즉 하늘 돔이 항상 면 평면에 있도록) z = w로 설정
+    output.outPosition = mul(float4(input.inPos, 1.0f), wvpMatrix).xyww; // z / w = 1이 되도록(즉 하늘 돔이 항상 면 평면에 있도록) z = w로 설정
     output.outLocalPos = input.inPos;
     return output;
 }

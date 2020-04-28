@@ -56,9 +56,9 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		ThrowIfFailed(hr, "Failed to create render target view.");
 
 		//Describe our Depth/Stencil Buffer + 생성자 활용해서 코드 줄이기(애초에 default 패러미터 값은 안 건드려도 됨)
-		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, width, height);
+		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R32_TYPELESS, width, height);
 		depthStencilDesc.MipLevels = 1;
-		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer, depthStencilBuffer2;
 		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
@@ -66,10 +66,28 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 		hr = this->device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer2.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
 
-		hr = this->device->CreateDepthStencilView(depthStencilBuffer.Get(), NULL, this->mainDepthStencilView.GetAddressOf());
+		CD3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+		descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+		descDSV.Texture2D.MipSlice = 0;
+		descDSV.Flags = 0;
+		hr = this->device->CreateDepthStencilView(depthStencilBuffer.Get(), &descDSV, this->mainDepthStencilView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil view.");
-		hr = this->device->CreateDepthStencilView(depthStencilBuffer2.Get(), NULL, this->subDepthStencilView.GetAddressOf());
+		hr = this->device->CreateDepthStencilView(depthStencilBuffer2.Get(), &descDSV, this->subDepthStencilView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create depth stencil view.");
+
+		CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+		ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+		shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
+		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D; 
+		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+		shaderResourceViewDesc.Texture2D.MipLevels = 1;
+		ThrowIfFailed(
+			device->CreateShaderResourceView(depthStencilBuffer.Get(), &shaderResourceViewDesc, mainDepthStencilSRV.GetAddressOf()),
+			"Failed to create shaderResourceViewArr.");
+		ThrowIfFailed(
+			device->CreateShaderResourceView(depthStencilBuffer2.Get(), &shaderResourceViewDesc, subDepthStencilSRV.GetAddressOf()),
+			"Failed to create shaderResourceViewArr.");
 
 		//Create depth stencil state 스텐실 & 뎁스
 		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
@@ -135,9 +153,9 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 bool DeviceResources::InitializeRenderTarget(int width, int height)
 {
 	try {
-		UINT widthArr[RenderTargetCount] = { width , width , width , width  ,width,  width / 2, width / 2 };
-		UINT heightArr[RenderTargetCount] = { height , height , height , height  ,height,  height / 2 , height / 2 };
-		UINT formatArr[RenderTargetCount] = { 2, 2, 2, 2, 2, 28, 28 };
+		UINT widthArr[RenderTargetCount] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
+		UINT heightArr[RenderTargetCount] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
+		UINT formatArr[RenderTargetCount] = { 2, 2, 2, 2, 2, 2, 28, 28 };
 		for (int i = 0; i < RenderTargetCount; i++) {
 			D3D11_TEXTURE2D_DESC textureDesc;
 			ZeroMemory(&textureDesc, sizeof(textureDesc));

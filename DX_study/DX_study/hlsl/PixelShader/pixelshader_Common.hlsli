@@ -10,6 +10,9 @@ cbuffer CB_Scene : register(b0)
     
     float3 AmbientColor;
     float AmbientStrength;
+    
+    float4x4 InverseViewMatrix;
+    float4x4 InverseProjMatrix;
 }
 
 struct SpotLight

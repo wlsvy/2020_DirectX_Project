@@ -15,6 +15,7 @@ struct PS_OUTPUT
     float4 normal : NORMAL;
     float4 color : COLOR0;
     float4 light : COLOR1;
+    float4 depth : COLOR2;
 };
 
 cbuffer Material : register(b2)

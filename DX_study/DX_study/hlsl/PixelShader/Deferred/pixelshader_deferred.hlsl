@@ -34,5 +34,8 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     
     float4 lightSpacePos = mul(float4(input.inWorldPos, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     output.light = CalculateShadow(0, lightSpacePos) * CalculateLightColor(input.inWorldPos.xyz, input.inNormal);
+    
+    float depth = input.inPosition.z / input.inPosition.w;
+    output.depth = float4(depth, depth, depth, 1.0f);
     return output;
 }
