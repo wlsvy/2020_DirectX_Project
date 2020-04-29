@@ -29,6 +29,7 @@ public:
 	void Update();
 	void FixedUpdate();
 	void RenderFrame();
+	void Run();
 
 	Graphics& GetGraphics() { return *m_Graphics; }
 	Timer& GetTimer() { return *m_Timer; }

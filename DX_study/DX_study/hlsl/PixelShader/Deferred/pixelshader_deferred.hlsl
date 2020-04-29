@@ -30,7 +30,8 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     output.color = objTexture.Sample(PointClamp, input.inTexCoord) * materialColor;
     
     float3 calNormal = CalcPerPixelNormal(input.inTexCoord, input.inNormal, input.inTangent.xyz);
-    output.normal = float4(calNormal, 1.0f);
+    //output.normal = float4(calNormal, 1.0f);
+    output.normal = float4(input.inNormal, 1.0f);
     
     float4 lightSpacePos = mul(float4(input.inWorldPos, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     output.light = CalculateShadow(0, lightSpacePos) * CalculateLightColor(input.inWorldPos.xyz, input.inNormal);

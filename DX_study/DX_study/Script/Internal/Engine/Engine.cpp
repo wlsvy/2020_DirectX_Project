@@ -99,3 +99,20 @@ void Engine::RenderFrame()
 	m_Graphics->DrawGui();
 	m_Graphics->RenderEnd();
 }
+
+void Engine::Run()
+{
+	float fixedTimeStamp = 0.0f;
+
+	while (ProcessMessage()) {
+
+		fixedTimeStamp += m_Timer->GetDeltaTime();
+		if (fixedTimeStamp > Engine::s_FixedFrameRate) {
+			FixedUpdate();
+			fixedTimeStamp -= Engine::s_FixedFrameRate;
+		}
+
+		Update();
+		RenderFrame();
+	}
+}
