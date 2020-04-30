@@ -118,7 +118,128 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
   
     return 1 - saturate(ao / (float) iterations * 4.0);
 }
+void ApplyHeightFog(float3 wpos, inout float density)
+{
+#ifdef HEIGHT_FOG
+            density *= exp(-(wpos.y + _HeightFog.x) * _HeightFog.y);
+#endif
+}
 
+float GetDensity(float3 wpos)
+{
+    float density = 1;
+#ifdef NOISE
+			float noise = tex3D(_NoiseTexture, frac(wpos * _NoiseData.x + float3(_Time.y * _NoiseVelocity.x, 0, _Time.y * _NoiseVelocity.y)));
+			noise = saturate(noise - _NoiseData.z) * _NoiseData.y;
+			density = saturate(noise);
+#endif
+    ApplyHeightFog(wpos, density);
+
+    return density;
+}
+
+float MieScattering(float cosAngle, float4 g)
+{
+    return g.w * (g.x / (pow(g.y - g.z * cosAngle, 1.5)));
+}
+
+float IsOccluded(float3 pos)
+{
+    if (length(pos - spotLight.Position) > spotLight.Range)
+    {
+        return 0.0f;
+    }
+    float a = dot(normalize(pos - spotLight.Position), spotLight.Forward);
+    if (a < 0 || cos(radians(spotLight.SpotAngle / 2)) > a)
+        return 0.0f;
+    
+    float4 lightSpacePos = mul(float4(pos, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    if (lightSpacePos.w < 0)
+        return 0.0f;
+    //lightVal += CalculateShadow(0, lightSpacePos);
+    return CalculateShadow(0, lightSpacePos);;
+}
+
+float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
+{
+    float2 interleavedPos = (fmod(floor(screenPos.xy), 8.0));
+    //float offset = tex2D(_DitherTexture, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
+    int stepCount = _SampleCount;
+
+    float stepSize = rayLength / stepCount;
+    float3 step = rayDir * stepSize;
+
+    //float3 currentPosition = rayStart + step * offset;
+    float3 currentPosition = rayStart + step;
+
+
+    float4 vlight = 0;
+
+    float cosAngle;
+
+    float extinction = 0;
+    cosAngle = dot(spotLight.Forward.xyz, -rayDir);
+
+    //float extinction = length(CameraPosition - currentPosition) * _VolumetricLight.y * 0.5;
+    [loop]
+    for (int i = 0; i < stepCount; ++i)
+    {
+        float3 vectorToLight = spotLight.Position - currentPosition;
+        float distToLight = length(vectorToLight);
+
+        float atten = 1 / (spotLight.Attenuation.x + (spotLight.Attenuation.y * distToLight) + (spotLight.Attenuation.z * pow(distToLight, 2)));
+        //float atten = 1;
+
+        //float atten = GetLightAttenuation(currentPosition);
+        float density = IsOccluded(currentPosition);
+
+        float scattering = _VolumetricLight.x * stepSize * density;
+        extinction += _VolumetricLight.y * stepSize * density; // +scattering;
+
+        float4 light = atten * scattering * exp(-extinction);
+        //float light = atten / stepCount * _VolumetricLight.x * IsOccluded(currentPosition);
+        vlight += light;
+
+        currentPosition += step;
+    }
+
+    // apply phase function for dir light
+    //vlight *= MieScattering(cosAngle, _MieG);
+    // apply light's color
+    vlight *= float4(spotLight.Color, 1.0f);
+    //vlight *= _LightColor;
+    vlight = max(0, vlight);
+    //vlight.w = exp(-extinction);
+    vlight.w = 0;
+    return vlight;
+}
+
+float4 VolumetricLight(float2 uv, float3 wpos)
+{
+    //float2 uv = i.uv.xy;
+    float linearDepth = depthTexture.Sample(LinearWrap, uv);
+    //float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
+    //float linearDepth = Linear01Depth(depth);
+
+    //float3 wpos = i.wpos;
+    float3 rayStart = CameraPosition;
+    float3 rayDir = wpos - CameraPosition;
+    //rayDir *= linearDepth;
+
+    float rayLength = length(rayDir);
+    rayDir /= rayLength;
+
+    //rayLength = min(rayLength, _MaxRayLength);
+
+    float4 color = RayMarch(uv, rayStart, rayDir, rayLength);
+
+    if (linearDepth > 0.999999)
+    {
+        //color.w = lerp(color.w, 1, _VolumetricLight.w);
+    }
+    return color;
+
+}   
 
 float4 main(PS_INPUT input) : SV_TARGET
 {    
@@ -138,8 +259,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     scatteredLightIntensity = pow(scatteredLightIntensity, 0.5f);
     float3 scatterLight = scatteredLightIntensity * spotLight.Color;
     
-    if (texturePos.w < 0.0f)
-        return float4(textureColor + scatterLight, 1.0f);
+    //if (texturePos.w < 0.0f)
+        //return float4(textureColor + scatterLight, 1.0f);
     
     float4 lightSpacePos = mul(float4(texturePos.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(texturePos.xyz, textureNormal.xyz);
@@ -149,7 +270,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float ambientOcclusionFactor = ComputeAmbientOcclusion(texturePos.xyz, textureNormal.xyz, input.inTexCoord);
     
+    float4 vl = VolumetricLight(input.inTexCoord, texturePos.xyz);
+    
     finalColor = scatterLight + saturate(lightVal * textureColor * ambientOcclusionFactor + reflectionColor);
     //finalColor = max(scatterLight, saturate(lightVal * textureColor + reflectionColor));
-    return float4(finalColor, 1.0f);
+    //return float4(finalColor, 1.0f);
+    return float4(vl.xyz, 1.0f);
 }
