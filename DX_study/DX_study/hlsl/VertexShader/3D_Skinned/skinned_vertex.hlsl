@@ -12,6 +12,32 @@ cbuffer boneBuffer : register(b1)
     float4x4 boneTransform[MAX_BONE_NUM];
 };
 
+cbuffer CB_Scene : register(b2)
+{
+    float3 CameraPosition;
+    float pad0;
+    
+    float3 AmbientColor;
+    float AmbientStrength;
+    
+    float4x4 InverseViewMatrix;
+    float4x4 InverseProjMatrix;
+    
+    float SSAO_strength;
+    float SSAO_radius;
+    float SSAO_bias;
+    float SSAO_scale;
+    
+    // x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
+    float4 _VolumetricLight;
+     // x: 1 - g^2, y: 1 + g^2, z: 2*g, w: 1/4pi
+    float4 _MieG;
+    float3 CameraForward;
+    int _SampleCount;
+    // x:  ground level, y: height scale, z: unused, w: unused
+    float4 _HeightFog;
+}
+
 struct VS_INPUT
 {
     float3 inPos : POSITION;
@@ -28,7 +54,8 @@ struct VS_OUTPUT
     float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL0;
     float3 outWorldPos : WORLD_POSITION0;
-    float4 outTangent : TANGENT;
+    float3 outTangent : TANGENT;
+    float outDepth : DEPTH;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -48,6 +75,6 @@ VS_OUTPUT main(VS_INPUT input)
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), animatedWorldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
     output.outTangent = normalize(mul(input.inTangent, animatedWorldMatrix));
-
+    output.outDepth = mul(output.outPosition, InverseProjMatrix).z;
     return output;
 }

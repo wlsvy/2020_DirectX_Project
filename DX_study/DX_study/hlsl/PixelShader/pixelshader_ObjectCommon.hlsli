@@ -6,7 +6,8 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL0;
     float3 inWorldPos : WORLD_POSITION0;
-    float4 inTangent : TANGENT;
+    float3 inTangent : TANGENT;
+    float inDepth : DEPTH;
 };
 
 struct PS_OUTPUT

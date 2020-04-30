@@ -129,6 +129,7 @@ void Graphics::RenderBegin()
 
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
+	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(2, 1, cb_ps_SceneBase.GetAddressOf());
 
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
 	for (int i = 0; i < DeviceResources::RenderTargetCount; i++) {

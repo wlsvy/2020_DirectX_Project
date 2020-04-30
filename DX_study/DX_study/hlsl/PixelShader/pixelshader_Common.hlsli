@@ -18,6 +18,15 @@ cbuffer CB_Scene : register(b0)
     float SSAO_radius;
     float SSAO_bias;
     float SSAO_scale;
+    
+    // x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
+    float4 _VolumetricLight;
+     // x: 1 - g^2, y: 1 + g^2, z: 2*g, w: 1/4pi
+    float4 _MieG;
+    float3 CameraForward;
+    int _SampleCount;
+    // x:  ground level, y: height scale, z: unused, w: unused
+    float4 _HeightFog;
 }
 
 struct SpotLight

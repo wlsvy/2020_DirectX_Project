@@ -22,11 +22,40 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
     return float4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
+float3 CalculateWorldPositionFromDepthMap(float4 pos)
+{
+    float depth = pos.z / pos.w;
+    
+    float2 screenCoord = 0.5f * pos.xy / pos.w + 0.5f;
+    screenCoord.y = 1.0f - screenCoord.y;
+
+    // Translate from homogeneous coords to texture coords.
+    //float2 depthTexCoord = 0.5f * screenCoord + 0.5f;
+    //depthTexCoord.y = 1.0f - depthTexCoord.y;
+    
+    
+    //float depth = depthTexture.Sample(PointClamp, depthTexCoord).r;
+
+    float4 screenPos = float4(screenCoord.x, screenCoord.y, depth, 1.0);
+    float4 viewPosition = mul(transpose(InverseProjMatrix), screenPos);
+    //viewPosition /= viewPosition.w; // Perspective division
+    //float4 worldPosition = mul(viewPosition, viewInverse);
+    float4 worldPosition = mul(transpose(InverseViewMatrix), screenPos);
+
+
+    return worldPosition.xyz;
+}
+
 
 PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 {
     PS_OUTPUT output;
-    output.pos = float4(input.inWorldPos, 1.0f);
+    //float4x4 inverseVP = mul(InverseProjMatrix, InverseViewMatrix);
+    output.pos = float4(input.inWorldPos, 1.0f);    
+    //output.pos = mul(input.inPosition, transpose(inverseVP));
+    //output.pos = float4(mul(mul(input.inPosition, transpose(InverseProjMatrix)), transpose(InverseProjMatrix)).xyz, 1.0f);
+    //output.pos = float4(float(input.inPosition.z / input.inPosition.w).xxx, 1.0f);
+    //output.pos = float4(CalculateWorldPositionFromDepthMap(input.inPosition), 1.0f);
     output.color = objTexture.Sample(PointClamp, input.inTexCoord) * materialColor;
     
     float3 calNormal = CalcPerPixelNormal(input.inTexCoord, input.inNormal, input.inTangent.xyz);
@@ -37,6 +66,6 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     output.light = CalculateShadow(0, lightSpacePos) * CalculateLightColor(input.inWorldPos.xyz, input.inNormal);
     
     float depth = input.inPosition.z / input.inPosition.w;
-    output.depth = float4(depth, depth, depth, 1.0f);
+    output.depth = float4(input.inDepth.xxx, 1.0f);
     return output;
 }
