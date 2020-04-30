@@ -82,12 +82,4 @@ struct CB_PS_Scene {
 	float ssao_Radius = 0.01f;
 	float ssao_Bias = 1.25f;
 	float ssao_Scale = 1.0f;
-
-	DirectX::XMFLOAT4 _VolumetricLight;
-	// x: 1 - g^2, y: 1 + g^2, z: 2*g, w: 1/4pi
-	DirectX::XMFLOAT4 _MieG;
-	DirectX::XMFLOAT3 CameraForward;
-	int _SampleCount;
-	// x:  ground level, y: height scale, z: unused, w: unused
-	DirectX::XMFLOAT4 _HeightFog;
 };
