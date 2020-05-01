@@ -224,19 +224,97 @@ float4 VolumetricLight(float2 uv, float3 wpos)
     //float3 wpos = i.wpos;
     float3 rayStart = CameraPosition;
     float3 rayDir = wpos - CameraPosition;
+   
     //rayDir *= linearDepth;
 
     float rayLength = length(rayDir);
     rayDir /= rayLength;
 
+    float3 rayEnd = wpos + rayDir * 0.001;
+    
+    //GetConeIntersectionLength(rayStart, rayDir, rayEnd, rayLength);
+    
+    // plane intersection
+    //float planeCoord = RayPlaneIntersect(spotLight.Forward, spotLight.conePlaneD, rayStart, rayDir);
+	////// ray cone intersection
+    //float2 lineCoords = RayConeIntersect(spotLight.Position, spotLight.Forward, radians(spotLight.SpotAngle * 0.5), rayEnd, rayDir);
+
+ //   //float z = (projectedDepth - rayLength);
+     //rayLength = min(rayLength, min(planeCoord, min(lineCoords.x, lineCoords.y)));
+    //float minRay = min(planeCoord, min(lineCoords.x, lineCoords.y));
+ //   float maxRay = max(planeCoord, max(lineCoords.x, lineCoords.y));
+ //   rayLength = maxRay - minRay;
+    //rayStart += rayDir * minRay;
+    //rayLength = min(rayLength, z);
+    
     //rayLength = min(rayLength, _MaxRayLength);
+    
+    float2 coneCoords;
+    //bool2 cResult = RayConeIntersect(spotLight.Position, spotLight.Forward, radians(spotLight.SpotAngle * 0.5), rayStart, rayDir, coneCoords);
+    Cone geoCone;
+    geoCone.cosa = cos(radians(spotLight.SpotAngle * 0.5));
+    geoCone.h = spotLight.Range;
+    geoCone.c = spotLight.Position;
+    geoCone.v = spotLight.Forward;
+    Ray rrr;
+    rrr.o = rayStart;
+    rrr.d = rayDir;
+    float near, far;
+    bool2 hit = RayConeIntersect(geoCone, rrr, near, far);
+    
+    float diskRad = tan(radians(spotLight.SpotAngle * 0.5)) * (spotLight.Range * 1.2);
 
-    float4 color = RayMarch(uv, rayStart, rayDir, rayLength);
-
-    if (linearDepth > 0.999999)
+    float diskT;
+    bool dResult = RayDiskIntersect(spotLight.Forward, spotLight.conePlaneD, diskRad, rayStart, rayDir, diskT);
+    
+    float4 color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    
+    if (hit.x || dResult)
     {
-        //color.w = lerp(color.w, 1, _VolumetricLight.w);
+        float minRay = min(diskT, near);
+        float maxRay = min(max(dResult * diskT, max(near * hit.x, far * hit.y)), rayLength);
+    
+        if (!ContainedByCone(CameraPosition))
+        {
+            rayStart += rayDir * minRay;
+            rayLength = maxRay - minRay;
+            color = RayMarch(uv, rayStart, rayDir, rayLength);
+        }
+        else
+        {
+            rayLength = maxRay;
+            color = RayMarch(uv, rayStart, rayDir, rayLength);
+            //if (hit.x || dResult)
+            //{
+            //    color += float4(1.0, 0.0f, 0.0f, 0.0f);
+            //}
+            //if (hit.y)
+            //{
+            //    color += float4(0.0, 1.0f, 0.0f, 0.0f);
+            //}
+        }
+        
+
+        //rayLength = min(maxRay - minRay, rayLength - minRay);
+        
+
+    //GetConeIntersectionLength(rayStart, rayDir, rayEnd, rayLength);
+    
+        
     }
+    
+    
+
+    
+    //if (hit.x)
+    //{
+    //    color += float4(1.0, 0.0f, 0.0f, 0.0f);
+    //}
+    //if (hit.y)
+    //{
+    //    color += float4(0.0, 1.0f, 0.0f, 0.0f);
+    //}
+    
     return color;
 
 }   

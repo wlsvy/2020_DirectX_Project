@@ -105,6 +105,8 @@ bool Graphics::ProcessMaterialTable()
 
 void Graphics::RenderBegin()
 {
+	using DirectX::operator+;
+	using DirectX::operator*;
 	static auto mainCam = Core::GetCurrentScene().GetMainCam();
 	static auto light = Core::Find<GameObject>("Light");
 	static auto lightc = light->GetComponent<SpotLight>();
@@ -117,6 +119,10 @@ void Graphics::RenderBegin()
 	cb_ps_SpotLight.data.range = lightc->m_Range;
 	lightc->SetProjectionMatrix();
 	cb_ps_SpotLight.data.vpMat = lightc->GetLightViewProjectMat();
+	DirectX::XMVECTOR center = light->GetTransform().positionVec + light->GetTransform().GetForwardVector() * lightc->m_Range;
+	cb_ps_SpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
+
+
 	cb_ps_SpotLight.ApplyChanges();
 	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
 	cb_ps_SceneBase.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());

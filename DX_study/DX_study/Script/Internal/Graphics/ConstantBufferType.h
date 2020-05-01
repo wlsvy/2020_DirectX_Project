@@ -29,7 +29,7 @@ struct CB_PS_SpottLight {
 	float strength;
 
 	DirectX::XMFLOAT3 attenuation;
-	float pad;
+	float conePlaneD;
 
 	DirectX::XMMATRIX vpMat;
 
