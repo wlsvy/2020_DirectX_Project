@@ -48,12 +48,13 @@ void Scene::Initialize()
 	}
 
 	auto light = Core::CreateInstance<GameObject>("Light");
-	light->GetTransform().SetPosition(0.0f, 5.0f, -3.0f);
-	//light->GetRendererable().SetModel(Core::Find<Model>("light"));
+	light->GetTransform().SetPosition(8.2f, 11.1f, -8.9f);
+	light->GetTransform().SetRotation(45.0f, 0.0f, 0.0f);
 	light->AddComponent<SpotLight>()->Awake();
 
 	m_MainCam = Core::CreateInstance<Camera>();
-	m_MainCam->GetTransform().SetPosition(0.0f, 12.0f, -7.0f);
+	m_MainCam->GetTransform().SetPosition(-2.6f, 11.3f, -8.6f);
+	m_MainCam->GetTransform().SetRotation(40.0f, 30.0f, 0.0f);
 	m_MainCam->SetProjectionValues(
 		90.0f, 
 		Engine::Get().GetGraphics().GetWindowWidth() / Engine::Get().GetGraphics().GetWindowHeight(), 

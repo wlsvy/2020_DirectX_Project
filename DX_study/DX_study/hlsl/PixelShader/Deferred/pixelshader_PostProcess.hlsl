@@ -17,25 +17,9 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD;
 };
 
-float InScatter(float3 rayStart, float3 rayDir, float3 lightPos, float dist)
-{
-    float scatterParamScale = 1.0f;
-    float scatterProbability = 1.f / (4.f * PI); // normalization term for an isotropic phase function        
-    float3 q = rayStart - lightPos; // light to ray origin
-    float b = dot(rayDir, q);
-    float c = dot(q, q);
-
-    // Evaluate integral.
-    float s = 1.0f / sqrt(max(c - b * b, 0.00001f));
-    float l = s * (atan((dist + b) * s) - atan(b * s));
-    l *= scatterParamScale * scatterProbability;
-
-    return l;
-}
-
 float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
 {
-    float lightDepth = 1 - lightSpacePos.z / spotLight.Range + 0.01;
+    float lightDepth = 1 - lightSpacePos.z / spotLight.Range + 0.0001;
     
     float2 projectTexCoord = 0.5f * lightSpacePos.xy / lightSpacePos.w + 0.5f;
     projectTexCoord.y = 1.0f - projectTexCoord.y;
@@ -57,25 +41,6 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
 float FogAttenuation(float density, float distance)
 {
     return saturate(1 / exp(distance * density));
-}
-
-float3 CalculateWorldPositionFromDepthMap(float2 screenCoord)
-{
-    // Translate from homogeneous coords to texture coords.
-    float2 depthTexCoord = 0.5f * screenCoord + 0.5f;
-    depthTexCoord.y = 1.0f - depthTexCoord.y;
-    
-    //float depth = depthTexture.Sample(PointClamp, depthTexCoord).r;
-    float depth = depthTexture.Sample(PointClamp, depthTexCoord).w;
-
-    float4 screenPos = float4(screenCoord.x, screenCoord.y, depth, 1.0);
-    float4 viewPosition = mul(screenPos, InverseProjMatrix);
-    viewPosition /= viewPosition.w; // Perspective division
-    //float4 worldPosition = mul(viewPosition, viewInverse);
-    float4 worldPosition = mul(screenPos, InverseViewMatrix);
-
-
-    return worldPosition.xyz;
 }
 
 float2 getRandom(in float2 uv)
@@ -119,31 +84,9 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
   
     return 1 - saturate(ao / (float) iterations * 4.0);
 }
-void ApplyHeightFog(float3 wpos, inout float density)
-{
-#ifdef HEIGHT_FOG
-            density *= exp(-(wpos.y + _HeightFog.x) * _HeightFog.y);
-#endif
-}
 
-float GetDensity(float3 wpos)
-{
-    float density = 1;
-#ifdef NOISE
-			float noise = tex3D(_NoiseTexture, frac(wpos * _NoiseData.x + float3(_Time.y * _NoiseVelocity.x, 0, _Time.y * _NoiseVelocity.y)));
-			noise = saturate(noise - _NoiseData.z) * _NoiseData.y;
-			density = saturate(noise);
-#endif
-    ApplyHeightFog(wpos, density);
 
-    return density;
-}
-
-float MieScattering(float cosAngle, float4 g)
-{
-    return g.w * (g.x / (pow(g.y - g.z * cosAngle, 1.5)));
-}
-
+//Volumetric Light  참조 : https://github.com/SlightlyMad/VolumetricLights, https://github.com/ACskyline/VLD3D11
 bool DoesLightReach(float3 position, float3 lightVec, float lightDist)
 {
     if (!ContainedBySpotLight(lightVec, lightDist))
@@ -188,7 +131,7 @@ float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLengt
 
             float scattering = _VolumetricLight.x * stepSize;
 
-            float4 light = atten * scattering * _VolumetricLight.y;
+            float4 light = atten * scattering;
             vlight += light;
         }
         
@@ -227,7 +170,7 @@ float4 VolumetricLight(float2 uv, float3 wpos)
         float minRay = min(diskT, near);
         float maxRay = min(max(dResult * diskT, max(near * hit.x, far * hit.y)), rayLength);
     
-        if (!ContainedByCone(CameraPosition))
+        if (!ContainedBySpotLight(CameraPosition))
         {
             rayStart += rayDir * minRay;
             rayLength = maxRay - minRay;
@@ -239,6 +182,8 @@ float4 VolumetricLight(float2 uv, float3 wpos)
         color = RayMarch(uv, rayStart, rayDir, rayLength);
 
     }
+    
+    color *= float4(spotLight.Color, 1.0f);
     return color;
 
 }   
@@ -246,7 +191,6 @@ float4 VolumetricLight(float2 uv, float3 wpos)
 float4 main(PS_INPUT input) : SV_TARGET
 {    
     float4 texturePos = positionTexture.Sample(PointClamp, input.inTexCoord);
-    //float3 computedPos = CalculateWorldPositionFromDepthMap(input.inTexCoord);
     float3 textureNormal = normalTexture.Sample(PointClamp, input.inTexCoord);
     float3 textureColor = colorTexture.Sample(PointClamp, input.inTexCoord);
     
@@ -257,13 +201,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     float cameraToPixelDistance = length(texturePos.xyz - CameraPosition.xyz);
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
 
-    float scatteredLightIntensity = InScatter(texturePos.xyz, rayDir, spotLight.Position.xyz, cameraToPixelDistance);
-    scatteredLightIntensity = pow(scatteredLightIntensity, 0.5f);
-    float3 scatterLight = scatteredLightIntensity * spotLight.Color;
-    
-    //if (texturePos.w < 0.0f)
-        //return float4(textureColor + scatterLight, 1.0f);
-    
     float4 lightSpacePos = mul(float4(texturePos.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(texturePos.xyz, textureNormal.xyz);
     
@@ -274,8 +211,12 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float4 vl = VolumetricLight(input.inTexCoord, texturePos.xyz);
     
-    finalColor = scatterLight + saturate(lightVal * textureColor * ambientOcclusionFactor + reflectionColor);
-    //finalColor = max(scatterLight, saturate(lightVal * textureColor + reflectionColor));
-    //return float4(finalColor, 1.0f);
-    return float4(vl.xyz, 1.0f);
+    if (texturePos.w < 0.0f)
+        return float4(textureColor + vl, 1.0f);
+    
+    //finalColor = scatterLight + saturate(lightVal * textureColor * ambientOcclusionFactor + reflectionColor);
+    //finalColor = max(vl.xyz, saturate(lightVal * textureColor + reflectionColor));
+    finalColor = vl.xyz + saturate(lightVal * textureColor + reflectionColor);
+    return float4(finalColor, 1.0f);
+    //return float4(vl.xyz, 1.0f);
 }
