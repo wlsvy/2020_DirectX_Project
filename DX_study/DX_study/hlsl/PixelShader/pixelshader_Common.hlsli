@@ -1,4 +1,5 @@
-static const float PI = 3.14159265358979323846;
+const float PI = 3.14159265358979323846;
+const float INFINITY = 100000.0f;
 
 SamplerState PointClamp : SAMPLER : register(s0);
 SamplerState LinearWrap : SAMPLER : register(s1);
@@ -84,28 +85,42 @@ RayHit MakeRayHit(float t, float3 n)
     return rh;
 }
 
-//const RayHit noHit = MakeRayHit(-1, float3(0.0f, 0.0f, 0.0f));
+float hash(float x)
+{
+    return frac(sin(x) * 43758.5453);
+}
 
-const float INFINITY = 100000.0f;
+float3 GetRandomVector(float seed)
+{
+    float r2 = hash(seed);
+    float phi = 2. * PI * hash(seed + r2);
+    float sina = sqrt(r2);
+    float cosa = sqrt(1. - r2);
 
-bool RayCone2(Cone s, Ray r, float t)
+    return float3(cos(phi) * sina, cosa, sin(phi) * sina);
+}
+
+
+
+bool RayCone2(float3 rayOrigin, float3 rayDir, float t)
 {
     if (t < 0)
         return false;
-    float3 cp = r.o + t * r.d - s.c;
-    float h = dot(cp, s.v);
-    return h > 0 && h < s.h;
+    float3 cp = rayOrigin + t * rayDir - spotLight.Position;
+    float h = dot(cp, spotLight.Forward);
+    return h > 0 && h < spotLight.Range;
 }
 
-bool2 RayConeIntersect(Cone s, Ray r, out float near, out float far)
+bool2 RayConeIntersect(float3 rayOrigin, float3 rayDir, out float near, out float far)
 {
     near = INFINITY;
     far = INFINITY;
-    float3 co = r.o - s.c;
+    float cosa = cos(radians(spotLight.SpotAngle * 0.5));
+    float3 co = rayOrigin - spotLight.Position;
 
-    float a = dot(r.d, s.v) * dot(r.d, s.v) - s.cosa * s.cosa;
-    float b = 2. * (dot(r.d, s.v) * dot(co, s.v) - dot(r.d, co) * s.cosa * s.cosa);
-    float c = dot(co, s.v) * dot(co, s.v) - dot(co, co) * s.cosa * s.cosa;
+    float a = dot(rayDir, spotLight.Forward) * dot(rayDir, spotLight.Forward) - cosa * cosa;
+    float b = 2. * (dot(rayDir, spotLight.Forward) * dot(co, spotLight.Forward) - dot(rayDir, co) * cosa * cosa);
+    float c = dot(co, spotLight.Forward) * dot(co, spotLight.Forward) - dot(co, co) * cosa * cosa;
 
     float det = b * b - 4. * a * c;
     if (det < 0.)
@@ -115,9 +130,9 @@ bool2 RayConeIntersect(Cone s, Ray r, out float near, out float far)
     float t1 = (-b - det) / (2. * a);
     float t2 = (-b + det) / (2. * a);
 
-    bool check1 = RayCone2(s, r, t1);
-    bool check2 = RayCone2(s, r, t2);
-    // This is a bit messy; there ought to be a more elegant solution.
+    bool check1 = RayCone2(rayOrigin, rayDir, t1);
+    bool check2 = RayCone2(rayOrigin, rayDir, t2);
+
     float t = t1;
     if (!check1 && !check2)
         return bool2(false, false);
@@ -135,6 +150,35 @@ bool2 RayConeIntersect(Cone s, Ray r, out float near, out float far)
     near = min(t1, t2);
     far = max(t1, t2);
     return bool2(true, true);
+}
+
+bool ContainedBySpotLight(float3 lightToPosVec, float lightToPosDist)
+{
+    if (lightToPosDist > spotLight.Range)
+    {
+        return false;
+    }
+    
+    float a = dot(lightToPosVec, spotLight.Forward);
+    if (a < 0 || cos(radians(spotLight.SpotAngle / 2)) > a)
+        return false;
+    return true;
+}
+
+bool ContainedBySpotLight(float3 pos)
+{
+    float3 lightToPosVec = pos - spotLight.Position;
+    float lightToPosDist = length(lightToPosVec);
+    if (length(pos - spotLight.Position) > spotLight.Range)
+    {
+        return false;
+    }
+    
+    lightToPosVec /= lightToPosDist;
+    float a = dot(lightToPosVec, spotLight.Forward);
+    if (a < 0 || cos(radians(spotLight.SpotAngle / 2)) > a)
+        return false;
+    return true;
 }
 
 bool ContainedByCone(float3 pos)

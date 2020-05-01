@@ -9,6 +9,7 @@ Texture2D depthTexture : register(t4);
 
 Texture2D randomMap : register(t8);
 TextureCube skyBoxCube : register(t9);
+Texture2D DitheringTexture : register(t10);
 
 struct PS_INPUT
 {
@@ -143,124 +144,76 @@ float MieScattering(float cosAngle, float4 g)
     return g.w * (g.x / (pow(g.y - g.z * cosAngle, 1.5)));
 }
 
-float IsOccluded(float3 pos)
+bool DoesLightReach(float3 position, float3 lightVec, float lightDist)
 {
-    if (length(pos - spotLight.Position) > spotLight.Range)
+    if (!ContainedBySpotLight(lightVec, lightDist))
     {
-        return 0.0f;
+        return false;
     }
-    float a = dot(normalize(pos - spotLight.Position), spotLight.Forward);
-    if (a < 0 || cos(radians(spotLight.SpotAngle / 2)) > a)
-        return 0.0f;
     
-    float4 lightSpacePos = mul(float4(pos, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    float4 lightSpacePos = mul(float4(position, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     if (lightSpacePos.w < 0)
-        return 0.0f;
-    //lightVal += CalculateShadow(0, lightSpacePos);
+        return false;
+    
     return CalculateShadow(0, lightSpacePos);;
 }
+
 
 float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
 {
     float2 interleavedPos = (fmod(floor(screenPos.xy), 8.0));
-    //float offset = tex2D(_DitherTexture, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).w;
+    float offset = DitheringTexture.Sample(LinearWrap, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).x;
     int stepCount = _SampleCount;
 
     float stepSize = rayLength / stepCount;
     float3 step = rayDir * stepSize;
 
-    //float3 currentPosition = rayStart + step * offset;
-    float3 currentPosition = rayStart + step;
-
-
+    float3 currentPosition = rayStart + step * offset;
     float4 vlight = 0;
 
-    float cosAngle;
-
+    float cosAngledot = (spotLight.Forward.xyz, -rayDir);
     float extinction = 0;
-    cosAngle = dot(spotLight.Forward.xyz, -rayDir);
-
-    //float extinction = length(CameraPosition - currentPosition) * _VolumetricLight.y * 0.5;
+    
     [loop]
     for (int i = 0; i < stepCount; ++i)
     {
+        float3 randomOffset = GetRandomVector(currentPosition.z) * 0.3;
         float3 vectorToLight = spotLight.Position - currentPosition;
         float distToLight = length(vectorToLight);
+        vectorToLight /= distToLight;
+        
+        if (DoesLightReach(currentPosition, -vectorToLight, distToLight))
+        {
+            float atten = 1 / (spotLight.Attenuation.x + (spotLight.Attenuation.y * distToLight) + (spotLight.Attenuation.z * pow(distToLight, 2)));
 
-        float atten = 1 / (spotLight.Attenuation.x + (spotLight.Attenuation.y * distToLight) + (spotLight.Attenuation.z * pow(distToLight, 2)));
-        //float atten = 1;
+            float scattering = _VolumetricLight.x * stepSize;
 
-        //float atten = GetLightAttenuation(currentPosition);
-        float density = IsOccluded(currentPosition);
-
-        float scattering = _VolumetricLight.x * stepSize * density;
-        extinction += _VolumetricLight.y * stepSize * density; // +scattering;
-
-        float4 light = atten * scattering * exp(-extinction);
-        //float light = atten / stepCount * _VolumetricLight.x * IsOccluded(currentPosition);
-        vlight += light;
-
+            float4 light = atten * scattering * _VolumetricLight.y;
+            vlight += light;
+        }
+        
         currentPosition += step;
     }
 
-    // apply phase function for dir light
-    //vlight *= MieScattering(cosAngle, _MieG);
-    // apply light's color
-    vlight *= float4(spotLight.Color, 1.0f);
-    //vlight *= _LightColor;
     vlight = max(0, vlight);
-    //vlight.w = exp(-extinction);
     vlight.w = 0;
     return vlight;
 }
 
 float4 VolumetricLight(float2 uv, float3 wpos)
 {
-    //float2 uv = i.uv.xy;
     float linearDepth = depthTexture.Sample(LinearWrap, uv);
-    //float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
-    //float linearDepth = Linear01Depth(depth);
 
-    //float3 wpos = i.wpos;
     float3 rayStart = CameraPosition;
     float3 rayDir = wpos - CameraPosition;
    
-    //rayDir *= linearDepth;
-
     float rayLength = length(rayDir);
     rayDir /= rayLength;
 
     float3 rayEnd = wpos + rayDir * 0.001;
     
-    //GetConeIntersectionLength(rayStart, rayDir, rayEnd, rayLength);
-    
-    // plane intersection
-    //float planeCoord = RayPlaneIntersect(spotLight.Forward, spotLight.conePlaneD, rayStart, rayDir);
-	////// ray cone intersection
-    //float2 lineCoords = RayConeIntersect(spotLight.Position, spotLight.Forward, radians(spotLight.SpotAngle * 0.5), rayEnd, rayDir);
-
- //   //float z = (projectedDepth - rayLength);
-     //rayLength = min(rayLength, min(planeCoord, min(lineCoords.x, lineCoords.y)));
-    //float minRay = min(planeCoord, min(lineCoords.x, lineCoords.y));
- //   float maxRay = max(planeCoord, max(lineCoords.x, lineCoords.y));
- //   rayLength = maxRay - minRay;
-    //rayStart += rayDir * minRay;
-    //rayLength = min(rayLength, z);
-    
-    //rayLength = min(rayLength, _MaxRayLength);
-    
-    float2 coneCoords;
-    //bool2 cResult = RayConeIntersect(spotLight.Position, spotLight.Forward, radians(spotLight.SpotAngle * 0.5), rayStart, rayDir, coneCoords);
-    Cone geoCone;
-    geoCone.cosa = cos(radians(spotLight.SpotAngle * 0.5));
-    geoCone.h = spotLight.Range;
-    geoCone.c = spotLight.Position;
-    geoCone.v = spotLight.Forward;
-    Ray rrr;
-    rrr.o = rayStart;
-    rrr.d = rayDir;
     float near, far;
-    bool2 hit = RayConeIntersect(geoCone, rrr, near, far);
+    bool2 hit = RayConeIntersect(rayStart, rayDir, near, far);
     
     float diskRad = tan(radians(spotLight.SpotAngle * 0.5)) * (spotLight.Range * 1.2);
 
@@ -278,43 +231,14 @@ float4 VolumetricLight(float2 uv, float3 wpos)
         {
             rayStart += rayDir * minRay;
             rayLength = maxRay - minRay;
-            color = RayMarch(uv, rayStart, rayDir, rayLength);
         }
         else
         {
             rayLength = maxRay;
-            color = RayMarch(uv, rayStart, rayDir, rayLength);
-            //if (hit.x || dResult)
-            //{
-            //    color += float4(1.0, 0.0f, 0.0f, 0.0f);
-            //}
-            //if (hit.y)
-            //{
-            //    color += float4(0.0, 1.0f, 0.0f, 0.0f);
-            //}
         }
-        
+        color = RayMarch(uv, rayStart, rayDir, rayLength);
 
-        //rayLength = min(maxRay - minRay, rayLength - minRay);
-        
-
-    //GetConeIntersectionLength(rayStart, rayDir, rayEnd, rayLength);
-    
-        
     }
-    
-    
-
-    
-    //if (hit.x)
-    //{
-    //    color += float4(1.0, 0.0f, 0.0f, 0.0f);
-    //}
-    //if (hit.y)
-    //{
-    //    color += float4(0.0, 1.0f, 0.0f, 0.0f);
-    //}
-    
     return color;
 
 }   

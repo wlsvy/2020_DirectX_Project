@@ -68,7 +68,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
 		m_DefaultMaterial = Core::Find<SharedMaterial>("Default");
 		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
-		m_SSAOrefTexture = Core::Find<Texture>("NoiseNormal");
+		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
+		m_DitheringTexture = Core::Find<Texture>("Dithering");
 		return true;
 	}
 	catch (CustomException & e) {
@@ -297,8 +298,9 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//color
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());	//shadowmap
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(4));	//depth
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_SSAOrefTexture.lock()->GetTextureResourceViewAddress());	//SSAO random map
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
 
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
