@@ -89,7 +89,7 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	mat->Pshader = PixelShader::GetDefault();
 
 	m_Materials.push_back(mat);
-	m_Meshes.emplace_back(Core::CreateInstance<Mesh>(vertices, indices, transformMatrix, mesh->mName.data));
+	m_Meshes.emplace_back(Core::CreateInstance<MeshReal<Vertex3D>>(vertices, indices, transformMatrix, mesh->mName.data));
 }
 
 TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -312,7 +312,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	mat->Pshader = PixelShader::GetDefault();
 
 	m_Materials.push_back(mat);
-	m_Meshes.emplace_back(Core::CreateInstance<SkinnedMesh>(vertices, indices, transformMatrix, mesh->mName.data));
+	m_Meshes.emplace_back(Core::CreateInstance<MeshReal<SkinnedVertex>>(vertices, indices, transformMatrix, mesh->mName.data));
 }
 
 DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)

@@ -59,7 +59,7 @@ namespace BaseGeometry {
 
 		Math::ComputeVertexTangent(vertices, indices);
 
-		auto mesh = Core::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<MeshReal<Vertex3D>>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),
@@ -81,7 +81,7 @@ namespace BaseGeometry {
 
 		Math::ComputeVertexTangent(vertices, indices);
 
-		auto mesh = Core::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<MeshReal<Vertex3D>>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),
@@ -168,7 +168,7 @@ namespace BaseGeometry {
 
 		Math::ComputeVertexTangent(vertices, indices);
 
-		auto mesh = Core::CreateInstance<Mesh>(
+		auto mesh = Core::CreateInstance<MeshReal<Vertex3D>>(
 			vertices,
 			indices,
 			DirectX::XMMatrixIdentity(),

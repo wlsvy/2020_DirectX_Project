@@ -215,7 +215,7 @@ void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
 }
 
 void Graphics::DrawMesh(
-	const std::shared_ptr<MeshBase>& mesh,
+	const std::shared_ptr<Mesh>& mesh,
 	const DirectX::XMMATRIX & worldMat, 
 	const DirectX::XMMATRIX & wvpMat)
 {

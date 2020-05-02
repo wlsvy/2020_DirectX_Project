@@ -5,7 +5,8 @@
 #include "Texture.h"
 
 std::shared_ptr<SharedMaterial> SharedMaterial::GetDefault() {
-	return Core::Find<SharedMaterial>("Default");
+	static std::weak_ptr<SharedMaterial> s_Default = Core::Find<SharedMaterial>("Default");
+	return s_Default.lock();
 }
 
 void Material::OnGui()

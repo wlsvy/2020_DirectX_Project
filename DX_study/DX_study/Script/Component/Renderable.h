@@ -9,7 +9,7 @@ class SkinnedModel;
 class VertexShader;
 class PixelShader;
 class Animator;
-class MeshBase;
+class Mesh;
 class SharedMaterial;
 class Material;
 
@@ -17,7 +17,7 @@ class Renderable {
 public:
 	Renderable() {}
 	Renderable(
-		const std::shared_ptr<MeshBase> & mesh, 
+		const std::shared_ptr<Mesh> & mesh, 
 		const std::shared_ptr<Material>& material) :
 		m_Material(material), 
 		m_Mesh(mesh) 
@@ -26,10 +26,10 @@ public:
 	}
 
 	const std::shared_ptr<Material> GetMaterial() const		{ return m_Material; }
-	const std::shared_ptr<MeshBase> GetMesh() const			{ return m_Mesh; }
+	const std::shared_ptr<Mesh> GetMesh() const			{ return m_Mesh; }
 
 	std::shared_ptr<Material> m_Material;
-	std::shared_ptr<MeshBase> m_Mesh;
+	std::shared_ptr<Mesh> m_Mesh;
 private:
 };
 

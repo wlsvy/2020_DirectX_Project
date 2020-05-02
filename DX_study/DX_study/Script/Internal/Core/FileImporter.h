@@ -30,7 +30,7 @@ protected:
 	std::shared_ptr<SharedMaterial> LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
 	int GetTextureIndex(aiString * pStr);
 
-	std::vector<std::shared_ptr<MeshBase>> m_Meshes;
+	std::vector<std::shared_ptr<Mesh>> m_Meshes;
 	std::vector<std::shared_ptr<SharedMaterial>> m_Materials;
 	std::string m_Directory;
 };

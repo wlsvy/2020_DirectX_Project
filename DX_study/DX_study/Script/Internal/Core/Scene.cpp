@@ -9,6 +9,7 @@
 #include "../Graphics/Shaders.h"
 #include "../Graphics/AnimationClip.h"
 #include "../Graphics/Material.h"
+#include "../Graphics/Texture.h"
 
 #include "GameObject.h"
 #include "ImportHelper.h"

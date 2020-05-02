@@ -2,21 +2,25 @@
 #include "Vertex.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#include "ConstantBuffer.h"
-#include "Texture.h"
 #include "../Core/Object.h"
-#include <DirectXCollision.h>
+#include "../../Util/Math.h"
+#include "../Core/InternalHelper.h"
+#include "../Engine/AdapterReader.h"
+#include "imGui/imgui.h"
 
-struct ID3D11Buffer;
-
-class MeshBase : public Object {
-	MANAGED_OBJECT(MeshBase)
+class Mesh : public Object {
+	MANAGED_OBJECT(Mesh)
 public:
-	MeshBase(
+	Mesh(
 		const std::vector<DWORD> & indices,
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
-	MeshBase(const MeshBase& mesh);
+
+	Mesh(const Mesh& mesh) :
+		Object(mesh),
+		indexbuffer(mesh.indexbuffer),
+		transformMatrix(mesh.transformMatrix),
+		m_Aabb(mesh.m_Aabb) {}
 
 	virtual ID3D11Buffer* const*	GetVertexBufferAddr() const = 0;
 	virtual const UINT *			GetVertexBufferStridePtr() const = 0;
@@ -30,36 +34,73 @@ protected:
 	DirectX::BoundingBox m_Aabb;
 };
 
-class Mesh : public MeshBase {
+template<typename VertexTy>
+class MeshReal : public Mesh {
 public:
-	Mesh(
-		const std::vector<Vertex3D> & vertices, 
-		const std::vector<DWORD> & indices, 
+	MeshReal(
+		const std::vector<VertexTy> & vertices,
+		const std::vector<DWORD> & indices,
 		const DirectX::XMMATRIX & transformMatrix,
 		const std::string & name = "Mesh");
-	Mesh(const Mesh & mesh);
+	MeshReal(const MeshReal & mesh) :
+		Mesh(mesh),
+		vertexbuffer(mesh.vertexbuffer)
+	{
+	}
 	void OnGui() override;
 
 	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *					GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
 
 private:
-	VertexBuffer<Vertex3D> vertexbuffer;
+	VertexBuffer<VertexTy> vertexbuffer;
 };
 
-class SkinnedMesh : public MeshBase {
-public:
-	SkinnedMesh(
-		const std::vector<SkinnedVertex> & vertices,
-		const std::vector<DWORD> & indices,
-		const DirectX::XMMATRIX & transformMatrix,
-		const std::string & name = "Mesh");
-	SkinnedMesh(const SkinnedMesh & mesh);
-	void OnGui() override;
+template<typename VertexTy>
+inline MeshReal<VertexTy>::MeshReal(
+	const std::vector<VertexTy>& vertices, 
+	const std::vector<DWORD>& indices, 
+	const DirectX::XMMATRIX & transformMatrix, 
+	const std::string & name) :
+	Mesh(indices, transformMatrix, name)
+{
+	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
+	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
 
-	ID3D11Buffer* const*				GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
-	const UINT *						GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
+	for (auto vertex : vertices) {
+		Max.x = std::max(Max.x, vertex.pos.x);
+		Max.y = std::max(Max.y, vertex.pos.y);
+		Max.z = std::max(Max.z, vertex.pos.z);
+		Min.x = std::min(Min.x, vertex.pos.x);
+		Min.y = std::min(Min.y, vertex.pos.y);
+		Min.z = std::min(Min.z, vertex.pos.z);
+	}
+	m_Aabb.Center.x = (Max.x + Min.x) / 2;
+	m_Aabb.Center.y = (Max.y + Min.y) / 2;
+	m_Aabb.Center.z = (Max.z + Min.z) / 2;
+	m_Aabb.Extents.x = (Max.x - Min.x) / 2;
+	m_Aabb.Extents.y = (Max.y - Min.y) / 2;
+	m_Aabb.Extents.z = (Max.z - Min.z) / 2;
 
-private:
-	VertexBuffer<SkinnedVertex> vertexbuffer;
-};
+	try {
+		ThrowIfFailed(
+			vertexbuffer.Initialize(vertices.data(), (UINT)vertices.size()),
+			"Failed to initialize vertex buffer for SkinnedMesh.");
+	}
+	catch (CustomException e) {
+		ErrorLogger::Log(e);
+	}
+}
+
+//template<typename VertexTy>
+//inline MeshReal<VertexTy>::MeshReal(const MeshReal & mesh) :
+//	Mesh(mesh),
+//	vertexbuffer(mesh.vertexbuffer)
+//{
+//}
+
+template<typename VertexTy>
+inline void MeshReal<VertexTy>::OnGui()
+{
+	ImGui::Text(("Mesh : " + Name).c_str());
+}
