@@ -17,20 +17,20 @@ bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMEN
 	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->m_ShaderBuffer.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreateVertexShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create vertex shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreateInputLayout(layoutDesc, numElements, this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), this->inputLayout.GetAddressOf());
 	if (FAILED(hr)) {
-		ErrorLogger::Log(hr, "Failed to create input layer.");
+		StringHelper::ErrorLog(hr, "Failed to create input layer.");
 		return false;
 	}
 
@@ -48,14 +48,14 @@ bool PixelShader::Initialize(const std::string & shaderpath) {
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreatePixelShader(this->m_ShaderBuffer->GetBufferPointer(), this->m_ShaderBuffer->GetBufferSize(), NULL, this->m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create Pixel shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 
@@ -69,14 +69,14 @@ bool ComputeShader::Initialize(const std::string & shaderpath) {
 
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to load shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 
 	hr = Core::GetDevice()->CreateComputeShader(m_ShaderBuffer->GetBufferPointer(), m_ShaderBuffer->GetBufferSize(), NULL, m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create Compute shader: " + wstr;
-		ErrorLogger::Log(hr, errorMsg);
+		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}
 

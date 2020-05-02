@@ -80,7 +80,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)\Include;$(IncludePath)</IncludePath>
     <LibraryPath>$(ProjectDir)\Lib\x64\Debug;$(ProjectDir)\Lib\Any;$(LibraryPath)</LibraryPath>
-    <IntDir>$(SolutionDir)..\DX_study_others\DX_study_Log</IntDir>
+    <IntDir>$(SolutionDir)..\DX_study_others\DX_study_Log\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

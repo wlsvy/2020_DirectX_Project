@@ -9,7 +9,6 @@ bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hIns
 	this->window_class = window_class;
 	this->window_class_wide = StringHelper::StringToWide(this->window_class);
 
-	//윈도우 창 크기는 위의 타이틀 바까지 포함해서 생성됨. 즉 타이틀 바를 제외한 크기의 윈도우 생성.
 	this->RegisterWindowClass();
 
 	int centerScreenX = GetSystemMetrics(SM_CXSCREEN) / 2 - this->width / 2;
@@ -36,7 +35,7 @@ bool RenderWindow::Initialize(WindowContainer * pWindowContainer, HINSTANCE hIns
 		pWindowContainer); //param to create window
 
 	if (this->handle == NULL) {
-		ErrorLogger::Log(GetLastError(), "CreateWindowEX Failed for window: " + this->window_title);
+		StringHelper::ErrorLog(GetLastError(), "CreateWindowEX Failed for window: " + this->window_title);
 		return false;
 	}
 
@@ -56,29 +55,26 @@ RenderWindow::~RenderWindow() {
 
 LRESULT CALLBACK HandleMsgRedirect(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch (uMsg) {
-		//all other messages
 	case WM_CLOSE:
 		DestroyWindow(hwnd);
 		return 0;
 
 	default:
 	{
-		//retrieve ptr to window class
 		WindowContainer* const pWindow = reinterpret_cast<WindowContainer*>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
-		//forward message to window class handler
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	}
 }
 
 LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	switch (uMsg) { //메세지는 종류가 다양해서 스위치 활용. 예를 들면 ->키가 눌려졌을 때
+	switch (uMsg) { 
 	case WM_NCCREATE: {
 		const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
 		WindowContainer * pWindow = reinterpret_cast<WindowContainer*>(pCreate->lpCreateParams);
 		if (pWindow == nullptr) //Sanity check
 		{
-			ErrorLogger::Log("Critical Error: Pointer to window container is null during WM_NCCREATE.");
+			StringHelper::ErrorLog("Critical Error: Pointer to window container is null during WM_NCCREATE.");
 			exit(-1);
 		}
 		SetWindowLongPtr(hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWindow));
@@ -86,15 +82,15 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		return pWindow->WindowProc(hwnd, uMsg, wParam, lParam);
 	}
 	default:
-		return DefWindowProc(hwnd, uMsg, wParam, lParam); //기본 윈도우 프로세스 셋업
+		return DefWindowProc(hwnd, uMsg, wParam, lParam); 
 	}
 	
 }
 
 void RenderWindow::RegisterWindowClass() {
-	WNDCLASSEX wc; //윈도우 클래스 확장 버전
+	WNDCLASSEX wc; 
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = HandleMessageSetup; //이게 되네?? 파라미터 안 붙였는데
+	wc.lpfnWndProc = HandleMessageSetup; 
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = this->hInstance;
@@ -109,7 +105,6 @@ void RenderWindow::RegisterWindowClass() {
 }
 
 bool RenderWindow::ProcessMessage() {
-	//Handling the Window Message
 	MSG msg;
 	ZeroMemory(&msg, sizeof(MSG));//메세지 구조 초기화
 

@@ -17,26 +17,21 @@ enum class TextureStorageType {
 };
 
 class Texture : public Object {
-public:
 	MANAGED_OBJECT(Texture)
+public:
+	static std::shared_ptr<Texture> GetDefault();
 
-	Texture(const Color4Byte & color, aiTextureType type);
-	Texture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type);
-	Texture(const std::string & filePath, aiTextureType type);
-	Texture(const uint8_t* pData, size_t size, aiTextureType type);
-	Texture(const Texture&);
-	Texture(Texture &&);
-	Texture& operator=(const Texture &);
+	Texture(const std::string & filePath);
+	Texture(const Color4Byte & color);
+	Texture(const Color4Byte * colorData, UINT width, UINT height);
+	Texture(const uint8_t* pData, size_t size);
 
-	const aiTextureType GetType()										const { return type; }
-	ID3D11ShaderResourceView *			GetTextureResourceView()		const { return textureView.Get(); }
-	ID3D11ShaderResourceView * const *	GetTextureResourceViewAddress()	const { return textureView.GetAddressOf(); }
+	ID3D11ShaderResourceView *			GetTextureResourceView()		const { return m_ShaderResourceView.Get(); }
+	ID3D11ShaderResourceView * const *	GetTextureResourceViewAddress()	const { return m_ShaderResourceView.GetAddressOf(); }
 
 private:
-	void Initialize1x1ColorTexture(const Color4Byte & colorData, aiTextureType type);
-	void InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type);
+	void Initialize1x1ColorTexture(const Color4Byte & colorData);
+	void InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height);
 
-	Microsoft::WRL::ComPtr<ID3D11Resource> texture = nullptr;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureView = nullptr;
-	aiTextureType type = aiTextureType::aiTextureType_UNKNOWN;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceView = nullptr;
 };

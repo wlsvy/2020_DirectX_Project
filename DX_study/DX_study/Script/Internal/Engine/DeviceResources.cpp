@@ -1,14 +1,14 @@
 #include "DeviceResources.h"
 #include "../Core/InternalHelper.h"
 
-bool DeviceResources::Initialize(HWND hwnd, int width, int height)
+bool DeviceResources::Initialize(HWND hwnd, UINT width, UINT height)
 {
 	try {
 		std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
 
 		if (adapters.size() < 1)
 		{
-			ErrorLogger::Log("No IDXGI Adapters found.");
+			StringHelper::ErrorLog("No IDXGI Adapters found.");
 			return false;
 		}
 
@@ -143,14 +143,14 @@ bool DeviceResources::Initialize(HWND hwnd, int width, int height)
 
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 
 	return true;
 }
 
-bool DeviceResources::InitializeRenderTarget(int width, int height)
+bool DeviceResources::InitializeRenderTarget(UINT width, UINT height)
 {
 	try {
 		UINT widthArr[RenderTargetCount] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
@@ -203,7 +203,7 @@ bool DeviceResources::InitializeRenderTarget(int width, int height)
 		}
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 
@@ -228,7 +228,7 @@ bool DeviceResources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATR
 			"Failed to create debug input layout.");
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 

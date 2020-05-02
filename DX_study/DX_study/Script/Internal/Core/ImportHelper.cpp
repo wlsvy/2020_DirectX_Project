@@ -28,6 +28,7 @@ bool Importer::LoadBaseResources()
 		return true;
 	}
 	catch (std::exception & e) {
+		StringHelper::ErrorLog(e.what());
 		return false;
 	}
 }
@@ -40,6 +41,7 @@ bool Importer::LoadModelResources()
 		return true;
 	}
 	catch (std::exception & e) {
+		e.what();
 		return false;
 	}
 }
@@ -217,7 +219,7 @@ void Importer::LoadTexture(const std::string & dirPath, const std::string& name)
 		ext == "bmp" ||
 		ext == "dds")
 	{
-		Core::CreateInstance<Texture>(dirPath + name, aiTextureType::aiTextureType_DIFFUSE);
+		Core::CreateInstance<Texture>(dirPath + name);
 	}
 }
 

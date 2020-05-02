@@ -22,7 +22,6 @@ public:
 	bool IsKeysAutoRepeat();
 	bool IsCharsAutoRepeat();
 
-	void Update();
 private:
 	bool autoRepeatKeys = false;
 	bool autoRepeatChars = false;

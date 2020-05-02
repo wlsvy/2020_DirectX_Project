@@ -185,7 +185,7 @@ namespace BaseGeometry {
 			return true;
 		}
 		catch (CustomException & e) {
-			ErrorLogger::Log(e);
+			StringHelper::ErrorLog(e);
 			return false;
 		}
 	}

@@ -47,7 +47,7 @@ public:
 		HRESULT hr = Core::GetDeviceContext()->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		if (FAILED(hr))
 		{
-			ErrorLogger::Log(hr, "Failed to map constant buffer.");
+			StringHelper::ErrorLog(hr, "Failed to map constant buffer.");
 			return false;
 		}
 		CopyMemory(mappedResource.pData, &data, sizeof(T));

@@ -11,8 +11,8 @@
 
 class DeviceResources {
 public:
-	bool Initialize(HWND hwnd, int width, int height);
-	bool InitializeRenderTarget(int width, int height);
+	bool Initialize(HWND hwnd, UINT width, UINT height);
+	bool InitializeRenderTarget(UINT width, UINT height);
 	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
 	ID3D11Device*					GetDevice()	const									{ return device.Get(); }

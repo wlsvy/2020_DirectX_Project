@@ -152,7 +152,7 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 		{
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			mat->Albedo = Core::Find<Texture>("WhiteTexture");
+			mat->Albedo = Texture::GetDefault();
 			mat->Color = DirectX::XMFLOAT4(aiColor.r, aiColor.g, aiColor.b, 1.0f);
 		}
 	}
@@ -171,8 +171,7 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 				int index = GetTextureIndex(&path);
 				texturePtr = Core::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
-					pScene->mTextures[index]->mWidth,
-					textureType);
+					pScene->mTextures[index]->mWidth);
 				texturePtr->Name = pScene->mTextures[index]->mFilename.data;
 				break;
 			}
@@ -181,15 +180,14 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
 				texturePtr = Core::CreateInstance<Texture>(
 					reinterpret_cast<uint8_t*>(pTexture->pcData),
-					pTexture->mWidth,
-					textureType);
+					pTexture->mWidth);
 				texturePtr->Name = pTexture->mFilename.data;
 				break;
 			}
 			case TextureStorageType::Disk:
 			{
 				std::string filename = m_Directory + '\\' + path.C_Str();
-				texturePtr = Core::CreateInstance<Texture>(filename, textureType);
+				texturePtr = Core::CreateInstance<Texture>(filename);
 				texturePtr->Name = StringHelper::GetFileNameFromPath(filename);
 				break;
 			}

@@ -58,7 +58,7 @@ void LightBase::Awake() {
 			"Failed to create shaderResourceViewArr.");
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 	}
 }
 

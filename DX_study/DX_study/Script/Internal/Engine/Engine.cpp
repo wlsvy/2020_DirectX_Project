@@ -38,7 +38,7 @@ Engine::~Engine()
 	s_Ptr = nullptr;
 }
 
-bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height)
+bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)
 {
 	m_Timer->Start();
 
@@ -53,8 +53,6 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	m_CurrentScene->Initialize();
 
 	m_Graphics->GetDeviceResources().InitializeDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
-
-	
 
 	return true;
 }
@@ -71,10 +69,28 @@ void UpdateBehaviour(const std::shared_ptr<Behaviour> & behaviour) {
 
 void Engine::Update() {
 	m_Timer->Tick();
-	keyboard.Update();
-	mouse.Update();
+	
+	UpdateInput();
+	
 	Core::Pool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
+
 	m_CurrentScene->Update();
+}
+
+void Engine::UpdateInput()
+{
+	while (!keyboard.KeyBufferIsEmpty()) {
+		auto key = keyboard.ReadKey();
+		if (key.GetKeyCode() == VK_ESCAPE &&
+			render_window.GetHWND() != NULL)
+		{
+			DestroyWindow(render_window.GetHWND());
+		}
+	}
+	while (!keyboard.CharBufferIsEmpty()) {
+		keyboard.ReadChar();
+	}
+	mouse.Update();
 }
 
 void Engine::FixedUpdate()
@@ -107,8 +123,11 @@ void Engine::Run()
 	while (ProcessMessage()) {
 
 		fixedTimeStamp += m_Timer->GetDeltaTime();
-		if (fixedTimeStamp > Engine::s_FixedFrameRate) {
+
+		if (fixedTimeStamp > Engine::s_FixedFrameRate) 
+		{
 			FixedUpdate();
+
 			fixedTimeStamp -= Engine::s_FixedFrameRate;
 		}
 

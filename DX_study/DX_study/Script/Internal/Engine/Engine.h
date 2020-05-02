@@ -24,9 +24,10 @@ public:
 	Engine();
 	~Engine();
 
-	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, int width, int height);
+	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height);
 	bool ProcessMessage();
 	void Update();
+	void UpdateInput();
 	void FixedUpdate();
 	void RenderFrame();
 	void Run();

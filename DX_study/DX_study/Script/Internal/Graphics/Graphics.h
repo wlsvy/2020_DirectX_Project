@@ -27,7 +27,7 @@ class LightBase;
 
 class Graphics {
 public:
-	bool Initialize(HWND hwnd, int width, int height);
+	bool Initialize(HWND hwnd, UINT width, UINT height);
 	bool ProcessMaterialTable();
 
 	void RenderBegin();
@@ -53,8 +53,8 @@ public:
 	ConstantBuffer<CB_PS_AmbientLight> & GetCbAmbientLight() { return cb_ps_ambientLight; }
 	ConstantBuffer<CB_PS_Scene> & GetCbScene() { return cb_ps_SceneBase; }
 
-	int GetWindowWidth() const { return windowWidth; }
-	int GetWindowHeight() const { return windowHeight; }
+	UINT GetWindowWidth() const { return windowWidth; }
+	UINT GetWindowHeight() const { return windowHeight; }
 
 private:
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
@@ -81,8 +81,8 @@ private:
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
 	std::shared_ptr<Model> m_PostProcesWindowModel;
 
-	int windowWidth = 0;
-	int windowHeight = 0;
+	UINT windowWidth = 0;
+	UINT windowHeight = 0;
 	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT m_DrawFlag = 0;
@@ -100,13 +100,11 @@ private:
 			Apply_SkinnedMeshBone = 1 << 2,
 			Apply_MaterialTexture = 1 << 3,
 			Apply_ViewFrustumCulling = 1 << 4,
-			All = (1 << 31) - 1
+			All = (1 << 30) - 1
 		};
 	};
 
-	//const UINT m_NullOffset = -1;
 	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
-	std::weak_ptr<Texture> m_DefaultTexture;
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
 	std::weak_ptr<Texture> m_IblBrdfTexture;

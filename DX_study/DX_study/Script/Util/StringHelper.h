@@ -1,15 +1,14 @@
 #pragma once
 #include <string>
 
-class StringHelper {
-public:
-	static std::wstring StringToWide(std::string str);
-	static std::string GetDirectoryFromPath(const std::string & filepath);
-	static std::string GetFileNameFromPath(const std::string & filepath, bool removeExtension = true);
-	static std::string GetFileExtension(const std::string & filename);
-	static std::string EraseFileExtension(const std::string & filePath);
-	static std::string GetUpperDirectroyName(const std::string & filePath);
-};
+namespace StringHelper {
+	std::wstring StringToWide(std::string str);
+	std::string GetDirectoryFromPath(const std::string & filepath);
+	std::string GetFileNameFromPath(const std::string & filepath, bool removeExtension = true);
+	std::string GetFileExtension(const std::string & filename);
+	std::string EraseFileExtension(const std::string & filePath);
+	std::string GetUpperDirectroyName(const std::string & filePath);
+}
 
 #include <DirectXMath.h>
 namespace std {

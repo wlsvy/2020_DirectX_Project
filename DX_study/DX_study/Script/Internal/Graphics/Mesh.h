@@ -13,24 +13,18 @@ class Mesh : public Object {
 public:
 	Mesh(
 		const std::vector<DWORD> & indices,
-		const DirectX::XMMATRIX & transformMatrix,
+		const DirectX::XMMATRIX & worldMatrix,
 		const std::string & name = "Mesh");
-
-	Mesh(const Mesh& mesh) :
-		Object(mesh),
-		indexbuffer(mesh.indexbuffer),
-		transformMatrix(mesh.transformMatrix),
-		m_Aabb(mesh.m_Aabb) {}
 
 	virtual ID3D11Buffer* const*	GetVertexBufferAddr() const = 0;
 	virtual const UINT *			GetVertexBufferStridePtr() const = 0;
-	const DirectX::XMMATRIX &		GetTransformMatrix() const { return transformMatrix; }
-	const IndexBuffer &				GetIndexBuffer() const { return indexbuffer; }
+	const DirectX::XMMATRIX &		GetWorldMatrix() const { return m_WorldMatrix; }
+	const IndexBuffer &				GetIndexBuffer() const { return m_IndexBuffer; }
 	const DirectX::BoundingBox &	GetLocalAABB() const { return m_Aabb; }
 
 protected:
-	IndexBuffer indexbuffer;
-	DirectX::XMMATRIX transformMatrix;
+	IndexBuffer m_IndexBuffer;
+	DirectX::XMMATRIX m_WorldMatrix;
 	DirectX::BoundingBox m_Aabb;
 };
 
@@ -40,13 +34,8 @@ public:
 	MeshReal(
 		const std::vector<VertexTy> & vertices,
 		const std::vector<DWORD> & indices,
-		const DirectX::XMMATRIX & transformMatrix,
+		const DirectX::XMMATRIX & worldMatrix,
 		const std::string & name = "Mesh");
-	MeshReal(const MeshReal & mesh) :
-		Mesh(mesh),
-		vertexbuffer(mesh.vertexbuffer)
-	{
-	}
 	void OnGui() override;
 
 	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
@@ -60,9 +49,9 @@ template<typename VertexTy>
 inline MeshReal<VertexTy>::MeshReal(
 	const std::vector<VertexTy>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const DirectX::XMMATRIX & transformMatrix, 
+	const DirectX::XMMATRIX & worldMatrix,
 	const std::string & name) :
-	Mesh(indices, transformMatrix, name)
+	Mesh(indices, worldMatrix, name)
 {
 	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
 	auto Min = DirectX::XMFLOAT3(Math::POSITION_MAX, Math::POSITION_MAX, Math::POSITION_MAX);
@@ -88,16 +77,9 @@ inline MeshReal<VertexTy>::MeshReal(
 			"Failed to initialize vertex buffer for SkinnedMesh.");
 	}
 	catch (CustomException e) {
-		ErrorLogger::Log(e);
+		StringHelper::ErrorLog(e);
 	}
 }
-
-//template<typename VertexTy>
-//inline MeshReal<VertexTy>::MeshReal(const MeshReal & mesh) :
-//	Mesh(mesh),
-//	vertexbuffer(mesh.vertexbuffer)
-//{
-//}
 
 template<typename VertexTy>
 inline void MeshReal<VertexTy>::OnGui()

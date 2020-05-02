@@ -74,7 +74,7 @@ void Scene::Initialize()
 void Scene::ProcessGameObjectTable()
 {
 	auto table = Importer::LoadCSV("Data/CSV/Scene_GameObject.csv");
-	int rowcount = table["Name"].size();
+	size_t rowcount = table["Name"].size();
 		for (int i = 0; i < rowcount; i++) {
 		auto gameObject = Core::CreateInstance<GameObject>(table["Name"][i]);
 

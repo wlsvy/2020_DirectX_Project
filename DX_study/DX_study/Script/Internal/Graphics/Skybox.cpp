@@ -34,7 +34,7 @@ bool Skybox::Initialize(const std::string * filePath)
 		ThrowIfFailed(hr, "Failed to create skybox rasterizer state.");
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 
@@ -111,7 +111,7 @@ bool Skybox::InitializeCubeMap()
 		ThrowIfFailed(hr, "Failed to create CubeMap Texture SRV.");
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 
@@ -174,7 +174,7 @@ bool Skybox::InitializeIrMap()
 
 	}
 	catch (CustomException & exception) {
-		ErrorLogger::Log(exception);
+		StringHelper::ErrorLog(exception);
 		return false;
 	}
 

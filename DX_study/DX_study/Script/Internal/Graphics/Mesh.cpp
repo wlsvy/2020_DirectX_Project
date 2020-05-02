@@ -2,18 +2,18 @@
 
 Mesh::Mesh(
 	const std::vector<DWORD>& indices,
-	const DirectX::XMMATRIX & transformMatrix,
+	const DirectX::XMMATRIX & worldMatrix,
 	const std::string & name)
 	:
 	Object(name),
-	transformMatrix(transformMatrix)
+	m_WorldMatrix(worldMatrix)
 {
 	try {
 		ThrowIfFailed(
-			this->indexbuffer.Initialize(indices.data(), indices.size())
+			m_IndexBuffer.Initialize(indices.data(), (UINT)indices.size())
 			, "Failed to initialize index buffer for mesh.");
 	}
 	catch (CustomException e) {
-		ErrorLogger::Log(e);
+		StringHelper::ErrorLog(e);
 	}
 }

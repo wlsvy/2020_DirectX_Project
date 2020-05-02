@@ -4,92 +4,68 @@
 #include <DDSTextureLoader.h>
 
 #include "../Core/InternalHelper.h"
+#include "../Core/ObjectPool.h"
 #include "../../Util/StringHelper.h"
 
-Texture::Texture(const Color4Byte & color, aiTextureType type)
-{
-	this->Initialize1x1ColorTexture(color, type);
+std::shared_ptr<Texture> Texture::GetDefault() {
+	static std::weak_ptr<Texture> s_Default = Core::Find<Texture>("WhiteTexture");
+	return s_Default.lock();
 }
 
-Texture::Texture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type)
+Texture::Texture(const Color4Byte & color)
 {
-	this->InitializeColorTexture(colorData, width, height, type);
+	Initialize1x1ColorTexture(color);
 }
 
-Texture::Texture(const std::string & filePath, aiTextureType type) : Object(StringHelper::GetFileNameFromPath(filePath))
+Texture::Texture(const Color4Byte * colorData, UINT width, UINT height)
 {
-	
-	this->type = type;
-	if (StringHelper::GetFileExtension(filePath) == ".dds")
+	InitializeColorTexture(colorData, width, height);
+}
+
+Texture::Texture(const std::string & filePath) : Object(StringHelper::GetFileNameFromPath(filePath))
+{
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+
+	HRESULT hr = DirectX::CreateWICTextureFromFile(
+		Core::GetDevice(), 
+		StringHelper::StringToWide(filePath).c_str(), 
+		resource.GetAddressOf(),
+		m_ShaderResourceView.GetAddressOf());
+
+	if (FAILED(hr))
 	{
-		HRESULT hr = DirectX::CreateDDSTextureFromFile(Core::GetDevice(), StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
-		if (FAILED(hr))
-		{
-			this->Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor, type);
-		}
-		return;
-	}
-	else
-	{
-		HRESULT hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), StringHelper::StringToWide(filePath).c_str(), texture.GetAddressOf(), this->textureView.GetAddressOf());
-		if (FAILED(hr))
-		{
-			this->Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor, type);
-		}
-		return;
+		Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor);
 	}
 }
 
-Texture::Texture(const uint8_t * pData, size_t size, aiTextureType type) 
+Texture::Texture(const uint8_t * pData, size_t size) 
 {
-	this->type = type;
-	HRESULT hr = DirectX::CreateWICTextureFromMemory(Core::GetDevice(), pData, size, this->texture.GetAddressOf(), this->textureView.GetAddressOf());
-	ThrowIfFailed(hr, "Failed to create Texture from memory.");
+	Microsoft::WRL::ComPtr<ID3D11Resource> resource;
+	ThrowIfFailed(
+		DirectX::CreateWICTextureFromMemory(Core::GetDevice(), pData, size, resource.GetAddressOf(), this->m_ShaderResourceView.GetAddressOf()),
+		"Failed to create Texture from.");
 }
 
-Texture::Texture(const Texture & texture) :
-	Object(texture),
-	texture(texture.texture),
-	textureView(texture.textureView),
-	type(texture.type)
+void Texture::Initialize1x1ColorTexture(const Color4Byte & colorData)
 {
+	InitializeColorTexture(&colorData, 1, 1);
 }
 
-Texture::Texture(Texture && texture) :
-	Object(std::forward<Texture>(texture)),
-	texture(std::move(texture.texture)),
-	textureView(std::move(texture.textureView)),
-	type(std::move(texture.type))
+void Texture::InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height)
 {
-}
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 
-Texture & Texture::operator=(const Texture & texture)
-{
-	Object::operator=(texture);
-	this->texture = texture.texture;
-	this->textureView = texture.textureView;
-	this->type = texture.type;
-
-	return *this;
-}
-
-void Texture::Initialize1x1ColorTexture(const Color4Byte & colorData, aiTextureType type)
-{
-	InitializeColorTexture(&colorData, 1, 1, type);
-}
-
-void Texture::InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height, aiTextureType type)
-{
-	this->type = type;
 	CD3D11_TEXTURE2D_DESC textureDesc(DXGI_FORMAT_R8G8B8A8_UNORM, width, height);
-	ID3D11Texture2D * p2DTexture = nullptr;
 	D3D11_SUBRESOURCE_DATA initialData{};
 	initialData.pSysMem = colorData;
 	initialData.SysMemPitch = width * sizeof(Color4Byte);
-	HRESULT hr = Core::GetDevice()->CreateTexture2D(&textureDesc, &initialData, &p2DTexture);
-	ThrowIfFailed(hr, "Failed to initialize texture from color data.");
-	texture = static_cast<ID3D11Texture2D*>(p2DTexture);
+
+	ThrowIfFailed(
+		Core::GetDevice()->CreateTexture2D(&textureDesc, &initialData, texture.GetAddressOf()),
+		"Failed to initialize texture from color data.");
+
 	CD3D11_SHADER_RESOURCE_VIEW_DESC srvDesc(D3D11_SRV_DIMENSION_TEXTURE2D, textureDesc.Format);
-	hr = Core::GetDevice()->CreateShaderResourceView(texture.Get(), &srvDesc, textureView.GetAddressOf());
-	ThrowIfFailed(hr, "Failed to create shader resource view from texture generated from color data.");
+	ThrowIfFailed(
+		Core::GetDevice()->CreateShaderResourceView(texture.Get(), &srvDesc, m_ShaderResourceView.GetAddressOf()),
+		"Failed to create shader resource view from texture generated from color data.");
 }

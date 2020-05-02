@@ -28,7 +28,7 @@
 
 using DirectX::operator*;
 
-bool Graphics::Initialize(HWND hwnd, int width, int height) {
+bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 	try {
 		windowWidth = width;
 		windowHeight = height;
@@ -67,7 +67,6 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
 		m_DefaultMaterial = Core::Find<SharedMaterial>("Default");
-		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
 		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
@@ -75,7 +74,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		return true;
 	}
 	catch (CustomException & e) {
-		ErrorLogger::Log(e);
+		StringHelper::ErrorLog(e);
 		return false;
 	}
 }
@@ -109,7 +108,7 @@ bool Graphics::ProcessMaterialTable()
 		return true;
 	}
 	catch (CustomException &e) {
-		ErrorLogger::Log(e);
+		StringHelper::ErrorLog(e);
 		return false;
 	}
 }
@@ -219,8 +218,8 @@ void Graphics::DrawMesh(
 	const DirectX::XMMATRIX & worldMat, 
 	const DirectX::XMMATRIX & wvpMat)
 {
-	cb_vs_vertexshader.data.wvpMatrix = mesh->GetTransformMatrix() * wvpMat; 
-	cb_vs_vertexshader.data.worldMatrix = mesh->GetTransformMatrix() * worldMat; 
+	cb_vs_vertexshader.data.wvpMatrix = mesh->GetWorldMatrix() * wvpMat; 
+	cb_vs_vertexshader.data.worldMatrix = mesh->GetWorldMatrix() * worldMat; 
 	cb_vs_vertexshader.ApplyChanges();
 
 	UINT offset = 0;
@@ -252,23 +251,23 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
 		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->Albedo ?
 			material->Albedo->GetTextureResourceViewAddress() : 
-			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+			Texture::GetDefault()->GetTextureResourceViewAddress());
 
 		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->Normal ?
 			material->Normal->GetTextureResourceViewAddress() :
-			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+			Texture::GetDefault()->GetTextureResourceViewAddress());
 
 		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, material->Metal ?
 			material->Metal->GetTextureResourceViewAddress() :
-			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+			Texture::GetDefault()->GetTextureResourceViewAddress());
 
 		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, material->Roughness ?
 			material->Roughness->GetTextureResourceViewAddress() :
-			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+			Texture::GetDefault()->GetTextureResourceViewAddress());
 
 		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, material->Specular ?
 			material->Specular->GetTextureResourceViewAddress() :
-			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}
 
 	cb_ps_material.data.color = material->Color;
@@ -294,7 +293,9 @@ void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 
 bool Graphics::ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer)
 {
-	if (m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling == 0) return true;
+	if (m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) {
+		return true;
+	}
 
 	bool isVisible = true;
 
