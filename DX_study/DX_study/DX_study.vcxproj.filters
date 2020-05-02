@@ -446,6 +446,7 @@
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
     <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_PostProcess.hlsl" />
+    <FxCompile Include="hlsl\ComputeShader\IrMap.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hlsl\PixelShader\pixelshader_ObjectCommon.hlsli" />

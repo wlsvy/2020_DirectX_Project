@@ -18,7 +18,10 @@ public:
 
 	ID3D11DepthStencilState* GetDepthStencilState() const { return mSkyboxDepthStencilState.Get(); }
 	ID3D11RasterizerState* GetRasterizerState() const { return mSkyboxRasterizerState.Get(); }
+	ID3D11ShaderResourceView * GetCubeMapSrv() const { return mSkybox_CubeMapSRV.Get(); }
+	ID3D11ShaderResourceView * GetIrMapSrv() const { return m_IrMapSrv.Get(); }
 	ID3D11ShaderResourceView *const* GetCubeMapView() const { return mSkybox_CubeMapSRV.GetAddressOf(); }
+	ID3D11ShaderResourceView *const* GetIrMapView() const { return m_IrMapSrv.GetAddressOf(); }
 	std::shared_ptr<Model> GetModel() { return m_Model; }
 	PixelShader* GetPixelShader() { return m_Pshader.get(); }
 	VertexShader* GetVertexShader() { return m_Vshader.get(); }

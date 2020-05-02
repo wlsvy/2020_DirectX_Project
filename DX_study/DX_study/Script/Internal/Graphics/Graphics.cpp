@@ -333,7 +333,7 @@ void Graphics::DrawSkybox()
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
 	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetIrMapView());
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
@@ -412,6 +412,8 @@ void Graphics::DrawGui()
 	ImGui::Image(dr.GetRenderTargetSrv(6), scene_size);
 	ImGui::Image(dr.GetBaseDepthStencilSrv(), scene_size);
 	ImGui::Image(dr.GetSubDepthStencilSrv(), scene_size);
+	ImGui::Image(m_Skybox->GetCubeMapSrv(), scene_size);
+	ImGui::Image(m_Skybox->GetIrMapSrv(), scene_size);
 
 	ImGui::End();
 
