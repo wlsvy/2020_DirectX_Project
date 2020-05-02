@@ -45,7 +45,7 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return primitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return debugInputLayout.Get(); }
 
-	static const int RenderTargetCount = 8;	//Position, Normal, Color, light, depth	+ Result + blur * 2
+	static const int RenderTargetCount = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
 	static const int DeferredRenderChannelCount = 5; 
 
 private:

@@ -152,7 +152,7 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 		{
 		case aiTextureType_DIFFUSE:
 			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			mat->MainTexture = Core::Find<Texture>("WhiteTexture");
+			mat->Albedo = Core::Find<Texture>("WhiteTexture");
 			mat->Color = DirectX::XMFLOAT4(aiColor.r, aiColor.g, aiColor.b, 1.0f);
 		}
 	}
@@ -194,14 +194,14 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 				break;
 			}
 			}
-			if (i == 0) mat->MainTexture = texturePtr;
+			if (i == 0) mat->Albedo = texturePtr;
 			else mat->SubTextures.push_back(texturePtr);
 		}
 	}
 
-	if (!mat->MainTexture)
+	if (!mat->Albedo)
 	{
-		mat->MainTexture = Core::Find<Texture>("UnhandledTexture");
+		mat->Albedo = Core::Find<Texture>("UnhandledTexture");
 	}
 	return mat;
 }

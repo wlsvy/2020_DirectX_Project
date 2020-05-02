@@ -33,8 +33,11 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     //output.normal = float4(calNormal, 1.0f);
     output.normal = float4(input.inNormal, 1.0f);
     
-    float4 lightSpacePos = mul(float4(input.inWorldPos, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
-    output.light = CalculateShadow(0, lightSpacePos) * CalculateLightColor(input.inWorldPos.xyz, input.inNormal);
+    output.materialProperty = float4(
+    metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity,
+    roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity,
+    specularMap.Sample(PointClamp, input.inTexCoord).r * SpecularIntensity,
+    1.0f);
     
     float depth = input.inPosition.z / input.inPosition.w;
     output.depth = float4(depth, depth, depth, 1.0f);

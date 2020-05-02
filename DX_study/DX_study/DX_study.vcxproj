@@ -473,6 +473,7 @@
   <ItemGroup>
     <None Include="hlsl\PixelShader\pixelshader_Common.hlsli" />
     <None Include="hlsl\PixelShader\pixelshader_ObjectCommon.hlsli" />
+    <None Include="hlsl\PixelShader\pixelshader_PBR.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

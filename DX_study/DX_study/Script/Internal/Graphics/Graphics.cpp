@@ -90,8 +90,16 @@ bool Graphics::ProcessMaterialTable()
 
 			material->Vshader = Core::Find<VertexShader>(table["VertexShader"][i]);
 			material->Pshader = Core::Find<PixelShader>(table["PixelShader"][i]);
-			material->MainTexture = Core::Find<Texture>(table["Texture"][i]);
-
+			material->Albedo = Core::Find<Texture>(table["Albedo"][i]);
+			material->Normal = Core::Find<Texture>(table["NormalMap"][i]);
+			material->Metal = Core::Find<Texture>(table["MetalMap"][i]);
+			material->Roughness = Core::Find<Texture>(table["RoughnessMap"][i]);
+			material->Specular = Core::Find<Texture>(table["SpecularMap"][i]);
+			material->NormalIntensity = std::stof(table["NormalIntensity"][i]);
+			material->MetalIntensity = std::stof(table["MetalIntensity"][i]);
+			material->RoughnessIntensity = std::stof(table["RoughnessIntensity"][i]);
+			material->SpecularIntensity = std::stof(table["SpecularIntensity"][i]);
+			
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
 			material->Color.x = std::stof(splitted[0]) / 255;
 			material->Color.y = std::stof(splitted[1]) / 255;
@@ -242,21 +250,32 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 		m_DeviceResources.GetDeviceContext()->PSSetShader(material->Pshader->GetShader(), NULL, 0);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
-		if (material->MainTexture &&
-			material->MainTexture->GetType() == aiTextureType::aiTextureType_DIFFUSE) {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->MainTexture->GetTextureResourceViewAddress());
-		}
-		else {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DefaultTexture.lock()->GetTextureResourceViewAddress());
-		}
-		if (material->NormalMap) {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->NormalMap->GetTextureResourceViewAddress());
-		}
-		else {
-			m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DefaultTexture.lock()->GetTextureResourceViewAddress());
-		}
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->Albedo ?
+			material->Albedo->GetTextureResourceViewAddress() : 
+			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->Normal ?
+			material->Normal->GetTextureResourceViewAddress() :
+			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, material->Metal ?
+			material->Metal->GetTextureResourceViewAddress() :
+			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, material->Roughness ?
+			material->Roughness->GetTextureResourceViewAddress() :
+			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
+
+		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, material->Specular ?
+			material->Specular->GetTextureResourceViewAddress() :
+			m_DefaultTexture.lock()->GetTextureResourceViewAddress());
 	}
+
 	cb_ps_material.data.color = material->Color;
+	cb_ps_material.data.NormalIntensity = material->NormalIntensity;
+	cb_ps_material.data.RoughnessIntensity = material->RoughnessIntensity;
+	cb_ps_material.data.SpecularIntensity = material->SpecularIntensity;
+	cb_ps_material.data.MetalIntensity = material->MetalIntensity;
 	cb_ps_material.ApplyChanges();
 }
 
@@ -300,11 +319,13 @@ void Graphics::PostProcess()
 
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));	//pos
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));	//normal
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//color
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, l->GetShadowMapShaderResourceViewAddr());	//shadowmap
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//albedo
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//Mat
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(4));	//depth
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetIrMapView());	//skybox
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
 
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
@@ -333,7 +354,7 @@ void Graphics::DrawSkybox()
 	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
 	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetIrMapView());
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
 
 	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);

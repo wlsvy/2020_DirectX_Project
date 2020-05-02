@@ -14,18 +14,26 @@ struct PS_OUTPUT
     float4 pos : WORLD_POSITION;
     float4 normal : NORMAL;
     float4 color : COLOR0;
-    float4 light : COLOR1;
+    float4 materialProperty : COLOR1;
     float4 depth : COLOR2;
 };
 
 cbuffer Material : register(b2)
 {
     float4 materialColor;
+    float NormalIntensity;
+    float MetalIntensity;
+    float RoughnessIntensity;
+    float SpecularIntensity;
 };
 
 Texture2D objTexture : TEXTURE : register(t0);
 Texture2D normalMap : TEXTURE : register(t1);
-Texture2D shadowMap : TEXTURE : register(t3);
+Texture2D metalMap : TEXTURE : register(t2);
+Texture2D roughnessMap : TEXTURE : register(t3);
+Texture2D specularMap : TEXTURE : register(t4);
+
+Texture2D shadowMap : TEXTURE : register(t5);
 
 
 

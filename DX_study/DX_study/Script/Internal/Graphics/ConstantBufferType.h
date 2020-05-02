@@ -50,6 +50,11 @@ struct CB_PS_AmbientLight {
 
 struct CB_PS_Material {
 	DirectX::XMFLOAT4 color;
+
+	float NormalIntensity;
+	float MetalIntensity;
+	float RoughnessIntensity;
+	float SpecularIntensity;
 };
 
 struct CB_CS_DownSample {

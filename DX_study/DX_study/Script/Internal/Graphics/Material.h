@@ -14,12 +14,26 @@ public:
 	Material(const std::string& name) : Object(name) {}
 	void OnGui() override;
 
+	DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;
-	std::shared_ptr<Texture> MainTexture;
-	std::shared_ptr<Texture> NormalMap;
+
+	std::shared_ptr<Texture> Albedo;
+
+	std::shared_ptr<Texture> Normal;
+	float NormalIntensity = 1.0f;
+
+	std::shared_ptr<Texture> Metal;
+	float MetalIntensity = 1.0f;
+
+	std::shared_ptr<Texture> Roughness;
+	float RoughnessIntensity = 1.0f;
+
+	std::shared_ptr<Texture> Specular;
+	float SpecularIntensity = 1.0f;
+
 	std::vector<std::shared_ptr<Texture>> SubTextures;
-	DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 };
 
 class SharedMaterial : public Material {
@@ -34,8 +48,8 @@ public:
 		auto material = Material(Name);
 		material.Vshader = Vshader;
 		material.Pshader = Pshader;
-		material.MainTexture = MainTexture;
-		material.NormalMap = NormalMap;
+		material.Albedo = Albedo;
+		material.Normal = Normal;
 		material.SubTextures = SubTextures;
 		material.Color = Color;
 		return material;

@@ -44,8 +44,13 @@ void Scene::Initialize()
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	{
-		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->NormalMap = Core::Find<Texture>("OrganicMeat");
+		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Normal = Core::Find<Texture>("OrganicMeat");
 	}
+
+	auto sphere = Core::CreateInstance<GameObject>("sphere");
+	sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
+	sphere->GetRendererable().SetModel(Core::Find<Model>("sphere"));
+	//sphere->GetRendererable().GetRenerables()[0].GetMaterial()->
 
 	auto light = Core::CreateInstance<GameObject>("Light");
 	light->GetTransform().SetPosition(8.2f, 11.1f, -8.9f);

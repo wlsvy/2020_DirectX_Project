@@ -18,11 +18,11 @@ void Material::OnGui()
 	if (Pshader) {
 		ImGui::Text(("P shader : \n" + Pshader->Name).c_str());
 	}
-	if (MainTexture) {
-		ImGui::Text(("main Texture : " + MainTexture->Name).c_str());
+	if (Albedo) {
+		ImGui::Text(("main Texture : " + Albedo->Name).c_str());
 	}
-	if (NormalMap) {
-		ImGui::Text(("normal Map : \n" + NormalMap->Name).c_str());
+	if (Normal) {
+		ImGui::Text(("normal Map : \n" + Normal->Name).c_str());
 	}
 	for (auto & sub : SubTextures) {
 		ImGui::Text(("sub Texture : " + sub->Name).c_str());
