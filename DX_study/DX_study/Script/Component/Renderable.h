@@ -28,9 +28,9 @@ public:
 	const std::shared_ptr<Material> GetMaterial() const		{ return m_Material; }
 	const std::shared_ptr<MeshBase> GetMesh() const			{ return m_Mesh; }
 
-private:
 	std::shared_ptr<Material> m_Material;
 	std::shared_ptr<MeshBase> m_Mesh;
+private:
 };
 
 class RenderInfo : public Component {
@@ -45,6 +45,8 @@ public:
 
 	void SetModel(const std::shared_ptr<Model>& model);
 	void OnGui() override;
+
+	void SetMaterial(int index, const std::shared_ptr<Material> & mat) { m_Renderables[index].m_Material = mat;}
 
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;

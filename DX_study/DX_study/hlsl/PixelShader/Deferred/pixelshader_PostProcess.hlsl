@@ -1,4 +1,5 @@
 #include "../pixelshader_Common.hlsli"
+#include "../pixelshader_PBR.hlsli"
 
 Texture2D positionTexture : register(t0);
 Texture2D normalTexture : register(t1);
@@ -10,6 +11,8 @@ Texture2D shadowMap :  register(t5);
 Texture2D randomMap : register(t8);
 TextureCube skyBoxCube : register(t9);
 Texture2D DitheringTexture : register(t10);
+TextureCube irradianceTexture : register(t11);
+Texture2D specularBRDF_LUT : register(t12);
 
 struct PS_INPUT
 {
@@ -187,33 +190,92 @@ float4 VolumetricLight(float2 uv, float3 wpos)
 
 float4 main(PS_INPUT input) : SV_TARGET
 {    
-    float4 texturePos = positionTexture.Sample(PointClamp, input.inTexCoord);
-    float3 textureNormal = normalTexture.Sample(PointClamp, input.inTexCoord);
-    float3 textureColor = colorTexture.Sample(PointClamp, input.inTexCoord);
+    float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
+    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
+    float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord);
+    float3 matProperty = matPropertyTexture.Sample(PointClamp, input.inTexCoord);
+    float metal = matProperty.x;
+    float roughness = matProperty.y;
+    float specular = matProperty.z;
     
     float3 lightVal = AmbientColor * AmbientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
     
-    float3 rayDir = normalize(texturePos.xyz - CameraPosition.xyz);
-    float cameraToPixelDistance = length(texturePos.xyz - CameraPosition.xyz);
+    float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
+    float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
 
-    float4 lightSpacePos = mul(float4(texturePos.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
-    lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(texturePos.xyz, textureNormal.xyz);
+    float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
     
-    float3 reflectionVector = reflect(rayDir, textureNormal);
+    float3 reflectionVector = reflect(rayDir, normal);
     float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
     
-    float ambientOcclusionFactor = ComputeAmbientOcclusion(texturePos.xyz, textureNormal.xyz, input.inTexCoord);
+    float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     
-    float4 vl = VolumetricLight(input.inTexCoord, texturePos.xyz);
+    float4 vl = VolumetricLight(input.inTexCoord, position.xyz);
     
-    if (texturePos.w < 0.0f)
-        return float4(textureColor + vl, 1.0f);
+    if (position.w < 0.0f)
+        return float4(albedo + vl.xyz, 1.0f);
     
-    //finalColor = scatterLight + saturate(lightVal * textureColor * ambientOcclusionFactor + reflectionColor);
-    //finalColor = max(vl.xyz, saturate(lightVal * textureColor + reflectionColor));
-    finalColor = vl.xyz + saturate(lightVal * textureColor + reflectionColor);
+    float3 directLighting = 0.0;
+    float3 ambientLighting;
+    {
+        float3 Lo = normalize(CameraPosition - position.xyz);
+
+        float3 N = normalize(2.0 * normal.rgb - 1.0);
+        //N = normalize(mul(pin.tangentBasis, N));
+	
+        float cosLo = max(0.0, dot(N, Lo));
+        float3 Lr = 2.0 * cosLo * N - Lo;
+
+        float3 F0 = lerp(Fdielectric, albedo, metal);
+        //float3 directLighting = 0.0;
+        
+        //per Light
+        {
+            float3 Li = -spotLight.Forward;
+            float3 Lradiance = float3(1.0f, 1.0f, 1.0f);
+
+            float3 Lh = normalize(Li + Lo);
+            float cosLi = max(0.0, dot(N, Li));
+            float cosLh = max(0.0, dot(N, Lh));
+            float3 F = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
+            float D = ndfGGX(cosLh, roughness);
+            float G = gaSchlickGGX(cosLi, cosLo, roughness);
+
+            float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
+            float3 diffuseBRDF = kd * albedo;
+            float3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
+            directLighting += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
+        }
+        
+
+        
+        {
+        
+            float3 irradiance = irradianceTexture.Sample(PointClamp, N).rgb;
+            float3 F = fresnelSchlick(F0, cosLo);
+
+            float3 kd = lerp(1.0 - F, 0.0, metal);
+
+            float3 diffuseIBL = kd * albedo * irradiance;
+
+            //uint specularTextureLevels = querySpecularTextureLevels();
+            //float3 specularIrradiance = specularTexture.SampleLevel(defaultSampler, Lr, roughness * specularTextureLevels).rgb;
+
+            float2 specularBRDF = specularBRDF_LUT.Sample(PointClamp, float2(cosLo, roughness)).rg;
+
+            float3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specular;
+
+            ambientLighting = diffuseIBL + specularIBL;
+        }
+    }
+    
+    return float4(vl.xyz + directLighting + ambientLighting, 1.0f);
+    //finalColor = scatterLight + saturate(lightVal * albedo * ambientOcclusionFactor + reflectionColor);
+    //finalColor = max(vl.xyz, saturate(lightVal * albedo + reflectionColor));
+    finalColor = vl.xyz + saturate(lightVal * albedo + reflectionColor);
     return float4(finalColor, 1.0f);
     //return float4(vl.xyz, 1.0f);
 }

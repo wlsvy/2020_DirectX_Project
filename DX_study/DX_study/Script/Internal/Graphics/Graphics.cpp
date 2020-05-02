@@ -70,7 +70,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
-		m_DitheringTexture = Core::Find<Texture>("ibl_brdf_lut");
+		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
 		
 		return true;
 	}
@@ -325,8 +325,10 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
 
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetIrMapView());	//skybox
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
 
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
 	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후

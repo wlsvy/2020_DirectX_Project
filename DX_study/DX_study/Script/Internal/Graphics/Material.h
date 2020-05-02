@@ -44,7 +44,7 @@ public:
 	SharedMaterial() {}
 	SharedMaterial(const std::string& name) : Material(name) {}
 
-	Material CreateInstance() {
+	/*Material CreateInstance() {
 		auto material = Material(Name);
 		material.Vshader = Vshader;
 		material.Pshader = Pshader;
@@ -53,5 +53,5 @@ public:
 		material.SubTextures = SubTextures;
 		material.Color = Color;
 		return material;
-	}
+	}*/
 };
