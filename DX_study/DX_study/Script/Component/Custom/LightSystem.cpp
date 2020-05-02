@@ -14,6 +14,6 @@ void LightSystem::OnGui()
 	ImGui::DragFloat("SSAO Radius", &cbScene.data.ssao_Radius, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("SSAO Bias", &cbScene.data.ssao_Bias, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("SSAO Scale", &cbScene.data.ssao_Scale, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat4("_VolumetricLight", &cbScene.data._VolumetricLight.x, 0.01f, 0.0f, 10.0f);
-	ImGui::DragInt("_SampleCount", &cbScene.data._SampleCount, 1, 0, 100);
+	ImGui::DragFloat3("VolumetricLight", &cbScene.data.VolumetricLightVar.x, 0.01f, 0.0f, 10.0f);
+	ImGui::DragInt("VolumetricLightSampleCount", &cbScene.data.VolumetricLightSampleCount, 1, 0, 100);
 }

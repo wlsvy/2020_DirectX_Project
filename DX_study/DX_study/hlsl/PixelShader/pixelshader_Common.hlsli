@@ -8,6 +8,12 @@ cbuffer CB_Scene : register(b0)
 {
     float3 CameraPosition;
     float pad0;
+    float3 CameraForward;
+    float pad1;
+    
+    float ElapsedTime;
+    float DeltaTime;
+    float2 pad2;
     
     float3 AmbientColor;
     float AmbientStrength;
@@ -21,9 +27,8 @@ cbuffer CB_Scene : register(b0)
     float SSAO_scale;
     
     // x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
-    float4 _VolumetricLight;
-    float3 CameraForward;
-    int _SampleCount;
+    float3 VolumetricLightVar;
+    int VolumetricLightSampleCount;
 }
 
 struct SpotLight

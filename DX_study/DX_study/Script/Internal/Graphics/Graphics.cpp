@@ -126,6 +126,9 @@ void Graphics::RenderBegin()
 
 	cb_ps_SpotLight.ApplyChanges();
 	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
+	cb_ps_SceneBase.data.CameraForward = mainCam->GetTransform().GetForwardVector();
+	cb_ps_SceneBase.data.ElapsedTime = Time::GetTime();
+	cb_ps_SceneBase.data.DeltaTime = Time::GetDeltaTime();
 	cb_ps_SceneBase.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
 	cb_ps_SceneBase.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	cb_ps_SceneBase.ApplyChanges();

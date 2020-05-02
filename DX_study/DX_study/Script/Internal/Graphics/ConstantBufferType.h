@@ -71,6 +71,11 @@ struct CB_CS_ThresholdBlur {
 
 struct CB_PS_Scene {
 	DirectX::XMVECTOR CamPosition;
+	DirectX::XMVECTOR CameraForward;
+
+	float ElapsedTime;
+	float DeltaTime;
+	DirectX::XMFLOAT2 pad0;
 
 	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float ambientLightStrength = 0.2f;
@@ -83,7 +88,6 @@ struct CB_PS_Scene {
 	float ssao_Bias = 1.25f;
 	float ssao_Scale = 1.0f;
 
-	DirectX::XMFLOAT4 _VolumetricLight = DirectX::XMFLOAT4(0.04, 0.1, 0.2, 0.1);
-	DirectX::XMFLOAT3 CameraForward;
-	int _SampleCount = 60;
+	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.04f, 0.1f, 0.2f);
+	int VolumetricLightSampleCount = 60;
 };
