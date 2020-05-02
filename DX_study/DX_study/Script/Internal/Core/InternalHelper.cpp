@@ -1,6 +1,6 @@
 #include "InternalHelper.h"
 #include "../Engine/Engine.h"
-#include "../Engine/DeviceResources.h"
+#include "../Engine/DX11Resources.h"
 #include "../Graphics/Graphics.h"
 #include "ObjectPool.h"
 #include "Scene.h"

@@ -2,7 +2,7 @@
 #include <functional>
 
 #include "Timer.h"
-#include "DeviceResources.h"
+#include "DX11Resources.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"

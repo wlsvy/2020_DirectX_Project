@@ -13,7 +13,7 @@
 #include "../../Util/Time.h"
 #include "../../Util/Math.h"
 #include "../Engine/Engine.h"
-#include "../Engine/DeviceResources.h"
+#include "../Engine/DX11Resources.h"
 #include "../Engine/Ui.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
@@ -100,10 +100,10 @@ bool Graphics::ProcessMaterialTable()
 			material->SpecularIntensity = std::stof(table["SpecularIntensity"][i]);
 			
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
-			material->Color.x = std::stof(splitted[0]) / 255;
-			material->Color.y = std::stof(splitted[1]) / 255;
-			material->Color.z = std::stof(splitted[2]) / 255;
-			material->Color.w = std::stof(splitted[3]) / 255;
+			material->Color.x = std::stof(splitted[0]) / 256;
+			material->Color.y = std::stof(splitted[1]) / 256;
+			material->Color.z = std::stof(splitted[2]) / 256;
+			material->Color.w = std::stof(splitted[3]) / 256;
 		}
 		return true;
 	}
@@ -150,7 +150,7 @@ void Graphics::RenderBegin()
 	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
 
 	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
-	for (int i = 0; i < DeviceResources::RenderTargetCount; i++) {
+	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
 		m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetRenderTargetView(i), m_BackgroundColor);
 	}
 	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -172,7 +172,7 @@ void Graphics::RenderModels()
 	m_CullFrustum = mainCam->GetViewFrustum();
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount, 
+		DX11Resources::DeferredRenderChannelCount, 
 		m_DeviceResources.GetRTVaddress(0), 
 		m_DeviceResources.GetBaseDepthStencilView());
 
@@ -181,7 +181,7 @@ void Graphics::RenderModels()
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount,
+		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
 }
@@ -313,7 +313,7 @@ void Graphics::PostProcess()
 {
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount), NULL);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetRTVaddress(DX11Resources::DeferredRenderChannelCount), NULL);
 
 	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
 	m_DeviceResources.GetDeviceContext()->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
@@ -342,15 +342,15 @@ void Graphics::PostProcess()
 	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DeviceResources::DeferredRenderChannelCount + 1, m_NullSrv);
+	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DX11Resources::DeferredRenderChannelCount + 1, m_NullSrv);
 	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_NullSrv);
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DeviceResources::DeferredRenderChannelCount, m_NullRtv, NULL);
+	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DX11Resources::DeferredRenderChannelCount, m_NullRtv, NULL);
 }
 
 void Graphics::DrawSkybox()
 {
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount,
+		DX11Resources::DeferredRenderChannelCount,
 		m_DeviceResources.GetRTVaddress(0),
 		m_DeviceResources.GetBaseDepthStencilView());
 
@@ -375,7 +375,7 @@ void Graphics::DrawSkybox()
 	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount,
+		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
 }
@@ -418,7 +418,7 @@ void Graphics::DrawGui()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DeviceResources::DeferredRenderChannelCount));
+	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DX11Resources::DeferredRenderChannelCount));
 	
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
@@ -471,7 +471,7 @@ void Graphics::DrawGuiDebug()
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
 		1,
-		m_DeviceResources.GetRTVaddress(DeviceResources::DeferredRenderChannelCount),
+		m_DeviceResources.GetRTVaddress(DX11Resources::DeferredRenderChannelCount),
 		m_DeviceResources.GetBaseDepthStencilView());
 
 	batch->Begin();
@@ -482,7 +482,7 @@ void Graphics::DrawGuiDebug()
 	batch->End();
 
 	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
-		DeviceResources::DeferredRenderChannelCount,
+		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
 }

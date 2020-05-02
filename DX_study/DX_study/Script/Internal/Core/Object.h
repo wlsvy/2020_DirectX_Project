@@ -5,7 +5,7 @@
    public: \
     using ManagedType = typeName; \
 
-class Object {
+class Object abstract {
 public:
 	Object();
 	Object(const std::string & name);

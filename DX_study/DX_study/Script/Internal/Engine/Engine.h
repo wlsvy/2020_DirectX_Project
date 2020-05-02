@@ -6,7 +6,7 @@
 
 class Timer;
 class Graphics;
-class DeviceResources;
+class DX11Resources;
 
 template<typename T>
 class ObjectPool;

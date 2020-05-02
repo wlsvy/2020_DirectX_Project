@@ -7,16 +7,10 @@
 #include "../../Util/Singleton.h"
 #include "Object.h"
 
-class Engine;
-class Scene;
-class Graphics;
-
 namespace Core {
 	template<typename T>
 	class Pool : public Singleton<Pool<T>> {
 	public:
-		virtual void Initialize() {}
-
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.push_back(obj);
 		}

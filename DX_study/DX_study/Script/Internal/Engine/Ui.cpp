@@ -7,7 +7,7 @@
 #include "../Graphics/imGui/imgui_impl_win32.h"
 #include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "Engine.h"
-#include "DeviceResources.h"
+#include "DX11Resources.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../Core//GameObject.h"
@@ -17,7 +17,6 @@ ImGuiIO * s_io;
 
 void GUI::InitImGUI(HWND _hwnd)
 {
-	//Setup ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 	s_io = &ImGui::GetIO();

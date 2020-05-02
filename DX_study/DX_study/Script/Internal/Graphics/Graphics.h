@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 #include "ConstantBuffer.h"
-#include "../Engine/DeviceResources.h"
+#include "../Engine/DX11Resources.h"
 #include "../../Util/Math.h"
 
 class BufferBase;
@@ -46,7 +46,7 @@ public:
 	void ComputeShdaderTest();
 	void RenderEnd();
 
-	DeviceResources & GetDeviceResources() { return m_DeviceResources; }
+	DX11Resources & GetDeviceResources() { return m_DeviceResources; }
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
@@ -61,7 +61,7 @@ private:
 	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
 	bool ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer);
 
-	DeviceResources m_DeviceResources;
+	DX11Resources m_DeviceResources;
 
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
@@ -108,7 +108,7 @@ private:
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
 	std::weak_ptr<Texture> m_IblBrdfTexture;
-	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::RenderTargetCount] = { NULL, };
-	ID3D11ShaderResourceView * const m_NullSrv[DeviceResources::RenderTargetCount] = { NULL, };
-	ID3D11UnorderedAccessView * const m_NullUav[DeviceResources::RenderTargetCount] = { NULL, };
+	ID3D11RenderTargetView * const m_NullRtv[DX11Resources::RenderTargetCount] = { NULL, };
+	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::RenderTargetCount] = { NULL, };
+	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::RenderTargetCount] = { NULL, };
 };

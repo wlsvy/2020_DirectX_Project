@@ -141,9 +141,6 @@
     <ClCompile Include="Script\Internal\Engine\Mouse\MouseEvent.cpp">
       <Filter>소스 파일\Internal\Engine\Mouse</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Internal\Engine\DeviceResources.cpp">
-      <Filter>소스 파일\Internal\Engine</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Engine\Engine.cpp">
       <Filter>소스 파일\Internal\Engine</Filter>
     </ClCompile>
@@ -227,6 +224,9 @@
     </ClCompile>
     <ClCompile Include="Script\Component\Custom\PrototypeManager.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\DX11Resources.cpp">
+      <Filter>소스 파일\Internal\Engine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -323,9 +323,6 @@
     <ClInclude Include="Script\Internal\Engine\AdapterReader.h">
       <Filter>헤더 파일\Internal\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Internal\Engine\DeviceResources.h">
-      <Filter>헤더 파일\Internal\Engine</Filter>
-    </ClInclude>
     <ClInclude Include="Script\Internal\Engine\Engine.h">
       <Filter>헤더 파일\Internal\Engine</Filter>
     </ClInclude>
@@ -412,6 +409,9 @@
     </ClInclude>
     <ClInclude Include="Script\Component\Custom\PrototypeManager.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\DX11Resources.h">
+      <Filter>헤더 파일\Internal\Engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
