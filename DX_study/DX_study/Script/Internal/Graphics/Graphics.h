@@ -109,6 +109,7 @@ private:
 	std::weak_ptr<Texture> m_DefaultTexture;
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
+	std::weak_ptr<Texture> m_IblBrdfTexture;
 	ID3D11RenderTargetView * const m_NullRtv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11ShaderResourceView * const m_NullSrv[DeviceResources::RenderTargetCount] = { NULL, };
 	ID3D11UnorderedAccessView * const m_NullUav[DeviceResources::RenderTargetCount] = { NULL, };

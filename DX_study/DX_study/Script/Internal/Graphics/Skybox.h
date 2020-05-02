@@ -24,7 +24,8 @@ public:
 	VertexShader* GetVertexShader() { return m_Vshader.get(); }
 
 private:
-	bool Make_CubeMap();
+	bool InitializeCubeMap();
+	bool InitializeIrMap();
 
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mSkyboxDepthStencilState = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mSkyboxRasterizerState = nullptr;
@@ -34,6 +35,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mSkybox_Texture = nullptr;
 	Microsoft::WRL::ComPtr<ID3D11Resource> mSkybox_Resource[6] = { nullptr, };
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSkybox_CubeMapSRV = nullptr;
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_IrMapSrv;
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_IrMapUav;
 
 	std::shared_ptr<PixelShader> m_Pshader;
 	std::shared_ptr<VertexShader> m_Vshader;

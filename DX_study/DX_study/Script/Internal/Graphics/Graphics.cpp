@@ -70,6 +70,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height) {
 		m_DefaultTexture = Core::Find<Texture>("WhiteTexture");
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
+		m_DitheringTexture = Core::Find<Texture>("ibl_brdf_lut");
+		
 		return true;
 	}
 	catch (CustomException & e) {
