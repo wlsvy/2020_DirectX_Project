@@ -15,70 +15,70 @@ public:
 	bool InitializeRenderTarget(UINT width, UINT height);
 	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
-	ID3D11Device*					GetDevice()	const									{ return device.Get(); }
-	ID3D11DeviceContext*			GetDeviceContext()	const							{ return deviceContext.Get(); }
-	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return mainRenderTargetView.Get(); }
-	ID3D11RenderTargetView* const*	GetBaseRTVaddress() const							{ return mainRenderTargetView.GetAddressOf(); }
-	ID3D11DepthStencilView*			GetBaseDepthStencilView() const						{ return mainDepthStencilView.Get(); }
-	ID3D11ShaderResourceView*		GetBaseDepthStencilSrv() const						{ return mainDepthStencilSRV.Get(); }
-	ID3D11ShaderResourceView*const*	GetBaseDepthStencilSrvAddress() const				{ return mainDepthStencilSRV.GetAddressOf(); }
-	ID3D11DepthStencilView*			GetSubDepthStencilView() const						{ return subDepthStencilView.Get(); }
-	ID3D11ShaderResourceView*		GetSubDepthStencilSrv() const						{ return subDepthStencilSRV.Get(); }
-	ID3D11ShaderResourceView*const*	GetSubDepthStencilSrvAddress() const				{ return subDepthStencilSRV.GetAddressOf(); }
-	ID3D11DepthStencilState*		GetBaseDepthStencilState() const					{ return depthStencilState.Get(); }
-	ID3D11RasterizerState*			GetRasterizerState() const							{ return rasterizerState.Get(); }
-	ID3D11BlendState*				GetBlendState() const								{ return blendState.Get();	}
-	ID3D11SamplerState* const*		GetSamplerStateAddr() const							{ return samplerState.GetAddressOf(); }
-	ID3D11RenderTargetView*			GetRenderTargetView(int index) const				{ return renderTargetViewArr[index].Get(); }
-	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return renderTargetViewArr[index].GetAddressOf(); }
-	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return shaderResourceViewArr[index].Get(); }
-	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return shaderResourceViewArr[index].GetAddressOf(); }
-	ID3D11UnorderedAccessView*		GetRenderTargetUav(int index) const					{ return unorderedAccessView[index].Get();}
-	ID3D11UnorderedAccessView*const*GetRenderTargetUavAddr(int index) const				{ return unorderedAccessView[index].GetAddressOf();}
-	IDXGISwapChain*					GetSwapChain() const								{ return swapchain.Get(); }
+	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
+	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }
+	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return m_MainRenderTargetView.Get(); }
+	ID3D11RenderTargetView* const*	GetBaseRTVaddress() const							{ return m_MainRenderTargetView.GetAddressOf(); }
+	ID3D11DepthStencilView*			GetBaseDepthStencilView() const						{ return m_MainDepthStencilView.Get(); }
+	ID3D11ShaderResourceView*		GetBaseDepthStencilSrv() const						{ return m_MainDepthStencilSRV.Get(); }
+	ID3D11ShaderResourceView*const*	GetBaseDepthStencilSrvAddress() const				{ return m_MainDepthStencilSRV.GetAddressOf(); }
+	ID3D11DepthStencilView*			GetSubDepthStencilView() const						{ return m_SubDepthStencilView.Get(); }
+	ID3D11ShaderResourceView*		GetSubDepthStencilSrv() const						{ return m_SubDepthStencilSRV.Get(); }
+	ID3D11ShaderResourceView*const*	GetSubDepthStencilSrvAddress() const				{ return m_SubDepthStencilSRV.GetAddressOf(); }
+	ID3D11DepthStencilState*		GetBaseDepthStencilState() const					{ return m_DepthStencilState.Get(); }
+	ID3D11RasterizerState*			GetRasterizerState() const							{ return m_RasterizerState.Get(); }
+	ID3D11BlendState*				GetBlendState() const								{ return m_BlendState.Get();	}
+	ID3D11SamplerState* const*		GetSamplerStateAddr() const							{ return m_SamplerState.GetAddressOf(); }
+	ID3D11RenderTargetView*			GetRenderTargetView(int index) const				{ return m_RenderTargetViewArr[index].Get(); }
+	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return m_RenderTargetViewArr[index].GetAddressOf(); }
+	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return m_ShaderResourceViewArr[index].Get(); }
+	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return m_ShaderResourceViewArr[index].GetAddressOf(); }
+	ID3D11UnorderedAccessView*		GetRenderTargetUav(int index) const					{ return m_UnorderedAccessView[index].Get();}
+	ID3D11UnorderedAccessView*const*GetRenderTargetUavAddr(int index) const				{ return m_UnorderedAccessView[index].GetAddressOf();}
+	IDXGISwapChain*					GetSwapChain() const								{ return m_Swapchain.Get(); }
 
-	DirectX::SpriteBatch*			GetSpriteBatch() const								{ return spriteBatch.get(); }
-	DirectX::SpriteFont*			GetSpriteFont() const								{ return spriteFont.get(); }
-	DirectX::CommonStates*			GetCommonState() const								{ return commonState.get(); }
-	DirectX::DebugEffect*			GetDebugEffect() const								{ return debugEffect.get(); }
-	DirectX::BasicEffect*			GetBasicEffect() const								{ return basicEffect.get(); }
-	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return primitiveBatch.get(); }
-	ID3D11InputLayout*				GetDebugInputLayout() const							{ return debugInputLayout.Get(); }
+	DirectX::SpriteBatch*			GetSpriteBatch() const								{ return m_SpriteBatch.get(); }
+	DirectX::SpriteFont*			GetSpriteFont() const								{ return m_SpriteFont.get(); }
+	DirectX::CommonStates*			GetCommonState() const								{ return m_CommonState.get(); }
+	DirectX::DebugEffect*			GetDebugEffect() const								{ return m_DebugEffect.get(); }
+	DirectX::BasicEffect*			GetBasicEffect() const								{ return m_BasicEffect.get(); }
+	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return m_PrimitiveBatch.get(); }
+	ID3D11InputLayout*				GetDebugInputLayout() const							{ return m_DebugInputLayout.Get(); }
 
 	static const int RenderTargetCount = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
 	static const int DeferredRenderChannelCount = 5; 
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Device> device;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> deviceContext; 
-	Microsoft::WRL::ComPtr<IDXGISwapChain> swapchain;
+	Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext; 
+	Microsoft::WRL::ComPtr<IDXGISwapChain> m_Swapchain;
 
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
-	Microsoft::WRL::ComPtr<ID3D11BlendState> blendState;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_RasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> m_BlendState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerState;
 	
 	//Depth/Stencil
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mainDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mainDepthStencilSRV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> subDepthStencilView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> subDepthStencilSRV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_MainDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_MainDepthStencilSRV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_SubDepthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_SubDepthStencilSRV;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> m_DepthStencilState;
 
 	//RenderTargets
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mainRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetViewArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> shaderResourceViewArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> renderTargetTextureArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> unorderedAccessView[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_MainRenderTargetView;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetViewArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UnorderedAccessView[RenderTargetCount];
 
 	//DirectX Tool Kit - DirectX XTK
-	std::unique_ptr<DirectX::SpriteBatch> spriteBatch;
-	std::unique_ptr<DirectX::SpriteFont> spriteFont;
-	std::unique_ptr<DirectX::CommonStates> commonState;
-	std::unique_ptr<DirectX::BasicEffect> basicEffect;
-	std::unique_ptr<DirectX::DebugEffect> debugEffect;
-	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> primitiveBatch;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout> debugInputLayout;
+	std::unique_ptr<DirectX::SpriteBatch> m_SpriteBatch;
+	std::unique_ptr<DirectX::SpriteFont> m_SpriteFont;
+	std::unique_ptr<DirectX::CommonStates> m_CommonState;
+	std::unique_ptr<DirectX::BasicEffect> m_BasicEffect;
+	std::unique_ptr<DirectX::DebugEffect> m_DebugEffect;
+	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>> m_PrimitiveBatch;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> m_DebugInputLayout;
 
 	
 };
