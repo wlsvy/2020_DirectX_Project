@@ -1,6 +1,5 @@
 #include "InternalHelper.h"
 #include "../Engine/Engine.h"
-#include "../Engine/DX11Resources.h"
 #include "../Graphics/Graphics.h"
 #include "ObjectPool.h"
 #include "Scene.h"
@@ -17,12 +16,12 @@ Timer & Core::GetTimer()
 
 ID3D11Device * Core::GetDevice()
 {
-	return Engine::Get().GetGraphics().GetDeviceResources().GetDevice();
+	return Engine::Get().GetGraphics().GetDevice();
 }
 
 ID3D11DeviceContext * Core::GetDeviceContext()
 {
-	return Engine::Get().GetGraphics().GetDeviceResources().GetDeviceContext();
+	return Engine::Get().GetGraphics().GetDeviceContext();
 }
 
 Graphics & Core::GetGraphics()

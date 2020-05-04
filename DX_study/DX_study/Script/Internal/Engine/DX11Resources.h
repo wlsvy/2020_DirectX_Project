@@ -48,7 +48,7 @@ public:
 	static const int RenderTargetCount = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
 	static const int DeferredRenderChannelCount = 5; 
 
-private:
+protected:
 	Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> m_DeviceContext; 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> m_Swapchain;
@@ -70,6 +70,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewArr[RenderTargetCount];
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[RenderTargetCount];
 	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UnorderedAccessView[RenderTargetCount];
+
+	ID3D11RenderTargetView * const m_NullRtv[DX11Resources::RenderTargetCount] = { NULL, };
+	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::RenderTargetCount] = { NULL, };
+	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::RenderTargetCount] = { NULL, };
 
 	//DirectX Tool Kit - DirectX XTK
 	std::unique_ptr<DirectX::SpriteBatch> m_SpriteBatch;

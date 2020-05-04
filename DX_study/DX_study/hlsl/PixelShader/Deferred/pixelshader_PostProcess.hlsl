@@ -218,62 +218,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (position.w < 0.0f)
         return float4(albedo + vl.xyz, 1.0f);
     
-    float3 directLighting = 0.0;
-    float3 ambientLighting;
-    {
-        float3 Lo = normalize(CameraPosition - position.xyz);
-
-        float3 N = normalize(2.0 * normal.rgb - 1.0);
-        //N = normalize(mul(pin.tangentBasis, N));
-	
-        float cosLo = max(0.0, dot(N, Lo));
-        float3 Lr = 2.0 * cosLo * N - Lo;
-
-        float3 F0 = lerp(Fdielectric, albedo, metal);
-        //float3 directLighting = 0.0;
-        
-        //per Light
-        {
-            float3 Li = -spotLight.Forward;
-            float3 Lradiance = float3(1.0f, 1.0f, 1.0f);
-
-            float3 Lh = normalize(Li + Lo);
-            float cosLi = max(0.0, dot(N, Li));
-            float cosLh = max(0.0, dot(N, Lh));
-            float3 F = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
-            float D = ndfGGX(cosLh, roughness);
-            float G = gaSchlickGGX(cosLi, cosLo, roughness);
-
-            float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metal);
-            float3 diffuseBRDF = kd * albedo;
-            float3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
-            directLighting += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
-        }
-        
-
-        
-        {
-        
-            float3 irradiance = irradianceTexture.Sample(PointClamp, N).rgb;
-            float3 F = fresnelSchlick(F0, cosLo);
-
-            float3 kd = lerp(1.0 - F, 0.0, metal);
-
-            float3 diffuseIBL = kd * albedo * irradiance;
-
-            //uint specularTextureLevels = querySpecularTextureLevels();
-            //float3 specularIrradiance = specularTexture.SampleLevel(defaultSampler, Lr, roughness * specularTextureLevels).rgb;
-
-            float2 specularBRDF = specularBRDF_LUT.Sample(PointClamp, float2(cosLo, roughness)).rg;
-
-            float3 specularIBL = (F0 * specularBRDF.x + specularBRDF.y) * specular;
-
-            ambientLighting = diffuseIBL + specularIBL;
-        }
-    }
+   
     
-    return float4(vl.xyz + directLighting + ambientLighting, 1.0f);
-    //finalColor = scatterLight + saturate(lightVal * albedo * ambientOcclusionFactor + reflectionColor);
     //finalColor = max(vl.xyz, saturate(lightVal * albedo + reflectionColor));
     finalColor = vl.xyz + saturate(lightVal * albedo + reflectionColor);
     return float4(finalColor, 1.0f);

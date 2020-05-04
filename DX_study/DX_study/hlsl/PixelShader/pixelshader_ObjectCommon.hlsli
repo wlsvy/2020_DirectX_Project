@@ -1,3 +1,6 @@
+#ifndef PIXELSHADER_OBJECTCOMMON_HLSLI_
+#define PIXELSHADER_OBJECTCOMMON_HLSLI_
+
 #include "pixelshader_Common.hlsli"
 
 struct PS_INPUT
@@ -47,3 +50,5 @@ float3 CalcPerPixelNormal(float2 vTexcoord, float3 vVertNormal, float3 vVertTang
 
     return mul(vBumpNormal, mTangentSpaceToWorldSpace);
 }
+
+#endif

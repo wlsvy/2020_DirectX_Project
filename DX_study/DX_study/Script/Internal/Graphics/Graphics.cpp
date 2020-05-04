@@ -13,7 +13,6 @@
 #include "../../Util/Time.h"
 #include "../../Util/Math.h"
 #include "../Engine/Engine.h"
-#include "../Engine/DX11Resources.h"
 #include "../Engine/Ui.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
@@ -33,8 +32,8 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		windowWidth = width;
 		windowHeight = height;
 
-		ThrowIfFailed(m_DeviceResources.Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
-		ThrowIfFailed(m_DeviceResources.InitializeRenderTarget(width, height),	"Failed to initialize Device Resources RenderTarget");
+		ThrowIfFailed(DX11Resources::Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
+		ThrowIfFailed(DX11Resources::InitializeRenderTarget(width, height),	"Failed to initialize Device Resources RenderTarget");
 		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(),						"Failed to Initialize CB_VS_vertexshader_2d buffer.");
 		ThrowIfFailed(cb_vs_vertexshader.Initialize(),							"Failed to Initialize CB_VS_vertexshader buffer.");
 		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
@@ -142,27 +141,27 @@ void Graphics::RenderBegin()
 	cb_ps_SceneBase.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	cb_ps_SceneBase.ApplyChanges();
 
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(1, 1, cb_ps_SpotLight.GetAddressOf());
-	m_DeviceResources.GetDeviceContext()->PSSetConstantBuffers(2, 1, cb_ps_material.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(1, 1, cb_ps_SpotLight.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(2, 1, cb_ps_material.GetAddressOf());
 
-	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
-	m_DeviceResources.GetDeviceContext()->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
+	m_DeviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
+	m_DeviceContext->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
 
-	m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetBaseRenderTargetView(), m_BackgroundColor);
+	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
 	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
-		m_DeviceResources.GetDeviceContext()->ClearRenderTargetView(m_DeviceResources.GetRenderTargetView(i), m_BackgroundColor);
+		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);
 	}
-	m_DeviceResources.GetDeviceContext()->ClearDepthStencilView(m_DeviceResources.GetBaseDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_DeviceContext->ClearDepthStencilView(m_MainDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	m_DeviceResources.GetDeviceContext()->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
-	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
-	m_DeviceResources.GetDeviceContext()->OMSetBlendState(m_DeviceResources.GetBlendState(), m_BlendFactors, 0xFFFFFFFF);
-	auto samplerClamp = m_DeviceResources.GetCommonState()->PointClamp();
-	auto samplerWrap = m_DeviceResources.GetCommonState()->LinearWrap();
-	m_DeviceResources.GetDeviceContext()->PSSetSamplers(0, 1, &samplerClamp);
-	m_DeviceResources.GetDeviceContext()->PSSetSamplers(1, 1, &samplerWrap);
+	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	m_DeviceContext->RSSetState(m_RasterizerState.Get());
+	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+	m_DeviceContext->OMSetBlendState(m_BlendState.Get(), m_BlendFactors, 0xFFFFFFFF);
+	auto samplerClamp = m_CommonState->PointClamp();
+	auto samplerWrap = m_CommonState->LinearWrap();
+	m_DeviceContext->PSSetSamplers(0, 1, &samplerClamp);
+	m_DeviceContext->PSSetSamplers(1, 1, &samplerWrap);
 }
 
 void Graphics::RenderModels()
@@ -171,16 +170,16 @@ void Graphics::RenderModels()
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		DX11Resources::DeferredRenderChannelCount, 
-		m_DeviceResources.GetRTVaddress(0), 
-		m_DeviceResources.GetBaseDepthStencilView());
+		m_RenderTargetViewArr[0].GetAddressOf(), 
+		m_MainDepthStencilView.Get());
 
 	m_DrawFlag = DrawFlag::All;
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
@@ -223,18 +222,16 @@ void Graphics::DrawMesh(
 	cb_vs_vertexshader.ApplyChanges();
 
 	UINT offset = 0;
-	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
-	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
+	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
+	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 }
 
 void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 {
-	auto * batch = m_DeviceResources.GetPrimitiveBatch();
-
 	if (renderer->m_Model) {
 		for (auto& mesh : renderer->m_Model->GetMeshes()) {
-			GUI::Draw(batch, Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+			GUI::Draw(m_PrimitiveBatch.get(), Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
 }
@@ -242,30 +239,30 @@ void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material)
 {
 	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
-		m_DeviceResources.GetDeviceContext()->IASetInputLayout(material->Vshader->GetInputLayout());
-		m_DeviceResources.GetDeviceContext()->VSSetShader(material->Vshader->GetShader(), NULL, 0);
+		m_DeviceContext->IASetInputLayout(material->Vshader->GetInputLayout());
+		m_DeviceContext->VSSetShader(material->Vshader->GetShader(), NULL, 0);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
-		m_DeviceResources.GetDeviceContext()->PSSetShader(material->Pshader->GetShader(), NULL, 0);
+		m_DeviceContext->PSSetShader(material->Pshader->GetShader(), NULL, 0);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, material->Albedo ?
+		m_DeviceContext->PSSetShaderResources(0, 1, material->Albedo ?
 			material->Albedo->GetTextureResourceViewAddress() : 
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, material->Normal ?
+		m_DeviceContext->PSSetShaderResources(1, 1, material->Normal ?
 			material->Normal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, material->Metal ?
+		m_DeviceContext->PSSetShaderResources(2, 1, material->Metal ?
 			material->Metal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, material->Roughness ?
+		m_DeviceContext->PSSetShaderResources(3, 1, material->Roughness ?
 			material->Roughness->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 
-		m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, material->Specular ?
+		m_DeviceContext->PSSetShaderResources(4, 1, material->Specular ?
 			material->Specular->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}
@@ -313,54 +310,54 @@ void Graphics::PostProcess()
 {
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetRTVaddress(DX11Resources::DeferredRenderChannelCount), NULL);
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetViewArr[DX11Resources::DeferredRenderChannelCount].GetAddressOf(), NULL);
 
-	m_DeviceResources.GetDeviceContext()->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
+	m_DeviceContext->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
+	m_DeviceContext->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, 1, m_DeviceResources.GetRenderTargetSrvAddress(0));	//pos
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_DeviceResources.GetRenderTargetSrvAddress(1));	//normal
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(2, 1, m_DeviceResources.GetRenderTargetSrvAddress(2));	//albedo
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(3, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//Mat
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(4));	//depth
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+	m_DeviceContext->PSSetShaderResources(0, 1, m_ShaderResourceViewArr[0].GetAddressOf());	//pos
+	m_DeviceContext->PSSetShaderResources(1, 1, m_ShaderResourceViewArr[1].GetAddressOf());	//normal
+	m_DeviceContext->PSSetShaderResources(2, 1, m_ShaderResourceViewArr[2].GetAddressOf());	//albedo
+	m_DeviceContext->PSSetShaderResources(3, 1, m_ShaderResourceViewArr[3].GetAddressOf());	//Mat
+	m_DeviceContext->PSSetShaderResources(4, 1, m_ShaderResourceViewArr[4].GetAddressOf());	//depth
+	m_DeviceContext->PSSetShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
+	m_DeviceContext->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
+	m_DeviceContext->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
+	m_DeviceContext->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
+	m_DeviceContext->PSSetShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
+	m_DeviceContext->PSSetShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
 
-	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
-	//m_DeviceResources.GetDeviceContext()->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
+	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
+	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
 
 
 
 	auto& mesh = m_PostProcesWindowModel->GetMeshes()[0];
 	UINT offset = 0;
-	m_DeviceResources.GetDeviceContext()->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
-	m_DeviceResources.GetDeviceContext()->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	m_DeviceResources.GetDeviceContext()->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
+	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
+	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(0, DX11Resources::DeferredRenderChannelCount + 1, m_NullSrv);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(9, 1, m_NullSrv);
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(DX11Resources::DeferredRenderChannelCount, m_NullRtv, NULL);
+	m_DeviceContext->PSSetShaderResources(0, DX11Resources::DeferredRenderChannelCount + 1, m_NullSrv);
+	m_DeviceContext->PSSetShaderResources(9, 1, m_NullSrv);
+	m_DeviceContext->OMSetRenderTargets(DX11Resources::DeferredRenderChannelCount, m_NullRtv, NULL);
 }
 
 void Graphics::DrawSkybox()
 {
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		DX11Resources::DeferredRenderChannelCount,
-		m_DeviceResources.GetRTVaddress(0),
-		m_DeviceResources.GetBaseDepthStencilView());
+		m_RenderTargetViewArr[0].GetAddressOf(),
+		m_MainDepthStencilView.Get());
 
-	m_DeviceResources.GetDeviceContext()->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
-	m_DeviceResources.GetDeviceContext()->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
-	m_DeviceResources.GetDeviceContext()->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
+	m_DeviceContext->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
+	m_DeviceContext->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
+	m_DeviceContext->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
+	m_DeviceContext->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
 
-	m_DeviceResources.GetDeviceContext()->RSSetState(m_Skybox->GetRasterizerState());
-	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
+	m_DeviceContext->RSSetState(m_Skybox->GetRasterizerState());
+	m_DeviceContext->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
 
 	m_DrawFlag = DrawFlag::None;
 
@@ -371,10 +368,10 @@ void Graphics::DrawSkybox()
 		DrawMesh(mesh, worldMat, wvpMat);
 	}
 
-	m_DeviceResources.GetDeviceContext()->RSSetState(m_DeviceResources.GetRasterizerState());
-	m_DeviceResources.GetDeviceContext()->OMSetDepthStencilState(m_DeviceResources.GetBaseDepthStencilState(), 0);
+	m_DeviceContext->RSSetState(m_RasterizerState.Get());
+	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
@@ -391,12 +388,10 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	m_CullFrustum.Origin = lightTransform.position;
 	DirectX::XMStoreFloat4(&m_CullFrustum.Orientation, lightTransform.GetQuaternion());
 
-	auto& dr = Engine::Get().GetGraphics().GetDeviceResources();
-	
-	dr.GetDeviceContext()->ClearDepthStencilView(dr.GetSubDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-	dr.GetDeviceContext()->ClearRenderTargetView(spotLight->GetShadowMapRenderTargetView(), m_BackgroundColor);
-	dr.GetDeviceContext()->OMSetRenderTargets(1, spotLight->GetShadowMapRenderTargetViewAddr(), dr.GetSubDepthStencilView());
-	dr.GetDeviceContext()->PSSetShader(m_ShadowMapPshader->GetShader(), NULL, 0);
+	m_DeviceContext->ClearDepthStencilView(m_SubDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	m_DeviceContext->ClearRenderTargetView(spotLight->GetShadowMapRenderTargetView(), m_BackgroundColor);
+	m_DeviceContext->OMSetRenderTargets(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
+	m_DeviceContext->PSSetShader(m_ShadowMapPshader->GetShader(), NULL, 0);
 
 	m_DrawFlag = 
 		DrawFlag::Apply_MaterialVertexShader | 
@@ -405,20 +400,19 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
-	dr.GetDeviceContext()->OMSetRenderTargets(1, m_NullRtv, NULL);
+	m_DeviceContext->OMSetRenderTargets(1, m_NullRtv, NULL);
 }
 
 void Graphics::DrawGui()
 {
-	auto& dr = m_DeviceResources;
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
-
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_DeviceResources.GetBaseRTVaddress(), NULL);
+	
+	m_DeviceContext->OMSetRenderTargets(1, m_MainRenderTargetView.GetAddressOf(), NULL);
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	GUI::DrawEditorUI(m_DeviceResources.GetRenderTargetSrv(DX11Resources::DeferredRenderChannelCount));
+	GUI::DrawEditorUI(m_ShaderResourceViewArr[DX11Resources::DeferredRenderChannelCount].Get());
 	
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
@@ -431,11 +425,9 @@ void Graphics::DrawGui()
 
 	ImGui::Begin("Blur Test");
 	ImGui::DragFloat("ThresHold", &cb_cs_DownSample.data.threshold, 0.01f, 0.0f, 10.0f);
-	ImGui::Image(dr.GetRenderTargetSrv(3), scene_size);
-	ImGui::Image(dr.GetRenderTargetSrv(5), scene_size);
-	ImGui::Image(dr.GetRenderTargetSrv(6), scene_size);
-	ImGui::Image(dr.GetBaseDepthStencilSrv(), scene_size);
-	ImGui::Image(dr.GetSubDepthStencilSrv(), scene_size);
+	ImGui::Image(m_ShaderResourceViewArr[3].Get(), scene_size);
+	ImGui::Image(m_ShaderResourceViewArr[5].Get(), scene_size);
+	ImGui::Image(m_ShaderResourceViewArr[6].Get(), scene_size);
 	ImGui::Image(m_Skybox->GetCubeMapSrv(), scene_size);
 	ImGui::Image(m_Skybox->GetIrMapSrv(), scene_size);
 
@@ -446,42 +438,38 @@ void Graphics::DrawGui()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(1, m_NullRtv, NULL);
+	m_DeviceContext->OMSetRenderTargets(1, m_NullRtv, NULL);
 }
 
 void Graphics::DrawGuiDebug()
 {
-	auto * context = m_DeviceResources.GetDeviceContext();
-	auto * states = m_DeviceResources.GetCommonState();
-	auto * effect = m_DeviceResources.GetBasicEffect();
-	auto * batch = m_DeviceResources.GetPrimitiveBatch();
 	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
 
-	effect->SetVertexColorEnabled(true);
-	effect->SetView(camera.GetViewMatrix());
-	effect->SetProjection(camera.GetProjectionMatrix());
+	m_BasicEffect->SetVertexColorEnabled(true);
+	m_BasicEffect->SetView(camera.GetViewMatrix());
+	m_BasicEffect->SetProjection(camera.GetProjectionMatrix());
 
-	context->OMSetBlendState(states->Opaque(), nullptr, 0xFFFFFFFF);
-	context->OMSetDepthStencilState(states->DepthNone(), 0);
-	context->RSSetState(states->CullNone());
+	m_DeviceContext->OMSetBlendState(m_CommonState->Opaque(), nullptr, 0xFFFFFFFF);
+	m_DeviceContext->OMSetDepthStencilState(m_CommonState->DepthNone(), 0);
+	m_DeviceContext->RSSetState(m_CommonState->CullNone());
 
-	effect->Apply(context);
+	m_BasicEffect->Apply(m_DeviceContext.Get());
 
-	context->IASetInputLayout(m_DeviceResources.GetDebugInputLayout());
+	m_DeviceContext->IASetInputLayout(m_DebugInputLayout.Get());
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		1,
-		m_DeviceResources.GetRTVaddress(DX11Resources::DeferredRenderChannelCount),
-		m_DeviceResources.GetBaseDepthStencilView());
+		m_RenderTargetViewArr[DX11Resources::DeferredRenderChannelCount].GetAddressOf(),
+		m_MainDepthStencilView.Get());
 
-	batch->Begin();
+	m_PrimitiveBatch->Begin();
 
 	static auto drawFunc = std::bind(&Graphics::DebugDraw, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
-	batch->End();
+	m_PrimitiveBatch->End();
 
-	m_DeviceResources.GetDeviceContext()->OMSetRenderTargets(
+	m_DeviceContext->OMSetRenderTargets(
 		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
@@ -492,7 +480,6 @@ void Graphics::ComputeShdaderTest()
 	static auto csBlur = Core::Find<ComputeShader>("Blur");
 	static auto csDownsample = Core::Find<ComputeShader>("ThresholdDownSample");
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
-	auto& dr = m_DeviceResources;
 	
 	{
 		cb_cs_ThresholdBlur.data.radius = CB_CS_ThresholdBlur::GAUSSIAN_RADIUS;
@@ -525,42 +512,42 @@ void Graphics::ComputeShdaderTest()
 
 	{
 		cb_cs_DownSample.ApplyChanges();
-		m_DeviceResources.GetDeviceContext()->CSSetShader(csDownsample->GetShader(), 0, 0);
-		m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_DownSample.GetAddressOf());
-		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, dr.GetRenderTargetSrvAddress(3));
-		m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, dr.GetRenderTargetUavAddr(5), 0);
+		m_DeviceContext->CSSetShader(csDownsample->GetShader(), 0, 0);
+		m_DeviceContext->CSSetConstantBuffers(0, 1, cb_cs_DownSample.GetAddressOf());
+		m_DeviceContext->CSSetShaderResources(0, 1, m_ShaderResourceViewArr[3].GetAddressOf());
+		m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_UnorderedAccessView[5].GetAddressOf(), 0);
 
-		m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+		m_DeviceContext->Dispatch(windowWidth / 16, windowHeight / 16, 1);
 
-		m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
-		m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, m_NullSrv);
+		m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
+		m_DeviceContext->CSSetShaderResources(0, 1, m_NullSrv);
 	}
 	{
-		m_DeviceResources.GetDeviceContext()->CSSetShader(csBlur->GetShader(), 0, 0);
+		m_DeviceContext->CSSetShader(csBlur->GetShader(), 0, 0);
 		ID3D11ShaderResourceView* csSRVs[2] = { 
-			dr.GetRenderTargetSrv(5), 
-			dr.GetRenderTargetSrv(6) };
+			m_ShaderResourceViewArr[5].Get(), 
+			m_ShaderResourceViewArr[6].Get() };
 		ID3D11UnorderedAccessView* csUAVs[2] = {
-			dr.GetRenderTargetUav(6),
-			dr.GetRenderTargetUav(5) };
+			m_UnorderedAccessView[6].Get(),
+			m_UnorderedAccessView[5].Get() };
 
 		for (UINT direction = 0; direction < 2; ++direction)
 		{
 			cb_cs_ThresholdBlur.data.direction = direction;
 			cb_cs_ThresholdBlur.ApplyChanges();
-			m_DeviceResources.GetDeviceContext()->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
-			m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, &csSRVs[direction]);
-			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &csUAVs[direction], 0);
+			m_DeviceContext->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
+			m_DeviceContext->CSSetShaderResources(0, 1, &csSRVs[direction]);
+			m_DeviceContext->CSSetUnorderedAccessViews(0, 1, &csUAVs[direction], 0);
 
-			m_DeviceResources.GetDeviceContext()->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+			m_DeviceContext->Dispatch(windowWidth / 16, windowHeight / 16, 1);
 
-			m_DeviceResources.GetDeviceContext()->CSSetShaderResources(0, 1, m_NullSrv);
-			m_DeviceResources.GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
+			m_DeviceContext->CSSetShaderResources(0, 1, m_NullSrv);
+			m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
 		}
 	}
 }
 
 void Graphics::RenderEnd()
 {
-	m_DeviceResources.GetSwapChain()->Present(1, NULL);
+	m_Swapchain->Present(1, NULL);
 }

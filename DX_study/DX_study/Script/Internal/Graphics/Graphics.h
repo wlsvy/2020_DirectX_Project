@@ -25,7 +25,7 @@ class PixelShader;
 class Material;
 class LightBase;
 
-class Graphics {
+class Graphics : public DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
 	bool ProcessMaterialTable();
@@ -46,7 +46,6 @@ public:
 	void ComputeShdaderTest();
 	void RenderEnd();
 
-	DX11Resources & GetDeviceResources() { return m_DeviceResources; }
 	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
 	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
 	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
@@ -60,8 +59,6 @@ private:
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
 	bool ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer);
-
-	DX11Resources m_DeviceResources;
 
 	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
 	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
@@ -108,7 +105,5 @@ private:
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
 	std::weak_ptr<Texture> m_IblBrdfTexture;
-	ID3D11RenderTargetView * const m_NullRtv[DX11Resources::RenderTargetCount] = { NULL, };
-	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::RenderTargetCount] = { NULL, };
-	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::RenderTargetCount] = { NULL, };
+	
 };

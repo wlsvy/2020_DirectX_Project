@@ -1,3 +1,6 @@
+#ifndef PIXELSHADER_COMMON_HLSLI_
+#define PIXELSHADER_COMMON_HLSLI_
+
 const float PI = 3.14159265358979323846;
 const float INFINITY = 100000.0f;
 static const float Epsilon = 0.00001;
@@ -190,3 +193,5 @@ bool RayDiskIntersect(in float3 planeNormal, in float planeD, in float radius, i
     
     return false;
 }
+
+#endif

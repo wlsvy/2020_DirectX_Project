@@ -37,8 +37,7 @@ public:
 		desc.ByteWidth = static_cast<UINT>(sizeof(T) + (16 - (sizeof(T) % 16)));
 		desc.StructureByteStride = 0;
 
-		HRESULT hr = Core::GetDevice()->CreateBuffer(&desc, 0, buffer.GetAddressOf());
-		return hr;
+		return Core::GetDevice()->CreateBuffer(&desc, 0, buffer.GetAddressOf());
 	}
 
 	bool ApplyChanges()

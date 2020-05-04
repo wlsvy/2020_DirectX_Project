@@ -2,7 +2,6 @@
 #include <functional>
 
 #include "Timer.h"
-#include "DX11Resources.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
@@ -52,7 +51,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 
 	m_CurrentScene->Initialize();
 
-	m_Graphics->GetDeviceResources().InitializeDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
+	m_Graphics->InitializeDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
 
 	return true;
 }
@@ -101,7 +100,6 @@ void Engine::FixedUpdate()
 void Engine::RenderFrame()
 {
 	static auto drawFunc = std::bind(&Graphics::Render, m_Graphics.get(), std::placeholders::_1);
-	auto& dr = m_Graphics->GetDeviceResources();
 
 	m_Graphics->RenderBegin();
 

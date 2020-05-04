@@ -7,19 +7,18 @@
 #include "../Graphics/imGui/imgui_impl_win32.h"
 #include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "Engine.h"
-#include "DX11Resources.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../Core//GameObject.h"
 #include "../../Component/Transform.h"
 
-ImGuiIO * s_io;
+ImGuiIO * s_ImGuiIO;
 
 void GUI::InitImGUI(HWND _hwnd)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
-	s_io = &ImGui::GetIO();
+	s_ImGuiIO = &ImGui::GetIO();
 	ImGui_ImplWin32_Init(_hwnd);
 	ImGui_ImplDX11_Init(Core::GetDevice(), Core::GetDeviceContext());
 	//ImGui::StyleColorsDark();
@@ -142,16 +141,16 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 void GUI::DrawDeferredChannelImage()
 {
-	auto& deviceResources = Engine::Get().GetGraphics().GetDeviceResources();
-	ImGuiIO& io = ImGui::GetIO();
+	auto& graphics = Core::GetGraphics();
+
 	ImGui::Begin("Deferred Rendering Debug");
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(0), scene_size);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(1), scene_size);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(2), scene_size);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(3), scene_size);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(4), scene_size);
-	ImGui::Image(deviceResources.GetRenderTargetSrv(5), scene_size);
+	ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.2f, s_ImGuiIO->DisplaySize.y * 0.2f);
+	ImGui::Image(graphics.GetRenderTargetSrv(0), scene_size);
+	ImGui::Image(graphics.GetRenderTargetSrv(1), scene_size);
+	ImGui::Image(graphics.GetRenderTargetSrv(2), scene_size);
+	ImGui::Image(graphics.GetRenderTargetSrv(3), scene_size);
+	ImGui::Image(graphics.GetRenderTargetSrv(4), scene_size);
+	ImGui::Image(graphics.GetRenderTargetSrv(5), scene_size);
 
 	ImGui::End();
 }
@@ -159,6 +158,6 @@ void GUI::DrawDeferredChannelImage()
 void GUI::DrawTexture(const std::shared_ptr<Texture>& texture)
 {
 	ImGui::Text(texture->Name.c_str());
-	ImVec2 scene_size = ImVec2(s_io->DisplaySize.x * 0.15f, s_io->DisplaySize.y * 0.15f);
+	ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.15f, s_ImGuiIO->DisplaySize.y * 0.15f);
 	ImGui::Image(texture->GetTextureResourceView(), scene_size);
 }

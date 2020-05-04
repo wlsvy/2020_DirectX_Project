@@ -43,7 +43,7 @@ bool Skybox::Initialize(const std::string * filePath)
 	if (!InitializeIrMap())
 		return false;
 
-	m_Model = Core::Find<Model>("Box");
+	m_Model = Core::Find<Model>("sphere");
 	m_Vshader = Core::Find<VertexShader>("vertexshader_skybox");
 	m_Pshader = Core::Find<PixelShader>("pixelshader_deferredSkybox");
 
