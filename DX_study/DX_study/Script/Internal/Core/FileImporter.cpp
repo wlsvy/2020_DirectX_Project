@@ -85,7 +85,7 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	mat->Vshader = Core::Find<VertexShader>("vertexshader");
+	mat->Vshader = Core::Find<VertexShader>("Mesh");
 	mat->Pshader = PixelShader::GetDefault();
 
 	m_Materials.push_back(mat);
@@ -306,7 +306,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	//Get Material & Textures
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	mat->Vshader = Core::Find<VertexShader>("skinned_vertex");
+	mat->Vshader = Core::Find<VertexShader>("SkinnedMesh");
 	mat->Pshader = PixelShader::GetDefault();
 
 	m_Materials.push_back(mat);

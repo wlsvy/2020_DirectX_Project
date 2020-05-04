@@ -38,7 +38,7 @@ bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMEN
 }
 
 std::shared_ptr<PixelShader> PixelShader::GetDefault() {
-	return Core::Find<PixelShader>("pixelshader_deferred");
+	return Core::Find<PixelShader>("PerObject");
 }
 
 bool PixelShader::Initialize(const std::string & shaderpath) {

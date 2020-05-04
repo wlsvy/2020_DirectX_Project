@@ -418,36 +418,34 @@
     <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\pixelshader_nolight.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\pixelshader_skybox.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferred.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_deferredSkybox.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\3D_Skinned\skinned_vertex.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\VertexShader\3D\vertexshader.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\VertexShader\2D\vertexshader_WindowPlane.hlsl" />
-    <FxCompile Include="hlsl\VertexShader\2D\vertexshader_2d.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\VertexShader\2D\vertexshader_skybox.hlsl">
-      <Filter>쉐이더 파일</Filter>
-    </FxCompile>
-    <FxCompile Include="hlsl\PixelShader\pixelshader_shadowMapDepth.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\Deferred\pixelshader_PostProcess.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\IrMap.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\ShadowMap.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PostProcess.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PerObject.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\2D\Sprite.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\2D\QuadPlane.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\3D\Mesh.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\3D_Skinned\SkinnedMesh.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
+    <FxCompile Include="hlsl\PixelShader\Skybox.hlsl" />
+    <FxCompile Include="hlsl\VertexShader\2D\SkyboxModel.hlsl">
+      <Filter>쉐이더 파일</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="hlsl\PixelShader\pixelshader_ObjectCommon.hlsli" />
-    <None Include="hlsl\PixelShader\pixelshader_Common.hlsli" />
-    <None Include="hlsl\PixelShader\pixelshader_PBR.hlsli" />
+    <None Include="hlsl\PixelShader\Include\Common.hlsli" />
+    <None Include="hlsl\PixelShader\Include\AmbientOcclusion.hlsli" />
+    <None Include="hlsl\PixelShader\Include\ObjectHeader.hlsli" />
+    <None Include="hlsl\PixelShader\Include\PBR.hlsli" />
+    <None Include="hlsl\PixelShader\Include\PostProcessHeader.hlsli" />
+    <None Include="hlsl\PixelShader\Include\Shadow.hlsli" />
+    <None Include="hlsl\PixelShader\Include\VolumetricLight.hlsli" />
   </ItemGroup>
 </Project>

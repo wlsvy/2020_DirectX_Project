@@ -62,9 +62,9 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		GUI::InitImGUI(hwnd);
 
 		m_PostProcesWindowModel = Core::Find<Model>("Plane");
-		m_PostProcesVshader = Core::Find<VertexShader>("vertexshader_WindowPlane");
-		m_PostProcesPshader = Core::Find<PixelShader>("pixelshader_PostProcess");
-		m_ShadowMapPshader = Core::Find<PixelShader>("pixelshader_shadowMapDepth");
+		m_PostProcesVshader = Core::Find<VertexShader>("QuadPlane");
+		m_PostProcesPshader = Core::Find<PixelShader>("PostProcess");
+		m_ShadowMapPshader = Core::Find<PixelShader>("ShadowMap");
 		m_DefaultMaterial = Core::Find<SharedMaterial>("Default");
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
