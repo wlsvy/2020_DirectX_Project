@@ -29,7 +29,7 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
     //lightVal += CalculateLightColor(position.xyz, normal.xyz);
-    lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
+    lightVal += CalculateShadowPCF(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
     
     //float3 reflectionVector = reflect(rayDir, normal);
     //float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
