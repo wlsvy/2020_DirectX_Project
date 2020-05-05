@@ -9,7 +9,8 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL0;
     float3 inWorldPos : WORLD_POSITION0;
-    float4 inTangent : TANGENT;
+    float3 inTangent : TANGENT;
+    int inOther : TEXCOORD1;
 };
 
 struct PS_OUTPUT
@@ -30,7 +31,7 @@ cbuffer Material : register(b2)
     float SpecularIntensity;
 };
 
-Texture2D objTexture : TEXTURE : register(t0);
+Texture2D albedoMap : TEXTURE : register(t0);
 Texture2D normalMap : TEXTURE : register(t1);
 Texture2D metalMap : TEXTURE : register(t2);
 Texture2D roughnessMap : TEXTURE : register(t3);

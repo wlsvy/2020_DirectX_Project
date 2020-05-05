@@ -47,11 +47,21 @@ void Scene::Initialize()
 	{
 		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Normal = Core::Find<Texture>("OrganicMeat");
 	}
-
-	auto sphere = Core::CreateInstance<GameObject>("sphere");
-	sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
-	sphere->GetRendererable().SetModel(Core::Find<Model>("cube"));
-	sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
+	{
+		auto sphere = Core::CreateInstance<GameObject>("sphere");
+		sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
+		sphere->GetRendererable().SetModel(Core::Find<Model>("cube"));
+		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
+	}
+	{
+		auto sphere = Core::CreateInstance<GameObject>("Fu");
+		sphere->GetTransform().SetPosition(2.0f, 5.0f, -3.f);
+		sphere->GetTransform().SetScale(3.0f, 3.0f, 3.f);
+		sphere->GetRendererable().SetModel(Core::Find<Model>("torus"));
+		//sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
+		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("FurTest"));
+	}
+	
 
 	auto light = Core::CreateInstance<GameObject>("Light");
 	light->GetTransform().SetPosition(8.2f, 11.1f, -8.9f);

@@ -6,6 +6,7 @@
 
 class VertexShader;
 class PixelShader;
+class GeometryShader;
 class Texture;
 
 class Material : public Object {
@@ -18,6 +19,7 @@ public:
 
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;
+	std::shared_ptr<GeometryShader> Gshader;
 
 	std::shared_ptr<Texture> Albedo;
 
@@ -43,15 +45,4 @@ public:
 
 	SharedMaterial() {}
 	SharedMaterial(const std::string& name) : Material(name) {}
-
-	/*Material CreateInstance() {
-		auto material = Material(Name);
-		material.Vshader = Vshader;
-		material.Pshader = Pshader;
-		material.Albedo = Albedo;
-		material.Normal = Normal;
-		material.SubTextures = SubTextures;
-		material.Color = Color;
-		return material;
-	}*/
 };

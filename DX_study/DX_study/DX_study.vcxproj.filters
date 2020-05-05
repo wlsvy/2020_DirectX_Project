@@ -422,8 +422,6 @@
     <FxCompile Include="hlsl\ComputeShader\ThresholdDownSample.hlsl" />
     <FxCompile Include="hlsl\ComputeShader\IrMap.hlsl" />
     <FxCompile Include="hlsl\PixelShader\ShadowMap.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\PostProcess.hlsl" />
-    <FxCompile Include="hlsl\PixelShader\PerObject.hlsl" />
     <FxCompile Include="hlsl\VertexShader\2D\Sprite.hlsl">
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
@@ -438,14 +436,20 @@
     <FxCompile Include="hlsl\VertexShader\2D\SkyboxModel.hlsl">
       <Filter>쉐이더 파일</Filter>
     </FxCompile>
+    <FxCompile Include="hlsl\VertexShader\3D\FurMesh.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\FurShell_ps.hlsl" />
+    <FxCompile Include="hlsl\GeometryShader\FurShell_gs.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PerObject.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\PostProcess.hlsl" />
+    <FxCompile Include="hlsl\GeometryShader\Default_gs.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hlsl\PixelShader\Include\Common.hlsli" />
     <None Include="hlsl\PixelShader\Include\AmbientOcclusion.hlsli" />
-    <None Include="hlsl\PixelShader\Include\ObjectHeader.hlsli" />
     <None Include="hlsl\PixelShader\Include\PBR.hlsli" />
     <None Include="hlsl\PixelShader\Include\PostProcessHeader.hlsli" />
     <None Include="hlsl\PixelShader\Include\Shadow.hlsli" />
     <None Include="hlsl\PixelShader\Include\VolumetricLight.hlsli" />
+    <None Include="hlsl\PixelShader\Include\ObjectHeader.hlsli" />
   </ItemGroup>
 </Project>

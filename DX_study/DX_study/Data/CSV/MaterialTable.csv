@@ -1,4 +1,5 @@
-Name,VertexShader,PixelShader,Color,Albedo,NormalMap,NormalIntensity,MetalMap,MetalIntensity,RoughnessMap,RoughnessIntensity,SpecularMap,SpecularIntensity
-Default,Mesh,PerObject,255/255/255/255,WhiteTexture,null,1,null,1,null,1,null,1
-AluminiumInsulator,Mesh,PerObject,255/255/255/255,AluminiumInsulator_Albedo,AluminiumInsulator_Normal,1,AluminiumInsulator_Metallic,1,null,1,AluminiumInsulator_Height,1
-Leather,Mesh,PerObject,255/255/255/255,Leather_Albedo,Leather_Normal,1,Leather_Metallic,1,Leather_Roughness,1,Leather_Height,1
+Name,VertexShader,PixelShader,GeometryShader,Color,Albedo,NormalMap,NormalIntensity,MetalMap,MetalIntensity,RoughnessMap,RoughnessIntensity,SpecularMap,SpecularIntensity
+Default,Mesh,PerObject,null,255/255/255/255,WhiteTexture,null,1,null,1,null,1,null,1
+AluminiumInsulator,Mesh,PerObject,null,255/255/255/255,AluminiumInsulator_Albedo,AluminiumInsulator_Normal,1,AluminiumInsulator_Metallic,1,null,1,AluminiumInsulator_Height,1
+Leather,Mesh,PerObject,null,255/255/255/255,Leather_Albedo,Leather_Normal,1,Leather_Metallic,1,Leather_Roughness,1,Leather_Height,1
+FurTest,FurMesh,FurShell_ps,FurShell_gs,255/255/255/255,leopard,null,1,null,1,null,1,null,1

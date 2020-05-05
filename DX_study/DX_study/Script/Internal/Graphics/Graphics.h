@@ -51,6 +51,7 @@ public:
 	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
 	ConstantBuffer<CB_PS_AmbientLight> & GetCbAmbientLight() { return cb_ps_ambientLight; }
 	ConstantBuffer<CB_PS_Scene> & GetCbScene() { return cb_ps_SceneBase; }
+	ConstantBuffer<CB_FurShader> & GetCbFurData() { return cb_FurData; }
 
 	UINT GetWindowWidth() const { return windowWidth; }
 	UINT GetWindowHeight() const { return windowHeight; }
@@ -68,6 +69,7 @@ private:
 	ConstantBuffer<CB_PS_SpottLight> cb_ps_SpotLight;
 	ConstantBuffer<CB_PS_Material> cb_ps_material;
 	ConstantBuffer<CB_PS_AmbientLight> cb_ps_ambientLight;
+	ConstantBuffer<CB_FurShader> cb_FurData;
 	
 	ConstantBuffer<CB_CS_ThresholdBlur> cb_cs_ThresholdBlur;
 	ConstantBuffer<CB_CS_DownSample> cb_cs_DownSample;
@@ -94,9 +96,10 @@ private:
 			None = 0,
 			Apply_MaterialVertexShader = 1,
 			Apply_MaterialPixelShader = 1 << 1,
-			Apply_SkinnedMeshBone = 1 << 2,
-			Apply_MaterialTexture = 1 << 3,
-			Apply_ViewFrustumCulling = 1 << 4,
+			Apply_MaterialGeometryShader = 1 << 2,
+			Apply_SkinnedMeshBone = 1 << 3,
+			Apply_MaterialTexture = 1 << 4,
+			Apply_ViewFrustumCulling = 1 << 5,
 			All = (1 << 30) - 1
 		};
 	};
@@ -105,5 +108,7 @@ private:
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
 	std::weak_ptr<Texture> m_IblBrdfTexture;
+	std::weak_ptr<Texture> m_FurOpacityTexture;
+
 	
 };

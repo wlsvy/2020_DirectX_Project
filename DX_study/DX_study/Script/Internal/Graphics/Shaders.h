@@ -47,3 +47,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D10Blob> m_ShaderBuffer;
 
 };
+
+class GeometryShader : public Object {
+	MANAGED_OBJECT(GeometryShader)
+public:
+	static std::shared_ptr<GeometryShader> GetDefault();
+
+	bool Initialize(const std::string & shaderpath);
+	ID3D11GeometryShader * GetShader() { return m_Shader.Get(); }
+	ID3D10Blob * GetBuffer() { return m_ShaderBuffer.Get(); }
+private:
+	Microsoft::WRL::ComPtr<ID3D11GeometryShader> m_Shader;
+	Microsoft::WRL::ComPtr<ID3D10Blob> m_ShaderBuffer;
+};

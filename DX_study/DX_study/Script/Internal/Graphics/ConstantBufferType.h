@@ -96,3 +96,13 @@ struct CB_PS_Scene {
 	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.04f, 0.1f, 0.2f);
 	int VolumetricLightSampleCount = 60;
 };
+
+struct CB_FurShader {
+	int FurLayer = 20;
+	float FurLength = 7.0f;
+	float FurOpacityThreshold = 0.6f;
+	float FurOpacity = 0.01f;
+	float FurDensity = 5.0f;
+	float FurGravity = 0.1f;
+	DirectX::XMFLOAT2 pad;
+};

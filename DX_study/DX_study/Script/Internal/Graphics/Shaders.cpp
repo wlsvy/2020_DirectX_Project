@@ -7,7 +7,8 @@
 #include "../../Util/StringHelper.h"
 
 std::shared_ptr<VertexShader> VertexShader::GetDefault() {
-	return Core::Find<VertexShader>("vertexshader");
+	static std::weak_ptr<VertexShader> s_Default = Core::Find<VertexShader>("vertexshader");
+	return s_Default.lock();
 }
 
 bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMENT_DESC * layoutDesc, UINT numElements) {
@@ -38,7 +39,8 @@ bool VertexShader::Initialize(const std::string & shaderpath, D3D11_INPUT_ELEMEN
 }
 
 std::shared_ptr<PixelShader> PixelShader::GetDefault() {
-	return Core::Find<PixelShader>("PerObject");
+	static std::weak_ptr<PixelShader> s_Default = Core::Find<PixelShader>("PerObject");
+	return s_Default.lock();
 }
 
 bool PixelShader::Initialize(const std::string & shaderpath) {
@@ -76,6 +78,32 @@ bool ComputeShader::Initialize(const std::string & shaderpath) {
 	hr = Core::GetDevice()->CreateComputeShader(m_ShaderBuffer->GetBufferPointer(), m_ShaderBuffer->GetBufferSize(), NULL, m_Shader.GetAddressOf());
 	if (FAILED(hr)) {
 		std::wstring errorMsg = L"Failed to create Compute shader: " + wstr;
+		StringHelper::ErrorLog(hr, errorMsg);
+		return false;
+	}
+
+	return true;
+}
+
+std::shared_ptr<GeometryShader> GeometryShader::GetDefault() {
+	static std::weak_ptr<GeometryShader> s_Default = Core::Find<GeometryShader>("Default_gs");
+	return s_Default.lock();
+}
+
+bool GeometryShader::Initialize(const std::string & shaderpath) {
+	Name = StringHelper::GetFileNameFromPath(shaderpath);
+	auto wstr = StringHelper::StringToWide(shaderpath);
+	HRESULT hr = D3DReadFileToBlob(wstr.c_str(), this->m_ShaderBuffer.GetAddressOf());
+
+	if (FAILED(hr)) {
+		std::wstring errorMsg = L"Failed to load shader: " + wstr;
+		StringHelper::ErrorLog(hr, errorMsg);
+		return false;
+	}
+
+	hr = Core::GetDevice()->CreateGeometryShader(m_ShaderBuffer->GetBufferPointer(), m_ShaderBuffer->GetBufferSize(), NULL, m_Shader.GetAddressOf());
+	if (FAILED(hr)) {
+		std::wstring errorMsg = L"Failed to create Geometry shader: " + wstr;
 		StringHelper::ErrorLog(hr, errorMsg);
 		return false;
 	}

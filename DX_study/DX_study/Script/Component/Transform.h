@@ -19,9 +19,9 @@ public:
 	void SetRotation(const DirectX::XMFLOAT3 & rot)			{ rotation = rot; }
 	void SetRotation(const DirectX::XMVECTOR & rot)			{ rotationVec = rot; }
 	void SetRotation(float x, float y, float z)				{ rotation = DirectX::XMFLOAT3(x, y, z); }
-	void SetScale(DirectX::XMVECTOR scale)					{ scaleVec = scale; }
-	void SetScale(DirectX::XMFLOAT3 scale)					{ scaleVec = DirectX::XMVectorSet(scale.x, scale.y, scale.z, 0.0f); }
-	void SetScale(float x, float y, float z)				{ scaleVec = DirectX::XMVectorSet(x, y, z, 0.0f); }
+	void SetScale(const DirectX::XMVECTOR & s)				{ scaleVec = s; }
+	void SetScale(const DirectX::XMFLOAT3 & s)				{ scale = s; }
+	void SetScale(float x, float y, float z)				{ scale = DirectX::XMFLOAT3(x, y, z); }
 	void SetLookAtPos(DirectX::XMFLOAT3 lookAtPos);
 
 	void translate(const DirectX::XMVECTOR & pos)			{ using DirectX::operator+=; positionVec += pos; }
@@ -39,9 +39,9 @@ public:
 	const DirectX::XMVECTOR & GetForwardVector() const		{ return m_Forward; }
 	const DirectX::XMVECTOR & GetUpwardVector() const		{ return m_Upward; }
 	const DirectX::XMVECTOR & GetLeftVector() const			{ return m_Left; }
-	DirectX::XMVECTOR GetBackwardVector() const		{ using DirectX::operator*; return m_Forward * -1; }
-	DirectX::XMVECTOR GetDownwardVector() const		{ using DirectX::operator*; return m_Upward * -1; }
-	DirectX::XMVECTOR GetRightVector() const		{ using DirectX::operator*; return m_Left * -1; }
+	DirectX::XMVECTOR GetBackwardVector() const				{ using DirectX::operator*; return m_Forward * -1; }
+	DirectX::XMVECTOR GetDownwardVector() const				{ using DirectX::operator*; return m_Upward * -1; }
+	DirectX::XMVECTOR GetRightVector() const				{ using DirectX::operator*; return m_Left * -1; }
 																					    
 	const DirectX::XMMATRIX & GetWorldMatrix() const		{ return m_WorldMatrix; }
 	DirectX::XMMATRIX		  GetViewMatrix() const			{ using DirectX::operator+; return DirectX::XMMatrixLookAtLH(positionVec, m_Forward + positionVec, m_Upward); }

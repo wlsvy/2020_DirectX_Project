@@ -41,6 +41,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		ThrowIfFailed(cb_ps_ambientLight.Initialize(), "Failed to Initialize cb_ps_ambientLight buffer.");
 		ThrowIfFailed(cb_ps_SceneBase.Initialize(), "Failed to Initialize cb_ps_SceneBase buffer.");
 		ThrowIfFailed(cb_ps_SpotLight.Initialize(), "Failed to Initialize cb_ps_SpotLight buffer.");
+		ThrowIfFailed(cb_FurData.Initialize(), "Failed to Initialize cb_FurData buffer.");
 		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
 		ThrowIfFailed(cb_cs_DownSample.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
@@ -69,6 +70,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
 		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
+		m_FurOpacityTexture = Core::Find<Texture>("Fur_Noise");
 		
 		return true;
 	}
@@ -88,6 +90,7 @@ bool Graphics::ProcessMaterialTable()
 
 			material->Vshader = Core::Find<VertexShader>(table["VertexShader"][i]);
 			material->Pshader = Core::Find<PixelShader>(table["PixelShader"][i]);
+			material->Gshader = Core::Find<GeometryShader>(table["GeometryShader"][i]);
 			material->Albedo = Core::Find<Texture>(table["Albedo"][i]);
 			material->Normal = Core::Find<Texture>(table["NormalMap"][i]);
 			material->Metal = Core::Find<Texture>(table["MetalMap"][i]);
@@ -99,10 +102,10 @@ bool Graphics::ProcessMaterialTable()
 			material->SpecularIntensity = std::stof(table["SpecularIntensity"][i]);
 			
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
-			material->Color.x = std::stof(splitted[0]) / 256;
-			material->Color.y = std::stof(splitted[1]) / 256;
-			material->Color.z = std::stof(splitted[2]) / 256;
-			material->Color.w = std::stof(splitted[3]) / 256;
+			material->Color.x = std::stof(splitted[0]) / 255;
+			material->Color.y = std::stof(splitted[1]) / 255;
+			material->Color.z = std::stof(splitted[2]) / 255;
+			material->Color.w = std::stof(splitted[3]) / 255;
 		}
 		return true;
 	}
@@ -130,9 +133,8 @@ void Graphics::RenderBegin()
 	cb_ps_SpotLight.data.vpMat = lightc->GetLightViewProjectMat();
 	DirectX::XMVECTOR center = light->GetTransform().positionVec + light->GetTransform().GetForwardVector() * lightc->m_Range;
 	cb_ps_SpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
-
-
 	cb_ps_SpotLight.ApplyChanges();
+
 	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
 	cb_ps_SceneBase.data.CameraForward = mainCam->GetTransform().GetForwardVector();
 	cb_ps_SceneBase.data.ElapsedTime = Time::GetTime();
@@ -141,9 +143,15 @@ void Graphics::RenderBegin()
 	cb_ps_SceneBase.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	cb_ps_SceneBase.ApplyChanges();
 
+	cb_FurData.ApplyChanges();
+
+	m_DeviceContext->GSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
+	m_DeviceContext->GSSetConstantBuffers(1, 1, cb_FurData.GetAddressOf());
+
 	m_DeviceContext->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
 	m_DeviceContext->PSSetConstantBuffers(1, 1, cb_ps_SpotLight.GetAddressOf());
 	m_DeviceContext->PSSetConstantBuffers(2, 1, cb_ps_material.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(3, 1, cb_FurData.GetAddressOf());
 
 	m_DeviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
 	m_DeviceContext->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
@@ -175,6 +183,9 @@ void Graphics::RenderModels()
 		m_RenderTargetViewArr[0].GetAddressOf(), 
 		m_MainDepthStencilView.Get());
 
+	m_DeviceContext->PSSetShaderResources(6, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());	//pos
+
+
 	m_DrawFlag = DrawFlag::All;
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
@@ -183,6 +194,9 @@ void Graphics::RenderModels()
 		DX11Resources::DeferredRenderChannelCount,
 		m_NullRtv,
 		NULL);
+	m_DeviceContext->VSSetShader(NULL, NULL, 0);
+	m_DeviceContext->PSSetShader(NULL, NULL, 0);
+	m_DeviceContext->GSSetShader(NULL, NULL, 0);
 }
 
 void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
@@ -239,11 +253,21 @@ void Graphics::DebugDraw(const std::shared_ptr<RenderInfo>& renderer)
 void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material)
 {
 	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
-		m_DeviceContext->IASetInputLayout(material->Vshader->GetInputLayout());
-		m_DeviceContext->VSSetShader(material->Vshader->GetShader(), NULL, 0);
+		auto vs = material->Vshader ? material->Vshader : VertexShader::GetDefault();
+		m_DeviceContext->IASetInputLayout(vs->GetInputLayout());
+		m_DeviceContext->VSSetShader(vs->GetShader(), NULL, 0);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
-		m_DeviceContext->PSSetShader(material->Pshader->GetShader(), NULL, 0);
+		auto ps = material->Pshader ? material->Pshader : PixelShader::GetDefault();
+		m_DeviceContext->PSSetShader(ps->GetShader(), NULL, 0);
+	}
+	if (m_DrawFlag & DrawFlag::Apply_MaterialGeometryShader) {
+		auto shader = material->Gshader ? material->Gshader->GetShader() : NULL;
+		m_DeviceContext->GSSetShader(shader, NULL, 0);
+	}
+	else {
+		auto shader = material->Gshader ? GeometryShader::GetDefault()->GetShader() : NULL;
+		m_DeviceContext->GSSetShader(shader, NULL, 0);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
 		m_DeviceContext->PSSetShaderResources(0, 1, material->Albedo ?
@@ -393,14 +417,17 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	m_DeviceContext->OMSetRenderTargets(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
 	m_DeviceContext->PSSetShader(m_ShadowMapPshader->GetShader(), NULL, 0);
 
-	m_DrawFlag = 
-		DrawFlag::Apply_MaterialVertexShader | 
+	m_DrawFlag =
+		DrawFlag::Apply_MaterialVertexShader |
 		DrawFlag::Apply_SkinnedMeshBone;
 
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	m_DeviceContext->OMSetRenderTargets(1, m_NullRtv, NULL);
+	m_DeviceContext->VSSetShader(NULL, NULL, 0);
+	m_DeviceContext->PSSetShader(NULL, NULL, 0);
+	m_DeviceContext->GSSetShader(NULL, NULL, 0);
 }
 
 void Graphics::DrawGui()

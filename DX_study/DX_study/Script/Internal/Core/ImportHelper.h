@@ -13,6 +13,7 @@ namespace Importer {
 	void LoadVertexShader3D(const std::string & dirPath, const std::string& name);
 	void LoadPixelShader(const std::string & dirPath, const std::string& name);
 	void LoadComputeShader(const std::string & dirPath, const std::string& name);
+	void LoadGeometryShader(const std::string & dirPath, const std::string& name);
 	void LoadTexture(const std::string & dirPath, const std::string& name);
 	std::unordered_map<std::string, std::vector<std::string>> LoadCSV(const std::string & filePath);
 	std::vector<std::string> SplitString(const std::string & str, const char delimiter);

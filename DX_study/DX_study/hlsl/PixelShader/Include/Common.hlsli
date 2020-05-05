@@ -140,7 +140,7 @@ bool ContainedBySpotLight(float3 pos)
 {
     float3 lightToPosVec = pos - spotLight.Position;
     float lightToPosDist = length(lightToPosVec);
-    if (length(pos - spotLight.Position) > spotLight.Range)
+    if (lightToPosDist > spotLight.Range)
     {
         return false;
     }

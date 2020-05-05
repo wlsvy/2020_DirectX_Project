@@ -11,7 +11,7 @@ struct PS_INPUT
 };
 
 float4 main(PS_INPUT input) : SV_TARGET
-{    
+{
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
     float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
     float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord);
@@ -28,10 +28,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
 
     float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    //lightVal += CalculateLightColor(position.xyz, normal.xyz);
     lightVal += CalculateShadow(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
     
-    float3 reflectionVector = reflect(rayDir, normal);
-    float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
+    //float3 reflectionVector = reflect(rayDir, normal);
+    //float3 reflectionColor = skyBoxCube.Sample(PointClamp, reflectionVector) * 0.5;
     
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     
@@ -40,10 +41,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (position.w < 0.0f)
         return float4(albedo + vl.xyz, 1.0f);
     
-   
-    
-    //finalColor = max(vl.xyz, saturate(lightVal * albedo + reflectionColor));
-    finalColor = vl.xyz + saturate(lightVal * albedo + reflectionColor);
+    finalColor = vl.xyz + saturate(lightVal * albedo);
     return float4(finalColor, 1.0f);
-    //return float4(vl.xyz, 1.0f);
 }

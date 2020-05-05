@@ -4,7 +4,7 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 {
     PS_OUTPUT output;
     output.pos = float4(input.inWorldPos, 1.0f);
-    output.color = objTexture.Sample(PointClamp, input.inTexCoord) * materialColor;
+    output.color = albedoMap.Sample(PointClamp, input.inTexCoord) * materialColor;
     
     float3 calNormal = CalcPerPixelNormal(input.inTexCoord, input.inNormal, input.inTangent.xyz);
     //output.normal = float4(calNormal, 1.0f);

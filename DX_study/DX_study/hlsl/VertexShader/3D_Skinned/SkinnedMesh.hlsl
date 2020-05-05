@@ -28,7 +28,8 @@ struct VS_OUTPUT
     float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL0;
     float3 outWorldPos : WORLD_POSITION0;
-    float4 outTangent : TANGENT;
+    float3 outTangent : TANGENT;
+    int outOther : TEXCOORD1;
 };
 
 VS_OUTPUT main(VS_INPUT input)
@@ -47,7 +48,7 @@ VS_OUTPUT main(VS_INPUT input)
     output.outTexCoord = input.inTexCoord;
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), animatedWorldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
-    output.outTangent = normalize(mul(input.inTangent, animatedWorldMatrix));
-
+    output.outTangent = normalize(mul(input.inTangent, animatedWorldMatrix)).xyz;
+    output.outOther = 0;
     return output;
 }
