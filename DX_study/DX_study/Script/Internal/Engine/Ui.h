@@ -12,4 +12,5 @@ namespace GUI {
 	void DrawEditorUI(ID3D11ShaderResourceView * image);
 	void DrawDeferredChannelImage();
 	void DrawTexture(const std::shared_ptr<Texture> & texture);
+	
 };

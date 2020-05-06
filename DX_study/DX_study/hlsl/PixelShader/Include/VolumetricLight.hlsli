@@ -20,7 +20,7 @@ bool DoesLightReach(float3 position, float3 lightVec, float lightDist)
     return CalculateShadow(0, lightSpacePos);;
 }
 
-float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
+float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
 {
     float2 interleavedPos = (fmod(floor(screenPos.xy), 8.0));
     float offset = DitheringTexture.Sample(LinearWrap, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).x;
@@ -30,10 +30,10 @@ float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLengt
     float3 step = rayDir * stepSize;
 
     float3 currentPosition = rayStart + step * offset;
-    float4 vlight = 0;
+    float vlight = 0;
 
     [loop]
-    for (int i = 0; i < stepCount; ++i)
+    for (int i = 0; i < stepCount; i++)
     {
         float3 randomOffset = GetRandomVector(currentPosition.z) * 0.3;
         float3 vectorToLight = spotLight.Position - currentPosition;
@@ -46,7 +46,7 @@ float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLengt
 
             float scattering = VolumetricLightVar.x * stepSize;
 
-            float4 light = atten * scattering;
+            float light = atten * scattering;
             vlight += light;
         }
         
@@ -54,7 +54,6 @@ float4 RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLengt
     }
 
     vlight = max(0, vlight);
-    vlight.w = 0;
     return vlight;
 }
 
@@ -71,14 +70,15 @@ float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
     float diskRad = tan(radians(spotLight.SpotAngle * 0.5)) * (spotLight.Range * 1.2);
 
     float diskT;
-    bool dResult = RayDiskIntersect(spotLight.Forward, spotLight.conePlaneD, diskRad, rayStart, rayDir, diskT);
+    bool diskHit = RayDiskIntersect(spotLight.Forward, spotLight.conePlaneD, diskRad, rayStart, rayDir, diskT);
     
     float4 color = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float lightStength = 0.0f;
     
-    if (hit.x || dResult)
+    if (hit.x || diskHit)
     {
         float minRay = min(diskT, near);
-        float maxRay = min(max(dResult * diskT, max(near * hit.x, far * hit.y)), rayLength);
+        float maxRay = min(max(diskHit * diskT, max(near * hit.x, far * hit.y)), rayLength);
     
         if (!ContainedBySpotLight(CameraPosition))
         {
@@ -89,12 +89,13 @@ float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
         {
             rayLength = maxRay;
         }
-        color = RayMarch(uv, rayStart, rayDir, rayLength);
+        lightStength = RayMarch(uv, rayStart, rayDir, rayLength);
 
     }
     
-    color *= float4(spotLight.Color, 1.0f);
-    return color;
+    //lightStength = saturate(pow(lightStength * 0.5 + VolumetricLightVar.z, VolumetricLightVar.y));
+    //color *= float4(spotLight.Color, 1.0f);
+    return float4(lightStength.xxx, 1.0f) * float4(spotLight.Color, 1.0f);
 
 }
 

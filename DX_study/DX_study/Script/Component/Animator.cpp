@@ -80,7 +80,20 @@ void Animator::OnGui()
 {
 	ImGui::Text("Clip : ");
 	ImGui::SameLine();
-	ImGui::Text(m_Clip->Name.c_str());
+	if (ImGui::Button(m_Clip->Name.c_str())) {
+		ImGui::OpenPopup("Animator_Clip_PopUp");
+	}
+	if (ImGui::BeginPopup("Animator_Clip_PopUp"))
+	{
+		ImGui::Text("Animation Clip");
+		ImGui::Separator();
+		for (auto & clip : Core::Pool<AnimationClip>::GetInstance().GetItems()) {
+			if (ImGui::Selectable(clip->Name.c_str())) {
+				SetClip(clip, 1.0f);
+			}
+		}
+		ImGui::EndPopup();
+	}
 
 	if (m_IsBlending) {
 		ImGui::Text("Blending Clip : ");

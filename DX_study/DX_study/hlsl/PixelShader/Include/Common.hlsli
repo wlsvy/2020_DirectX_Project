@@ -25,6 +25,11 @@ cbuffer CB_Scene : register(b0)
     float4x4 InverseViewMatrix;
     float4x4 InverseProjMatrix;
     
+    float softShadowPCFIter;
+    float softShadowPCFBias;
+    float softShadowInterpoloateBias;
+    float pad3;
+    
     float SSAO_strength;
     float SSAO_radius;
     float SSAO_bias;

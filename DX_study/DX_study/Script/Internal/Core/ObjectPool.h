@@ -44,6 +44,10 @@ namespace Core {
 			return std::shared_ptr<T>();
 		}
 
+		const std::vector<std::shared_ptr<T>> & GetItems() const {
+			return m_Objects;
+		}
+
 	protected:
 		std::vector<std::shared_ptr<T>> m_Objects;
 	};
