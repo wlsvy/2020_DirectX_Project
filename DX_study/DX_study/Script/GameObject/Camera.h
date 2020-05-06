@@ -22,5 +22,5 @@ private:
 	DirectX::XMMATRIX viewProjectionMatrix;
 	DirectX::BoundingFrustum viewFrustum;
 
-	std::queue<Renderable> m_RenderQueue;
+	std::queue<RenderablePair> m_RenderQueue;
 };

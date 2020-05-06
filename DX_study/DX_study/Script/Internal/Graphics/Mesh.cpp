@@ -17,3 +17,8 @@ Mesh::Mesh(
 		StringHelper::ErrorLog(e);
 	}
 }
+
+void Mesh::OnGui()
+{
+	ImGui::Text(("Mesh : " + Name).c_str());
+}

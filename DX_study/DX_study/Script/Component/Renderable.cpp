@@ -2,6 +2,7 @@
 #include "../Internal/Graphics/imGui/imgui.h"
 #include "../Internal/Graphics/Mesh.h"
 #include "../Internal/Graphics/Model.h"
+#include "../Internal/Core/ObjectPool.h"
 #include "../Util/Math.h"
 #include "../Util/StringHelper.h"
 
@@ -19,16 +20,65 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 
 void RenderInfo::OnGui() {
 	
-	if (auto& model = m_Model) {
-		ImGui::Text(("Model : " + model->Name).c_str());
+	ImGui::Text("Model : ");
+	ImGui::SameLine();
+	if (!m_Model &&
+		ImGui::Button("No Model Selected")) 
+	{
+		ImGui::OpenPopup("RenderInfo_SetModel_PopUp");
+	}
+	if (m_Model && 
+		ImGui::Button(m_Model->Name.c_str())) 
+	{
+		ImGui::OpenPopup("RenderInfo_SetModel_PopUp");
+	}
+
+	if (ImGui::BeginPopup("RenderInfo_SetModel_PopUp"))
+	{
+		ImGui::Text("Model");
+		ImGui::Separator();
+		for (auto & model : Core::Pool<Model>::GetInstance().GetItems()) {
+			if (ImGui::Selectable(model->Name.c_str())) {
+				SetModel(model);
+			}
+		}
+		ImGui::EndPopup();
+	}
+
+	ImGui::Separator();
+
+	if (m_Model) {
 		for (auto & r : m_Renderables) {
 			r.GetMesh()->OnGui();
-			r.GetMaterial()->OnGui();
-		}
-		for (auto& mesh : model->GetMeshes()) {
-			auto& c = mesh->GetLocalAABB().Center;
-			auto& e = mesh->GetLocalAABB().Extents;
-			ImGui::Text((mesh->Name + " - AABB : \n" + std::to_string(c) + "\n" + std::to_string(e) + "\n").c_str());
+
+			auto mat = r.GetMaterial();
+			char guiMatKey[15], guiMatPropertyKey[15];
+			std::sprintf(guiMatKey, "MatPopUp_%d", mat->GetId());
+			std::sprintf(guiMatPropertyKey, "MatProp_%d", mat->GetId());
+
+			ImGui::Text("Material : ");
+			ImGui::SameLine();
+			if (ImGui::Button(mat->Name.c_str()))
+			{
+				ImGui::OpenPopup(guiMatKey);
+			}
+
+			if (ImGui::BeginPopup(guiMatKey))
+			{
+				ImGui::Separator();
+				for (auto & mat : Core::Pool<SharedMaterial>::GetInstance().GetItems()) {
+					if (ImGui::Selectable(mat->Name.c_str())) {
+						r.SetMaterial(mat);
+					}
+				}
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::TreeNode(guiMatPropertyKey, "Property")) {
+				mat->OnGui();
+				ImGui::TreePop();
+			}
+			ImGui::Separator();
 		}
 	}
 

@@ -38,6 +38,4 @@ private:
 	float m_BlendClipPlayTime = 0.0f;
 	bool m_IsRunning = false;
 	bool m_IsBlending = false;
-
-	bool m_UiClipButtonClicked = false;
 };

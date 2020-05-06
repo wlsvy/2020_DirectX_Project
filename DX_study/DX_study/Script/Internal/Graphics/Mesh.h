@@ -22,6 +22,8 @@ public:
 	const IndexBuffer &				GetIndexBuffer() const { return m_IndexBuffer; }
 	const DirectX::BoundingBox &	GetLocalAABB() const { return m_Aabb; }
 
+	void OnGui() override;
+
 protected:
 	IndexBuffer m_IndexBuffer;
 	DirectX::XMMATRIX m_WorldMatrix;
@@ -36,7 +38,6 @@ public:
 		const std::vector<DWORD> & indices,
 		const DirectX::XMMATRIX & worldMatrix,
 		const std::string & name = "Mesh");
-	void OnGui() override;
 
 	ID3D11Buffer* const*			GetVertexBufferAddr() const override { return vertexbuffer.GetAddressOf(); }
 	const UINT *					GetVertexBufferStridePtr() const override { return vertexbuffer.StridePtr(); }
@@ -49,8 +50,9 @@ template<typename VertexTy>
 inline MeshReal<VertexTy>::MeshReal(
 	const std::vector<VertexTy>& vertices, 
 	const std::vector<DWORD>& indices, 
-	const DirectX::XMMATRIX & worldMatrix,
-	const std::string & name) :
+	const DirectX::XMMATRIX & worldMatrix, 
+	const std::string & name)
+	:
 	Mesh(indices, worldMatrix, name)
 {
 	auto Max = DirectX::XMFLOAT3(Math::POSITION_MIN, Math::POSITION_MIN, Math::POSITION_MIN);
@@ -79,10 +81,4 @@ inline MeshReal<VertexTy>::MeshReal(
 	catch (CustomException e) {
 		StringHelper::ErrorLog(e);
 	}
-}
-
-template<typename VertexTy>
-inline void MeshReal<VertexTy>::OnGui()
-{
-	ImGui::Text(("Mesh : " + Name).c_str());
 }
