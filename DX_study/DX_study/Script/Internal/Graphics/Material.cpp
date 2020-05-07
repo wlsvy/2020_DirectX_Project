@@ -1,6 +1,6 @@
 #include "Material.h"
 #include "../Core/ObjectPool.h"
-#include "imGui/imgui.h"
+#include "../Engine/Ui.h"
 #include "Shaders.h"
 #include "Texture.h"
 
@@ -16,6 +16,8 @@ void Material::OnGui()
 	std::sprintf(guiTexturePopUpKey, "TpopUp_%d", GetId());
 	std::sprintf(guiShaderNodeKey, "Snode_%d", GetId());
 
+	//ImGui::ColorEdit4(guiTexturePopUpKey, "Albedo Color", &Color.x);
+
 	ImGui::Text("Albedo : ");
 	ImGui::SameLine();
 	if (Albedo) {
@@ -29,7 +31,7 @@ void Material::OnGui()
 			ImGui::OpenPopup(guiTexturePopUpKey);
 		}
 	}
-	
+
 	ImGui::Text("Normal : ");
 	ImGui::SameLine();
 	if (Normal) {
@@ -56,9 +58,9 @@ void Material::OnGui()
 		ImGui::EndPopup();
 	}
 
-	ImGui::ColorEdit4(guiTexturePopUpKey, &Color.x);	//Color Edit이 동시에 두 개가 활성화 되면 문제발생 주의할 것.
 
-	if (ImGui::TreeNode(guiShaderNodeKey)) {
+
+	if (ImGui::TreeNode(guiShaderNodeKey, "Shader")) {
 		if (Vshader) {
 			ImGui::Text(("Vertex : " + Vshader->Name).c_str());
 		}

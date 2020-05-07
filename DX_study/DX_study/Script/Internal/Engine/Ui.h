@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <memory>
+#include "../Graphics/imGui/imgui.h"
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;

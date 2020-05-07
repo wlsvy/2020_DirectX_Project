@@ -1,7 +1,7 @@
 #include "LightSystem.h"
 
 #include "../Light.h"
-#include "../../Internal/Graphics/imGui/imgui.h"
+#include "../../Internal/Engine/Ui.h"
 #include "../../Internal/Graphics/Graphics.h"
 #include "../../Internal/Core/InternalHelper.h"
 

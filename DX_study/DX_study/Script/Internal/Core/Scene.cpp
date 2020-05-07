@@ -1,7 +1,7 @@
 #include "Scene.h"
 #include "../../Component/Transform.h"
 
-#include "../Graphics/imGui/imgui.h"
+#include "../Engine/Ui.h"
 #include "../Graphics/imGui/imgui_impl_win32.h"
 #include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "../Graphics/Graphics.h"

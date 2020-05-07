@@ -3,7 +3,7 @@
 #include "../Internal/Core/GameObject.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Engine/AdapterReader.h"
-#include "../Internal/Graphics/imGui/imgui.h"
+#include "../Internal/Engine/Ui.h"
 #include "../Util/ErrorLogger.h"
 #include "../Internal/Graphics/Graphics.h"
 

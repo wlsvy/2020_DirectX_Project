@@ -6,7 +6,7 @@
 #include "../../Component/Transform.h"
 #include "../../Component/Renderable.h"
 
-#include "../Graphics/imGui/imgui.h"
+#include "../Engine/Ui.h"
 
 GameObject::GameObject(const std::string & name) :
 	m_Transform(std::make_shared<Transform>(this)),

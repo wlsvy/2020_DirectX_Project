@@ -5,8 +5,8 @@
 #include "../Core/Object.h"
 #include "../../Util/Math.h"
 #include "../Core/InternalHelper.h"
+#include "../Engine/Ui.h"
 #include "../Engine/AdapterReader.h"
-#include "imGui/imgui.h"
 
 class Mesh : public Object {
 	MANAGED_OBJECT(Mesh)
