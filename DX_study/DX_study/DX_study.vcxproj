@@ -203,11 +203,6 @@
     <ClCompile Include="Script\Internal\Engine\Engine.cpp" />
     <ClCompile Include="Script\Util\ErrorLogger.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Graphics.cpp" />
-    <ClCompile Include="Script\Internal\Graphics\imGui\imgui.cpp" />
-    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_draw.cpp" />
-    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_impl_dx11.cpp" />
-    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Script\Internal\Graphics\imGui\imgui_widgets.cpp" />
     <ClCompile Include="Script\Internal\Engine\Keyboard\KeyboardClass.cpp" />
     <ClCompile Include="Script\Internal\Engine\Keyboard\KeyboardEvent.cpp" />
     <ClCompile Include="Script\Internal\Graphics\Mesh.cpp" />
@@ -223,6 +218,12 @@
     <ClCompile Include="Script\Internal\Engine\Timer.cpp" />
     <ClCompile Include="Script\Internal\Engine\WindowContainer.cpp" />
     <ClCompile Include="Script\Util\Time.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui_demo.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\Component\Animator.h" />
@@ -262,14 +263,6 @@
     <ClInclude Include="Script\Internal\Graphics\Graphics.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Script\Internal\Graphics\imGui\imconfig.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imgui.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_impl_dx11.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_impl_win32.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imgui_internal.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_rectpack.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_textedit.h" />
-    <ClInclude Include="Script\Internal\Graphics\imGui\imstb_truetype.h" />
     <ClInclude Include="Script\Internal\Graphics\IndexBuffer.h" />
     <ClInclude Include="Script\Internal\Engine\Keyboard\KeyboardClass.h" />
     <ClInclude Include="Script\Internal\Engine\Keyboard\KeyboardEvent.h" />
@@ -290,6 +283,14 @@
     <ClInclude Include="Script\Util\Singleton.h" />
     <ClInclude Include="Script\Util\Time.h" />
     <ClInclude Include="Script\Util\UnCopyable.h" />
+    <ClInclude Include="ThirdParty\ImGui\imconfig.h" />
+    <ClInclude Include="ThirdParty\ImGui\imgui.h" />
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="ThirdParty\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="ThirdParty\ImGui\imgui_internal.h" />
+    <ClInclude Include="ThirdParty\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="ThirdParty\ImGui\imstb_textedit.h" />
+    <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="hlsl\ComputeShader\Blur.hlsl">

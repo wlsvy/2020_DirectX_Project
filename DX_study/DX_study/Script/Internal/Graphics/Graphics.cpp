@@ -1,10 +1,10 @@
 #include "Graphics.h"
 
 #include "../Engine/Ui.h"
-//#include <ImGui/imgui_impl_dx11.h>
-//#include <ImGui/imgui_impl_win32.h>
-#include "imGui/imgui_impl_win32.h"
-#include "imGui/imgui_impl_dx11.h"
+#include <ImGui/imgui_impl_dx11.h>
+#include <ImGui/imgui_impl_win32.h>
+//#include "imGui/imgui_impl_win32.h"
+//#include "imGui/imgui_impl_dx11.h"
 #include "Model.h"
 #include "Shaders.h"
 #include "Skybox.h"
