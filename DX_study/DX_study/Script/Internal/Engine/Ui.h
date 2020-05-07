@@ -8,11 +8,12 @@ struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct ID3D11ShaderResourceView;
 class Texture;
+struct ImVec;
 
 namespace GUI {
 	void InitImGUI(HWND _hwnd);
 	void DrawEditorUI(ID3D11ShaderResourceView * image);
 	void DrawDeferredChannelImage();
 	void DrawTexture(const std::shared_ptr<Texture> & texture);
-	
+	ImVec2 GetDisplaySize();
 };

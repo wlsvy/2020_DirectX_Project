@@ -35,7 +35,7 @@ void RenderInfo::OnGui() {
 
 	if (ImGui::BeginPopup("RenderInfo_SetModel_PopUp"))
 	{
-		ImGui::Text("Model");
+		ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Model");
 		ImGui::Separator();
 		for (auto & model : Core::Pool<Model>::GetInstance().GetItems()) {
 			if (ImGui::Selectable(model->Name.c_str())) {
@@ -65,6 +65,7 @@ void RenderInfo::OnGui() {
 
 			if (ImGui::BeginPopup(guiMatKey))
 			{
+				ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Material");
 				ImGui::Separator();
 				for (auto & mat : Core::Pool<SharedMaterial>::GetInstance().GetItems()) {
 					if (ImGui::Selectable(mat->Name.c_str())) {

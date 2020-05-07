@@ -4739,7 +4739,6 @@ bool ImGui::ColorEdit4(const char* str_id, const char* label, float col[4], ImGu
 	return value_changed;
 }
 
-
 bool ImGui::ColorPicker3(const char* label, float col[3], ImGuiColorEditFlags flags)
 {
     float col4[4] = { col[0], col[1], col[2], 1.0f };

@@ -78,6 +78,8 @@ void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip)
 
 void Animator::OnGui()
 {
+	ImGui::Checkbox("Play", &m_IsRunning);
+
 	ImGui::Text("Clip : ");
 	ImGui::SameLine();
 	if (ImGui::Button(m_Clip->Name.c_str())) {

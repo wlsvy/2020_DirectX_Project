@@ -25,6 +25,8 @@ void GUI::InitImGUI(HWND _hwnd)
 	//ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 	ImGui::StyleColorsClassic();
+
+	s_ImGuiIO->Fonts->AddFontFromFileTTF("Data/Fonts/malgun.ttf", 15.0f, NULL, s_ImGuiIO->Fonts->GetGlyphRangesKorean());
 }
 
 void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
@@ -86,12 +88,12 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	ImGui::BeginGroup();
 
-	ImGui::BeginChild("Scene##Editor", ImVec2(io.DisplaySize.x * 0.6, io.DisplaySize.y * 0.6), true, ImGuiWindowFlags_NoScrollbar);
+	ImGui::BeginChild("Scene##Editor", ImVec2(io.DisplaySize.x * 0.5, io.DisplaySize.y * 0.5), true, ImGuiWindowFlags_NoScrollbar);
 	ImGui::Text("Scene");
 	ImGui::Separator();
 	ImGui::Spacing();
 
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.6f, io.DisplaySize.y * 0.6f);
+	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
 	ImGui::Image(image, scene_size);
 
 	ImGui::EndChild();
@@ -104,7 +106,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	ImGui::SameLine();
 
-	ImGui::BeginChild("Console##Editor", ImVec2(io.DisplaySize.x * 0.35f, 0), true);
+	ImGui::BeginChild("Console##Editor", ImVec2(io.DisplaySize.x * 0.25f, 0), true);
 	ImGui::Text("Console");
 	ImGui::Separator();
 	ImGui::Spacing();
@@ -161,4 +163,9 @@ void GUI::DrawTexture(const std::shared_ptr<Texture>& texture)
 	ImGui::Text(texture->Name.c_str());
 	ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.15f, s_ImGuiIO->DisplaySize.y * 0.15f);
 	ImGui::Image(texture->GetTextureResourceView(), scene_size);
+}
+
+ImVec2 GUI::GetDisplaySize()
+{
+	return s_ImGuiIO->DisplaySize;
 }
