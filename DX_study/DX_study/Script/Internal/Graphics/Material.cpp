@@ -53,8 +53,6 @@ void Material::OnGui()
 		TEXTURE_SELECTION_POPUP(Albedo, albedoTextureGuiKey);
 		ImGui::ColorEdit4(albedoTextureGuiKey, "Albedo Color", &Color.x);
 	}
-
-	
 	{
 		char normalTextureGuiKey[10];
 		std::sprintf(normalTextureGuiKey, "guiN_%d", GetId());
@@ -83,6 +81,7 @@ void Material::OnGui()
 		TEXTURE_SELECTION_POPUP(Specular, specularTextureGuiKey);
 		ImGui::SliderFloat("Specular Intensity", &SpecularIntensity, 0.0f, 1.0f);
 	}
+
 	ImGui::PopItemWidth();
 	
 	char guiShaderNodeKey[10];
