@@ -75,7 +75,7 @@ protected:
 	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::RenderTargetCount] = { NULL, };
 	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::RenderTargetCount] = { NULL, };
 
-	//DirectX Tool Kit - DirectX XTK
+	//DirectX Tool Kit - DirectXTK
 	std::unique_ptr<DirectX::SpriteBatch> m_SpriteBatch;
 	std::unique_ptr<DirectX::SpriteFont> m_SpriteFont;
 	std::unique_ptr<DirectX::CommonStates> m_CommonState;

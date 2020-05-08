@@ -47,36 +47,36 @@ void Material::OnGui()
 	ImGui::PushItemWidth(displaySize.x * 0.15f);
 
 	{
-		char albedoTextureGuiKey[10];
-		std::sprintf(albedoTextureGuiKey, "guiA_%d", GetId());
+		char albedoTextureGuiKey[15];
+		std::sprintf(albedoTextureGuiKey, "Albedo_%d", GetId());
 
 		TEXTURE_SELECTION_POPUP(Albedo, albedoTextureGuiKey);
 		ImGui::ColorEdit4(albedoTextureGuiKey, "Albedo Color", &Color.x);
 	}
 	{
-		char normalTextureGuiKey[10];
-		std::sprintf(normalTextureGuiKey, "guiN_%d", GetId());
+		char normalTextureGuiKey[15];
+		std::sprintf(normalTextureGuiKey, "Normal_%d", GetId());
 
 		TEXTURE_SELECTION_POPUP(Normal, normalTextureGuiKey);
 		ImGui::SliderFloat("Normal Intensity", &NormalIntensity, 0.0f, 1.0f);
 	}
 	{
-		char metalTextureGuiKey[10];
-		std::sprintf(metalTextureGuiKey, "guiM_%d", GetId());
+		char metalTextureGuiKey[15];
+		std::sprintf(metalTextureGuiKey, "Metal_%d", GetId());
 
 		TEXTURE_SELECTION_POPUP(Metal, metalTextureGuiKey);
 		ImGui::SliderFloat("Metal Intensity", &MetalIntensity, 0.0f, 1.0f);
 	}
 	{
-		char roughTextureGuiKey[10];
-		std::sprintf(roughTextureGuiKey, "guiR_%d", GetId());
+		char roughTextureGuiKey[15];
+		std::sprintf(roughTextureGuiKey, "Rough_%d", GetId());
 
 		TEXTURE_SELECTION_POPUP(Roughness, roughTextureGuiKey);
 		ImGui::SliderFloat("Roughness Intensity", &RoughnessIntensity, 0.0f, 1.0f);
 	}
 	{
-		char specularTextureGuiKey[10];
-		std::sprintf(specularTextureGuiKey, "guiS_%d", GetId());
+		char specularTextureGuiKey[15];
+		std::sprintf(specularTextureGuiKey, "Specular_%d", GetId());
 
 		TEXTURE_SELECTION_POPUP(Specular, specularTextureGuiKey);
 		ImGui::SliderFloat("Specular Intensity", &SpecularIntensity, 0.0f, 1.0f);
@@ -84,8 +84,8 @@ void Material::OnGui()
 
 	ImGui::PopItemWidth();
 	
-	char guiShaderNodeKey[10];
-	std::sprintf(guiShaderNodeKey, "Snode_%d", GetId());
+	char guiShaderNodeKey[15];
+	std::sprintf(guiShaderNodeKey, "Shader_%d", GetId());
 
 	if (ImGui::TreeNode(guiShaderNodeKey, "Shader")) {
 		if (Vshader) {

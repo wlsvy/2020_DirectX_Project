@@ -46,42 +46,39 @@ public:
 	void ComputeShdaderTest();
 	void RenderEnd();
 
-	ConstantBuffer<CB_VS_vertexshader_2d> & GetCbVertexShader2D() { return cb_vs_vertexshader_2d; }
-	ConstantBuffer<CB_VS_vertexshader> & GetCbVertexShader() { return cb_vs_vertexshader; }
-	ConstantBuffer<CB_VS_boneData> & GetCbBoneInfo() { return cb_vs_BoneInfo; }
-	ConstantBuffer<CB_PS_AmbientLight> & GetCbAmbientLight() { return cb_ps_ambientLight; }
-	ConstantBuffer<CB_PS_Scene> & GetCbScene() { return cb_ps_SceneBase; }
-	ConstantBuffer<CB_FurShader> & GetCbFurData() { return cb_FurData; }
+	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }
+	ConstantBuffer<GpuBoneBuffer> & GetCbBoneInfo() { return m_GpuBoneBuffer; }
+	ConstantBuffer<GpuAmbientLightBuffer> & GetCbAmbientLight() { return m_GpuAmbientLightBuffer; }
+	ConstantBuffer<GpuSceneBuffer> & GetCbScene() { return m_GpuSceneBuffer; }
+	ConstantBuffer<GpuFurBuffer> & GetCbFurData() { return m_GpuFurDataBuffer; }
 
-	UINT GetWindowWidth() const { return windowWidth; }
-	UINT GetWindowHeight() const { return windowHeight; }
+	UINT GetWindowWidth() const { return m_WindowWidth; }
+	UINT GetWindowHeight() const { return m_WindowHeight; }
 
 private:
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
 	bool ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer);
 
-	ConstantBuffer<CB_VS_vertexshader_2d> cb_vs_vertexshader_2d;
-	ConstantBuffer<CB_VS_vertexshader> cb_vs_vertexshader;
-	ConstantBuffer<CB_VS_boneData> cb_vs_BoneInfo;
-
-	ConstantBuffer<CB_PS_Scene> cb_ps_SceneBase;
-	ConstantBuffer<CB_PS_SpottLight> cb_ps_SpotLight;
-	ConstantBuffer<CB_PS_Material> cb_ps_material;
-	ConstantBuffer<CB_PS_AmbientLight> cb_ps_ambientLight;
-	ConstantBuffer<CB_FurShader> cb_FurData;
+	ConstantBuffer<GpuObjectBuffer> m_GpuObjectBuffer;
+	ConstantBuffer<GpuBoneBuffer> m_GpuBoneBuffer;
+	ConstantBuffer<GpuSceneBuffer> m_GpuSceneBuffer;
+	ConstantBuffer<GpuMaterialBuffer> m_GpuMaterialBuffer;
+	ConstantBuffer<GpuBlurBuffer> m_GpuBlurBuffer;
+	ConstantBuffer<GpuDownSampleBuffer> m_GpuDownSampleBuffer;
+	ConstantBuffer<GpuSpotLightBuffer> m_GpuSpotLight;
+	ConstantBuffer<GpuAmbientLightBuffer> m_GpuAmbientLightBuffer;
+	ConstantBuffer<GpuFurBuffer> m_GpuFurDataBuffer;
 	
-	ConstantBuffer<CB_CS_ThresholdBlur> cb_cs_ThresholdBlur;
-	ConstantBuffer<CB_CS_DownSample> cb_cs_DownSample;
 	
 	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
-	std::shared_ptr<Model> m_PostProcesWindowModel;
+	std::shared_ptr<Model> m_QuadWindowModel;
 
-	UINT windowWidth = 0;
-	UINT windowHeight = 0;
+	UINT m_WindowWidth = 0;
+	UINT m_WindowHeight = 0;
 	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT m_DrawFlag = 0;

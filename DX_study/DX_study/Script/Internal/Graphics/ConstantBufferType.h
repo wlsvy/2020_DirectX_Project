@@ -1,23 +1,19 @@
 #pragma once
 #include <DirectXMath.h>
 
-struct CB_VS_vertexshader {
+struct GpuObjectBuffer {
 	DirectX::XMMATRIX wvpMatrix;
 	DirectX::XMMATRIX worldMatrix;
 };
 
-struct CB_VS_vertexshader_2d {
-	DirectX::XMMATRIX wvpMatrix;
-};
-
-struct CB_VS_boneData {
+struct GpuBoneBuffer {
 	static const int MAX_BONE = 100;
 	DirectX::XMMATRIX boneTransform[MAX_BONE];
 };
 
 //8 bytes -> 16 bytes(padding) -> 데이터 정렬 반드시 해야 함. 변수 위치 중요
 
-struct CB_PS_SpottLight {
+struct GpuSpotLightBuffer {
 
 	DirectX::XMFLOAT3 position;
 	float range;
@@ -43,12 +39,12 @@ struct CB_DirectionalLight {
 	float pad;
 };
 
-struct CB_PS_AmbientLight {
+struct GpuAmbientLightBuffer {
 	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float ambientLightStrength = 0.2f;
 };
 
-struct CB_PS_Material {
+struct GpuMaterialBuffer {
 	DirectX::XMFLOAT4 color;
 
 	float NormalIntensity;
@@ -57,12 +53,12 @@ struct CB_PS_Material {
 	float SpecularIntensity;
 };
 
-struct CB_CS_DownSample {
+struct GpuDownSampleBuffer {
 	float threshold = 0.5f;;
 	DirectX::XMFLOAT3 pad;
 };
 
-struct CB_CS_ThresholdBlur {
+struct GpuBlurBuffer {
 	static const UINT GAUSSIAN_RADIUS = 7;
 
 	float coefficients[GAUSSIAN_RADIUS + 1];
@@ -74,7 +70,7 @@ struct CB_CS_ThresholdBlur {
 
 
 
-struct CB_PS_Scene {
+struct GpuSceneBuffer {
 	DirectX::XMVECTOR CamPosition;
 	DirectX::XMVECTOR CameraForward;
 
@@ -102,7 +98,7 @@ struct CB_PS_Scene {
 	int VolumetricLightSampleCount = 60;
 };
 
-struct CB_FurShader {
+struct GpuFurBuffer {
 	int FurLayer = 20;
 	float FurLength = 7.0f;
 	float FurOpacityThreshold = 0.6f;

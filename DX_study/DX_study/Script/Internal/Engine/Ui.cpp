@@ -5,8 +5,6 @@
 #include "../Graphics/Texture.h"
 #include <ImGui/imgui_impl_dx11.h>
 #include <ImGui/imgui_impl_win32.h>
-//#include "../Graphics/imGui/imgui_impl_win32.h"
-//#include "../Graphics/imGui/imgui_impl_dx11.h"
 #include "Engine.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
@@ -26,7 +24,7 @@ void GUI::InitImGUI(HWND _hwnd)
 	//ImGui::StyleColorsLight();
 	ImGui::StyleColorsClassic();
 
-	s_ImGuiIO->Fonts->AddFontFromFileTTF("Data/Fonts/malgun.ttf", 15.0f, NULL, s_ImGuiIO->Fonts->GetGlyphRangesKorean());
+	s_ImGuiIO->Fonts->AddFontFromFileTTF("Data/Fonts/malgun.ttf", 17.0f, NULL, s_ImGuiIO->Fonts->GetGlyphRangesKorean());
 }
 
 void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
@@ -98,16 +96,8 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	ImGui::EndChild();
 
-	ImGui::BeginChild("Project##Editor", ImVec2(io.DisplaySize.x * 0.25f, 0), true);
-	ImGui::Text("Project");
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::EndChild();
-
-	ImGui::SameLine();
-
-	ImGui::BeginChild("Console##Editor", ImVec2(io.DisplaySize.x * 0.25f, 0), true);
-	ImGui::Text("Console");
+	ImGui::BeginChild("Debug##Editor", ImVec2(io.DisplaySize.x * 0.5f, 0), true);
+	ImGui::Text("Project Info");
 	ImGui::Separator();
 	ImGui::Spacing();
 	ImGui::EndChild();

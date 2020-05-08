@@ -3,8 +3,6 @@
 #include "../Engine/Ui.h"
 #include <ImGui/imgui_impl_dx11.h>
 #include <ImGui/imgui_impl_win32.h>
-//#include "imGui/imgui_impl_win32.h"
-//#include "imGui/imgui_impl_dx11.h"
 #include "Model.h"
 #include "Shaders.h"
 #include "Skybox.h"
@@ -31,21 +29,20 @@ using DirectX::operator*;
 
 bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 	try {
-		windowWidth = width;
-		windowHeight = height;
+		m_WindowWidth = width;
+		m_WindowHeight = height;
 
 		ThrowIfFailed(DX11Resources::Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
 		ThrowIfFailed(DX11Resources::InitializeRenderTarget(width, height),	"Failed to initialize Device Resources RenderTarget");
-		ThrowIfFailed(cb_vs_vertexshader_2d.Initialize(),						"Failed to Initialize CB_VS_vertexshader_2d buffer.");
-		ThrowIfFailed(cb_vs_vertexshader.Initialize(),							"Failed to Initialize CB_VS_vertexshader buffer.");
-		ThrowIfFailed(cb_vs_BoneInfo.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
-		ThrowIfFailed(cb_ps_material.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
-		ThrowIfFailed(cb_ps_ambientLight.Initialize(), "Failed to Initialize cb_ps_ambientLight buffer.");
-		ThrowIfFailed(cb_ps_SceneBase.Initialize(), "Failed to Initialize cb_ps_SceneBase buffer.");
-		ThrowIfFailed(cb_ps_SpotLight.Initialize(), "Failed to Initialize cb_ps_SpotLight buffer.");
-		ThrowIfFailed(cb_FurData.Initialize(), "Failed to Initialize cb_FurData buffer.");
-		ThrowIfFailed(cb_cs_ThresholdBlur.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
-		ThrowIfFailed(cb_cs_DownSample.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
+		ThrowIfFailed(m_GpuObjectBuffer.Initialize(),							"Failed to Initialize CB_VS_vertexshader buffer.");
+		ThrowIfFailed(m_GpuBoneBuffer.Initialize(),								"Failed to Initialize cb_vs_BoneInfo buffer.");
+		ThrowIfFailed(m_GpuMaterialBuffer.Initialize(),								"Failed to Initialize cb_ps_material buffer.");
+		ThrowIfFailed(m_GpuAmbientLightBuffer.Initialize(), "Failed to Initialize cb_ps_ambientLight buffer.");
+		ThrowIfFailed(m_GpuSceneBuffer.Initialize(), "Failed to Initialize cb_ps_SceneBase buffer.");
+		ThrowIfFailed(m_GpuSpotLight.Initialize(), "Failed to Initialize cb_ps_SpotLight buffer.");
+		ThrowIfFailed(m_GpuFurDataBuffer.Initialize(), "Failed to Initialize cb_FurData buffer.");
+		ThrowIfFailed(m_GpuBlurBuffer.Initialize(),							"Failed to Initialize cb_cs_ThresholdBlur buffer.");
+		ThrowIfFailed(m_GpuDownSampleBuffer.Initialize(), "Failed to Initialize cb_cs_DownSample buffer.");
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
 		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
@@ -64,7 +61,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 
 		GUI::InitImGUI(hwnd);
 
-		m_PostProcesWindowModel = Core::Find<Model>("Plane");
+		m_QuadWindowModel = Core::Find<Model>("Plane");
 		m_PostProcesVshader = Core::Find<VertexShader>("QuadPlane");
 		m_PostProcesPshader = Core::Find<PixelShader>("PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("ShadowMap");
@@ -124,39 +121,39 @@ void Graphics::RenderBegin()
 	static auto mainCam = Core::GetCurrentScene().GetMainCam();
 	static auto light = Core::Find<GameObject>("Light");
 	static auto lightc = light->GetComponent<SpotLight>();
-	cb_ps_SpotLight.data.color = lightc->Color;
-	cb_ps_SpotLight.data.strength = lightc->Strength;
-	cb_ps_SpotLight.data.position = light->GetTransform().position;
-	cb_ps_SpotLight.data.attenuation = lightc->Attentuation;
-	DirectX::XMStoreFloat3(&cb_ps_SpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
-	cb_ps_SpotLight.data.spotAngle = lightc->m_SpotAngle;
-	cb_ps_SpotLight.data.range = lightc->m_Range;
+	m_GpuSpotLight.data.color = lightc->Color;
+	m_GpuSpotLight.data.strength = lightc->Strength;
+	m_GpuSpotLight.data.position = light->GetTransform().position;
+	m_GpuSpotLight.data.attenuation = lightc->Attentuation;
+	DirectX::XMStoreFloat3(&m_GpuSpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
+	m_GpuSpotLight.data.spotAngle = lightc->m_SpotAngle;
+	m_GpuSpotLight.data.range = lightc->m_Range;
 	lightc->SetProjectionMatrix();
-	cb_ps_SpotLight.data.vpMat = lightc->GetLightViewProjectMat();
+	m_GpuSpotLight.data.vpMat = lightc->GetLightViewProjectMat();
 	DirectX::XMVECTOR center = light->GetTransform().positionVec + light->GetTransform().GetForwardVector() * lightc->m_Range;
-	cb_ps_SpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
-	cb_ps_SpotLight.ApplyChanges();
+	m_GpuSpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
+	m_GpuSpotLight.ApplyChanges();
 
-	cb_ps_SceneBase.data.CamPosition = mainCam->GetTransform().positionVec;
-	cb_ps_SceneBase.data.CameraForward = mainCam->GetTransform().GetForwardVector();
-	cb_ps_SceneBase.data.ElapsedTime = Time::GetTime();
-	cb_ps_SceneBase.data.DeltaTime = Time::GetDeltaTime();
-	cb_ps_SceneBase.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
-	cb_ps_SceneBase.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
-	cb_ps_SceneBase.ApplyChanges();
+	m_GpuSceneBuffer.data.CamPosition = mainCam->GetTransform().positionVec;
+	m_GpuSceneBuffer.data.CameraForward = mainCam->GetTransform().GetForwardVector();
+	m_GpuSceneBuffer.data.ElapsedTime = Time::GetTime();
+	m_GpuSceneBuffer.data.DeltaTime = Time::GetDeltaTime();
+	m_GpuSceneBuffer.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
+	m_GpuSceneBuffer.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
+	m_GpuSceneBuffer.ApplyChanges();
 
-	cb_FurData.ApplyChanges();
+	m_GpuFurDataBuffer.ApplyChanges();
 
-	m_DeviceContext->GSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
-	m_DeviceContext->GSSetConstantBuffers(1, 1, cb_FurData.GetAddressOf());
+	m_DeviceContext->GSSetConstantBuffers(0, 1, m_GpuObjectBuffer.GetAddressOf());
+	m_DeviceContext->GSSetConstantBuffers(1, 1, m_GpuFurDataBuffer.GetAddressOf());
 
-	m_DeviceContext->PSSetConstantBuffers(0, 1, cb_ps_SceneBase.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(1, 1, cb_ps_SpotLight.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(2, 1, cb_ps_material.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(3, 1, cb_FurData.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(0, 1, m_GpuSceneBuffer.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(1, 1, m_GpuSpotLight.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(2, 1, m_GpuMaterialBuffer.GetAddressOf());
+	m_DeviceContext->PSSetConstantBuffers(3, 1, m_GpuFurDataBuffer.GetAddressOf());
 
-	m_DeviceContext->VSSetConstantBuffers(0, 1, cb_vs_vertexshader.GetAddressOf());
-	m_DeviceContext->VSSetConstantBuffers(1, 1, cb_vs_BoneInfo.GetAddressOf());
+	m_DeviceContext->VSSetConstantBuffers(0, 1, m_GpuObjectBuffer.GetAddressOf());
+	m_DeviceContext->VSSetConstantBuffers(1, 1, m_GpuBoneBuffer.GetAddressOf());
 
 	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
 	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
@@ -235,9 +232,9 @@ void Graphics::DrawMesh(
 	const DirectX::XMMATRIX & worldMat, 
 	const DirectX::XMMATRIX & wvpMat)
 {
-	cb_vs_vertexshader.data.wvpMatrix = mesh->GetWorldMatrix() * wvpMat; 
-	cb_vs_vertexshader.data.worldMatrix = mesh->GetWorldMatrix() * worldMat; 
-	cb_vs_vertexshader.ApplyChanges();
+	m_GpuObjectBuffer.data.wvpMatrix = mesh->GetWorldMatrix() * wvpMat; 
+	m_GpuObjectBuffer.data.worldMatrix = mesh->GetWorldMatrix() * worldMat; 
+	m_GpuObjectBuffer.ApplyChanges();
 
 	UINT offset = 0;
 	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
@@ -295,12 +292,12 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}
 
-	cb_ps_material.data.color = material->Color;
-	cb_ps_material.data.NormalIntensity = material->NormalIntensity;
-	cb_ps_material.data.RoughnessIntensity = material->RoughnessIntensity;
-	cb_ps_material.data.SpecularIntensity = material->SpecularIntensity;
-	cb_ps_material.data.MetalIntensity = material->MetalIntensity;
-	cb_ps_material.ApplyChanges();
+	m_GpuMaterialBuffer.data.color = material->Color;
+	m_GpuMaterialBuffer.data.NormalIntensity = material->NormalIntensity;
+	m_GpuMaterialBuffer.data.RoughnessIntensity = material->RoughnessIntensity;
+	m_GpuMaterialBuffer.data.SpecularIntensity = material->SpecularIntensity;
+	m_GpuMaterialBuffer.data.MetalIntensity = material->MetalIntensity;
+	m_GpuMaterialBuffer.ApplyChanges();
 }
 
 void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
@@ -309,10 +306,10 @@ void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 		renderer->Anim &&
 		renderer->Anim->GetClip())
 	{
-		CopyMemory(cb_vs_BoneInfo.data.boneTransform,
+		CopyMemory(m_GpuBoneBuffer.data.boneTransform,
 			renderer->Anim->GetAnimResult().data(),
 			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
-		cb_vs_BoneInfo.ApplyChanges();
+		m_GpuBoneBuffer.ApplyChanges();
 	}
 }
 
@@ -361,7 +358,7 @@ void Graphics::PostProcess()
 
 
 
-	auto& mesh = m_PostProcesWindowModel->GetMeshes()[0];
+	auto& mesh = m_QuadWindowModel->GetMeshes()[0];
 	UINT offset = 0;
 	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
 	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
@@ -455,7 +452,7 @@ void Graphics::DrawGui()
 	ImGui::End();
 
 	ImGui::Begin("Blur Test");
-	ImGui::DragFloat("ThresHold", &cb_cs_DownSample.data.threshold, 0.01f, 0.0f, 10.0f);
+	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
 	ImGui::Image(m_ShaderResourceViewArr[3].Get(), scene_size);
 	ImGui::Image(m_ShaderResourceViewArr[5].Get(), scene_size);
 	ImGui::Image(m_ShaderResourceViewArr[6].Get(), scene_size);
@@ -513,7 +510,7 @@ void Graphics::ComputeShdaderTest()
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	
 	{
-		cb_cs_ThresholdBlur.data.radius = CB_CS_ThresholdBlur::GAUSSIAN_RADIUS;
+		m_GpuBlurBuffer.data.radius = GpuBlurBuffer::GAUSSIAN_RADIUS;
 
 		// compute Gaussian kernel
 		float sigma = 10.f;
@@ -521,34 +518,34 @@ void Graphics::ComputeShdaderTest()
 		float twoSigmaSq = 2 * sigma * sigma;
 
 		float sum = 0.f;
-		for (UINT i = 0; i <= CB_CS_ThresholdBlur::GAUSSIAN_RADIUS; ++i)
+		for (UINT i = 0; i <= GpuBlurBuffer::GAUSSIAN_RADIUS; ++i)
 		{
 			// we omit the normalization factor here for the discrete version and normalize using the sum afterwards
-			cb_cs_ThresholdBlur.data.coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
+			m_GpuBlurBuffer.data.coefficients[i] = (1.f / sigma) * std::expf(-static_cast<float>(i * i) / twoSigmaSq);
 			// we use each entry twice since we only compute one half of the curve
-			sum += 2 * cb_cs_ThresholdBlur.data.coefficients[i];
+			sum += 2 * m_GpuBlurBuffer.data.coefficients[i];
 		}
 		// the center (index 0) has been counted twice, so we subtract it once
-		sum -= cb_cs_ThresholdBlur.data.coefficients[0];
+		sum -= m_GpuBlurBuffer.data.coefficients[0];
 
 		// we normalize all entries using the sum so that the entire kernel gives us a sum of coefficients = 0
 		float normalizationFactor = 1.f / sum;
-		for (UINT i = 0; i <= CB_CS_ThresholdBlur::GAUSSIAN_RADIUS; ++i)
+		for (UINT i = 0; i <= GpuBlurBuffer::GAUSSIAN_RADIUS; ++i)
 		{
-			cb_cs_ThresholdBlur.data.coefficients[i] *= normalizationFactor;
+			m_GpuBlurBuffer.data.coefficients[i] *= normalizationFactor;
 		}
-		cb_cs_ThresholdBlur.ApplyChanges();
+		m_GpuBlurBuffer.ApplyChanges();
 		
 	}
 
 	{
-		cb_cs_DownSample.ApplyChanges();
+		m_GpuDownSampleBuffer.ApplyChanges();
 		m_DeviceContext->CSSetShader(csDownsample->GetShader(), 0, 0);
-		m_DeviceContext->CSSetConstantBuffers(0, 1, cb_cs_DownSample.GetAddressOf());
+		m_DeviceContext->CSSetConstantBuffers(0, 1, m_GpuDownSampleBuffer.GetAddressOf());
 		m_DeviceContext->CSSetShaderResources(0, 1, m_ShaderResourceViewArr[3].GetAddressOf());
 		m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_UnorderedAccessView[5].GetAddressOf(), 0);
 
-		m_DeviceContext->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+		m_DeviceContext->Dispatch(m_WindowWidth / 16, m_WindowHeight / 16, 1);
 
 		m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);
 		m_DeviceContext->CSSetShaderResources(0, 1, m_NullSrv);
@@ -564,13 +561,13 @@ void Graphics::ComputeShdaderTest()
 
 		for (UINT direction = 0; direction < 2; ++direction)
 		{
-			cb_cs_ThresholdBlur.data.direction = direction;
-			cb_cs_ThresholdBlur.ApplyChanges();
-			m_DeviceContext->CSSetConstantBuffers(0, 1, cb_cs_ThresholdBlur.GetAddressOf());
+			m_GpuBlurBuffer.data.direction = direction;
+			m_GpuBlurBuffer.ApplyChanges();
+			m_DeviceContext->CSSetConstantBuffers(0, 1, m_GpuBlurBuffer.GetAddressOf());
 			m_DeviceContext->CSSetShaderResources(0, 1, &csSRVs[direction]);
 			m_DeviceContext->CSSetUnorderedAccessViews(0, 1, &csUAVs[direction], 0);
 
-			m_DeviceContext->Dispatch(windowWidth / 16, windowHeight / 16, 1);
+			m_DeviceContext->Dispatch(m_WindowWidth / 16, m_WindowHeight / 16, 1);
 
 			m_DeviceContext->CSSetShaderResources(0, 1, m_NullSrv);
 			m_DeviceContext->CSSetUnorderedAccessViews(0, 1, m_NullUav, 0);

@@ -191,6 +191,7 @@
     <ClCompile Include="Script\Internal\Core\Object.cpp" />
     <ClCompile Include="Script\Internal\Core\ObjectPool.cpp" />
     <ClCompile Include="Script\Internal\Engine\DX11Resources.cpp" />
+    <ClCompile Include="Script\Internal\Engine\Profiler.cpp" />
     <ClCompile Include="Script\Internal\Engine\Ui.cpp" />
     <ClCompile Include="Script\Internal\Graphics\AnimationClip.cpp" />
     <ClCompile Include="Script\Internal\Graphics\DebugDraw.cpp" />
@@ -243,6 +244,7 @@
     <ClInclude Include="Script\Internal\Core\ObjectPool.h" />
     <ClInclude Include="Script\Internal\Core\Object.h" />
     <ClInclude Include="Script\Internal\Engine\DX11Resources.h" />
+    <ClInclude Include="Script\Internal\Engine\Profiler.h" />
     <ClInclude Include="Script\Internal\Engine\Ui.h" />
     <ClInclude Include="Script\Internal\Graphics\AnimationClip.h" />
     <ClInclude Include="Script\Internal\Graphics\BaseGeometry.h" />

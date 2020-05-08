@@ -231,6 +231,9 @@
     <ClCompile Include="ThirdParty\ImGui\imgui_widgets.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Script\Internal\Engine\Profiler.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Script\GameObject\Camera.h">
@@ -414,6 +417,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="ThirdParty\ImGui\imstb_truetype.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Engine\Profiler.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

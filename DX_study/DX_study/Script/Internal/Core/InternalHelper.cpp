@@ -29,12 +29,12 @@ Graphics & Core::GetGraphics()
 	return Engine::Get().GetGraphics();
 }
 
-ConstantBuffer<CB_VS_vertexshader>& Core::GetCbVertexShader()
+ConstantBuffer<GpuObjectBuffer>& Core::GetCbVertexShader()
 {
 	return Engine::Get().GetGraphics().GetCbVertexShader();
 }
 
-ConstantBuffer<CB_VS_boneData> & Core::GetCbBoneData()
+ConstantBuffer<GpuBoneBuffer> & Core::GetCbBoneData()
 {
 	return Engine::Get().GetGraphics().GetCbBoneInfo();
 }
