@@ -55,8 +55,15 @@ protected:
 
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_RasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_BlendState;
+
+	//SamplerState
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerState;
-	
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerPointClamp;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearClamp;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearWrap;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerAnisotropicWrap;
+
+
 	//Depth/Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_MainDepthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_MainDepthStencilSRV;
