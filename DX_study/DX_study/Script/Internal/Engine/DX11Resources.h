@@ -63,7 +63,6 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearWrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerAnisotropicWrap;
 
-
 	//Depth/Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_MainDepthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_MainDepthStencilSRV;
