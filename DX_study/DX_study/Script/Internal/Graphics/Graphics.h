@@ -22,28 +22,21 @@ class Skybox;
 class Animator;
 class VertexShader;
 class PixelShader;
+class ComputeShader;
 class Material;
 class LightBase;
 
 class Graphics : public DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
-	bool ProcessMaterialTable();
 
 	void RenderBegin();
-	void RenderModels();
-	void Render(const std::shared_ptr<RenderInfo>& renderer);
-	void DrawMesh(const std::shared_ptr<Mesh>& mesh,
-		const DirectX::XMMATRIX & worldMat, 
-		const DirectX::XMMATRIX & wvpMat);
-	void DebugDraw(const std::shared_ptr<RenderInfo>& renderer);
-	
-	void PostProcess();
-	void DrawGui();
-	void DrawShadowMap(const std::shared_ptr<LightBase> & light);
-	void DrawSkybox();
-	void DrawGuiDebug();
-	void ComputeShdaderTest();
+	void Pass_ShadowMap(const std::shared_ptr<LightBase> & light);
+	void Pass_GBuffer();
+	void Pass_PostProcess();
+	void Pass_Gizmo();
+	void Pass_EditorUI();
+	void Pass_Blur();
 	void RenderEnd();
 
 	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }
@@ -56,9 +49,24 @@ public:
 	UINT GetWindowHeight() const { return m_WindowHeight; }
 
 private:
+	void Render(const std::shared_ptr<RenderInfo>& renderer);
+	void RenderMesh
+	(
+		const std::shared_ptr<Mesh>& mesh,
+		const DirectX::XMMATRIX & worldMat,
+		const DirectX::XMMATRIX & wvpMat
+	);
+	void RenderSkybox();
+	void RenderGizmo(const std::shared_ptr<RenderInfo>& renderer);
+
+	void ApplySceneBuffer();
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
-	bool ViewFrustumCull(const std::shared_ptr<RenderInfo>& renderer);
+
+	bool IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer);
+
+	void InitializeConstantBuffer();
+	bool ProcessMaterialTable();
 
 	ConstantBuffer<GpuObjectBuffer> m_GpuObjectBuffer;
 	ConstantBuffer<GpuBoneBuffer> m_GpuBoneBuffer;
@@ -76,6 +84,14 @@ private:
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
 	std::shared_ptr<Model> m_QuadWindowModel;
+	std::shared_ptr<ComputeShader> m_BlurShader;
+	std::shared_ptr<ComputeShader> m_DownSampleShader;
+
+	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
+	std::weak_ptr<Texture> m_RandomTexture;
+	std::weak_ptr<Texture> m_DitheringTexture;
+	std::weak_ptr<Texture> m_IblBrdfTexture;
+	std::weak_ptr<Texture> m_FurOpacityTexture;
 
 	UINT m_WindowWidth = 0;
 	UINT m_WindowHeight = 0;
@@ -101,11 +117,7 @@ private:
 		};
 	};
 
-	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
-	std::weak_ptr<Texture> m_RandomTexture;
-	std::weak_ptr<Texture> m_DitheringTexture;
-	std::weak_ptr<Texture> m_IblBrdfTexture;
-	std::weak_ptr<Texture> m_FurOpacityTexture;
+	
 
 	
 };

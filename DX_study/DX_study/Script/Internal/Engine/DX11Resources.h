@@ -45,6 +45,11 @@ public:
 	void SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
 	void SetGeometryShader(ID3D11GeometryShader* shader);
 
+	void SetComputeShader(ID3D11ComputeShader* shader);
+	void SetCSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetCSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView*const* srv);
+	void SetCSUavResources(UINT startSlot, UINT range, ID3D11UnorderedAccessView*const* uav);
+
 	void SetBlendState(ID3D11BlendState* blendState, const float* factor);
 	void SetDepthStencilState(ID3D11DepthStencilState * state);
 	void SetRasterizerState(ID3D11RasterizerState* rasterizer);
@@ -53,6 +58,9 @@ public:
 		UINT numViews, 
 		ID3D11RenderTargetView* const* renderTargetView, 
 		ID3D11DepthStencilView* depthStencilView);
+
+	void DrawIndexed(const UINT indexCount);
+	void DispatchComputeShader(const UINT X, const UINT Y, const UINT Z = 1);
 
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }

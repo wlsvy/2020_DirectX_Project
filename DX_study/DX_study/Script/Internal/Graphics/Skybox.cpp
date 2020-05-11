@@ -22,16 +22,6 @@ bool Skybox::Initialize(const std::string * filePath)
 			hr = DirectX::CreateWICTextureFromFile(Core::GetDevice(), filename.c_str(), mSkybox_Resource[Index].GetAddressOf(), this->mSkybox_SRV[Index].GetAddressOf());
 			ThrowIfFailed(hr, "Skybox Texture initialize failed.");
 		}
-
-		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
-		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		hr = Core::GetDevice()->CreateDepthStencilState(&depthstencildesc, this->mSkyboxDepthStencilState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create skybox depth stencil state.");
-
-		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
-		rasterizerDesc.CullMode = D3D11_CULL_NONE;
-		hr = Core::GetDevice()->CreateRasterizerState(&rasterizerDesc, this->mSkyboxRasterizerState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create skybox rasterizer state.");
 	}
 	catch (CustomException & exception) {
 		StringHelper::ErrorLog(exception);

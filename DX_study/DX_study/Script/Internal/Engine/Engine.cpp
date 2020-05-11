@@ -36,7 +36,7 @@ Engine::~Engine()
 {
 	s_Ptr = nullptr;
 
-	Core::Pool<Object>::GetInstance().GetObjects().clear();
+	Core::Pool<Object>::GetInstance().Clear();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)
@@ -101,18 +101,15 @@ void Engine::FixedUpdate()
 
 void Engine::RenderFrame()
 {
-	static auto drawFunc = std::bind(&Graphics::Render, m_Graphics.get(), std::placeholders::_1);
-
 	m_Graphics->RenderBegin();
 
-	m_Graphics->DrawShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
-	m_Graphics->RenderModels();
-	m_Graphics->DrawSkybox();
+	m_Graphics->Pass_ShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
+	m_Graphics->Pass_GBuffer();
 
-	m_Graphics->ComputeShdaderTest();
-	m_Graphics->PostProcess();
-	//m_Graphics->DrawGuiDebug();
-	m_Graphics->DrawGui();
+	m_Graphics->Pass_Blur();
+	m_Graphics->Pass_PostProcess();
+	//m_Graphics->Pass_Gizmo();
+	m_Graphics->Pass_EditorUI();
 	m_Graphics->RenderEnd();
 }
 

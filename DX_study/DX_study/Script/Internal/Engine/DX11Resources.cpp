@@ -412,6 +412,69 @@ void DX11Resources::SetGeometryShader(ID3D11GeometryShader * shader)
 	}
 }
 
+void DX11Resources::SetComputeShader(ID3D11ComputeShader * shader)
+{
+	ID3D11ComputeShader* prevShader = nullptr;
+	ID3D11ClassInstance* prevInstance = nullptr;
+	UINT instanceNum = 0;
+	m_DeviceContext->CSGetShader(&prevShader, &prevInstance, &instanceNum);
+
+	if (shader != prevShader) {
+		m_DeviceContext->CSSetShader(shader, NULL, 0);
+		Profiler::GetInstance().ComputeShaderBindingCount++;
+	}
+}
+
+void DX11Resources::SetCSConstantBuffer(UINT startSlot, ID3D11Buffer * const * buffer)
+{
+	ID3D11Buffer* prev = nullptr;
+	m_DeviceContext->CSGetConstantBuffers(startSlot, 1, &prev);
+
+	if (prev == buffer[0]) {
+		return;
+	}
+
+	m_DeviceContext->CSSetConstantBuffers(startSlot, 1, buffer);
+
+	Profiler::GetInstance().ConstantBufferBindingCount++;
+}
+
+void DX11Resources::SetCSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView * const * srv)
+{
+	std::array<ID3D11ShaderResourceView*, MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT> prev = { nullptr };
+	m_DeviceContext->CSGetShaderResources(startSlot, range, prev.data());
+
+	std::array<ID3D11ShaderResourceView*, MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT> srvArr;
+	for (UINT i = 0; i < range; i++) {
+		srvArr[i] = srv[i];
+	}
+
+	if (srvArr == prev) {
+		return;
+	}
+
+	m_DeviceContext->CSSetShaderResources(startSlot, range, srv);
+	Profiler::GetInstance().ShaderResourcesBindingCount++;
+}
+
+void DX11Resources::SetCSUavResources(UINT startSlot, UINT range, ID3D11UnorderedAccessView * const * uav)
+{
+	std::array<ID3D11UnorderedAccessView*, MAX_UNORDERED_ACCESS_VIEW_BINDING_COUNT> prev = { nullptr };
+	m_DeviceContext->CSGetUnorderedAccessViews(startSlot, range, prev.data());
+
+	std::array<ID3D11UnorderedAccessView*, MAX_UNORDERED_ACCESS_VIEW_BINDING_COUNT> uavArr;
+	for (UINT i = 0; i < range; i++) {
+		uavArr[i] = uav[i];
+	}
+
+	if (uavArr == prev) {
+		return;
+	}
+
+	m_DeviceContext->CSSetUnorderedAccessViews(startSlot, range, uav, nullptr);
+	Profiler::GetInstance().UnorderedAccessViewBindingCount++;
+}
+
 void DX11Resources::SetBlendState(ID3D11BlendState * blendState, const float * factor)
 {
 	ID3D11BlendState *prevBlendState = nullptr;
@@ -480,6 +543,18 @@ void DX11Resources::SetRenderTarget(
 
 		Profiler::GetInstance().RenderTargetBindingCount++;
 	}
+}
+
+void DX11Resources::DrawIndexed(const UINT indexCount)
+{
+	m_DeviceContext->DrawIndexed(indexCount, 0, 0);
+	Profiler::GetInstance().DrawCallCount++;
+}
+
+void DX11Resources::DispatchComputeShader(const UINT X, const UINT Y, const UINT Z)
+{
+	m_DeviceContext->Dispatch(X, Y, Z);
+	Profiler::GetInstance().DispatchCallCount++;
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)

@@ -15,8 +15,12 @@ public:
 	UINT VertexShaderBindingCount = 0;
 	UINT PixelShaderBindingCount = 0;
 	UINT GeometryShaderBindingCount = 0;
+	UINT ComputeShaderBindingCount = 0;
 	UINT ShaderResourcesBindingCount = 0;
+	UINT UnorderedAccessViewBindingCount = 0;
 	UINT RenderTargetBindingCount = 0;
 	UINT VertexBufferBindingCount = 0;
 	UINT IndexBufferBindingCount = 0;
+	UINT DrawCallCount = 0;
+	UINT DispatchCallCount = 0;
 };
