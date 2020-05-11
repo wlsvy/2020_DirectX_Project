@@ -30,6 +30,8 @@ public:
 		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
 		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
 
+	void SetPsSampler(UINT startSlot, ID3D11SamplerState ** addr);
+
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }
 	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return m_MainRenderTargetView.Get(); }
@@ -43,7 +45,6 @@ public:
 	ID3D11DepthStencilState*		GetBaseDepthStencilState() const					{ return m_DepthStencilState.Get(); }
 	ID3D11RasterizerState*			GetRasterizerState() const							{ return m_RasterizerState.Get(); }
 	ID3D11BlendState*				GetBlendState() const								{ return m_BlendState.Get();	}
-	ID3D11SamplerState* const*		GetSamplerStateAddr() const							{ return m_SamplerState.GetAddressOf(); }
 	ID3D11RenderTargetView*			GetRenderTargetView(int index) const				{ return m_RenderTargetViewArr[index].Get(); }
 	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return m_RenderTargetViewArr[index].GetAddressOf(); }
 	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return m_ShaderResourceViewArr[index].Get(); }
@@ -72,10 +73,10 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11BlendState> m_BlendState;
 
 	//SamplerState
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerPointClamp;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearClamp;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearWrap;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearMirror;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerAnisotropicWrap;
 
 	//Depth/Stencil

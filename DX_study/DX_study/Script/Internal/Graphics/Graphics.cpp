@@ -165,12 +165,12 @@ void Graphics::RenderBegin()
 	m_DeviceContext->RSSetState(m_RasterizerState.Get());
 	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 	m_DeviceContext->OMSetBlendState(m_BlendState.Get(), m_BlendFactors, 0xFFFFFFFF);
-	auto samplerClamp = m_CommonState->PointClamp();
-	auto samplerWrap = m_CommonState->LinearWrap();
-	auto samplerAntioWrap = m_CommonState->AnisotropicWrap();
-	m_DeviceContext->PSSetSamplers(0, 1, &samplerClamp);
-	m_DeviceContext->PSSetSamplers(1, 1, &samplerWrap);
-	m_DeviceContext->PSSetSamplers(2, 1, &samplerAntioWrap);
+
+	SetPsSampler(0, m_SamplerPointClamp.GetAddressOf());
+	SetPsSampler(1, m_SamplerLinearClamp.GetAddressOf());
+	SetPsSampler(2, m_SamplerLinearWrap.GetAddressOf());
+	SetPsSampler(3, m_SamplerLinearMirror.GetAddressOf());
+	SetPsSampler(4, m_SamplerAnisotropicWrap.GetAddressOf());
 }
 
 void Graphics::RenderModels()

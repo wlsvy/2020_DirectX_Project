@@ -13,13 +13,6 @@ SamplerComparisonState cmpSampler
    // sampler comparison state
     ComparisonFunc = LESS_THAN;
 };
-sampler LinearMirror
-{
-    Filter = COMPARISON_MIN_MAG_MIP_LINEAR;
-    AddressU = MIRROR;
-    AddressV = MIRROR;
-};
-
 
 float ShadowMapDepthBias = 0.001f;
 

@@ -6,7 +6,10 @@ const float INFINITY = 100000.0f;
 const float Epsilon = 0.00001;
 
 SamplerState PointClamp : SAMPLER : register(s0);
-SamplerState LinearWrap : SAMPLER : register(s1);
+SamplerState LinearClamp : SAMPLER : register(s1);
+SamplerState LinearWrap : SAMPLER : register(s2);
+SamplerState LinearMirror : SAMPLER : register(s3);
+SamplerState AnisotropicWrap : SAMPLER : register(s4);
 
 cbuffer CB_Scene : register(b0)
 {

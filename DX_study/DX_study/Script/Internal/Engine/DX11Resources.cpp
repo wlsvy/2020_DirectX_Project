@@ -61,7 +61,7 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
 		m_DeviceContext->RSSetViewports(1, &viewport);
 
-		//Describe our Depth/Stencil Buffer + 생성자 활용해서 코드 줄이기(애초에 default 패러미터 값은 안 건드려도 됨)
+		//Describe our Depth/Stencil Buffer
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R32_TYPELESS, width, height);
 		depthStencilDesc.MipLevels = 1;
 		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
@@ -95,20 +95,18 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 			m_Device->CreateShaderResourceView(depthStencilBuffer2.Get(), &shaderResourceViewDesc, m_SubDepthStencilSRV.GetAddressOf()),
 			"Failed to create shaderResourceViewArr.");
 
-		////Create depth stencil state 스텐실 & 뎁스
-		//CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
-		//depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-
-		//hr = this->m_Device->CreateDepthStencilState(&depthstencildesc, this->m_DepthStencilState.GetAddressOf());
-		//ThrowIfFailed(hr, "Failed to create depth stencil state.");
-
 		CreateDepthStencilState(m_DepthStencilState.GetAddressOf());
 
 		CreateRasterizerState(m_RasterizerState.GetAddressOf());
 
 		CreateBlenderState(m_BlendState.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
 
-		CreateSamplerState(m_SamplerState.GetAddressOf());
+		CreateSamplerState(m_SamplerPointClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		CreateSamplerState(m_SamplerLinearClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
+		CreateSamplerState(m_SamplerLinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_WRAP);
+		CreateSamplerState(m_SamplerLinearMirror.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_MIRROR);
+		CreateSamplerState(m_SamplerAnisotropicWrap.GetAddressOf(), D3D11_FILTER_ANISOTROPIC, D3D11_TEXTURE_ADDRESS_WRAP);
+
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -220,10 +218,6 @@ void DX11Resources::CreateSamplerState(
 	desc.AddressU = addressMode;
 	desc.AddressV = addressMode;
 	desc.AddressW = addressMode;
-	desc.BorderColor[0] = 0.0f;
-	desc.BorderColor[1] = 0.0f;
-	desc.BorderColor[2] = 0.0f;
-	desc.BorderColor[3] = 1.0f;
 	ThrowIfFailed(
 		m_Device->CreateSamplerState(&desc, addr),
 		"Failed to create sampler state.");
@@ -252,6 +246,18 @@ void DX11Resources::CreateBlenderState(
 	ThrowIfFailed(
 		m_Device->CreateBlendState(&desc, addr),
 		"Failed to create blend state.");
+}
+
+void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** addr)
+{
+	ID3D11SamplerState* prev;
+	m_DeviceContext->PSGetSamplers(startSlot, 1, &prev);
+
+	if (prev == addr[0]) {
+		return;
+	}
+
+	m_DeviceContext->PSSetSamplers(startSlot, 1, addr);
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
