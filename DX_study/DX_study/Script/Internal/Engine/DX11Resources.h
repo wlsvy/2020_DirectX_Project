@@ -30,7 +30,10 @@ public:
 		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
 		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
 
-	void SetPsSampler(UINT startSlot, ID3D11SamplerState ** addr);
+	void SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler);
+	void SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
 
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }

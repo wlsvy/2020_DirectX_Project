@@ -144,16 +144,16 @@ void Graphics::RenderBegin()
 
 	m_GpuFurDataBuffer.ApplyChanges();
 
-	m_DeviceContext->GSSetConstantBuffers(0, 1, m_GpuObjectBuffer.GetAddressOf());
-	m_DeviceContext->GSSetConstantBuffers(1, 1, m_GpuFurDataBuffer.GetAddressOf());
+	SetGSConstantBuffer(0, m_GpuObjectBuffer.GetAddressOf());
+	SetGSConstantBuffer(1, m_GpuFurDataBuffer.GetAddressOf());
 
-	m_DeviceContext->PSSetConstantBuffers(0, 1, m_GpuSceneBuffer.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(1, 1, m_GpuSpotLight.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(2, 1, m_GpuMaterialBuffer.GetAddressOf());
-	m_DeviceContext->PSSetConstantBuffers(3, 1, m_GpuFurDataBuffer.GetAddressOf());
+	SetPSConstantBuffer(0, m_GpuSceneBuffer.GetAddressOf());
+	SetPSConstantBuffer(1, m_GpuSpotLight.GetAddressOf());
+	SetPSConstantBuffer(2, m_GpuMaterialBuffer.GetAddressOf());
+	SetPSConstantBuffer(3, m_GpuFurDataBuffer.GetAddressOf());
 
-	m_DeviceContext->VSSetConstantBuffers(0, 1, m_GpuObjectBuffer.GetAddressOf());
-	m_DeviceContext->VSSetConstantBuffers(1, 1, m_GpuBoneBuffer.GetAddressOf());
+	SetVSConstantBuffer(0, m_GpuObjectBuffer.GetAddressOf());
+	SetVSConstantBuffer(1, m_GpuBoneBuffer.GetAddressOf());
 
 	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
 	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {

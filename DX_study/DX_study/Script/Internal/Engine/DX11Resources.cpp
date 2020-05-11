@@ -1,5 +1,6 @@
 #include "DX11Resources.h"
 #include "../Core/InternalHelper.h"
+#include "../Engine/Profiler.h"
 
 
 
@@ -248,16 +249,60 @@ void DX11Resources::CreateBlenderState(
 		"Failed to create blend state.");
 }
 
-void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** addr)
+void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)
 {
 	ID3D11SamplerState* prev;
 	m_DeviceContext->PSGetSamplers(startSlot, 1, &prev);
 
-	if (prev == addr[0]) {
+	if (prev == sampler[0]) {
 		return;
 	}
 
-	m_DeviceContext->PSSetSamplers(startSlot, 1, addr);
+	m_DeviceContext->PSSetSamplers(startSlot, 1, sampler);
+
+	Profiler::GetInstance().SamplerStateBindingCount++;
+}
+
+void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
+{
+	ID3D11Buffer* prev;
+	m_DeviceContext->VSGetConstantBuffers(startSlot, 1, &prev);
+
+	if (prev == buffer[0]) {
+		return;
+	}
+
+	m_DeviceContext->VSSetConstantBuffers(startSlot, 1, buffer);
+
+	Profiler::GetInstance().ConstantBufferBindingCount++;
+}
+
+void DX11Resources::SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
+{
+	ID3D11Buffer* prev;
+	m_DeviceContext->PSGetConstantBuffers(startSlot, 1, &prev);
+
+	if (prev == buffer[0]) {
+		return;
+	}
+
+	m_DeviceContext->PSSetConstantBuffers(startSlot, 1, buffer);
+
+	Profiler::GetInstance().ConstantBufferBindingCount++;
+}
+
+void DX11Resources::SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
+{
+	ID3D11Buffer* prev;
+	m_DeviceContext->GSGetConstantBuffers(startSlot, 1, &prev);
+
+	if (prev == buffer[0]) {
+		return;
+	}
+
+	m_DeviceContext->GSSetConstantBuffers(startSlot, 1, buffer);
+
+	Profiler::GetInstance().ConstantBufferBindingCount++;
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
