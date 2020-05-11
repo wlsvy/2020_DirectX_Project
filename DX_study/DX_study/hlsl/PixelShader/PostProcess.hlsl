@@ -27,12 +27,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
     cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
     
-    //if (position.w < 0.0f)
-    //    return float4(albedo, 1.0f);
-    
-    //return float4(PhysicsBasedLighting(position.xyz, normal, albedo, metal, 0, roughness), 1.0f);
-    
-    float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); 
     lightVal += CalculateShadowPCF(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
     
     float3 reflectionVector = reflect(rayDir, normal);
@@ -41,10 +36,13 @@ float4 main(PS_INPUT input) : SV_TARGET
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     
     float4 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);
-    
-        if (position.w < 0.0f)
+    //float4 vl = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+    if (position.w < 0.0f)
+    {
         return float4(albedo + vl.xyz, 1.0f);
-    
+    }
+       
     finalColor = vl.xyz + saturate(lightVal * albedo + reflectionColor);
     return float4(finalColor, 1.0f);
 }

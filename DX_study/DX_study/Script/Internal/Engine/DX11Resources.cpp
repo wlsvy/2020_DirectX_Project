@@ -135,10 +135,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 {
 	try {
-		UINT widthArr[MAX_RENDER_TARGET_COUNT] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
-		UINT heightArr[MAX_RENDER_TARGET_COUNT] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
-		UINT formatArr[MAX_RENDER_TARGET_COUNT] = { 2, 2, 2, 2, 2, 2, 28, 28 };
-		for (int i = 0; i < MAX_RENDER_TARGET_COUNT; i++) {
+		UINT widthArr[RenderTargetTypes::Max] = { width , width , width , width  ,width,  width, width / 2, width / 2, width };
+		UINT heightArr[RenderTargetTypes::Max] = { height , height , height , height  ,height,  height, height / 2 , height / 2, height};
+		UINT formatArr[RenderTargetTypes::Max] = { 2, 2, 2, 2, 2, 2, 28, 28, 2 };
+		for (int i = 0; i < RenderTargetTypes::Max; i++) {
 			D3D11_TEXTURE2D_DESC textureDesc;
 			ZeroMemory(&textureDesc, sizeof(textureDesc));
 			textureDesc.Width = widthArr[i];
@@ -171,7 +171,7 @@ bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 			shaderResourceViewDesc.Texture2D.MipLevels = 1;
 			ThrowIfFailed(
-				m_Device->CreateShaderResourceView(m_RenderTargetTextureArr[i].Get(), &shaderResourceViewDesc, m_ShaderResourceViewArr[i].GetAddressOf()),
+				m_Device->CreateShaderResourceView(m_RenderTargetTextureArr[i].Get(), &shaderResourceViewDesc, m_RenderTargetSrvs[i].GetAddressOf()),
 				"Failed to create shaderResourceViewArr.");
 
 			D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
@@ -180,7 +180,7 @@ bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 			unorderedAccessViewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
 			unorderedAccessViewDesc.Texture2D.MipSlice = 0;
 			ThrowIfFailed(
-				Core::GetDevice()->CreateUnorderedAccessView(m_RenderTargetTextureArr[i].Get(), &unorderedAccessViewDesc, m_UnorderedAccessView[i].GetAddressOf()),
+				Core::GetDevice()->CreateUnorderedAccessView(m_RenderTargetTextureArr[i].Get(), &unorderedAccessViewDesc, m_RenderTargetUavs[i].GetAddressOf()),
 				"Failed to create UnorderedAccessView.");
 		}
 	}

@@ -451,6 +451,7 @@
     <FxCompile Include="hlsl\PixelShader\PerObject.hlsl" />
     <FxCompile Include="hlsl\PixelShader\PostProcess.hlsl" />
     <FxCompile Include="hlsl\GeometryShader\Default_gs.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\Light.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hlsl\PixelShader\Include\Common.hlsli" />

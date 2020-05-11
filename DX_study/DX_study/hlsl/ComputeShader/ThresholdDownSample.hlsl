@@ -21,7 +21,8 @@ void main(uint3 groupID : SV_GroupID, uint3 groupThreadID : SV_GroupThreadID, ui
     float4 intensity = lerp(hIntensity0, hIntensity1, 0.5);
 
     // thresholding on downsampled value
-    float intensityTest = (float) (length(intensity.rgb) > threshold);
+    float intensityTest = intensity.w > threshold;
+    //float intensityTest = (float) (length(intensity.rgb) > threshold);
 
     outputTexture[pixel] = float4(intensityTest * intensity.rgb, 1.0);
 }

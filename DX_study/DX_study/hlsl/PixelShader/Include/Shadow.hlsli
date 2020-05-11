@@ -18,7 +18,13 @@ float ShadowMapDepthBias = 0.001f;
 
 float CompareShadowMapDepth(float2 uv, float depth)
 {
-    return step(shadowMap.Sample(LinearMirror, uv), depth);
+    return step(shadowMap.Sample(LinearMirror, uv), depth).x;
+
+}
+
+float4 CompareShadowMapDepthS(float2 uv, float depth)
+{
+    return shadowMap.SampleCmpLevelZero(cmpSampler, uv, depth);
 
 }
 
@@ -83,6 +89,7 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
         return float4(1.0f, 1.0f, 1.0f, 1.0f);
     }
     
+    //return CompareShadowMapDepthS(projectTexCoord, lightDepth);
     return float4(step(shadowMap.Sample(LinearWrap, projectTexCoord).r, lightDepth).xxx, 1.0f);
 }
 

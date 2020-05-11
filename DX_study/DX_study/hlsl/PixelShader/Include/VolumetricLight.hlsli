@@ -22,14 +22,14 @@ bool DoesLightReach(float3 position, float3 lightVec, float lightDist)
 
 float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)
 {
-    float2 interleavedPos = (fmod(floor(screenPos.xy), 8.0));
-    float offset = DitheringTexture.Sample(LinearWrap, interleavedPos / 8.0 + float2(0.5 / 8.0, 0.5 / 8.0)).x;
+    float2 interleavedPos = (fmod(floor(float2(screenPos.x * 1024, screenPos.y * 768)), 16.0));
+    float offset = DitheringTexture.Sample(LinearWrap, interleavedPos / 16.0 + float2(0.5 / 8.0, 0.5 / 8.0)).x;
     int stepCount = VolumetricLightSampleCount;
 
     float stepSize = rayLength / stepCount;
     float3 step = rayDir * stepSize;
 
-    float3 currentPosition = rayStart + step * offset;
+    float3 currentPosition = rayStart + step;
     float vlight = 0;
 
     [loop]
@@ -59,7 +59,7 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
 
 float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
 {
-    float linearDepth = depthTexture.Sample(LinearWrap, uv);
+    float linearDepth = depthTexture.Sample(LinearWrap, uv).x;
 
     float3 rayStart = CameraPosition;
     float3 rayEnd = wpos + rayDir * 0.001;

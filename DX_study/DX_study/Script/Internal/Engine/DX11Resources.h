@@ -9,6 +9,21 @@
 #include <VertexTypes.h>
 #include "AdapterReader.h"
 
+struct RenderTargetTypes {
+	enum {
+		Position = 0,
+		Normal,
+		Albedo,
+		Material,
+		Depth,
+		Composition,
+		BlurIn,
+		BlurOut,
+		VolumetricLight_Shadow,
+		Max
+	};
+};
+
 class DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
@@ -77,10 +92,10 @@ public:
 	ID3D11BlendState*				GetBlendState() const								{ return m_BlendStateAlpha.Get();	}
 	ID3D11RenderTargetView*			GetRenderTargetView(int index) const				{ return m_RenderTargetViewArr[index].Get(); }
 	ID3D11RenderTargetView* const*	GetRTVaddress(int index) const						{ return m_RenderTargetViewArr[index].GetAddressOf(); }
-	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return m_ShaderResourceViewArr[index].Get(); }
-	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return m_ShaderResourceViewArr[index].GetAddressOf(); }
-	ID3D11UnorderedAccessView*		GetRenderTargetUav(int index) const					{ return m_UnorderedAccessView[index].Get();}
-	ID3D11UnorderedAccessView*const*GetRenderTargetUavAddr(int index) const				{ return m_UnorderedAccessView[index].GetAddressOf();}
+	ID3D11ShaderResourceView*		GetRenderTargetSrv(int index) const					{ return m_RenderTargetSrvs[index].Get(); }
+	ID3D11ShaderResourceView*const*	GetRenderTargetSrvAddress(int index) const			{ return m_RenderTargetSrvs[index].GetAddressOf(); }
+	ID3D11UnorderedAccessView*		GetRenderTargetUav(int index) const					{ return m_RenderTargetUavs[index].Get();}
+	ID3D11UnorderedAccessView*const*GetRenderTargetUavAddr(int index) const				{ return m_RenderTargetUavs[index].GetAddressOf();}
 	IDXGISwapChain*					GetSwapChain() const								{ return m_Swapchain.Get(); }
 
 	DirectX::SpriteBatch*			GetSpriteBatch() const								{ return m_SpriteBatch.get(); }
@@ -91,7 +106,6 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return m_PrimitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return m_DebugInputLayout.Get(); }
 
-	static const UINT MAX_RENDER_TARGET_COUNT = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
 	static const UINT MAX_RENDER_TARGET_BINDING_COUNT = 5; 
 	static const UINT MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT = 12;
 	static const UINT MAX_UNORDERED_ACCESS_VIEW_BINDING_COUNT = 2;
@@ -127,10 +141,10 @@ protected:
 
 	//RenderTargets
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_MainRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetViewArr[MAX_RENDER_TARGET_COUNT];
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewArr[MAX_RENDER_TARGET_COUNT];
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[MAX_RENDER_TARGET_COUNT];
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UnorderedAccessView[MAX_RENDER_TARGET_COUNT];
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetViewArr[RenderTargetTypes::Max];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_RenderTargetSrvs[RenderTargetTypes::Max];
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_RenderTargetUavs[RenderTargetTypes::Max];
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[RenderTargetTypes::Max];
 
 	ID3D11RenderTargetView * const m_NullRtv[MAX_RENDER_TARGET_BINDING_COUNT] = { NULL, };
 	ID3D11ShaderResourceView * const m_NullSrv[MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT] = { NULL, };

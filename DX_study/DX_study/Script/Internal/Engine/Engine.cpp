@@ -105,7 +105,7 @@ void Engine::RenderFrame()
 
 	m_Graphics->Pass_ShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
 	m_Graphics->Pass_GBuffer();
-
+	m_Graphics->Pass_Light();
 	m_Graphics->Pass_Blur();
 	m_Graphics->Pass_PostProcess();
 	//m_Graphics->Pass_Gizmo();

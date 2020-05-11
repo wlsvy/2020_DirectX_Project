@@ -33,6 +33,7 @@ public:
 	void RenderBegin();
 	void Pass_ShadowMap(const std::shared_ptr<LightBase> & light);
 	void Pass_GBuffer();
+	void Pass_Light();
 	void Pass_PostProcess();
 	void Pass_Gizmo();
 	void Pass_EditorUI();
@@ -57,6 +58,7 @@ private:
 		const DirectX::XMMATRIX & wvpMat
 	);
 	void RenderSkybox();
+	void RenderQuadPlane();
 	void RenderGizmo(const std::shared_ptr<RenderInfo>& renderer);
 
 	void ApplySceneBuffer();
