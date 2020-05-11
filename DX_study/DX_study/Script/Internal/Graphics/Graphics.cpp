@@ -26,6 +26,7 @@
 
 
 using DirectX::operator*;
+using DirectX::operator+;
 
 bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 	try {
@@ -116,8 +117,7 @@ bool Graphics::ProcessMaterialTable()
 
 void Graphics::RenderBegin()
 {
-	using DirectX::operator+;
-	using DirectX::operator*;
+
 	static auto mainCam = Core::GetCurrentScene().GetMainCam();
 	static auto light = Core::Find<GameObject>("Light");
 	static auto lightc = light->GetComponent<SpotLight>();
@@ -141,8 +141,13 @@ void Graphics::RenderBegin()
 	m_GpuSceneBuffer.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
 	m_GpuSceneBuffer.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	m_GpuSceneBuffer.ApplyChanges();
-
 	m_GpuFurDataBuffer.ApplyChanges();
+
+	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
+	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
+		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);
+	}
+	m_DeviceContext->ClearDepthStencilView(m_MainDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	SetGSConstantBuffer(0, m_GpuObjectBuffer.GetAddressOf());
 	SetGSConstantBuffer(1, m_GpuFurDataBuffer.GetAddressOf());
@@ -155,16 +160,10 @@ void Graphics::RenderBegin()
 	SetVSConstantBuffer(0, m_GpuObjectBuffer.GetAddressOf());
 	SetVSConstantBuffer(1, m_GpuBoneBuffer.GetAddressOf());
 
-	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
-	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
-		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);
-	}
-	m_DeviceContext->ClearDepthStencilView(m_MainDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	m_DeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_DeviceContext->RSSetState(m_RasterizerState.Get());
-	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
-	m_DeviceContext->OMSetBlendState(m_BlendState.Get(), m_BlendFactors, 0xFFFFFFFF);
+	SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	SetDepthStencilState(m_DepthStencilState.Get());
+	SetRasterizerState(m_RasterizerState.Get());
+	SetBlendState(m_BlendState.Get(), m_BlendFactors);
 
 	SetPsSampler(0, m_SamplerPointClamp.GetAddressOf());
 	SetPsSampler(1, m_SamplerLinearClamp.GetAddressOf());
@@ -256,38 +255,34 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
 		auto vs = material->Vshader ? material->Vshader : VertexShader::GetDefault();
 		m_DeviceContext->IASetInputLayout(vs->GetInputLayout());
-		m_DeviceContext->VSSetShader(vs->GetShader(), NULL, 0);
+		SetVertexShader(vs->GetShader());
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
 		auto ps = material->Pshader ? material->Pshader : PixelShader::GetDefault();
-		m_DeviceContext->PSSetShader(ps->GetShader(), NULL, 0);
+		SetPixelShader(ps->GetShader());
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialGeometryShader) {
 		auto shader = material->Gshader ? material->Gshader->GetShader() : NULL;
-		m_DeviceContext->GSSetShader(shader, NULL, 0);
+		SetGeometryShader(shader);
 	}
 	else {
 		auto shader = material->Gshader ? GeometryShader::GetDefault()->GetShader() : NULL;
-		m_DeviceContext->GSSetShader(shader, NULL, 0);
+		SetGeometryShader(shader);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
-		m_DeviceContext->PSSetShaderResources(0, 1, material->Albedo ?
-			material->Albedo->GetTextureResourceViewAddress() : 
+		SetPSShaderResources(0, 1, material->Albedo ?
+			material->Albedo->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-
-		m_DeviceContext->PSSetShaderResources(1, 1, material->Normal ?
+		SetPSShaderResources(1, 1, material->Normal ?
 			material->Normal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-
-		m_DeviceContext->PSSetShaderResources(2, 1, material->Metal ?
+		SetPSShaderResources(2, 1, material->Metal ?
 			material->Metal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-
-		m_DeviceContext->PSSetShaderResources(3, 1, material->Roughness ?
+		SetPSShaderResources(3, 1, material->Roughness ?
 			material->Roughness->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-
-		m_DeviceContext->PSSetShaderResources(4, 1, material->Specular ?
+		SetPSShaderResources(4, 1, material->Specular ?
 			material->Specular->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}

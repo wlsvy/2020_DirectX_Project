@@ -30,10 +30,21 @@ public:
 		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
 		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
 
-	void SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler);
 	void SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetVertexShader(ID3D11VertexShader* shader);
+
+	void SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler);
 	void SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetPixelShader(ID3D11PixelShader* shader);
+	void SetPSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView*const* srv);
+
 	void SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer);
+	void SetGeometryShader(ID3D11GeometryShader* shader);
+
+	void SetBlendState(ID3D11BlendState* blendState, const float* factor);
+	void SetDepthStencilState(ID3D11DepthStencilState * state);
+	void SetRasterizerState(ID3D11RasterizerState* rasterizer);
+	void SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
 
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }

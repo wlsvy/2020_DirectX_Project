@@ -251,7 +251,7 @@ void DX11Resources::CreateBlenderState(
 
 void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)
 {
-	ID3D11SamplerState* prev;
+	ID3D11SamplerState* prev = nullptr;
 	m_DeviceContext->PSGetSamplers(startSlot, 1, &prev);
 
 	if (prev == sampler[0]) {
@@ -265,7 +265,7 @@ void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)
 
 void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
 {
-	ID3D11Buffer* prev;
+	ID3D11Buffer* prev = nullptr;
 	m_DeviceContext->VSGetConstantBuffers(startSlot, 1, &prev);
 
 	if (prev == buffer[0]) {
@@ -277,9 +277,22 @@ void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 	Profiler::GetInstance().ConstantBufferBindingCount++;
 }
 
+void DX11Resources::SetVertexShader(ID3D11VertexShader * shader)
+{
+	ID3D11VertexShader* prevShader = nullptr;
+	ID3D11ClassInstance* prevInstance = nullptr;
+	UINT instanceNum = 0;
+	m_DeviceContext->VSGetShader(&prevShader, &prevInstance, &instanceNum);
+
+	if (shader != prevShader) {
+		m_DeviceContext->VSSetShader(shader, NULL, 0);
+		Profiler::GetInstance().VertexShaderBindingCount++;
+	}
+}
+
 void DX11Resources::SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
 {
-	ID3D11Buffer* prev;
+	ID3D11Buffer* prev = nullptr;
 	m_DeviceContext->PSGetConstantBuffers(startSlot, 1, &prev);
 
 	if (prev == buffer[0]) {
@@ -291,9 +304,47 @@ void DX11Resources::SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 	Profiler::GetInstance().ConstantBufferBindingCount++;
 }
 
+void DX11Resources::SetPixelShader(ID3D11PixelShader * shader)
+{
+	ID3D11PixelShader* prevShader = nullptr;
+	ID3D11ClassInstance* prevInstance = nullptr;
+	UINT instanceNum = 0;
+	m_DeviceContext->PSGetShader(&prevShader, &prevInstance, &instanceNum);
+
+	if (shader != prevShader) {
+		m_DeviceContext->PSSetShader(shader, NULL, 0);
+		Profiler::GetInstance().PixelShaderBindingCount++;
+	}
+}
+
+void DX11Resources::SetPSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView *const* srv)
+{
+	ID3D11ShaderResourceView* prev = nullptr;
+	m_DeviceContext->PSGetShaderResources(startSlot, range, &prev);
+
+
+	if (srv[0] == prev) {
+		return;
+	}
+	/*if (prev != nullptr) {
+		int i = 0;
+		for (; i < range; i++) {
+			if (srv[i] != prev[i]) {
+				break;
+			}
+		}
+		if (i == range) {
+			return;
+		}
+	}*/
+
+	m_DeviceContext->PSSetShaderResources(startSlot, range, srv);
+	Profiler::GetInstance().ShaderResourcesBindingCount++;
+}
+
 void DX11Resources::SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
 {
-	ID3D11Buffer* prev;
+	ID3D11Buffer* prev = nullptr;
 	m_DeviceContext->GSGetConstantBuffers(startSlot, 1, &prev);
 
 	if (prev == buffer[0]) {
@@ -303,6 +354,62 @@ void DX11Resources::SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 	m_DeviceContext->GSSetConstantBuffers(startSlot, 1, buffer);
 
 	Profiler::GetInstance().ConstantBufferBindingCount++;
+}
+
+void DX11Resources::SetGeometryShader(ID3D11GeometryShader * shader)
+{
+	ID3D11GeometryShader* prevShader = nullptr;
+	ID3D11ClassInstance* prevInstance = nullptr;
+	UINT instanceNum = 0;
+	m_DeviceContext->GSGetShader(&prevShader, &prevInstance, &instanceNum);
+
+	if (shader != prevShader) {
+		m_DeviceContext->GSSetShader(shader, NULL, 0);
+		Profiler::GetInstance().GeometryShaderBindingCount++;
+	}
+}
+
+void DX11Resources::SetBlendState(ID3D11BlendState * blendState, const float * factor)
+{
+	ID3D11BlendState *prevBlendState = nullptr;
+	float *prevBlendFactor = nullptr;
+	UINT prevMask = 0;
+	m_DeviceContext->OMGetBlendState(&prevBlendState, prevBlendFactor, &prevMask);
+
+	if (blendState != prevBlendState || factor != prevBlendFactor) {
+		m_DeviceContext->OMSetBlendState(blendState, factor, 0xFFFFFFFF);
+	}
+}
+
+void DX11Resources::SetDepthStencilState(ID3D11DepthStencilState * state)
+{
+	ID3D11DepthStencilState* prev = nullptr;
+	UINT prevStencilRef = 0;
+	m_DeviceContext->OMGetDepthStencilState(&prev, &prevStencilRef);
+
+	if (state != prev) {
+		m_DeviceContext->OMSetDepthStencilState(state, 0);
+	}
+}
+
+void DX11Resources::SetRasterizerState(ID3D11RasterizerState * rasterizer)
+{
+	ID3D11RasterizerState* prev = nullptr;
+	m_DeviceContext->RSGetState(&prev);
+	
+	if (rasterizer != prev) {
+		m_DeviceContext->RSSetState(rasterizer);
+	}
+}
+
+void DX11Resources::SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology)
+{
+	D3D11_PRIMITIVE_TOPOLOGY prev;
+	m_DeviceContext->IAGetPrimitiveTopology(&prev);
+
+	if (topology != prev) {
+		m_DeviceContext->IASetPrimitiveTopology(topology);
+	}
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)
