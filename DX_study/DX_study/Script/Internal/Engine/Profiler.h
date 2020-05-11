@@ -17,4 +17,6 @@ public:
 	UINT GeometryShaderBindingCount = 0;
 	UINT ShaderResourcesBindingCount = 0;
 	UINT RenderTargetBindingCount = 0;
+	UINT VertexBufferBindingCount = 0;
+	UINT IndexBufferBindingCount = 0;
 };

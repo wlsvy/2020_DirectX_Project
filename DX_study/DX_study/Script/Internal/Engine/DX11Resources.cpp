@@ -100,9 +100,13 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 
 		CreateDepthStencilState(m_DepthStencilState.GetAddressOf());
 
-		CreateRasterizerState(m_RasterizerState.GetAddressOf());
+		CreateRasterizerState(m_RasterizerCullBack.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
+		CreateRasterizerState(m_RasterizerCullFront.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_FRONT);
+		CreateRasterizerState(m_RasterizerCullNone.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
-		CreateBlenderState(m_BlendState.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
+		CreateBlenderState(m_BlendStateOpaque.GetAddressOf(), false);
+		CreateBlenderState(m_BlendStateAlpha.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
+		CreateBlenderState(m_BlendStateAdditive.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
 
 		CreateSamplerState(m_SamplerPointClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 		CreateSamplerState(m_SamplerLinearClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
@@ -131,10 +135,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 {
 	try {
-		UINT widthArr[MAX_RENDERTARGET_COUNT] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
-		UINT heightArr[MAX_RENDERTARGET_COUNT] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
-		UINT formatArr[MAX_RENDERTARGET_COUNT] = { 2, 2, 2, 2, 2, 2, 28, 28 };
-		for (int i = 0; i < MAX_RENDERTARGET_COUNT; i++) {
+		UINT widthArr[MAX_RENDER_TARGET_COUNT] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
+		UINT heightArr[MAX_RENDER_TARGET_COUNT] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
+		UINT formatArr[MAX_RENDER_TARGET_COUNT] = { 2, 2, 2, 2, 2, 2, 28, 28 };
+		for (int i = 0; i < MAX_RENDER_TARGET_COUNT; i++) {
 			D3D11_TEXTURE2D_DESC textureDesc;
 			ZeroMemory(&textureDesc, sizeof(textureDesc));
 			textureDesc.Width = widthArr[i];
@@ -265,6 +269,38 @@ void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)
 	Profiler::GetInstance().SamplerStateBindingCount++;
 }
 
+void DX11Resources::SetVertexBuffer(ID3D11Buffer * const * vertexBuffer, const UINT * stridePtr)
+{
+	ID3D11Buffer* prev = nullptr;
+	UINT prevStride = 0;
+	UINT offset = 0;
+	m_DeviceContext->IAGetVertexBuffers(0, 1, &prev, &prevStride, &offset);
+
+	if (vertexBuffer[0] == prev) {
+		return;
+	}
+
+	offset = 0;
+	m_DeviceContext->IASetVertexBuffers(0, 1, vertexBuffer, stridePtr, &offset);
+	Profiler::GetInstance().VertexBufferBindingCount++;
+}
+
+void DX11Resources::SetIndexBuffer(ID3D11Buffer * indexBuffer)
+{
+	ID3D11Buffer* prev = nullptr;
+	DXGI_FORMAT prevFormat;
+	UINT offset = 0;
+	m_DeviceContext->IAGetIndexBuffer(&prev, &prevFormat, &offset);
+
+	if (indexBuffer == prev) {
+		return;
+	}
+
+	offset = 0;
+	m_DeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	Profiler::GetInstance().IndexBufferBindingCount++;
+}
+
 void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
 {
 	ID3D11Buffer* prev = nullptr;
@@ -277,6 +313,18 @@ void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 	m_DeviceContext->VSSetConstantBuffers(startSlot, 1, buffer);
 
 	Profiler::GetInstance().ConstantBufferBindingCount++;
+}
+
+void DX11Resources::SetVSInputLayout(ID3D11InputLayout * inputLayout)
+{
+	ID3D11InputLayout * prev;
+	m_DeviceContext->IAGetInputLayout(&prev);
+
+	if (prev == inputLayout) {
+		return;
+	}
+
+	m_DeviceContext->IASetInputLayout(inputLayout);
 }
 
 void DX11Resources::SetVertexShader(ID3D11VertexShader * shader)
@@ -325,7 +373,7 @@ void DX11Resources::SetPSShaderResources(UINT startSlot, UINT range, ID3D11Shade
 	m_DeviceContext->PSGetShaderResources(startSlot, range, prev.data());
 
 	std::array<ID3D11ShaderResourceView*, MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT> srvArr;
-	for (int i = 0; i < range; i++) {
+	for (UINT i = 0; i < range; i++) {
 		srvArr[i] = srv[i];
 	}
 
@@ -412,11 +460,11 @@ void DX11Resources::SetRenderTarget(
 	ID3D11RenderTargetView * const * renderTargetView, 
 	ID3D11DepthStencilView * depthStencilView)
 {
-	std::array<ID3D11RenderTargetView*, MAX_RENDERTARGET_BINDING_COUNT> prevRtv = { nullptr };
+	std::array<ID3D11RenderTargetView*, MAX_RENDER_TARGET_BINDING_COUNT> prevRtv = { nullptr };
 	ID3D11DepthStencilView* prevDsv = nullptr;
-	m_DeviceContext->OMGetRenderTargets(MAX_RENDERTARGET_BINDING_COUNT, prevRtv.data(), &prevDsv);
+	m_DeviceContext->OMGetRenderTargets(MAX_RENDER_TARGET_BINDING_COUNT, prevRtv.data(), &prevDsv);
 
-	std::array<ID3D11RenderTargetView*, MAX_RENDERTARGET_BINDING_COUNT> rtvArr = { nullptr };
+	std::array<ID3D11RenderTargetView*, MAX_RENDER_TARGET_BINDING_COUNT> rtvArr = { nullptr };
 	for (int i = 0; i < numViews; i++) {
 		rtvArr[i] = renderTargetView[i];
 	}

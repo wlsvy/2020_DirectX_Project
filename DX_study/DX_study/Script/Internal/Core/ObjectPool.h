@@ -55,6 +55,8 @@ namespace Core {
 	template<>
 	class Pool<Object> : public Singleton<Pool<Object>> {
 	public:
+		class ObjWrapperBase;
+
 		template<typename T>
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.insert(make_pair(obj->GetId(), std::make_unique<ObjectWrapper<T>>(obj)));
@@ -78,6 +80,8 @@ namespace Core {
 			}
 			return std::shared_ptr<Object>();
 		}
+
+		std::unordered_map<int, std::unique_ptr<ObjWrapperBase>> & GetObjects() { return m_Objects; }
 
 	private:
 		struct ObjWrapperBase {

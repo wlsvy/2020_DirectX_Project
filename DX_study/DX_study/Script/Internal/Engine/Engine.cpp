@@ -35,6 +35,8 @@ Engine::Engine() :
 Engine::~Engine()
 {
 	s_Ptr = nullptr;
+
+	Core::Pool<Object>::GetInstance().GetObjects().clear();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)

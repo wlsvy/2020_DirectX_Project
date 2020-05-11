@@ -144,7 +144,7 @@ void Graphics::RenderBegin()
 	m_GpuFurDataBuffer.ApplyChanges();
 
 	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
-	for (int i = 0; i < DX11Resources::MAX_RENDERTARGET_COUNT; i++) {
+	for (int i = 0; i < DX11Resources::MAX_RENDER_TARGET_COUNT; i++) {
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);
 	}
 	m_DeviceContext->ClearDepthStencilView(m_MainDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -162,8 +162,8 @@ void Graphics::RenderBegin()
 
 	SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	SetDepthStencilState(m_DepthStencilState.Get());
-	SetRasterizerState(m_RasterizerState.Get());
-	SetBlendState(m_BlendState.Get(), m_BlendFactors);
+	SetRasterizerState(m_RasterizerCullBack.Get());
+	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 
 	SetPsSampler(0, m_SamplerPointClamp.GetAddressOf());
 	SetPsSampler(1, m_SamplerLinearClamp.GetAddressOf());
@@ -178,30 +178,29 @@ void Graphics::RenderModels()
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
 
-	SetRenderTarget(
-		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
 		m_RenderTargetViewArr[0].GetAddressOf(),
-		m_MainDepthStencilView.Get());
-	//m_DeviceContext->OMSetRenderTargets(
-	//	DX11Resources::MAX_RENDERTARGET_BINDING_COUNT, 
-	//	m_RenderTargetViewArr[0].GetAddressOf(), 
-	//	m_MainDepthStencilView.Get());
+		m_MainDepthStencilView.Get()
+	);
 
 
-	m_DeviceContext->PSSetShaderResources(6, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());	//pos
-
+	SetPSShaderResources(6, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
 
 	m_DrawFlag = DrawFlag::All;
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
-	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
 		m_NullRtv,
-		NULL);
-	m_DeviceContext->VSSetShader(NULL, NULL, 0);
-	m_DeviceContext->PSSetShader(NULL, NULL, 0);
-	m_DeviceContext->GSSetShader(NULL, NULL, 0);
+		NULL
+	);
+	SetVertexShader(NULL);
+	SetPixelShader(NULL);
+	SetGeometryShader(NULL);
 }
 
 void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
@@ -240,9 +239,9 @@ void Graphics::DrawMesh(
 	m_GpuObjectBuffer.data.worldMatrix = mesh->GetWorldMatrix() * worldMat; 
 	m_GpuObjectBuffer.ApplyChanges();
 
-	UINT offset = 0;
-	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
-	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	SetVertexBuffer(mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr());
+	SetIndexBuffer(mesh->GetIndexBuffer().Get());
+
 	m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 }
 
@@ -259,7 +258,7 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 {
 	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
 		auto vs = material->Vshader ? material->Vshader : VertexShader::GetDefault();
-		m_DeviceContext->IASetInputLayout(vs->GetInputLayout());
+		SetVSInputLayout(vs->GetInputLayout());
 		SetVertexShader(vs->GetShader());
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
@@ -335,10 +334,14 @@ void Graphics::PostProcess()
 {
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].GetAddressOf(), NULL);
-
-	m_DeviceContext->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
-	m_DeviceContext->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
+	SetRenderTarget
+	(
+		1, 
+		m_RenderTargetViewArr[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].GetAddressOf(), 
+		NULL
+	);
+	SetVertexShader(m_PostProcesVshader->GetShader());
+	SetPixelShader(m_PostProcesPshader->GetShader());
 
 	SetPSShaderResources(0, 1, m_ShaderResourceViewArr[0].GetAddressOf());	//pos
 	SetPSShaderResources(1, 1, m_ShaderResourceViewArr[1].GetAddressOf());	//normal
@@ -353,36 +356,43 @@ void Graphics::PostProcess()
 	SetPSShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
 	SetPSShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
 
-	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
-	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
+	//SetPSShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
+	//SetPSShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
 
 
 
 	auto& mesh = m_QuadWindowModel->GetMeshes()[0];
 	UINT offset = 0;
-	m_DeviceContext->IASetVertexBuffers(0, 1, mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr(), &offset);
-	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
+	SetVertexBuffer(mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr());
+	SetIndexBuffer(mesh->GetIndexBuffer().Get());
 	m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	m_DeviceContext->PSSetShaderResources(0, DX11Resources::MAX_RENDERTARGET_BINDING_COUNT + 1, m_NullSrv);
-	m_DeviceContext->PSSetShaderResources(9, 1, m_NullSrv);
-	m_DeviceContext->OMSetRenderTargets(DX11Resources::MAX_RENDERTARGET_BINDING_COUNT, m_NullRtv, NULL);
+	SetPSShaderResources(0, DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT + 1, m_NullSrv);
+	SetPSShaderResources(9, 1, m_NullSrv);
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT, 
+		m_NullRtv, 
+		NULL
+	);
 }
 
 void Graphics::DrawSkybox()
 {
-	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
 		m_RenderTargetViewArr[0].GetAddressOf(),
-		m_MainDepthStencilView.Get());
+		m_MainDepthStencilView.Get()
+	);
 
-	m_DeviceContext->IASetInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
-	m_DeviceContext->VSSetShader(m_Skybox->GetVertexShader()->GetShader(), NULL, 0);
-	m_DeviceContext->PSSetShader(m_Skybox->GetPixelShader()->GetShader(), NULL, 0);
-	m_DeviceContext->PSSetShaderResources(1, 1, m_Skybox->GetCubeMapView());
+	SetVSInputLayout(m_Skybox->GetVertexShader()->GetInputLayout());
+	SetVertexShader(m_Skybox->GetVertexShader()->GetShader());
+	SetPixelShader(m_Skybox->GetPixelShader()->GetShader());
+	SetPSShaderResources(1, 1, m_Skybox->GetCubeMapView());
 
-	m_DeviceContext->RSSetState(m_Skybox->GetRasterizerState());
-	m_DeviceContext->OMSetDepthStencilState(m_Skybox->GetDepthStencilState(), 0);
+	SetRasterizerState(m_Skybox->GetRasterizerState());
+	SetDepthStencilState(m_Skybox->GetDepthStencilState());
 
 	m_DrawFlag = DrawFlag::None;
 
@@ -393,13 +403,15 @@ void Graphics::DrawSkybox()
 		DrawMesh(mesh, worldMat, wvpMat);
 	}
 
-	m_DeviceContext->RSSetState(m_RasterizerState.Get());
-	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
+	SetRasterizerState(m_RasterizerCullBack.Get());
+	SetDepthStencilState(m_DepthStencilState.Get());
 
-	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
 		m_NullRtv,
-		NULL);
+		NULL
+	);
 }
 
 void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
@@ -415,8 +427,9 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 
 	m_DeviceContext->ClearDepthStencilView(m_SubDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	m_DeviceContext->ClearRenderTargetView(spotLight->GetShadowMapRenderTargetView(), m_BackgroundColor);
-	m_DeviceContext->OMSetRenderTargets(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
-	m_DeviceContext->PSSetShader(m_ShadowMapPshader->GetShader(), NULL, 0);
+
+	SetRenderTarget(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
+	SetPixelShader(m_ShadowMapPshader->GetShader());
 
 	m_DrawFlag =
 		DrawFlag::Apply_MaterialVertexShader |
@@ -425,22 +438,32 @@ void Graphics::DrawShadowMap(const std::shared_ptr<LightBase> & light)
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
-	m_DeviceContext->OMSetRenderTargets(1, m_NullRtv, NULL);
-	m_DeviceContext->VSSetShader(NULL, NULL, 0);
-	m_DeviceContext->PSSetShader(NULL, NULL, 0);
-	m_DeviceContext->GSSetShader(NULL, NULL, 0);
+	SetVertexShader(NULL);
+	SetPixelShader(NULL);
+	SetGeometryShader(NULL);
+	SetRenderTarget
+	(
+		1,
+		m_NullRtv,
+		NULL
+	);
 }
 
 void Graphics::DrawGui()
 {
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	
-	m_DeviceContext->OMSetRenderTargets(1, m_MainRenderTargetView.GetAddressOf(), NULL);
+	SetRenderTarget
+	(
+		1, 
+		m_MainRenderTargetView.GetAddressOf(), 
+		NULL
+	);
 
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	GUI::DrawEditorUI(m_ShaderResourceViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].Get());
+	GUI::DrawEditorUI(m_ShaderResourceViewArr[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].Get());
 	
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
@@ -466,7 +489,12 @@ void Graphics::DrawGui()
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
-	m_DeviceContext->OMSetRenderTargets(1, m_NullRtv, NULL);
+	SetRenderTarget
+	(
+		1,
+		m_NullRtv,
+		NULL
+	);
 }
 
 void Graphics::DrawGuiDebug()
@@ -477,18 +505,20 @@ void Graphics::DrawGuiDebug()
 	m_BasicEffect->SetView(camera.GetViewMatrix());
 	m_BasicEffect->SetProjection(camera.GetProjectionMatrix());
 
-	m_DeviceContext->OMSetBlendState(m_CommonState->Opaque(), nullptr, 0xFFFFFFFF);
-	m_DeviceContext->OMSetDepthStencilState(m_CommonState->DepthNone(), 0);
-	m_DeviceContext->RSSetState(m_CommonState->CullNone());
+	SetBlendState(m_BlendStateOpaque.Get(), nullptr);
+	SetDepthStencilState(m_CommonState->DepthNone());
+	SetRasterizerState(m_RasterizerCullNone.Get());
 
 	m_BasicEffect->Apply(m_DeviceContext.Get());
 
-	m_DeviceContext->IASetInputLayout(m_DebugInputLayout.Get());
+	SetVSInputLayout(m_DebugInputLayout.Get());
 
-	m_DeviceContext->OMSetRenderTargets(
+	SetRenderTarget
+	(
 		1,
-		m_RenderTargetViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].GetAddressOf(),
-		m_MainDepthStencilView.Get());
+		m_RenderTargetViewArr[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].GetAddressOf(),
+		m_MainDepthStencilView.Get()
+	);
 
 	m_PrimitiveBatch->Begin();
 
@@ -497,10 +527,12 @@ void Graphics::DrawGuiDebug()
 
 	m_PrimitiveBatch->End();
 
-	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
 		m_NullRtv,
-		NULL);
+		NULL
+	);
 }
 
 void Graphics::ComputeShdaderTest()
