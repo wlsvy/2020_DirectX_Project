@@ -2,6 +2,8 @@
 #include "../Core/InternalHelper.h"
 #include "../Engine/Profiler.h"
 
+#include <array>
+
 
 
 bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
@@ -129,10 +131,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 {
 	try {
-		UINT widthArr[RenderTargetCount] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
-		UINT heightArr[RenderTargetCount] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
-		UINT formatArr[RenderTargetCount] = { 2, 2, 2, 2, 2, 2, 28, 28 };
-		for (int i = 0; i < RenderTargetCount; i++) {
+		UINT widthArr[MAX_RENDERTARGET_COUNT] = { width , width , width , width  ,width,  width, width / 2, width / 2 };
+		UINT heightArr[MAX_RENDERTARGET_COUNT] = { height , height , height , height  ,height,  height, height / 2 , height / 2 };
+		UINT formatArr[MAX_RENDERTARGET_COUNT] = { 2, 2, 2, 2, 2, 2, 28, 28 };
+		for (int i = 0; i < MAX_RENDERTARGET_COUNT; i++) {
 			D3D11_TEXTURE2D_DESC textureDesc;
 			ZeroMemory(&textureDesc, sizeof(textureDesc));
 			textureDesc.Width = widthArr[i];
@@ -319,24 +321,17 @@ void DX11Resources::SetPixelShader(ID3D11PixelShader * shader)
 
 void DX11Resources::SetPSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView *const* srv)
 {
-	ID3D11ShaderResourceView* prev = nullptr;
-	m_DeviceContext->PSGetShaderResources(startSlot, range, &prev);
+	std::array<ID3D11ShaderResourceView*, MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT> prev = { nullptr };
+	m_DeviceContext->PSGetShaderResources(startSlot, range, prev.data());
 
+	std::array<ID3D11ShaderResourceView*, MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT> srvArr;
+	for (int i = 0; i < range; i++) {
+		srvArr[i] = srv[i];
+	}
 
-	if (srv[0] == prev) {
+	if (srvArr == prev) {
 		return;
 	}
-	/*if (prev != nullptr) {
-		int i = 0;
-		for (; i < range; i++) {
-			if (srv[i] != prev[i]) {
-				break;
-			}
-		}
-		if (i == range) {
-			return;
-		}
-	}*/
 
 	m_DeviceContext->PSSetShaderResources(startSlot, range, srv);
 	Profiler::GetInstance().ShaderResourcesBindingCount++;
@@ -409,6 +404,33 @@ void DX11Resources::SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology)
 
 	if (topology != prev) {
 		m_DeviceContext->IASetPrimitiveTopology(topology);
+	}
+}
+
+void DX11Resources::SetRenderTarget(
+	UINT numViews, 
+	ID3D11RenderTargetView * const * renderTargetView, 
+	ID3D11DepthStencilView * depthStencilView)
+{
+	std::array<ID3D11RenderTargetView*, MAX_RENDERTARGET_BINDING_COUNT> prevRtv = { nullptr };
+	ID3D11DepthStencilView* prevDsv = nullptr;
+	m_DeviceContext->OMGetRenderTargets(MAX_RENDERTARGET_BINDING_COUNT, prevRtv.data(), &prevDsv);
+
+	std::array<ID3D11RenderTargetView*, MAX_RENDERTARGET_BINDING_COUNT> rtvArr = { nullptr };
+	for (int i = 0; i < numViews; i++) {
+		rtvArr[i] = renderTargetView[i];
+	}
+
+	if (rtvArr != prevRtv || depthStencilView != prevDsv)
+	{
+		m_DeviceContext->OMSetRenderTargets
+		(
+			numViews,
+			renderTargetView,
+			depthStencilView
+		);
+
+		Profiler::GetInstance().RenderTargetBindingCount++;
 	}
 }
 

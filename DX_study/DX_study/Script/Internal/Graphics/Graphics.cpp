@@ -144,7 +144,7 @@ void Graphics::RenderBegin()
 	m_GpuFurDataBuffer.ApplyChanges();
 
 	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
-	for (int i = 0; i < DX11Resources::RenderTargetCount; i++) {
+	for (int i = 0; i < DX11Resources::MAX_RENDERTARGET_COUNT; i++) {
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);
 	}
 	m_DeviceContext->ClearDepthStencilView(m_MainDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
@@ -178,10 +178,15 @@ void Graphics::RenderModels()
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
 
-	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::DeferredRenderChannelCount, 
-		m_RenderTargetViewArr[0].GetAddressOf(), 
+	SetRenderTarget(
+		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
+		m_RenderTargetViewArr[0].GetAddressOf(),
 		m_MainDepthStencilView.Get());
+	//m_DeviceContext->OMSetRenderTargets(
+	//	DX11Resources::MAX_RENDERTARGET_BINDING_COUNT, 
+	//	m_RenderTargetViewArr[0].GetAddressOf(), 
+	//	m_MainDepthStencilView.Get());
+
 
 	m_DeviceContext->PSSetShaderResources(6, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());	//pos
 
@@ -191,7 +196,7 @@ void Graphics::RenderModels()
 	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
 
 	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::DeferredRenderChannelCount,
+		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
 		m_NullRtv,
 		NULL);
 	m_DeviceContext->VSSetShader(NULL, NULL, 0);
@@ -330,23 +335,23 @@ void Graphics::PostProcess()
 {
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
-	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetViewArr[DX11Resources::DeferredRenderChannelCount].GetAddressOf(), NULL);
+	m_DeviceContext->OMSetRenderTargets(1, m_RenderTargetViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].GetAddressOf(), NULL);
 
 	m_DeviceContext->VSSetShader(m_PostProcesVshader->GetShader(), NULL, 0);
 	m_DeviceContext->PSSetShader(m_PostProcesPshader->GetShader(), NULL, 0);
 
-	m_DeviceContext->PSSetShaderResources(0, 1, m_ShaderResourceViewArr[0].GetAddressOf());	//pos
-	m_DeviceContext->PSSetShaderResources(1, 1, m_ShaderResourceViewArr[1].GetAddressOf());	//normal
-	m_DeviceContext->PSSetShaderResources(2, 1, m_ShaderResourceViewArr[2].GetAddressOf());	//albedo
-	m_DeviceContext->PSSetShaderResources(3, 1, m_ShaderResourceViewArr[3].GetAddressOf());	//Mat
-	m_DeviceContext->PSSetShaderResources(4, 1, m_ShaderResourceViewArr[4].GetAddressOf());	//depth
-	m_DeviceContext->PSSetShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+	SetPSShaderResources(0, 1, m_ShaderResourceViewArr[0].GetAddressOf());	//pos
+	SetPSShaderResources(1, 1, m_ShaderResourceViewArr[1].GetAddressOf());	//normal
+	SetPSShaderResources(2, 1, m_ShaderResourceViewArr[2].GetAddressOf());	//albedo
+	SetPSShaderResources(3, 1, m_ShaderResourceViewArr[3].GetAddressOf());	//Mat
+	SetPSShaderResources(4, 1, m_ShaderResourceViewArr[4].GetAddressOf());	//depth
 
-	m_DeviceContext->PSSetShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	m_DeviceContext->PSSetShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
-	m_DeviceContext->PSSetShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
-	m_DeviceContext->PSSetShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
-	m_DeviceContext->PSSetShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
+	SetPSShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+	SetPSShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
+	SetPSShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
+	SetPSShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
+	SetPSShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
+	SetPSShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
 
 	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
 	//m_DeviceContext->PSSetShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
@@ -359,15 +364,15 @@ void Graphics::PostProcess()
 	m_DeviceContext->IASetIndexBuffer(mesh->GetIndexBuffer().Get(), DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
 	m_DeviceContext->DrawIndexed(mesh->GetIndexBuffer().IndexCount(), 0, 0);
 
-	m_DeviceContext->PSSetShaderResources(0, DX11Resources::DeferredRenderChannelCount + 1, m_NullSrv);
+	m_DeviceContext->PSSetShaderResources(0, DX11Resources::MAX_RENDERTARGET_BINDING_COUNT + 1, m_NullSrv);
 	m_DeviceContext->PSSetShaderResources(9, 1, m_NullSrv);
-	m_DeviceContext->OMSetRenderTargets(DX11Resources::DeferredRenderChannelCount, m_NullRtv, NULL);
+	m_DeviceContext->OMSetRenderTargets(DX11Resources::MAX_RENDERTARGET_BINDING_COUNT, m_NullRtv, NULL);
 }
 
 void Graphics::DrawSkybox()
 {
 	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::DeferredRenderChannelCount,
+		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
 		m_RenderTargetViewArr[0].GetAddressOf(),
 		m_MainDepthStencilView.Get());
 
@@ -392,7 +397,7 @@ void Graphics::DrawSkybox()
 	m_DeviceContext->OMSetDepthStencilState(m_DepthStencilState.Get(), 0);
 
 	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::DeferredRenderChannelCount,
+		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
 		m_NullRtv,
 		NULL);
 }
@@ -435,7 +440,7 @@ void Graphics::DrawGui()
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	GUI::DrawEditorUI(m_ShaderResourceViewArr[DX11Resources::DeferredRenderChannelCount].Get());
+	GUI::DrawEditorUI(m_ShaderResourceViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].Get());
 	
 	ImGuiIO& io = ImGui::GetIO();
 	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
@@ -482,7 +487,7 @@ void Graphics::DrawGuiDebug()
 
 	m_DeviceContext->OMSetRenderTargets(
 		1,
-		m_RenderTargetViewArr[DX11Resources::DeferredRenderChannelCount].GetAddressOf(),
+		m_RenderTargetViewArr[DX11Resources::MAX_RENDERTARGET_BINDING_COUNT].GetAddressOf(),
 		m_MainDepthStencilView.Get());
 
 	m_PrimitiveBatch->Begin();
@@ -493,7 +498,7 @@ void Graphics::DrawGuiDebug()
 	m_PrimitiveBatch->End();
 
 	m_DeviceContext->OMSetRenderTargets(
-		DX11Resources::DeferredRenderChannelCount,
+		DX11Resources::MAX_RENDERTARGET_BINDING_COUNT,
 		m_NullRtv,
 		NULL);
 }

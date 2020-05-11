@@ -16,4 +16,5 @@ public:
 	UINT PixelShaderBindingCount = 0;
 	UINT GeometryShaderBindingCount = 0;
 	UINT ShaderResourcesBindingCount = 0;
+	UINT RenderTargetBindingCount = 0;
 };

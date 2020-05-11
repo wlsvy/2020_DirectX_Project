@@ -45,6 +45,10 @@ public:
 	void SetDepthStencilState(ID3D11DepthStencilState * state);
 	void SetRasterizerState(ID3D11RasterizerState* rasterizer);
 	void SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY topology);
+	void SetRenderTarget(
+		UINT numViews, 
+		ID3D11RenderTargetView* const* renderTargetView, 
+		ID3D11DepthStencilView* depthStencilView);
 
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }
@@ -75,8 +79,9 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return m_PrimitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return m_DebugInputLayout.Get(); }
 
-	static const int RenderTargetCount = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
-	static const int DeferredRenderChannelCount = 5; 
+	static const UINT MAX_RENDERTARGET_COUNT = 8;	//Position, Normal, Albedo, Mat, depth,	+ Result + blur * 2
+	static const UINT MAX_RENDERTARGET_BINDING_COUNT = 5; 
+	static const UINT MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT = 3;
 
 protected:
 	Microsoft::WRL::ComPtr<ID3D11Device> m_Device;
@@ -102,14 +107,14 @@ protected:
 
 	//RenderTargets
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_MainRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetViewArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[RenderTargetCount];
-	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UnorderedAccessView[RenderTargetCount];
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_RenderTargetViewArr[MAX_RENDERTARGET_COUNT];
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceViewArr[MAX_RENDERTARGET_COUNT];
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_RenderTargetTextureArr[MAX_RENDERTARGET_COUNT];
+	Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView> m_UnorderedAccessView[MAX_RENDERTARGET_COUNT];
 
-	ID3D11RenderTargetView * const m_NullRtv[DX11Resources::RenderTargetCount] = { NULL, };
-	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::RenderTargetCount] = { NULL, };
-	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::RenderTargetCount] = { NULL, };
+	ID3D11RenderTargetView * const m_NullRtv[DX11Resources::MAX_RENDERTARGET_COUNT] = { NULL, };
+	ID3D11ShaderResourceView * const m_NullSrv[DX11Resources::MAX_RENDERTARGET_COUNT] = { NULL, };
+	ID3D11UnorderedAccessView * const m_NullUav[DX11Resources::MAX_RENDERTARGET_COUNT] = { NULL, };
 
 	//DirectX Tool Kit - DirectXTK
 	std::unique_ptr<DirectX::SpriteBatch> m_SpriteBatch;
