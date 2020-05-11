@@ -1,6 +1,8 @@
 #include "DX11Resources.h"
 #include "../Core/InternalHelper.h"
 
+
+
 bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 {
 	try {
@@ -55,6 +57,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		hr = this->m_Device->CreateRenderTargetView(backBuffer.Get(), NULL, this->m_MainRenderTargetView.GetAddressOf());
 		ThrowIfFailed(hr, "Failed to create render target view.");
 
+		//뷰포트 만들기 & 세팅
+		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
+		m_DeviceContext->RSSetViewports(1, &viewport);
+
 		//Describe our Depth/Stencil Buffer + 생성자 활용해서 코드 줄이기(애초에 default 패러미터 값은 안 건드려도 됨)
 		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R32_TYPELESS, width, height);
 		depthStencilDesc.MipLevels = 1;
@@ -89,49 +95,20 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 			m_Device->CreateShaderResourceView(depthStencilBuffer2.Get(), &shaderResourceViewDesc, m_SubDepthStencilSRV.GetAddressOf()),
 			"Failed to create shaderResourceViewArr.");
 
-		//Create depth stencil state 스텐실 & 뎁스
-		CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
-		depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+		////Create depth stencil state 스텐실 & 뎁스
+		//CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
+		//depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-		hr = this->m_Device->CreateDepthStencilState(&depthstencildesc, this->m_DepthStencilState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil state.");
+		//hr = this->m_Device->CreateDepthStencilState(&depthstencildesc, this->m_DepthStencilState.GetAddressOf());
+		//ThrowIfFailed(hr, "Failed to create depth stencil state.");
 
-		//뷰포트 만들기 & 세팅
-		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
-		this->m_DeviceContext->RSSetViewports(1, &viewport);
+		CreateDepthStencilState(m_DepthStencilState.GetAddressOf());
 
-		//래스터라이저 state 설정
-		CD3D11_RASTERIZER_DESC rasterizerDesc(D3D11_DEFAULT);
-		hr = this->m_Device->CreateRasterizerState(&rasterizerDesc, this->m_RasterizerState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create rasterizer state.");
+		CreateRasterizerState(m_RasterizerState.GetAddressOf());
 
-		//Create Blend state
-		D3D11_BLEND_DESC blendDesc = { 0 };
-		D3D11_RENDER_TARGET_BLEND_DESC rtbd = { 0 };
+		CreateBlenderState(m_BlendState.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
 
-		rtbd.BlendEnable = true;
-		rtbd.SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA;
-		rtbd.DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA;
-		rtbd.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
-		rtbd.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
-		rtbd.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
-		rtbd.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD; //Blend operation
-		rtbd.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
-
-		blendDesc.RenderTarget[0] = rtbd;
-
-		hr = this->m_Device->CreateBlendState(&blendDesc, this->m_BlendState.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create blend state.");
-
-		
-
-		//Create sampler description for sampler state
-		CD3D11_SAMPLER_DESC sampDesc(D3D11_DEFAULT);
-		sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-		hr = this->m_Device->CreateSamplerState(&sampDesc, this->m_SamplerState.GetAddressOf()); //Create sampler state
-		ThrowIfFailed(hr, "Failed to create sampler state.");
+		CreateSamplerState(m_SamplerState.GetAddressOf());
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -208,6 +185,73 @@ bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
 	}
 
 	return true;
+}
+
+void DX11Resources::CreateRasterizerState(
+	ID3D11RasterizerState** addr,
+	D3D11_FILL_MODE fillMode,
+	D3D11_CULL_MODE cullMode)
+{
+	CD3D11_RASTERIZER_DESC desc(D3D11_DEFAULT);
+	desc.FillMode = fillMode;
+	desc.CullMode = cullMode;
+	ThrowIfFailed(
+		m_Device->CreateRasterizerState(&desc, addr),
+		"Failed to create rasterizer state.");
+}
+
+void DX11Resources::CreateDepthStencilState(ID3D11DepthStencilState** addr)
+{
+	CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
+	depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+
+	ThrowIfFailed(
+		m_Device->CreateDepthStencilState(&depthstencildesc, addr),
+		"Failed to create depth stencil state.");
+}
+
+void DX11Resources::CreateSamplerState(
+	ID3D11SamplerState ** addr,
+	D3D11_FILTER filter,
+	D3D11_TEXTURE_ADDRESS_MODE addressMode) 
+{
+	CD3D11_SAMPLER_DESC desc(D3D11_DEFAULT);
+	desc.Filter = filter;
+	desc.AddressU = addressMode;
+	desc.AddressV = addressMode;
+	desc.AddressW = addressMode;
+	desc.BorderColor[0] = 0.0f;
+	desc.BorderColor[1] = 0.0f;
+	desc.BorderColor[2] = 0.0f;
+	desc.BorderColor[3] = 1.0f;
+	ThrowIfFailed(
+		m_Device->CreateSamplerState(&desc, addr),
+		"Failed to create sampler state.");
+}
+
+void DX11Resources::CreateBlenderState(
+	ID3D11BlendState ** addr,
+	bool blendEnable,
+	D3D11_BLEND SrcBlend,
+	D3D11_BLEND DestBlend)
+{
+	D3D11_BLEND_DESC desc;
+	desc.AlphaToCoverageEnable = false;
+	desc.IndependentBlendEnable = blendEnable;
+	for (auto& rtDesc : desc.RenderTarget) {
+		rtDesc.BlendEnable = blendEnable;
+		rtDesc.SrcBlend = SrcBlend;
+		rtDesc.DestBlend = DestBlend;
+		rtDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+		rtDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		rtDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+		rtDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+	}
+
+	ThrowIfFailed(
+		m_Device->CreateBlendState(&desc, addr),
+		"Failed to create blend state.");
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)

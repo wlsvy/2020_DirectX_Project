@@ -15,6 +15,21 @@ public:
 	bool InitializeRenderTarget(UINT width, UINT height);
 	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
+	void CreateRasterizerState(
+		ID3D11RasterizerState** addr,
+		D3D11_FILL_MODE fillMode = D3D11_FILL_SOLID,
+		D3D11_CULL_MODE cullMode = D3D11_CULL_BACK);
+	void CreateDepthStencilState(ID3D11DepthStencilState** addr);
+	void CreateSamplerState(
+		ID3D11SamplerState ** addr,
+		D3D11_FILTER filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D11_TEXTURE_ADDRESS_MODE addressMode = D3D11_TEXTURE_ADDRESS_WRAP);
+	void CreateBlenderState(
+		ID3D11BlendState ** addr,
+		bool blendEnable = true, 
+		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
+		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
+
 	ID3D11Device*					GetDevice()	const									{ return m_Device.Get(); }
 	ID3D11DeviceContext*			GetDeviceContext()	const							{ return m_DeviceContext.Get(); }
 	ID3D11RenderTargetView*			GetBaseRenderTargetView() const						{ return m_MainRenderTargetView.Get(); }
