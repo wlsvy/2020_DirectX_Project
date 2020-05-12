@@ -27,7 +27,6 @@ struct RenderTargetTypes {
 class DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
-	bool InitializeRenderTarget(UINT width, UINT height);
 	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
 	void CreateRasterizerState(
@@ -44,6 +43,14 @@ public:
 		bool blendEnable = true, 
 		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
 		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
+	void CreateRenderTarget(
+		ID3D11RenderTargetView** rtv,
+		ID3D11ShaderResourceView** srv,
+		ID3D11UnorderedAccessView** uav,
+		UINT widht, 
+		UINT height,
+		DXGI_FORMAT format = DXGI_FORMAT_R32G32B32A32_FLOAT
+	);
 
 	void SetVertexBuffer(ID3D11Buffer *const* vertexBuffer, const UINT * stridePtr);
 	void SetIndexBuffer(ID3D11Buffer * indexBuffer);

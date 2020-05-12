@@ -452,6 +452,9 @@
     <FxCompile Include="hlsl\PixelShader\PostProcess.hlsl" />
     <FxCompile Include="hlsl\GeometryShader\Default_gs.hlsl" />
     <FxCompile Include="hlsl\PixelShader\Light.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\SSAO.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\Composition.hlsl" />
+    <FxCompile Include="hlsl\PixelShader\Bloom.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="hlsl\PixelShader\Include\Common.hlsli" />

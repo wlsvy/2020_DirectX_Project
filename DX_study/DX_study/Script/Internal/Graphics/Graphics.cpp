@@ -34,7 +34,6 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		m_WindowHeight = height;
 
 		ThrowIfFailed(DX11Resources::Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
-		ThrowIfFailed(DX11Resources::InitializeRenderTarget(width, height),	"Failed to initialize Device Resources RenderTarget");
 		
 		InitializeConstantBuffer();
 
@@ -60,6 +59,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		m_PostProcesVshader = Core::Find<VertexShader>("QuadPlane");
 		m_PostProcesPshader = Core::Find<PixelShader>("PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("ShadowMap");
+		m_SsaoShader = Core::Find<PixelShader>("SSAO");
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
 		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
@@ -253,6 +253,26 @@ void Graphics::Pass_Light()
 		m_NullRtv,
 		NULL
 	);
+}
+
+void Graphics::Pass_SSAO()
+{
+	SetPSShaderResources(0, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
+	SetPSShaderResources(1, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
+	SetPSShaderResources(4, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
+
+	{
+		SetRenderTarget
+		(
+			1,
+			m_RenderTargetViewArr[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(),
+			NULL
+		);
+
+		SetPixelShader(m_SsaoShader->GetShader());
+
+		RenderQuadPlane();
+	}
 }
 
 void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)

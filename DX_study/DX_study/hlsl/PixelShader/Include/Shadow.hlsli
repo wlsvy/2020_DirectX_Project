@@ -22,12 +22,6 @@ float CompareShadowMapDepth(float2 uv, float depth)
 
 }
 
-float4 CompareShadowMapDepthS(float2 uv, float depth)
-{
-    return shadowMap.SampleCmpLevelZero(cmpSampler, uv, depth);
-
-}
-
 float LerpShadowMapDepth(float2 size, float2 uv, float depth)
 {
     float2 texelSize = float2(1.0f, 1.0f) / size * softShadowInterpoloateBias;
@@ -71,10 +65,7 @@ float4 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
         return float4(1.0f, 1.0f, 1.0f, 1.0f);
     }
     
-    //return float4((1 - shadowMap.SampleCmpLevelZero(cmpSampler, projectTexCoord, lightDepth)).xxx, 1.0f);
-    //return float4(CompareShadowMapDepth(projectTexCoord, lightDepth).xxx, 1.0f);
     return float4(PCF(float2(1024, 768), projectTexCoord, lightDepth).xxx, 1.0f);
-    //return float4(LerpShadowMapDepth(float2(1024, 768), projectTexCoord, lightDepth).xxx, 1.0f);
 }
 
 float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
@@ -89,7 +80,6 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
         return float4(1.0f, 1.0f, 1.0f, 1.0f);
     }
     
-    //return CompareShadowMapDepthS(projectTexCoord, lightDepth);
     return float4(step(shadowMap.Sample(LinearWrap, projectTexCoord).r, lightDepth).xxx, 1.0f);
 }
 

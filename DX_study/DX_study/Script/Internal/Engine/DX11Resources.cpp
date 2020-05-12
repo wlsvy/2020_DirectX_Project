@@ -114,6 +114,15 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateSamplerState(m_SamplerLinearMirror.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_MIRROR);
 		CreateSamplerState(m_SamplerAnisotropicWrap.GetAddressOf(), D3D11_FILTER_ANISOTROPIC, D3D11_TEXTURE_ADDRESS_WRAP);
 
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Position].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Normal].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Albedo].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Material].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Depth].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurIn].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurOut].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), width, height);
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -121,68 +130,6 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		m_BasicEffect = std::make_unique<DirectX::BasicEffect>(m_Device.Get());
 		m_DebugEffect = std::make_unique<DirectX::DebugEffect>(m_Device.Get());
 		m_PrimitiveBatch = std::make_unique<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>(m_DeviceContext.Get());
-
-
-	}
-	catch (CustomException & exception) {
-		StringHelper::ErrorLog(exception);
-		return false;
-	}
-
-	return true;
-}
-
-bool DX11Resources::InitializeRenderTarget(UINT width, UINT height)
-{
-	try {
-		UINT widthArr[RenderTargetTypes::Max] = { width , width , width , width  ,width,  width, width / 2, width / 2, width };
-		UINT heightArr[RenderTargetTypes::Max] = { height , height , height , height  ,height,  height, height / 2 , height / 2, height};
-		UINT formatArr[RenderTargetTypes::Max] = { 2, 2, 2, 2, 2, 2, 28, 28, 2 };
-		for (int i = 0; i < RenderTargetTypes::Max; i++) {
-			D3D11_TEXTURE2D_DESC textureDesc;
-			ZeroMemory(&textureDesc, sizeof(textureDesc));
-			textureDesc.Width = widthArr[i];
-			textureDesc.Height = heightArr[i];
-			textureDesc.MipLevels = 1;
-			textureDesc.ArraySize = 1;
-			textureDesc.Format = (DXGI_FORMAT)formatArr[i];
-			textureDesc.SampleDesc.Count = 1;
-			textureDesc.Usage = D3D11_USAGE_DEFAULT;
-			textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-			textureDesc.CPUAccessFlags = 0;
-			textureDesc.MiscFlags = 0;
-			ThrowIfFailed(
-				m_Device->CreateTexture2D(&textureDesc, NULL, m_RenderTargetTextureArr[i].GetAddressOf()),
-				"Failed to create renderTargetTextureArr.");
-
-			D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-			ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
-			renderTargetViewDesc.Format = textureDesc.Format;
-			renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-			renderTargetViewDesc.Texture2D.MipSlice = 0;
-			ThrowIfFailed(
-				m_Device->CreateRenderTargetView(m_RenderTargetTextureArr[i].Get(), &renderTargetViewDesc, m_RenderTargetViewArr[i].GetAddressOf()),
-				"Failed to create renderTargetViewArr.");
-
-			D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-			ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-			shaderResourceViewDesc.Format = textureDesc.Format;
-			shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-			shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-			shaderResourceViewDesc.Texture2D.MipLevels = 1;
-			ThrowIfFailed(
-				m_Device->CreateShaderResourceView(m_RenderTargetTextureArr[i].Get(), &shaderResourceViewDesc, m_RenderTargetSrvs[i].GetAddressOf()),
-				"Failed to create shaderResourceViewArr.");
-
-			D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
-			ZeroMemory(&unorderedAccessViewDesc, sizeof(unorderedAccessViewDesc));
-			unorderedAccessViewDesc.Format = textureDesc.Format;
-			unorderedAccessViewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-			unorderedAccessViewDesc.Texture2D.MipSlice = 0;
-			ThrowIfFailed(
-				Core::GetDevice()->CreateUnorderedAccessView(m_RenderTargetTextureArr[i].Get(), &unorderedAccessViewDesc, m_RenderTargetUavs[i].GetAddressOf()),
-				"Failed to create UnorderedAccessView.");
-		}
 	}
 	catch (CustomException & exception) {
 		StringHelper::ErrorLog(exception);
@@ -253,6 +200,61 @@ void DX11Resources::CreateBlenderState(
 	ThrowIfFailed(
 		m_Device->CreateBlendState(&desc, addr),
 		"Failed to create blend state.");
+}
+
+void DX11Resources::CreateRenderTarget(
+	ID3D11RenderTargetView ** rtv, 
+	ID3D11ShaderResourceView ** srv, 
+	ID3D11UnorderedAccessView ** uav, 
+	UINT widht, 
+	UINT height, 
+	DXGI_FORMAT format)
+{
+	D3D11_TEXTURE2D_DESC textureDesc;
+	ZeroMemory(&textureDesc, sizeof(textureDesc));
+	textureDesc.Width = widht;
+	textureDesc.Height = height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = format;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+	textureDesc.CPUAccessFlags = 0;
+	textureDesc.MiscFlags = 0;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
+	ThrowIfFailed(
+		m_Device->CreateTexture2D(&textureDesc, NULL, texture.GetAddressOf()),
+		"Failed to create renderTargetTextureArr.");
+
+	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
+	ZeroMemory(&renderTargetViewDesc, sizeof(renderTargetViewDesc));
+	renderTargetViewDesc.Format = textureDesc.Format;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.Texture2D.MipSlice = 0;
+	ThrowIfFailed(
+		m_Device->CreateRenderTargetView(texture.Get(), &renderTargetViewDesc, rtv),
+		"Failed to create renderTargetViewArr.");
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	ThrowIfFailed(
+		m_Device->CreateShaderResourceView(texture.Get(), &shaderResourceViewDesc, srv),
+		"Failed to create shaderResourceViewArr.");
+
+	D3D11_UNORDERED_ACCESS_VIEW_DESC unorderedAccessViewDesc;
+	ZeroMemory(&unorderedAccessViewDesc, sizeof(unorderedAccessViewDesc));
+	unorderedAccessViewDesc.Format = textureDesc.Format;
+	unorderedAccessViewDesc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
+	unorderedAccessViewDesc.Texture2D.MipSlice = 0;
+	ThrowIfFailed(
+		Core::GetDevice()->CreateUnorderedAccessView(texture.Get(), &unorderedAccessViewDesc, uav),
+		"Failed to create UnorderedAccessView.");
 }
 
 void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)

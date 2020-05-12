@@ -34,6 +34,7 @@ public:
 	void Pass_ShadowMap(const std::shared_ptr<LightBase> & light);
 	void Pass_GBuffer();
 	void Pass_Light();
+	void Pass_SSAO();
 	void Pass_PostProcess();
 	void Pass_Gizmo();
 	void Pass_EditorUI();
@@ -85,6 +86,7 @@ private:
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
+	std::shared_ptr<PixelShader> m_SsaoShader;
 	std::shared_ptr<Model> m_QuadWindowModel;
 	std::shared_ptr<ComputeShader> m_BlurShader;
 	std::shared_ptr<ComputeShader> m_DownSampleShader;

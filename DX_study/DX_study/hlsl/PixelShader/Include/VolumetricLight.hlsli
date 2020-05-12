@@ -29,7 +29,7 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
     float stepSize = rayLength / stepCount;
     float3 step = rayDir * stepSize;
 
-    float3 currentPosition = rayStart + step;
+    float3 currentPosition = rayStart + step * offset;
     float vlight = 0;
 
     [loop]
