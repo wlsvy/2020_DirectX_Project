@@ -1,20 +1,13 @@
 #include "Include/Common.hlsli"
-#include "Include/PostProcessHeader.hlsli"
 #include "Include/Shadow.hlsli"
 #include "Include/VolumetricLight.hlsli"
 
-struct PS_INPUT
-{
-    float4 inPosition : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
-};
-
-float4 main(PS_INPUT input) : SV_TARGET
+float4 main(Vertex_Quad input) : SV_TARGET
 {
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
-    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
-    float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord);
-    float3 matProperty = matPropertyTexture.Sample(PointClamp, input.inTexCoord);
+    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord).xyz;
+    float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord).xyz;
+    float3 matProperty = matPropertyTexture.Sample(PointClamp, input.inTexCoord).xyz;
     float metal = matProperty.x;
     float roughness = matProperty.y;
     float specular = matProperty.z;
@@ -29,8 +22,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix));
     float4 output = float4
     (
-        VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance).xyz,
-        CalculateShadow(0, lightSpacePos).x
+        VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance).x,
+        CalculateShadow(0, lightSpacePos),
+        1.0f
     );
     
     return output;

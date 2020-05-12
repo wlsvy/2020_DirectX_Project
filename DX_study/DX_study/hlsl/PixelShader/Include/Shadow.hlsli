@@ -1,7 +1,7 @@
 #ifndef PIXELSHADER_SHADOW_HLSLI
 #define PIXELSHADER_SHADOW_HLSLI
 
-#include "PostProcessHeader.hlsli"
+#include "Common.hlsli"
 
 SamplerComparisonState cmpSampler
 {
@@ -14,7 +14,7 @@ SamplerComparisonState cmpSampler
     ComparisonFunc = LESS_THAN;
 };
 
-float ShadowMapDepthBias = 0.001f;
+static const float ShadowMapDepthBias = 0.00001f;
 
 float CompareShadowMapDepth(float2 uv, float depth)
 {
@@ -44,8 +44,8 @@ float PCF(float2 size, float2 uv, float depth)
         for (float y = -2; y <= 2; y += 1.0f)
         {
             float2 offset = float2(x, y) / size * (1 - depth) * softShadowPCFBias;
-            //result += LerpShadowMapDepth(size, uv + offset, depth);
-            result += CompareShadowMapDepth(uv + offset, depth);
+            result += LerpShadowMapDepth(size, uv + offset, depth);
+            //result += CompareShadowMapDepth(uv + offset, depth);
         }
     }
     
@@ -53,53 +53,35 @@ float PCF(float2 size, float2 uv, float depth)
 
 }
 
-float4 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
+half2 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
 {
-    float lightDepth = 1 - lightSpacePos.z / spotLight.Range + 0.0101f;
+    half linearDepth = lightSpacePos.z * 0.02;
+    lightSpacePos.xyz /= lightSpacePos.w;
     
-    float2 projectTexCoord = 0.5f * lightSpacePos.xy / lightSpacePos.w + 0.5f;
-    projectTexCoord.y = 1.0f - projectTexCoord.y;
+    float lightDepth = lightSpacePos.z - ShadowMapDepthBias;
+    float2 projectTexCoord = float2(0.5f, -0.5f) * lightSpacePos.xy + 0.5f;
         
     if (projectTexCoord.x <= 0.0f || projectTexCoord.x >= 1.0f || projectTexCoord.y <= 0.0f || projectTexCoord.y >= 1.0f || lightDepth > 1.0f || lightDepth < 0.0f)
     {
-        return float4(1.0f, 1.0f, 1.0f, 1.0f);
+        return half2(1.0f, 1.0f);
     }
     
-    return float4(PCF(float2(1024, 768), projectTexCoord, lightDepth).xxx, 1.0f);
+    return half2(1 - PCF(float2(1024, 768), projectTexCoord, lightDepth).x, linearDepth);
 }
 
-float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
+half2 CalculateShadow(int lightIndex, float4 lightSpacePos)
 {
-    float lightDepth = 1 - lightSpacePos.z / spotLight.Range + 0.0001f;
+    half linearDepth = lightSpacePos.z * 0.02;
+    lightSpacePos.xyz /= lightSpacePos.w;
     
-    float2 projectTexCoord = 0.5f * lightSpacePos.xy / lightSpacePos.w + 0.5f;
-    projectTexCoord.y = 1.0f - projectTexCoord.y;
+    float lightDepth = lightSpacePos.z - ShadowMapDepthBias;
+    float2 projectTexCoord = float2(0.5f, -0.5f) * lightSpacePos.xy + 0.5f;
         
     if (projectTexCoord.x <= 0.0f || projectTexCoord.x >= 1.0f || projectTexCoord.y <= 0.0f || projectTexCoord.y >= 1.0f || lightDepth > 1.0f)
     {
-        return float4(1.0f, 1.0f, 1.0f, 1.0f);
+        return half2(1.0f, 1.0f);
     }
-    
-    return float4(step(shadowMap.Sample(LinearWrap, projectTexCoord).r, lightDepth).xxx, 1.0f);
-}
-
-void ProcessVl_ShadowTexure(float2 uv, float2 size, float depth, out float3 volumetricLight, out float shadow)
-{
-    float4 result = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    [unroll(50)]
-    for (float x = -2; x <= 2; x += 1.0f)
-    {
-        for (float y = -2; y <= 2; y += 1.0f)
-        {
-            //float2 offset = float2(x, y) / size * (0.5 + 0.5 * (1 - depth)) * softShadowPCFBias;
-            float2 offset = float2(x, y) / size * softShadowPCFBias;
-            result += lightShadowTexture.Sample(LinearWrap, uv + offset);
-        }
-    }
-    
-    result *= 0.04;
-    volumetricLight = result.xyz;
-    shadow = result.w;
+    return half2(step(lightDepth, shadowMap.Sample(LinearWrap, projectTexCoord).x), linearDepth);
 }
 
 #endif 

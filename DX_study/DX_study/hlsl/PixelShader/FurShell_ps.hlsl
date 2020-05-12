@@ -1,4 +1,4 @@
-#include "Include/ObjectHeader.hlsli"
+#include "Include/Common.hlsli"
 
 struct G2P
 {
@@ -10,22 +10,10 @@ struct G2P
     int inFurLayer : TEXCOORD1;
 };
 
-cbuffer FurDate : register(b3)
-{
-    int FurLayer;
-    float FurLength;
-    float FurOpacityThreshold;
-    float FurOpacity;
-    float FurDensity;
-    float FurGravity;
-    float2 pad;
-}
 
-Texture2D FurShellOpacityMap : TEXTURE : register(t8);
-
-PS_OUTPUT main(G2P input) : SV_TARGET
+Pixel_Deferred main(G2P input) : SV_TARGET
 {
-    PS_OUTPUT output;
+    Pixel_Deferred output;
     output.pos = float4(input.inWorldPos, 1.0f);
     output.normal = float4(input.inNormal, 1.0f);
     

@@ -1,16 +1,6 @@
 #include "Include/Common.hlsli"
-#include "Include/PostProcessHeader.hlsli"
-#include "Include/PBR.hlsli"
-#include "Include/VolumetricLight.hlsli"
-#include "Include/AmbientOcclusion.hlsli"
 
-struct PS_INPUT
-{
-    float4 inPosition : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
-};
-
-float4 main(PS_INPUT input) : SV_TARGET
+float4 main(Vertex_Quad input) : SV_TARGET
 {
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
     float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
@@ -22,27 +12,5 @@ float4 main(PS_INPUT input) : SV_TARGET
     
     float3 lightVal = AmbientColor * AmbientStrength;
     float3 finalColor = float3(0.0f, 0.0f, 0.0f);
-    
-    float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
-    float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
-    cameraToPixelDistance = min(cameraToPixelDistance, 1000.0f);
-    
-    float4 lightSpacePos = mul(float4(position.xyz, 1.0f), transpose(spotLight.ViewProjMatrix)); 
-    lightVal += CalculateShadowPCF(0, lightSpacePos) * CalculateLightColor(position.xyz, normal.xyz);
-    
-    float3 reflectionVector = reflect(rayDir, normal);
-    float3 reflectionColor = irradianceTexture.Sample(PointClamp, reflectionVector) * 0.5;
-    
-    float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
-    
-    float4 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);
-    //float4 vl = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-    if (position.w < 0.0f)
-    {
-        return float4(albedo + vl.xyz, 1.0f);
-    }
-       
-    finalColor = vl.xyz + saturate(lightVal * albedo + reflectionColor);
     return float4(finalColor, 1.0f);
 }

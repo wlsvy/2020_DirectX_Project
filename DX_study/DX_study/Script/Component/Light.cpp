@@ -110,7 +110,7 @@ void SpotLight::SetSpotAngle(float angle)
 void SpotLight::SetProjectionMatrix()
 {
 	float fovRadians = (m_SpotAngle / 360.0f) * DirectX::XM_2PI;
-	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1280/720, 0.1f, m_Range);
+	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1024/768, 0.1f, m_Range);
 }
 
 void LightBase::OnGui()

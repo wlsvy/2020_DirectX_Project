@@ -1,4 +1,4 @@
-#include "Include/PostProcessHeader.hlsli"
+#include "Include/Common.hlsli"
 
 //√‚√≥ : https://www.gamedev.net/articles/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
 
@@ -39,19 +39,11 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
     return 1 - saturate(ao / (float) iterations * 4.0);
 }
 
-struct PS_INPUT
-{
-    float4 inPosition : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
-};
-
-float4 main(PS_INPUT input) : SV_TARGET
+float4 main(Vertex_Quad input) : SV_TARGET
 {
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
     float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
 
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
-    
-    //return ambientOcclusionFactor;
     return float4(ambientOcclusionFactor.xxx, 1.0f);
 }

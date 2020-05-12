@@ -1,10 +1,4 @@
-#include "Include/PostProcessHeader.hlsli"
-
-struct PS_INPUT
-{
-    float4 inPosition : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
-};
+#include "Include/Common.hlsli"
 
 half3 Prefilter(half3 c)
 {
@@ -14,9 +8,9 @@ half3 Prefilter(half3 c)
     return c * contribution;
 }
 
-float4 main(PS_INPUT input) : SV_TARGET
+float4 main(Vertex_Quad input) : SV_TARGET
 {
     float3 bloom = bloomTexture.Sample(LinearWrap, input.inTexCoord).xyz;
     
-    return float4(Prefilter(bloom), 0.5f) * softShadowInterpoloateBias;
+    return float4(Prefilter(bloom), 0.5f) * 0.0f;
 }

@@ -1,6 +1,9 @@
 #ifndef PIXELSHADER_COMMON_HLSLI_
 #define PIXELSHADER_COMMON_HLSLI_
 
+#include "CommonTypes.hlsli"
+#include "CommonData.hlsli"
+
 static const float PI = 3.14159265358979323846;
 static const float INFINITY = 100000.0f;
 static const float Epsilon = 0.00001;
@@ -11,63 +14,20 @@ SamplerState LinearWrap : SAMPLER : register(s2);
 SamplerState LinearMirror : SAMPLER : register(s3);
 SamplerState AnisotropicWrap : SAMPLER : register(s4);
 
-cbuffer CB_Scene : register(b0)
-{
-    float3 CameraPosition;
-    float pad0;
-    float3 CameraForward;
-    float pad1;
-    
-    float ElapsedTime;
-    float DeltaTime;
-    float2 pad2;
-    
-    float3 AmbientColor;
-    float AmbientStrength;
-    
-    float4x4 InverseViewMatrix;
-    float4x4 InverseProjMatrix;
-    
-    float softShadowPCFIter;
-    float softShadowPCFBias;
-    float softShadowInterpoloateBias;
-    float pad3;
-    
-    float SSAO_strength;
-    float SSAO_radius;
-    float SSAO_bias;
-    float SSAO_scale;
-    
-    // x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
-    float3 VolumetricLightVar;
-    int VolumetricLightSampleCount;
-}
-
-struct SpotLight
-{
-    float3 Position;
-    float Range;
-
-    float3 Forward;
-    float SpotAngle;
-
-    float3 Color;
-    float Strength;
-    
-    float3 Attenuation;
-    float conePlaneD;
-    
-    float4x4 ViewProjMatrix;
-};
-
-cbuffer CB_SpotLight : register(b1)
-{
-    SpotLight spotLight;
-}
 
 float hash(float x)
 {
     return frac(sin(x) * 43758.5453);
+}
+
+float2 getRandom(in float2 uv)
+{
+    return normalize(randomMap.Sample(LinearWrap, uv).xy * 2.0f - 1.0f);
+}
+
+float FogAttenuation(float density, float distance)
+{
+    return saturate(1 / exp(distance * density));
 }
 
 float3 GetRandomVector(float seed)
@@ -80,6 +40,16 @@ float3 GetRandomVector(float seed)
     return float3(cos(phi) * sina, cosa, sin(phi) * sina);
 }
 
+float3 CalcPerPixelNormal(float2 vTexcoord, float3 vVertNormal, float3 vVertTangent)
+{
+    float3 vVertBinormal = normalize(cross(vVertTangent, vVertNormal));
+    float3x3 mTangentSpaceToWorldSpace = float3x3(vVertTangent, vVertBinormal, vVertNormal);
+
+    float3 vBumpNormal = (float3) normalMap.Sample(LinearWrap, vTexcoord);
+    vBumpNormal = 2.0f * vBumpNormal - 1.0f;
+
+    return mul(vBumpNormal, mTangentSpaceToWorldSpace);
+}
 
 //√‚√≥ : http://lousodrome.net/blog/light/2017/01/03/intersection-of-a-ray-and-a-cone/
 bool IsRayPositionInsideCone(float3 rayOrigin, float3 rayDir, float t)

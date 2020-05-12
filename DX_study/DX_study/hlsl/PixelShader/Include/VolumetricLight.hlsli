@@ -2,7 +2,6 @@
 #define PIXELSHADER_VOLUMETRICLIGHT_HLSLI_
 
 #include "Common.hlsli"
-#include "PostProcessHeader.hlsli"
 #include "Shadow.hlsli"
 
 //Volumetric Light  참조 : https://github.com/SlightlyMad/VolumetricLights, https://github.com/ACskyline/VLD3D11
@@ -13,11 +12,11 @@ bool DoesLightReach(float3 position, float3 lightVec, float lightDist)
         return false;
     }
     
-    float4 lightSpacePos = mul(float4(position, 1.0f), transpose(spotLight.ViewProjMatrix)); // 도대체 왜 이걸 전치시켜야 하는지 이해를 못하겠다
+    float4 lightSpacePos = mul(float4(position, 1.0f), transpose(spotLight.ViewProjMatrix));
     if (lightSpacePos.w < 0)
         return false;
     
-    return CalculateShadow(0, lightSpacePos);;
+    return CalculateShadow(0, lightSpacePos).r;
 }
 
 float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength)

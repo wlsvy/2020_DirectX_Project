@@ -1,9 +1,9 @@
-#include "Include/ObjectHeader.hlsli"
+#include "Include/Common.hlsli"
 
-float4 main(PS_INPUT input) : SV_TARGET
+float4 main(Vertex_Basic input) : SV_TARGET
 {
     float4 newPos = mul(float4(input.inWorldPos, 1.0f), transpose(spotLight.ViewProjMatrix));
-    float depth = 1 - newPos.z / spotLight.Range;
+    float depth = newPos.z / newPos.w;
     //float depth = input.inPosition.z / input.inPosition.w;
     //float depth = newPos.z / newPos.w;
 

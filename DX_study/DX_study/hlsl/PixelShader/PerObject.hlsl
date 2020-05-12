@@ -1,8 +1,8 @@
-#include "Include/ObjectHeader.hlsli"
+#include "Include/Common.hlsli"
 
-PS_OUTPUT main(PS_INPUT input) : SV_TARGET
+Pixel_Deferred main(Vertex_Basic input) : SV_TARGET
 {
-    PS_OUTPUT output;
+    Pixel_Deferred output;
     output.pos = float4(input.inWorldPos, 1.0f);
     output.color = albedoMap.Sample(PointClamp, input.inTexCoord) * materialColor;
     
