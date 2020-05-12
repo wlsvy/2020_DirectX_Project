@@ -104,6 +104,6 @@ struct GpuFurBuffer {
 	float FurOpacityThreshold = 0.6f;
 	float FurOpacity = 0.01f;
 	float FurDensity = 5.0f;
-	float FurGravity = 0.1f;
+	float FurGravity = 0.02f;
 	DirectX::XMFLOAT2 pad;
 };

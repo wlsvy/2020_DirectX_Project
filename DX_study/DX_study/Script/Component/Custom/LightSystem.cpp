@@ -17,7 +17,7 @@ void LightSystem::OnGui()
 	ImGui::DragFloat("SSAO Scale", &cbScene.data.ssao_Scale, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("softShadowInterpoloateBias", &cbScene.data.softShadowInterpoloateBias, 0.01f, 0.0f, 10.0f);
 	ImGui::DragFloat("softShadowPCFBias", &cbScene.data.softShadowPCFBias, 0.01f, 0.0f, 10.0f);
-	ImGui::DragFloat("softShadowPCFIter", &cbScene.data.softShadowPCFIter, 1.0f, 0.0f, 10.0f);
+	ImGui::DragFloat("softShadowPCFIter", &cbScene.data.softShadowPCFIter, 0.01f, 0.0f, 1.0f);
 
 	ImGui::DragFloat3("VolumetricLight", &cbScene.data.VolumetricLightVar.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragInt("VolumetricLightSampleCount", &cbScene.data.VolumetricLightSampleCount, 1, 0, 100);

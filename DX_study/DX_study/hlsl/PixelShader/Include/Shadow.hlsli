@@ -83,4 +83,23 @@ float4 CalculateShadow(int lightIndex, float4 lightSpacePos)
     return float4(step(shadowMap.Sample(LinearWrap, projectTexCoord).r, lightDepth).xxx, 1.0f);
 }
 
+void ProcessVl_ShadowTexure(float2 uv, float2 size, float depth, out float3 volumetricLight, out float shadow)
+{
+    float4 result = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    [unroll(50)]
+    for (float x = -2; x <= 2; x += 1.0f)
+    {
+        for (float y = -2; y <= 2; y += 1.0f)
+        {
+            //float2 offset = float2(x, y) / size * (0.5 + 0.5 * (1 - depth)) * softShadowPCFBias;
+            float2 offset = float2(x, y) / size * softShadowPCFBias;
+            result += lightShadowTexture.Sample(LinearWrap, uv + offset);
+        }
+    }
+    
+    result *= 0.04;
+    volumetricLight = result.xyz;
+    shadow = result.w;
+}
+
 #endif 

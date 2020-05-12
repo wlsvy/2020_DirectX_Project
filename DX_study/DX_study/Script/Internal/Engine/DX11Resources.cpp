@@ -105,8 +105,8 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRasterizerState(m_RasterizerCullNone.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
 		CreateBlenderState(m_BlendStateOpaque.GetAddressOf(), false);
-		CreateBlenderState(m_BlendStateAlpha.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
-		CreateBlenderState(m_BlendStateAdditive.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
+		CreateBlenderState(m_BlendStateAlpha.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
+		CreateBlenderState(m_BlendStateAdditive.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
 
 		CreateSamplerState(m_SamplerPointClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 		CreateSamplerState(m_SamplerLinearClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
@@ -118,11 +118,16 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Normal].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Albedo].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Material].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Depth].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Depth].GetAddressOf(), width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition0].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition0].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition0].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition1].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition1].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurIn].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurOut].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::SSAO].GetAddressOf(), width, height, DXGI_FORMAT_R32_FLOAT);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::HalfSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::HalfSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::QuarterSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::QuarterSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::QuarterSize].GetAddressOf(), width * 0.25, height * 0.25, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), width * 0.125, height * 0.125, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::SSAO].GetAddressOf(), width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Light].GetAddressOf(), width, height);
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -181,7 +186,9 @@ void DX11Resources::CreateBlenderState(
 	ID3D11BlendState ** addr,
 	bool blendEnable,
 	D3D11_BLEND SrcBlend,
-	D3D11_BLEND DestBlend)
+	D3D11_BLEND DestBlend,
+	D3D11_BLEND srcBlendAlpha,
+	D3D11_BLEND destBlendAlpha)
 {
 	D3D11_BLEND_DESC desc;
 	desc.AlphaToCoverageEnable = false;
@@ -191,8 +198,8 @@ void DX11Resources::CreateBlenderState(
 		rtDesc.SrcBlend = SrcBlend;
 		rtDesc.DestBlend = DestBlend;
 		rtDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
-		rtDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
-		rtDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO;
+		rtDesc.SrcBlendAlpha = srcBlendAlpha;
+		rtDesc.DestBlendAlpha = destBlendAlpha;
 		rtDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
 		rtDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 	}

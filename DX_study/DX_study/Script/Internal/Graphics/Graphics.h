@@ -37,12 +37,15 @@ struct TextureBindTypes {
 		SSAO,
 		Bloom,
 		Fur,
+		Light,
 
 		MaterialAlbedo = 11,
 		MaterialNormal,
 		MaterialMetal,
 		MaterialRoughness,
 		MaterialSpecualr,
+		CompositionIn,
+		CompositionOut,
 
 		Random = 21,
 		Skybox,
@@ -63,10 +66,13 @@ public:
 	void Pass_GBuffer();
 	void Pass_Light();
 	void Pass_SSAO();
+	void Pass_Composition();
 	void Pass_PostProcess();
+	void Pass_Bloom(ID3D11ShaderResourceView** texOut);
 	void Pass_Gizmo();
 	void Pass_EditorUI();
-	void Pass_Blur();
+	void Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height);
+	void Pass_DownSample(ID3D11ShaderResourceView** texIn, ID3D11UnorderedAccessView** texOut, UINT texInwidth, UINT texInheight);
 	void RenderEnd();
 
 	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }
@@ -115,6 +121,9 @@ private:
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_PostProcesPshader;
 	std::shared_ptr<PixelShader> m_SsaoShader;
+	std::shared_ptr<PixelShader> m_CompositionShader;
+	std::shared_ptr<PixelShader> m_LightShader;
+	std::shared_ptr<PixelShader> m_BloomShader;
 	std::shared_ptr<Model> m_QuadWindowModel;
 	std::shared_ptr<ComputeShader> m_BlurShader;
 	std::shared_ptr<ComputeShader> m_DownSampleShader;

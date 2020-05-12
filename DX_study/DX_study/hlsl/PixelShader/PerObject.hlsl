@@ -10,11 +10,13 @@ PS_OUTPUT main(PS_INPUT input) : SV_TARGET
     //output.normal = float4(calNormal, 1.0f);
     output.normal = float4(input.inNormal, 1.0f);
     
-    output.materialProperty = float4(
-    metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity,
-    roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity,
-    specularMap.Sample(PointClamp, input.inTexCoord).r * SpecularIntensity,
-    1.0f);
+    output.materialProperty = float4
+    (
+        metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity,
+        roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity,
+        specularMap.Sample(PointClamp, input.inTexCoord).r * SpecularIntensity,
+        1.0f
+    );
     
     float depth = input.inPosition.z / input.inPosition.w;
     output.depth = float4(depth, depth, depth, 1.0f);

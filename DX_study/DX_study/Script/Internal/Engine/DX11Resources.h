@@ -16,10 +16,15 @@ struct RenderTargetTypes {
 		Albedo,
 		Material,
 		Depth,
-		Composition,
+		Composition0,
+		Composition1,
 		BlurIn,
 		BlurOut,
+		HalfSize,
+		QuarterSize,
+		HalfQuarterSize,
 		SSAO,
+		Light,
 		Max
 	};
 };
@@ -42,7 +47,9 @@ public:
 		ID3D11BlendState ** addr,
 		bool blendEnable = true, 
 		D3D11_BLEND SrcBlend = D3D11_BLEND::D3D11_BLEND_SRC_ALPHA,
-		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA);
+		D3D11_BLEND DestBlend = D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA,
+		D3D11_BLEND srcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE,
+		D3D11_BLEND destBlendAlpha = D3D11_BLEND::D3D11_BLEND_ZERO);
 	void CreateRenderTarget(
 		ID3D11RenderTargetView** rtv,
 		ID3D11ShaderResourceView** srv,

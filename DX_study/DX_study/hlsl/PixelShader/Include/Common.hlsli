@@ -1,9 +1,9 @@
 #ifndef PIXELSHADER_COMMON_HLSLI_
 #define PIXELSHADER_COMMON_HLSLI_
 
-const float PI = 3.14159265358979323846;
-const float INFINITY = 100000.0f;
-const float Epsilon = 0.00001;
+static const float PI = 3.14159265358979323846;
+static const float INFINITY = 100000.0f;
+static const float Epsilon = 0.00001;
 
 SamplerState PointClamp : SAMPLER : register(s0);
 SamplerState LinearClamp : SAMPLER : register(s1);

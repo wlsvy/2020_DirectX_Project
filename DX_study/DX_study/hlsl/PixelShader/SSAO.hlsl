@@ -45,13 +45,13 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD;
 };
 
-float main(PS_INPUT input) : SV_TARGET
+float4 main(PS_INPUT input) : SV_TARGET
 {
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
     float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
 
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     
-    return ambientOcclusionFactor;
-    //return float4(ambientOcclusionFactor.xxx, 1.0f);
+    //return ambientOcclusionFactor;
+    return float4(ambientOcclusionFactor.xxx, 1.0f);
 }

@@ -11,6 +11,10 @@ Texture2D depthTexture : register(t4);
 Texture2D shadowMap : register(t5);
 Texture2D ssaoTexture : register(t6);
 Texture2D bloomTexture : register(t7);
+//Fur t7
+Texture2D lightShadowTexture : register(t9);
+
+Texture2D compositionTexture : register(t16);
 
 
 Texture2D randomMap : register(t21);

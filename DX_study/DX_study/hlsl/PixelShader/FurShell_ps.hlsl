@@ -21,7 +21,7 @@ cbuffer FurDate : register(b3)
     float2 pad;
 }
 
-Texture2D FurShellOpacityMap : TEXTURE : register(t6);
+Texture2D FurShellOpacityMap : TEXTURE : register(t8);
 
 PS_OUTPUT main(G2P input) : SV_TARGET
 {
