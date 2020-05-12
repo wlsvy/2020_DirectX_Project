@@ -19,7 +19,7 @@ struct RenderTargetTypes {
 		Composition,
 		BlurIn,
 		BlurOut,
-		VolumetricLight_Shadow,
+		SSAO,
 		Max
 	};
 };

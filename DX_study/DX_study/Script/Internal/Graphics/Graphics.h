@@ -26,6 +26,34 @@ class ComputeShader;
 class Material;
 class LightBase;
 
+struct TextureBindTypes {
+	enum {
+		Position = 0,
+		Normal,
+		Albedo,
+		Material,
+		Depth,
+		ShadowMap,
+		SSAO,
+		Bloom,
+		Fur,
+
+		MaterialAlbedo = 11,
+		MaterialNormal,
+		MaterialMetal,
+		MaterialRoughness,
+		MaterialSpecualr,
+
+		Random = 21,
+		Skybox,
+		Dithering,
+		IrradianceSkybox,
+		SpecularBRDF,
+
+		Max
+	};
+};
+
 class Graphics : public DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);

@@ -148,7 +148,7 @@ void CalcRadiance(float3 lightDir, float3 viewDir, float3 normalVec, float3 albe
 	//Cook-Torrance BRDF
     float D = ndfGGX(normalVec, halfwayVec, roughness);
     float G = GeometrySmith(normalVec, viewDir, lightDir, roughness);
-    float3 F = fresnelSchlick(max(dot(halfwayVec, viewDir), 0.0f), F0);
+    float3 F = fresnelSchlick(max(dot(halfwayVec, viewDir), 0.0f), F0.r);
 
     float3 kS = F;
     float3 kD = float3(1.0f, 1.0f, 1.0f) - kS;

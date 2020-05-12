@@ -31,11 +31,11 @@ cbuffer Material : register(b2)
     float SpecularIntensity;
 };
 
-Texture2D albedoMap : TEXTURE : register(t0);
-Texture2D normalMap : TEXTURE : register(t1);
-Texture2D metalMap : TEXTURE : register(t2);
-Texture2D roughnessMap : TEXTURE : register(t3);
-Texture2D specularMap : TEXTURE : register(t4);
+Texture2D albedoMap : TEXTURE : register(t11);
+Texture2D normalMap : TEXTURE : register(t12);
+Texture2D metalMap : TEXTURE : register(t13);
+Texture2D roughnessMap : TEXTURE : register(t14);
+Texture2D specularMap : TEXTURE : register(t15);
 
 Texture2D shadowMap : TEXTURE : register(t5);
 

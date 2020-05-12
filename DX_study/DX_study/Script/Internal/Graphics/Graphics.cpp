@@ -196,7 +196,7 @@ void Graphics::Pass_GBuffer()
 	);
 
 
-	SetPSShaderResources(6, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
+	SetPSShaderResources(TextureBindTypes::Fur, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
 
 	m_DrawFlag = DrawFlag::All;
 	for (auto & renderInfo : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
@@ -233,7 +233,7 @@ void Graphics::Pass_Light()
 		SetRenderTarget
 		(
 			1,
-			m_RenderTargetViewArr[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(),
+			m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(),
 			NULL
 		);
 
@@ -257,15 +257,15 @@ void Graphics::Pass_Light()
 
 void Graphics::Pass_SSAO()
 {
-	SetPSShaderResources(0, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
-	SetPSShaderResources(1, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
-	SetPSShaderResources(4, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
 
 	{
 		SetRenderTarget
 		(
 			1,
-			m_RenderTargetViewArr[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(),
+			m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(),
 			NULL
 		);
 
@@ -323,7 +323,7 @@ void Graphics::RenderSkybox()
 	SetVertexShader(m_Skybox->GetVertexShader()->GetShader());
 	SetGeometryShader(NULL);
 	SetPixelShader(m_Skybox->GetPixelShader()->GetShader());
-	SetPSShaderResources(1, 1, m_Skybox->GetCubeMapView());
+	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());
 
 	SetRasterizerState(m_RasterizerCullNone.Get());
 
@@ -406,19 +406,19 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 		SetGeometryShader(shader);
 	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
-		SetPSShaderResources(0, 1, material->Albedo ?
+		SetPSShaderResources(TextureBindTypes::MaterialAlbedo, 1, material->Albedo ?
 			material->Albedo->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-		SetPSShaderResources(1, 1, material->Normal ?
+		SetPSShaderResources(TextureBindTypes::MaterialNormal, 1, material->Normal ?
 			material->Normal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-		SetPSShaderResources(2, 1, material->Metal ?
+		SetPSShaderResources(TextureBindTypes::MaterialMetal, 1, material->Metal ?
 			material->Metal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-		SetPSShaderResources(3, 1, material->Roughness ?
+		SetPSShaderResources(TextureBindTypes::MaterialRoughness, 1, material->Roughness ?
 			material->Roughness->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-		SetPSShaderResources(4, 1, material->Specular ?
+		SetPSShaderResources(TextureBindTypes::MaterialSpecualr, 1, material->Specular ?
 			material->Specular->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}
@@ -475,18 +475,18 @@ void Graphics::Pass_PostProcess()
 	
 	SetPixelShader(m_PostProcesPshader->GetShader());
 
-	SetPSShaderResources(0, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
-	SetPSShaderResources(1, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());	
-	SetPSShaderResources(2, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());	
-	SetPSShaderResources(3, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
-	SetPSShaderResources(4, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());	
+	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
 
-	SetPSShaderResources(5, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
-	SetPSShaderResources(8, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	SetPSShaderResources(9, 1, m_Skybox->GetCubeMapView());	//skybox
-	SetPSShaderResources(10, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
-	SetPSShaderResources(11, 1, m_Skybox->GetIrMapView());	//Iradiance
-	SetPSShaderResources(12, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
+	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
+	SetPSShaderResources(TextureBindTypes::Dithering, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
+	SetPSShaderResources(TextureBindTypes::SpecularBRDF, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
+	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());	//skybox
+	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());	//Iradiance
 
 	//SetPSShaderResources(4, 1, m_DeviceResources.GetBaseDepthStencilSrvAddress());	//depth
 	//SetPSShaderResources(4, 1, m_DeviceResources.GetRenderTargetSrvAddress(3));	//blur 계산이후
@@ -565,7 +565,7 @@ void Graphics::Pass_EditorUI()
 
 	ImGui::Begin("Blur Test");
 	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::VolumetricLight_Shadow].Get(), scene_size);
+	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::SSAO].Get(), scene_size);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::BlurIn].Get(), scene_size);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::BlurOut].Get(), scene_size);
 	ImGui::Image(m_RenderTargetSrvs[6].Get(), scene_size);
@@ -632,7 +632,7 @@ void Graphics::Pass_Blur()
 		m_GpuDownSampleBuffer.ApplyChanges();
 		SetComputeShader(m_DownSampleShader->GetShader());
 		SetCSConstantBuffer(0, m_GpuDownSampleBuffer.GetAddressOf());
-		SetCSShaderResources(0, 1, m_RenderTargetSrvs[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf());
+		SetCSShaderResources(0, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
 		SetCSUavResources(0, 1, m_RenderTargetUavs[RenderTargetTypes::BlurIn].GetAddressOf());
 
 		DispatchComputeShader(m_WindowWidth / 16, m_WindowHeight / 16);

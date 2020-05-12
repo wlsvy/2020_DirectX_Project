@@ -9,12 +9,15 @@ Texture2D colorTexture : register(t2);
 Texture2D matPropertyTexture : register(t3);
 Texture2D depthTexture : register(t4);
 Texture2D shadowMap : register(t5);
+Texture2D ssaoTexture : register(t6);
+Texture2D bloomTexture : register(t7);
 
-Texture2D randomMap : register(t8);
-TextureCube skyBoxCube : register(t9);
-Texture2D DitheringTexture : register(t10);
-TextureCube irradianceTexture : register(t11);
-Texture2D specularBRDF_LUT : register(t12);
+
+Texture2D randomMap : register(t21);
+TextureCube skyBoxCube : register(t22);
+Texture2D DitheringTexture : register(t23);
+TextureCube irradianceTexture : register(t24);
+Texture2D specularBRDF_LUT : register(t25);
 
 float2 getRandom(in float2 uv)
 {

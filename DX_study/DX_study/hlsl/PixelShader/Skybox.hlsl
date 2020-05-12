@@ -20,7 +20,7 @@ struct PS_OUTPUT
     float4 depth : COLOR2;
 };
 
-TextureCube SkyBoxCube : TEXTURE_CUBE : register(t1);
+TextureCube SkyBoxCube : TEXTURE_CUBE : register(t22);
 
 PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 {

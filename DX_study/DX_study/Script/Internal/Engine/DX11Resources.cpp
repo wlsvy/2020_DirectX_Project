@@ -122,7 +122,7 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurIn].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurOut].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurOut].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::VolumetricLight_Shadow].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::SSAO].GetAddressOf(), width, height, DXGI_FORMAT_R32_FLOAT);
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");
@@ -530,7 +530,7 @@ void DX11Resources::SetRenderTarget(
 	m_DeviceContext->OMGetRenderTargets(MAX_RENDER_TARGET_BINDING_COUNT, prevRtv.data(), &prevDsv);
 
 	std::array<ID3D11RenderTargetView*, MAX_RENDER_TARGET_BINDING_COUNT> rtvArr = { nullptr };
-	for (int i = 0; i < numViews; i++) {
+	for (UINT i = 0; i < numViews; i++) {
 		rtvArr[i] = renderTargetView[i];
 	}
 

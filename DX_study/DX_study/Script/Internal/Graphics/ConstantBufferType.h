@@ -89,9 +89,9 @@ struct GpuSceneBuffer {
 	float softShadowInterpoloateBias = 1.0f;
 	float pad1;
 
-	float ssao_Strength = 1.0f;
-	float ssao_Radius = 0.01f;
-	float ssao_Bias = 1.25f;
+	float ssao_Strength = 0.07f;
+	float ssao_Radius = 0.05f;
+	float ssao_Bias = 0.16f;
 	float ssao_Scale = 1.0f;
 
 	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.04f, 0.1f, 0.2f);

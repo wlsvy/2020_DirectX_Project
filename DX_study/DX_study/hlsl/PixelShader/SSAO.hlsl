@@ -17,7 +17,7 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
     const float2 vec[4] = { float2(1, 0), float2(-1, 0), float2(0, 1), float2(0, -1) };
     float3 p = position;
     float3 n = normal;
-    float3 depth = depthTexture.Sample(LinearMirror, texcoord).r;
+    float3 depth = 1 - depthTexture.Sample(LinearMirror, texcoord).r;
     //float2 rand = float2(1, 1);
     float2 rand = getRandom(texcoord);
     float ao = 0.0f;
@@ -45,12 +45,13 @@ struct PS_INPUT
     float2 inTexCoord : TEXCOORD;
 };
 
-float4 main(PS_INPUT input) : SV_TARGET
+float main(PS_INPUT input) : SV_TARGET
 {
     float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
     float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
 
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     
-    return float4(ambientOcclusionFactor.xxx, 1.0f);
+    return ambientOcclusionFactor;
+    //return float4(ambientOcclusionFactor.xxx, 1.0f);
 }
