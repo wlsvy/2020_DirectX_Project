@@ -54,41 +54,40 @@ bool Skybox::InitializeCubeMap()
 		D3D11_TEXTURE2D_DESC texArrayDesc;
 		texArrayDesc.Width = texElementDesc.Width;
 		texArrayDesc.Height = texElementDesc.Height;
-		texArrayDesc.MipLevels = texElementDesc.MipLevels;
+		texArrayDesc.MipLevels = 0;
 		texArrayDesc.ArraySize = 6;
 		texArrayDesc.Format = texElementDesc.Format;
 		texArrayDesc.SampleDesc.Count = 1;
 		texArrayDesc.SampleDesc.Quality = 0;
 		texArrayDesc.Usage = D3D11_USAGE_DEFAULT;
-		texArrayDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+		texArrayDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET;
 		texArrayDesc.CPUAccessFlags = 0;
-		texArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+		texArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;;
 
 		ID3D11Texture2D* texArray = 0;
-		hr = Core::GetDevice()->CreateTexture2D(&texArrayDesc, 0, &texArray);
-		ThrowIfFailed(hr, "Failed to create CubeMap Texture.");
+		ThrowIfFailed(
+			Core::GetDevice()->CreateTexture2D(&texArrayDesc, 0, &texArray), 
+			"Failed to create CubeMap Texture.");
 
-		//Copy individual texture elements into texture array.
+		texArray->GetDesc(&texArrayDesc);
+		m_MaxMipLevel = texArrayDesc.MipLevels;
+
 		D3D11_BOX sourceRegion;
-
-		//Here i copy the mip map levels of the textures
-		for (UINT x = 0; x < 6; x++)
+		for (UINT x = 0; x < texArrayDesc.ArraySize; x++)
 		{
-			for (UINT mipLevel = 0; mipLevel < texArrayDesc.MipLevels; mipLevel++)
-			{
-				sourceRegion.left = 0;
-				sourceRegion.right = (texArrayDesc.Width >> mipLevel);
-				sourceRegion.top = 0;
-				sourceRegion.bottom = (texArrayDesc.Height >> mipLevel);
-				sourceRegion.front = 0;
-				sourceRegion.back = 1;
+			sourceRegion.left = 0;
+			sourceRegion.top = 0;
+			sourceRegion.right = texArrayDesc.Width;
+			sourceRegion.bottom = texArrayDesc.Height;
+			sourceRegion.front = 0;
+			sourceRegion.back = 1;
 
-				//test for overflow
-				if (sourceRegion.bottom == 0 || sourceRegion.right == 0)
-					break;
-
-				Core::GetDeviceContext()->CopySubresourceRegion(texArray, D3D11CalcSubresource(mipLevel, x, texArrayDesc.MipLevels), 0, 0, 0, mSkybox_Resource[x].Get(), mipLevel, &sourceRegion);
+			if (sourceRegion.bottom == 0 || sourceRegion.right == 0) {
+				break;
 			}
+
+			UINT mipLevel = 0;
+			Core::GetDeviceContext()->CopySubresourceRegion(texArray, D3D11CalcSubresource(mipLevel, x, m_MaxMipLevel), 0, 0, 0, mSkybox_Resource[x].Get(), mipLevel, &sourceRegion);
 		}
 
 		//Create a resource view to the texture array.
@@ -96,10 +95,13 @@ bool Skybox::InitializeCubeMap()
 		viewDesc.Format = texArrayDesc.Format;
 		viewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		viewDesc.TextureCube.MostDetailedMip = 0;
-		viewDesc.TextureCube.MipLevels = texArrayDesc.MipLevels;
+		viewDesc.TextureCube.MipLevels = -1;
 
-		hr = Core::GetDevice()->CreateShaderResourceView(texArray, &viewDesc, &mSkybox_CubeMapSRV);
-		ThrowIfFailed(hr, "Failed to create CubeMap Texture SRV.");
+		ThrowIfFailed(
+			Core::GetDevice()->CreateShaderResourceView(texArray, &viewDesc, &mSkybox_CubeMapSRV),
+			"Failed to create CubeMap Texture SRV.");
+		Core::GetDeviceContext()->GenerateMips(mSkybox_CubeMapSRV.Get());
+
 	}
 	catch (CustomException & exception) {
 		StringHelper::ErrorLog(exception);
@@ -117,17 +119,17 @@ bool Skybox::InitializeIrMap()
 		((ID3D11Texture2D*)mSkybox_Resource[0].Get())->GetDesc(&texElementDesc);
 
 		D3D11_TEXTURE2D_DESC texArrayDesc;
-		texArrayDesc.Width = texElementDesc.Width / 8;
-		texArrayDesc.Height = texElementDesc.Height / 8;
-		texArrayDesc.MipLevels = texElementDesc.MipLevels;
+		texArrayDesc.Width = texElementDesc.Width/8;
+		texArrayDesc.Height = texElementDesc.Height/8;
+		texArrayDesc.MipLevels = 0;
 		texArrayDesc.ArraySize = 6;
 		texArrayDesc.Format = texElementDesc.Format;
 		texArrayDesc.SampleDesc.Count = 1;
 		texArrayDesc.SampleDesc.Quality = 0;
 		texArrayDesc.Usage = D3D11_USAGE_DEFAULT;
-		texArrayDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+		texArrayDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET;
 		texArrayDesc.CPUAccessFlags = 0;
-		texArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+		texArrayDesc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> texArray;
 		ThrowIfFailed(Core::GetDevice()->CreateTexture2D(&texArrayDesc, 0, texArray.GetAddressOf()), "Failed to create CubeMap Texture.");
@@ -136,7 +138,7 @@ bool Skybox::InitializeIrMap()
 		srvDesc.Format = texArrayDesc.Format;
 		srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 		srvDesc.TextureCube.MostDetailedMip = 0;
-		srvDesc.TextureCube.MipLevels = texArrayDesc.MipLevels;
+		srvDesc.TextureCube.MipLevels = -1;
 
 		ThrowIfFailed(Core::GetDevice()->CreateShaderResourceView(texArray.Get(), &srvDesc, m_IrMapSrv.GetAddressOf()), "Failed to create CubeMap srv.");
 
@@ -163,6 +165,7 @@ bool Skybox::InitializeIrMap()
 			Core::GetDeviceContext()->CSSetUnorderedAccessViews(0, 1, &nullUav, nullptr);
 		}
 
+		Core::GetDeviceContext()->GenerateMips(m_IrMapSrv.Get());
 	}
 	catch (CustomException & exception) {
 		StringHelper::ErrorLog(exception);

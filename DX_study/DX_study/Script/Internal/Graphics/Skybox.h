@@ -23,6 +23,7 @@ public:
 	std::shared_ptr<Model> GetModel() { return m_Model; }
 	PixelShader* GetPixelShader() { return m_Pshader.get(); }
 	VertexShader* GetVertexShader() { return m_Vshader.get(); }
+	UINT GetMaxMipLevel() { return m_MaxMipLevel; }
 
 private:
 	bool InitializeCubeMap();
@@ -40,4 +41,6 @@ private:
 	std::shared_ptr<PixelShader> m_Pshader;
 	std::shared_ptr<VertexShader> m_Vshader;
 	std::shared_ptr<Model> m_Model;
+
+	UINT m_MaxMipLevel = 0;
 };

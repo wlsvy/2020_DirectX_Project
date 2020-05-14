@@ -25,6 +25,7 @@ struct RenderTargetTypes {
 		HalfQuarterSize,
 		SSAO,
 		Light,
+		PBR,
 		Max
 	};
 };
@@ -144,6 +145,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearClamp;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearWrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerLinearMirror;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerTrilinearWrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerAnisotropicWrap;
 
 	//Depth/Stencil

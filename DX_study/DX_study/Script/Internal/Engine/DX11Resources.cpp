@@ -113,7 +113,8 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateSamplerState(m_SamplerLinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_WRAP);
 		CreateSamplerState(m_SamplerLinearMirror.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_MIRROR);
 		CreateSamplerState(m_SamplerAnisotropicWrap.GetAddressOf(), D3D11_FILTER_ANISOTROPIC, D3D11_TEXTURE_ADDRESS_WRAP);
-
+		CreateSamplerState(m_SamplerTrilinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
+		
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Position].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Normal].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Albedo].GetAddressOf(), width, height);
@@ -128,6 +129,7 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), width * 0.125, height * 0.125, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::SSAO].GetAddressOf(), width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Light].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::PBR].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::PBR].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::PBR].GetAddressOf(), width, height);
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");

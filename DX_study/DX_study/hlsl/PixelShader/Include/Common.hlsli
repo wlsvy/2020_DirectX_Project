@@ -5,6 +5,7 @@
 #include "CommonData.hlsli"
 
 static const float PI = 3.14159265358979323846;
+static const float InversePI = 0.31830988f;
 static const float INFINITY = 100000.0f;
 static const float Epsilon = 0.00001;
 
@@ -13,6 +14,7 @@ SamplerState LinearClamp : SAMPLER : register(s1);
 SamplerState LinearWrap : SAMPLER : register(s2);
 SamplerState LinearMirror : SAMPLER : register(s3);
 SamplerState AnisotropicWrap : SAMPLER : register(s4);
+SamplerState TrilinearWrap : SAMPLER : register(s5);
 
 
 float hash(float x)

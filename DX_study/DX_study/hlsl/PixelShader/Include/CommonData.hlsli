@@ -35,7 +35,8 @@ cbuffer CB_Scene : register(b0)
     
     float ElapsedTime;
     float DeltaTime;
-    float2 pad2;
+    float Gamma;
+    float HdrExposure;
     
     float3 AmbientColor;
     float AmbientStrength;
@@ -46,7 +47,7 @@ cbuffer CB_Scene : register(b0)
     float softShadowPCFIter;
     float softShadowPCFBias;
     float softShadowInterpoloateBias;
-    float pad3;
+    uint SkyboxMaxMipMapLevel;
     
     float SSAO_strength;
     float SSAO_radius;

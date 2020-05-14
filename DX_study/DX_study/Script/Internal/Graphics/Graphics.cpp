@@ -52,6 +52,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 			"Data\\Skybox\\Test1\\oasisnight_lf_p.png"	// -Z
 		};
 		ThrowIfFailed(m_Skybox->Initialize(filename), "Failed to Initialize Skybox");
+		m_GpuSceneBuffer.data.SkyBoxMaxMipLevel = m_Skybox->GetMaxMipLevel();
 
 		GUI::InitImGUI(hwnd);
 
@@ -183,6 +184,7 @@ void Graphics::RenderBegin()
 	SetPsSampler(2, m_SamplerLinearWrap.GetAddressOf());
 	SetPsSampler(3, m_SamplerLinearMirror.GetAddressOf());
 	SetPsSampler(4, m_SamplerAnisotropicWrap.GetAddressOf());
+	SetPsSampler(5, m_SamplerTrilinearWrap.GetAddressOf());
 }
 
 void Graphics::Pass_GBuffer()
@@ -384,6 +386,7 @@ void Graphics::RenderSkybox()
 	SetGeometryShader(NULL);
 	SetPixelShader(m_Skybox->GetPixelShader()->GetShader());
 	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());
+	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());
 
 	SetRasterizerState(m_RasterizerCullNone.Get());
 
@@ -631,13 +634,8 @@ void Graphics::Pass_EditorUI()
 
 	ImGui::Begin("RederTarget Window");
 	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::BlurIn].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::BlurOut].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfSize + 0].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfSize + 1].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfSize + 2].Get(), scene_size);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition0].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition1].Get(), scene_size);
+	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::SSAO].Get(), scene_size);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

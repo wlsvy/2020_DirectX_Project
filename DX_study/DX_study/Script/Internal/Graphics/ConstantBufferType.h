@@ -76,6 +76,9 @@ struct GpuSceneBuffer {
 
 	float ElapsedTime;
 	float DeltaTime;
+	float GammaCorrection = 2.2f;
+	float HdrExposure = 1.0f;
+
 	DirectX::XMFLOAT2 pad0;
 
 	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -87,7 +90,7 @@ struct GpuSceneBuffer {
 	float softShadowPCFIter = 2.0f;
 	float softShadowPCFBias = 2.0f;
 	float softShadowInterpoloateBias = 1.0f;
-	float pad1;
+	UINT SkyBoxMaxMipLevel = 0.0f;
 
 	float ssao_Strength = 0.07f;
 	float ssao_Radius = 0.05f;

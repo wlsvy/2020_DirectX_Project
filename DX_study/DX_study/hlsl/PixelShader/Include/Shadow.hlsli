@@ -65,8 +65,6 @@ float2 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
         return half2(1.0f, linearDepth);
     }
     
-    //return float2(CompareShadowMapDepth(projectTexCoord, lightDepth), linearDepth);
-
     return half2(PCF(float2(1024, 768), projectTexCoord, lightDepth), linearDepth);
 }
 

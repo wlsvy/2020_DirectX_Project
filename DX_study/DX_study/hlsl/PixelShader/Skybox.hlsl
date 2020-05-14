@@ -1,9 +1,4 @@
-SamplerState samTriLinearSam
-{
-    Filter = MIN_MAG_MIP_LINEAR;
-    AddressU = Wrap;
-    AddressV = Wrap;
-};
+#include "Include/Common.hlsli"
 
 struct PS_INPUT
 {
@@ -20,14 +15,12 @@ struct PS_OUTPUT
     float4 depth : COLOR2;
 };
 
-TextureCube SkyBoxCube : TEXTURE_CUBE : register(t22);
-
 PS_OUTPUT main(PS_INPUT input) : SV_TARGET
 {
     PS_OUTPUT output;
     output.pos = float4(input.inLocalPos * -1000, -1.0f);
     output.normal = float4(-1.0f, -1.0f, -1.0f, -1.0f);
-    output.color = SkyBoxCube.Sample(samTriLinearSam, input.inLocalPos);
+    output.color = skyBoxCube.Sample(LinearWrap, input.inLocalPos);
     output.depth = float4(0.0f, 0.0f, 0.0f, 1.0f);
     return output;
 }
