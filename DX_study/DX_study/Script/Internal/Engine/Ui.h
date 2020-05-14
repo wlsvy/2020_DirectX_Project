@@ -11,8 +11,10 @@ struct ImVec;
 
 namespace GUI {
 	void InitImGUI(HWND _hwnd);
+	void NewFrame();
 	void DrawEditorUI(ID3D11ShaderResourceView * image);
 	void DrawDeferredChannelImage();
 	void DrawTexture(const std::shared_ptr<Texture> & texture);
+	void Render();
 	ImVec2 GetDisplaySize();
 };

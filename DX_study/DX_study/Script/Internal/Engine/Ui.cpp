@@ -27,6 +27,13 @@ void GUI::InitImGUI(HWND _hwnd)
 	s_ImGuiIO->Fonts->AddFontFromFileTTF("Data/Fonts/malgun.ttf", 17.0f, NULL, s_ImGuiIO->Fonts->GetGlyphRangesKorean());
 }
 
+void GUI::NewFrame()
+{
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+}
+
 void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 {
 	static bool show_editor = true;
@@ -153,6 +160,12 @@ void GUI::DrawTexture(const std::shared_ptr<Texture>& texture)
 	ImGui::Text(texture->Name.c_str());
 	ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.15f, s_ImGuiIO->DisplaySize.y * 0.15f);
 	ImGui::Image(texture->GetTextureResourceView(), scene_size);
+}
+
+void GUI::Render()
+{
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 }
 
 ImVec2 GUI::GetDisplaySize()

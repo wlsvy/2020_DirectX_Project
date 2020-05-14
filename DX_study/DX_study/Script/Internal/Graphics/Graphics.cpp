@@ -1,8 +1,6 @@
 #include "Graphics.h"
 
 #include "../Engine/Ui.h"
-#include <ImGui/imgui_impl_dx11.h>
-#include <ImGui/imgui_impl_win32.h>
 #include "Model.h"
 #include "Shaders.h"
 #include "Skybox.h"
@@ -674,9 +672,8 @@ void Graphics::Pass_EditorUI()
 		NULL
 	);
 
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	GUI::NewFrame();
+	
 	GUI::DrawEditorUI(m_RenderTargetSrvs[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].Get());
 	
 	ImGuiIO& io = ImGui::GetIO();
@@ -697,8 +694,7 @@ void Graphics::Pass_EditorUI()
 
 	GUI::DrawDeferredChannelImage();
 
-	ImGui::Render();
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+	GUI::Render();
 
 	SetRenderTarget
 	(

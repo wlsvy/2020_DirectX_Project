@@ -94,9 +94,9 @@ float3 ComputeAmbient(float3 normal, float3 viewDir, float3 albedo, float metali
     float3 F0 = float3(0.04, 0.04, 0.04);
     F0 = lerp(F0, albedo, metalic);
     
-    float3 irkS = fresnelSchlick(max(dot(N, V), 0.0), F0, roughness);
-    float3 irkD = 1.0 - irkS;
-    irkD *= 1.0 - metalic;
+    float3 kS = fresnelSchlick(max(dot(N, V), 0.0), F0, roughness);
+    float3 kD = 1.0 - kS;
+    kD *= 1.0 - metalic;
     float3 irradiance = irradianceTexture.Sample(LinearWrap, N).rgb;
     float3 diffuse = irradiance * AmbientColor * AmbientStrength * albedo;
     
@@ -104,8 +104,8 @@ float3 ComputeAmbient(float3 normal, float3 viewDir, float3 albedo, float metali
     
     float3 prefilteredColor = skyBoxCube.SampleLevel(TrilinearWrap, R, roughness * 10).rgb;
     float2 envBRDF = specularBRDF_LUT.Sample(LinearMirror, float2(max(dot(N, V), 0.0), roughness)).rg;
-    float3 irSpecular = prefilteredColor * (irkS * envBRDF.x + envBRDF.y);
-    float3 ambient = (irkD * diffuse + irSpecular);
+    float3 irSpecular = prefilteredColor * (kS * envBRDF.x + envBRDF.y);
+    float3 ambient = (kD * diffuse + irSpecular);
 
     return ambient;
 }
