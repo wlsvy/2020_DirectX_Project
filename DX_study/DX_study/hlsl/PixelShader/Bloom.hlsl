@@ -12,5 +12,5 @@ float4 main(Vertex_Quad input) : SV_TARGET
 {
     float3 bloom = bloomTexture.Sample(LinearWrap, input.inTexCoord).xyz;
     
-    return float4(Prefilter(bloom), 0.5f) * 0.0f;
+    return float4(Prefilter(bloom), 0.5f) * VolumetricLightVar.y;
 }

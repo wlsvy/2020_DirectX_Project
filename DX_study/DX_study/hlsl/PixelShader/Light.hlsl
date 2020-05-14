@@ -23,7 +23,8 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float4 output = float4
     (
         VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance).x,
-        CalculateShadow(0, lightSpacePos),
+        lightSpacePos.xy / lightSpacePos.w,
+        //lightSpacePos.z * 0.02f,
         1.0f
     );
     

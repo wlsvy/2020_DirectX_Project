@@ -108,7 +108,7 @@ void Engine::RenderFrame()
 	m_Graphics->Pass_Light();
 	m_Graphics->Pass_SSAO();
 	m_Graphics->Pass_Composition();	
-	m_Graphics->Pass_PostProcess();
+	//m_Graphics->Pass_PostProcess();
 	//m_Graphics->Pass_Gizmo();
 	m_Graphics->Pass_EditorUI();
 	m_Graphics->RenderEnd();
