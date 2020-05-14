@@ -3,9 +3,7 @@
 
 #include "Common.hlsli"
 
-static const float3 Fdielectric = 0.04;
-
-float gaSchlickGGX(float NdotV, float roughness)  // k is a remapping of roughness based on direct lighting or IBL lighting
+float gaSchlickGGX(float NdotV, float roughness)
 {
     float r = roughness + 1.0f;
     float k = (r * r) / 8.0f;
@@ -26,17 +24,9 @@ float GeometrySmith(float3 normalVec, float3 viewDir, float3 lightDir, float k)
     return ggx1 * ggx2;
 }
 
-
-
-
-
-
-//위에 코드는 제대로 동작 안됨
-//슈벌 아래는 내가 직접 공부하고 알아봐서 가져온 코드
-
 float NormalDistributionGGX(float3 N, float3 H, float a)
 {
-    float a2 = a * a;//dyrl
+    float a2 = a * a;
     float NdotH = max(dot(N, H), 0.0);
     float NdotH2 = NdotH * NdotH;
 	
@@ -65,49 +55,18 @@ float3 fresnelSchlick(float cosTheta, float3 F0, float roughness)
     return F0 + (max((1.0 - roughness).xxx, F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-float4 PBRmain(float3 normal, float3 viewDir, float3 worldPos, float3 albedo, float metalic, float roughness, float ao)
+float3 ComputeRadiance(float3 normal, float3 viewDir, float3 worldPos, float3 albedo, float metalic, float roughness)
 {
     float3 N = normal;
     float3 V = -viewDir;
-    float3 R = reflect(-V, N);
 
     float3 F0 = float3(0.04, 0.04, 0.04);
     F0 = lerp(F0, albedo, metalic);
 	           
-    // reflectance equation
-    float3 Lo = float3(0.0, 0.0, 0.0);
-    //for (int i = 0; i < 4; ++i)
-    //{
-    //    // calculate per-light radiance
-    //    float3 L = normalize(lightPositions[i] - WorldPos);
-    //    float3 H = normalize(V + L);
-    //    float distance = length(lightPositions[i] - WorldPos);
-    //    float attenuation = 1.0 / (distance * distance);
-    //    float3 radiance = lightColors[i] * attenuation;
-        
-    //    // cook-torrance brdf
-    //    float NDF = NormalDistributionGGX(N, H, roughness);
-    //    float G = GeometrySmith(N, V, L, roughness);
-    //    float3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
-        
-    //    float3 kS = F;
-    //    float3 kD = float3(1.0) - kS;
-    //    kD *= 1.0 - metalic;
-        
-    //    float3 numerator = NDF * G * F;
-    //    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0);
-    //    float3 specular = numerator / max(denominator, 0.001);
-            
-    //    // add to outgoing radiance Lo
-    //    float NdotL = max(dot(N, L), 0.0);
-    //    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-    //}
-    
     float3 L = normalize(spotLight.Position - worldPos);
     float3 H = normalize(V + L);
     float distance = length(spotLight.Position - worldPos);
-    float attenuation = 100.0 / (distance * distance);
-    float3 radiance = spotLight.Color * attenuation;
+    float3 radiance = ComputeSpotLightColor(L, N, distance);;
         
         // cook-torrance brdf
     float NDF = NormalDistributionGGX(N, H, roughness);
@@ -124,20 +83,31 @@ float4 PBRmain(float3 normal, float3 viewDir, float3 worldPos, float3 albedo, fl
             
         // add to outgoing radiance Lo
     float NdotL = max(dot(N, L), 0.0);
-    Lo += (kD * albedo / PI + specular) * radiance * NdotL;
-  
+    return (kD * albedo / PI + specular) * radiance * NdotL;
+}
+
+float3 ComputeAmbient(float3 normal, float3 viewDir, float3 albedo, float metalic, float roughness)
+{
+    float3 N = normal;
+    float3 V = -viewDir;
+
+    float3 F0 = float3(0.04, 0.04, 0.04);
+    F0 = lerp(F0, albedo, metalic);
     
     float3 irkS = fresnelSchlick(max(dot(N, V), 0.0), F0, roughness);
     float3 irkD = 1.0 - irkS;
     irkD *= 1.0 - metalic;
-    float3 irradiance = irradianceTexture.Sample(LinearWrap, N).rgb + 0.5;
-    float3 diffuse = irradiance * albedo;
+    float3 irradiance = irradianceTexture.Sample(LinearWrap, N).rgb;
+    float3 diffuse = irradiance * AmbientColor * AmbientStrength * albedo;
+    
+    float3 R = reflect(-V, N);
     
     float3 prefilteredColor = skyBoxCube.SampleLevel(TrilinearWrap, R, roughness * 10).rgb;
     float2 envBRDF = specularBRDF_LUT.Sample(LinearMirror, float2(max(dot(N, V), 0.0), roughness)).rg;
-    float3 irSpecular = prefilteredColor * (F * envBRDF.x + envBRDF.y);
-    float3 ambient = (kD * diffuse + irSpecular) * ao;
+    float3 irSpecular = prefilteredColor * (irkS * envBRDF.x + envBRDF.y);
+    float3 ambient = (irkD * diffuse + irSpecular);
 
-    return float4(Lo +ambient, 1.0);
+    return ambient;
 }
+
 #endif

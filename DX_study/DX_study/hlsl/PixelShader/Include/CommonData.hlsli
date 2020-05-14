@@ -12,7 +12,7 @@ Texture2D shadowMap : register(t5);
 Texture2D ssaoTexture : register(t6);
 Texture2D bloomTexture : register(t7);
 Texture2D FurShellOpacityMap : register(t8);
-Texture2D lightShadowTexture : register(t9);
+Texture2D CompositionTexture : register(t9);
 
 Texture2D albedoMap : TEXTURE : register(t11);
 Texture2D normalMap : TEXTURE : register(t12);

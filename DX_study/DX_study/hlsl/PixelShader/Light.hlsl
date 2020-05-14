@@ -30,7 +30,7 @@ float4 main(Vertex_Quad input) : SV_TARGET
     //    1.0f
     //);
     
-    float4 output = float4(PBRmain(normal, rayDir, position.xyz, albedo, metal, roughness, ambientOcclusion));
+    float4 output = 0.0f;
     
     return output;
 }

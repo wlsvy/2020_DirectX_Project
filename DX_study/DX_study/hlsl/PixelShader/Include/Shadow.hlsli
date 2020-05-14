@@ -54,7 +54,7 @@ float PCF(float2 size, float2 uv, float depth)
 
 float2 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
 {
-    half linearDepth = lightSpacePos.z * 0.02;
+    half linearDepth = lightSpacePos.z / spotLight.Range;
     lightSpacePos.xyz /= lightSpacePos.w;
     
     float lightDepth = 1 - linearDepth + ShadowMapDepthBias;
@@ -70,7 +70,7 @@ float2 CalculateShadowPCF(int lightIndex, float4 lightSpacePos)
 
 float2 CalculateShadow(int lightIndex, float4 lightSpacePos)
 {
-    half linearDepth = lightSpacePos.z * 0.02;
+    half linearDepth = lightSpacePos.z / spotLight.Range;
     lightSpacePos.xyz /= lightSpacePos.w;
     
     float lightDepth = 1 - linearDepth + ShadowMapDepthBias;

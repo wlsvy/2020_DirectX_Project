@@ -79,8 +79,6 @@ struct GpuSceneBuffer {
 	float GammaCorrection = 2.2f;
 	float HdrExposure = 1.0f;
 
-	DirectX::XMFLOAT2 pad0;
-
 	DirectX::XMFLOAT3 ambientLightColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 	float ambientLightStrength = 0.2f;
 

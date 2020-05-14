@@ -56,7 +56,7 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
     return vlight;
 }
 
-float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
+float3 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
 {
     float linearDepth = depthTexture.Sample(LinearWrap, uv).x;
 
@@ -66,7 +66,7 @@ float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
     float near, far;
     bool2 hit = RayConeIntersect(rayStart, rayDir, near, far);
     
-    float diskRad = tan(radians(spotLight.SpotAngle * 0.5)) * (spotLight.Range * 1.2);
+    float diskRad = tan(spotLight.SpotAngle) * (spotLight.Range * 1.2);
 
     float diskT;
     bool diskHit = RayDiskIntersect(spotLight.Forward, spotLight.conePlaneD, diskRad, rayStart, rayDir, diskT);
@@ -94,7 +94,7 @@ float4 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
     
     //lightStength = saturate(pow(lightStength * 0.5 + VolumetricLightVar.z, VolumetricLightVar.y));
     //color *= float4(spotLight.Color, 1.0f);
-    return float4(lightStength.xxx, 1.0f) * float4(spotLight.Color, 1.0f);
+    return spotLight.Color * spotLight.Strength * lightStength;
 
 }
 

@@ -67,7 +67,7 @@ bool2 RayConeIntersect(float3 rayOrigin, float3 rayDir, out float near, out floa
 {
     near = INFINITY;
     far = INFINITY;
-    float cosa = cos(radians(spotLight.SpotAngle * 0.5));
+    float cosa = cos(spotLight.SpotAngle);
     float3 co = rayOrigin - spotLight.Position;
 
     float a = dot(rayDir, spotLight.Forward) * dot(rayDir, spotLight.Forward) - cosa * cosa;
@@ -113,7 +113,7 @@ bool ContainedBySpotLight(float3 lightToPosVec, float lightToPosDist)
     
     float cosAngle = dot(lightToPosVec, spotLight.Forward);
     
-    return cosAngle > 0 && cos(radians(spotLight.SpotAngle * 0.5)) < cosAngle;
+    return cosAngle > 0 && cos(spotLight.SpotAngle) < cosAngle;
 }
 
 bool ContainedBySpotLight(float3 pos)
@@ -127,10 +127,24 @@ bool ContainedBySpotLight(float3 pos)
     
     lightToPosVec /= lightToPosDist;
     float cosAngle = dot(lightToPosVec, spotLight.Forward);
-    return cosAngle > 0 && cos(radians(spotLight.SpotAngle * 0.5)) < cosAngle;
+    return cosAngle > 0 && cos(spotLight.SpotAngle) < cosAngle;
 }
 
-float4 CalculateLightColor(float3 worldPos, float3 normal)
+float3 ComputeSpotLightColor(float3 vectorToLight, float3 normal, float distToLight)
+{
+    float diffuseLightIntensity = max(dot(vectorToLight, normal), 0.0f);
+    if (diffuseLightIntensity > 0.0f)
+    {
+        float attFactor = 1 / (spotLight.Attenuation.x + (spotLight.Attenuation.y * distToLight) + (spotLight.Attenuation.z * pow(distToLight, 2)));
+        float spotFactor = pow(max(dot(-vectorToLight, spotLight.Forward), 0.0f), 1.0f);
+        return spotLight.Color * spotLight.Strength * spotFactor * attFactor;
+
+    }
+    
+    return float3(0.0f, 0.0f, 0.0f);
+}
+
+float4 ComputeSpotLightColor(float3 worldPos, float3 normal)
 {
     float3 vectorToLight = spotLight.Position - worldPos;
     float distToLight = length(vectorToLight);

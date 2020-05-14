@@ -37,15 +37,13 @@ struct TextureBindTypes {
 		SSAO,
 		Bloom,
 		Fur,
-		Light,
+		Composition,
 
 		MaterialAlbedo = 11,
 		MaterialNormal,
 		MaterialMetal,
 		MaterialRoughness,
 		MaterialSpecualr,
-		CompositionIn,
-		CompositionOut,
 
 		Random = 21,
 		Skybox,
@@ -73,6 +71,8 @@ public:
 	void Pass_EditorUI();
 	void Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height);
 	void Pass_DownSample(ID3D11ShaderResourceView** texIn, ID3D11UnorderedAccessView** texOut, UINT texInwidth, UINT texInheight);
+	void Pass_ToneMap();
+	void Pass_GammaCorrection();
 	void RenderEnd();
 
 	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }
@@ -117,13 +117,16 @@ private:
 	
 	
 	std::shared_ptr<Skybox> m_Skybox;
-	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
-	std::shared_ptr<PixelShader> m_PostProcesPshader;
+	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<PixelShader> m_SsaoShader;
 	std::shared_ptr<PixelShader> m_CompositionShader;
 	std::shared_ptr<PixelShader> m_LightShader;
 	std::shared_ptr<PixelShader> m_BloomShader;
+	std::shared_ptr<PixelShader> m_ToneMappingShader;
+	std::shared_ptr<PixelShader> m_GammaCorrectionShader;
+
+
 	std::shared_ptr<Model> m_QuadWindowModel;
 	std::shared_ptr<ComputeShader> m_BlurShader;
 	std::shared_ptr<ComputeShader> m_DownSampleShader;

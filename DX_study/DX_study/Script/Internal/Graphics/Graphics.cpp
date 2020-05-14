@@ -58,12 +58,14 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 
 		m_QuadWindowModel = Core::Find<Model>("Plane");
 		m_PostProcesVshader = Core::Find<VertexShader>("QuadPlane");
-		m_PostProcesPshader = Core::Find<PixelShader>("PostProcess");
 		m_ShadowMapPshader = Core::Find<PixelShader>("ShadowMap");
 		m_SsaoShader = Core::Find<PixelShader>("SSAO");
 		m_CompositionShader = Core::Find<PixelShader>("Composition");
 		m_LightShader = Core::Find<PixelShader>("Light");
 		m_BloomShader = Core::Find<PixelShader>("Bloom");
+		m_ToneMappingShader = Core::Find<PixelShader>("ToneMapping");
+		m_GammaCorrectionShader = Core::Find<PixelShader>("GammaCorrection");
+
 		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
 		m_DitheringTexture = Core::Find<Texture>("Dithering");
 		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
@@ -311,7 +313,7 @@ void Graphics::Pass_Composition()
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Light, 1, m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());
 
 	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
@@ -431,7 +433,7 @@ void Graphics::ApplySceneBuffer()
 	m_GpuSpotLight.data.position = light->GetTransform().position;
 	m_GpuSpotLight.data.attenuation = lightc->Attentuation;
 	DirectX::XMStoreFloat3(&m_GpuSpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
-	m_GpuSpotLight.data.spotAngle = lightc->m_SpotAngle;
+	m_GpuSpotLight.data.spotAngle = lightc->m_SpotAngle * 0.5f * Math::Deg2Rad;
 	m_GpuSpotLight.data.range = lightc->m_Range;
 	lightc->SetProjectionMatrix();
 	m_GpuSpotLight.data.vpMat = lightc->GetLightViewProjectMat();
