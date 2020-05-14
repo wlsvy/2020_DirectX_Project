@@ -529,14 +529,24 @@ bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 
 void Graphics::Pass_PostProcess()
 {
-	Pass_Bloom(m_RenderTargetSrvs[RenderTargetTypes::Composition0].GetAddressOf());
+	auto inType = RenderTargetTypes::Composition0;
+	auto outType = RenderTargetTypes::Composition1;
+
+	Pass_Bloom(inType);
+	//std::swap(inType, outType);
+
+	Pass_ToneMap(inType, outType);
+	std::swap(inType, outType);
+
+	Pass_GammaCorrection(inType, outType);
+	std::swap(inType, outType);
 }
 
-void Graphics::Pass_Bloom(ID3D11ShaderResourceView** texIn)
+void Graphics::Pass_Bloom(const UINT inout)
 {
 	static const UINT MAX_DOWNSAMPLE_COUNT = 3;
 
-	ID3D11ShaderResourceView** downSampleIn = texIn;
+	ID3D11ShaderResourceView** downSampleIn = m_RenderTargetSrvs[inout].GetAddressOf();
 	ID3D11UnorderedAccessView** downSampleOut = nullptr;
 	UINT width = m_WindowWidth;
 	UINT height = m_WindowHeight;
@@ -555,8 +565,8 @@ void Graphics::Pass_Bloom(ID3D11ShaderResourceView** texIn)
 	SetRenderTarget
 	(
 		1,
-		m_RenderTargetViewArr[RenderTargetTypes::Composition0].GetAddressOf(),
-		m_MainDepthStencilView.Get()
+		m_RenderTargetViewArr[inout].GetAddressOf(),
+		NULL
 	);
 
 	SetPixelShader(m_BloomShader->GetShader());
@@ -572,6 +582,50 @@ void Graphics::Pass_Bloom(ID3D11ShaderResourceView** texIn)
 	);
 	SetBlendState(m_BlendStateOpaque.Get(), m_BackgroundColor);
 
+}
+
+void Graphics::Pass_ToneMap(const UINT input, const UINT output)
+{
+	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[input].GetAddressOf());
+	SetRenderTarget
+	(
+		1,
+		m_RenderTargetViewArr[output].GetAddressOf(),
+		m_MainDepthStencilView.Get()
+	);
+
+	SetPixelShader(m_ToneMappingShader->GetShader());
+	RenderQuadPlane();
+
+	SetPSShaderResources(TextureBindTypes::Composition, 1, m_NullSrv);
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
+		m_NullRtv,
+		NULL
+	);
+}
+
+void Graphics::Pass_GammaCorrection(const UINT input, const UINT output)
+{
+	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[input].GetAddressOf());
+	SetRenderTarget
+	(
+		1,
+		m_RenderTargetViewArr[output].GetAddressOf(),
+		m_MainDepthStencilView.Get()
+	);
+
+	SetPixelShader(m_GammaCorrectionShader->GetShader());
+	RenderQuadPlane();
+
+	SetPSShaderResources(TextureBindTypes::Composition, 1, m_NullSrv);
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
+		m_NullRtv,
+		NULL
+	);
 }
 
 void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
@@ -637,7 +691,8 @@ void Graphics::Pass_EditorUI()
 	ImGui::Begin("RederTarget Window");
 	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition0].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::SSAO].Get(), scene_size);
+	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition1].Get(), scene_size);
+	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].Get(), scene_size);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

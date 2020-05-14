@@ -66,13 +66,13 @@ public:
 	void Pass_SSAO();
 	void Pass_Composition();
 	void Pass_PostProcess();
-	void Pass_Bloom(ID3D11ShaderResourceView** texOut);
 	void Pass_Gizmo();
 	void Pass_EditorUI();
+	void Pass_Bloom(const UINT inout);
+	void Pass_ToneMap(const UINT input, const UINT output);
+	void Pass_GammaCorrection(const UINT input, const UINT output);
 	void Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height);
 	void Pass_DownSample(ID3D11ShaderResourceView** texIn, ID3D11UnorderedAccessView** texOut, UINT texInwidth, UINT texInheight);
-	void Pass_ToneMap();
-	void Pass_GammaCorrection();
 	void RenderEnd();
 
 	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }

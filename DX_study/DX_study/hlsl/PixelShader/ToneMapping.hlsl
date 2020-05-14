@@ -22,7 +22,8 @@ float4 main(Vertex_Quad input) : SV_TARGET
 {
     float4 color = CompositionTexture.Sample(LinearWrap, input.inTexCoord);
     
+    //return color;
     //return float4(Reinhard(color.xyz * exp(HdrExposure)), 1.0f);
-    //return float4(Uncharted2(color.xyz * exp(HdrExposure)), 1.0f);
-    return 1.0 - exp(-color * HdrExposure);
+    return float4(Uncharted2(color.xyz * exp(HdrExposure)), 1.0f);
+    //return 1.0 - exp(-color * HdrExposure);
 }
