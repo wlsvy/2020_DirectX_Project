@@ -80,6 +80,9 @@ namespace BaseGeometry {
 		};
 
 		Math::ComputeVertexTangent(vertices, indices);
+		for (auto & v : vertices) {
+			//v.tangent = DirectX::XMFLOAT4(v.tangent.x * -1, -1, v.tangent.z * -1, 0.0f);
+		}
 
 		auto mesh = Core::CreateInstance<MeshReal<Vertex3D>>(
 			vertices,

@@ -30,9 +30,9 @@ VS_OUTPUT main(VS_INPUT input)
     VS_OUTPUT output;
     output.outPosition = mul(float4(input.inPos, 1.0f), wvpMatrix);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), worldMatrix));
+    output.outNormal = normalize(mul(input.inNormal, (float3x3) worldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), worldMatrix);
-    output.outTangent = normalize(mul(input.inTangent, worldMatrix)).xyz;
+    output.outTangent = normalize(mul(input.inTangent.xyz, (float3x3) worldMatrix));
     output.outOther = 0;
     return output;
 }

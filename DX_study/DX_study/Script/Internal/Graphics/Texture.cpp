@@ -11,6 +11,11 @@ std::shared_ptr<Texture> Texture::GetDefault() {
 	static std::weak_ptr<Texture> s_Default = Core::Find<Texture>("WhiteTexture");
 	return s_Default.lock();
 }
+std::shared_ptr<Texture> Texture::GetDefaultNormalMap()
+{
+	static std::weak_ptr<Texture> s_Default = Core::Find<Texture>("defaultnormalmap");
+	return s_Default.lock();
+}
 
 Texture::Texture(const Color4Byte & color)
 {
@@ -21,6 +26,7 @@ Texture::Texture(const Color4Byte * colorData, UINT width, UINT height)
 {
 	InitializeColorTexture(colorData, width, height);
 }
+
 
 Texture::Texture(const std::string & filePath) : Object(StringHelper::GetFileNameFromPath(filePath))
 {

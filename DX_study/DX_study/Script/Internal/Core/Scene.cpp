@@ -48,7 +48,7 @@ void Scene::Initialize()
 	{
 		auto sphere = Core::CreateInstance<GameObject>("sphere");
 		sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
-		sphere->GetRendererable().SetModel(Core::Find<Model>("cube"));
+		sphere->GetRendererable().SetModel(Core::Find<Model>("Box"));
 		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
 	}
 	{

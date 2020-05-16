@@ -49,10 +49,31 @@ bool Importer::LoadModelResources()
 
 bool CreateModel(const std::string & dirPath, const std::string& name) {
 	auto filePath = dirPath + name;
-	Assimp::Importer importer;
-	const aiScene* pScene = importer.ReadFile(filePath,
+
+	const auto importer_flags =
+		aiProcess_MakeLeftHanded |              // directx style.
+		aiProcess_FlipUVs |                     // directx style.
+		aiProcess_FlipWindingOrder |            // directx style.
+		aiProcess_CalcTangentSpace |
+		aiProcess_GenSmoothNormals |
+		aiProcess_JoinIdenticalVertices |
+		aiProcess_OptimizeMeshes |              // reduce the number of meshes         
+		aiProcess_ImproveCacheLocality |        // re-order triangles for better vertex cache locality.
+		aiProcess_RemoveRedundantMaterials |    // remove redundant/unreferenced materials.
+		aiProcess_LimitBoneWeights |
+		aiProcess_SplitLargeMeshes |
 		aiProcess_Triangulate |
-		aiProcess_ConvertToLeftHanded);
+		aiProcess_GenUVCoords |
+		aiProcess_SortByPType |                 // splits meshes with more than one primitive type in homogeneous sub-meshes.
+		aiProcess_FindDegenerates |             // convert degenerate primitives to proper lines or points.
+		aiProcess_FindInvalidData |
+		aiProcess_FindInstances |
+		aiProcess_ValidateDataStructure;
+
+	Assimp::Importer importer;
+	const aiScene* pScene = importer.ReadFile(
+		filePath,
+		importer_flags);
 
 	if (pScene == nullptr) return false;
 
@@ -87,7 +108,7 @@ bool CreateAnimation(const std::string & dirPath, const std::string& name) {
 	auto filePath = dirPath + name;
 	Assimp::Importer importer;
 	const aiScene* pScene = importer.ReadFile(filePath,
-		aiProcess_Triangulate |
+		aiProcessPreset_TargetRealtime_Fast |
 		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr) return false;

@@ -46,9 +46,9 @@ VS_OUTPUT main(VS_INPUT input)
 
     output.outPosition = mul(float4(input.inPos, 1.0f), animatedWvpMatrix);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), animatedWorldMatrix));
+    output.outNormal = normalize(mul(input.inNormal, (float3x3)animatedWorldMatrix));
     output.outWorldPos = mul(float4(input.inPos, 1.0f), animatedWorldMatrix);
-    output.outTangent = normalize(mul(input.inTangent, animatedWorldMatrix)).xyz;
+    output.outTangent = normalize(mul(input.inTangent.xyz, (float3x3) animatedWorldMatrix));
     output.outOther = 0;
     return output;
 }

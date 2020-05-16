@@ -55,6 +55,19 @@ struct TextureBindTypes {
 	};
 };
 
+struct DrawFlag {
+	enum {
+		None = 0,
+		Apply_MaterialVertexShader = 1,
+		Apply_MaterialPixelShader = 1 << 1,
+		Apply_MaterialGeometryShader = 1 << 2,
+		Apply_SkinnedMeshBone = 1 << 3,
+		Apply_MaterialTexture = 1 << 4,
+		Apply_ViewFrustumCulling = 1 << 5,
+		All = (1 << 30) - 1
+	};
+};
+
 class Graphics : public DX11Resources {
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
@@ -148,20 +161,6 @@ private:
 	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
 	DirectX::BoundingFrustum m_CullFrustum;
 
-	struct DrawFlag {
-		enum {
-			None = 0,
-			Apply_MaterialVertexShader = 1,
-			Apply_MaterialPixelShader = 1 << 1,
-			Apply_MaterialGeometryShader = 1 << 2,
-			Apply_SkinnedMeshBone = 1 << 3,
-			Apply_MaterialTexture = 1 << 4,
-			Apply_ViewFrustumCulling = 1 << 5,
-			All = (1 << 30) - 1
-		};
-	};
-
 	
-
 	
 };

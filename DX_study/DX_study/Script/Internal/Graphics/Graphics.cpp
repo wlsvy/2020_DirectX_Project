@@ -474,7 +474,7 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 		SetPSShaderResources(TextureBindTypes::MaterialNormal, 1, material->Normal ?
 			material->Normal->GetTextureResourceViewAddress() :
-			Texture::GetDefault()->GetTextureResourceViewAddress());
+			Texture::GetDefaultNormalMap()->GetTextureResourceViewAddress());
 		SetPSShaderResources(TextureBindTypes::MaterialMetal, 1, material->Metal ?
 			material->Metal->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
@@ -531,7 +531,6 @@ void Graphics::Pass_PostProcess()
 	auto outType = RenderTargetTypes::Composition1;
 
 	Pass_Bloom(inType);
-	//std::swap(inType, outType);
 
 	Pass_ToneMap(inType, outType);
 	std::swap(inType, outType);

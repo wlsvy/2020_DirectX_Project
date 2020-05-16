@@ -42,15 +42,18 @@ float3 GetRandomVector(float seed)
     return float3(cos(phi) * sina, cosa, sin(phi) * sina);
 }
 
-float3 CalcPerPixelNormal(float2 vTexcoord, float3 vVertNormal, float3 vVertTangent)
+float3 CalcPerPixelNormal(float2 uv, float3 n, float3 t)
 {
-    float3 vVertBinormal = normalize(cross(vVertTangent, vVertNormal));
-    float3x3 mTangentSpaceToWorldSpace = float3x3(vVertTangent, vVertBinormal, vVertNormal);
+    t = normalize(t - dot(t, n) * n);
+    float3 b = -cross(n, t);
+    float3x3 tbn = float3x3(t, b, n);
 
-    float3 vBumpNormal = (float3) normalMap.Sample(LinearWrap, vTexcoord);
-    vBumpNormal = 2.0f * vBumpNormal - 1.0f;
-
-    return mul(vBumpNormal, mTangentSpaceToWorldSpace);
+    float3 srcNormal = normalMap.Sample(LinearWrap, uv).xyz;
+    srcNormal = normalize(2.0f * srcNormal - 1.0f);
+    srcNormal.xy *= NormalIntensity;
+    
+    float3 res = normalize(mul(srcNormal, tbn));
+    return float3(res.x, res.yz);
 }
 
 //√‚√≥ : http://lousodrome.net/blog/light/2017/01/03/intersection-of-a-ray-and-a-cone/

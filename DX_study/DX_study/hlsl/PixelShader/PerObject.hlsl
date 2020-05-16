@@ -7,8 +7,7 @@ Pixel_Deferred main(Vertex_Basic input) : SV_TARGET
     output.color = albedoMap.Sample(PointClamp, input.inTexCoord) * materialColor;
     
     float3 calNormal = CalcPerPixelNormal(input.inTexCoord, input.inNormal, input.inTangent.xyz);
-    //output.normal = float4(calNormal, 1.0f);
-    output.normal = float4(input.inNormal, 1.0f);
+    output.normal = float4(calNormal, 1.0f);
     
     output.materialProperty = float4
     (

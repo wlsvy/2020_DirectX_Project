@@ -20,6 +20,7 @@ class Texture : public Object {
 	MANAGED_OBJECT(Texture)
 public:
 	static std::shared_ptr<Texture> GetDefault();
+	static std::shared_ptr<Texture> GetDefaultNormalMap();
 
 	Texture(const std::string & filePath);
 	Texture(const Color4Byte & color);
