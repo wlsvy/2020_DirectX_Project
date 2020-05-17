@@ -36,6 +36,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		InitializeConstantBuffer();
 
 		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
+		ThrowIfFailed(ProcessShaderStateTable(),								"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
 		ThrowIfFailed(Importer::LoadModelResources(),							"Failed to LoadModelResources.");
@@ -144,6 +145,25 @@ bool Graphics::ProcessMaterialTable()
 			material->Color.y = std::stof(splitted[1]) / 255;
 			material->Color.z = std::stof(splitted[2]) / 255;
 			material->Color.w = std::stof(splitted[3]) / 255;
+		}
+		return true;
+	}
+	catch (CustomException &e) {
+		StringHelper::ErrorLog(e);
+		return false;
+	}
+}
+
+bool Graphics::ProcessShaderStateTable() {
+	try {
+		auto table = Importer::LoadCSV("Data/CSV/ShaderStateTable.csv");
+		size_t rowcount = table["Name"].size();
+		for (int i = 0; i < rowcount; i++) {
+			auto shaderState = Core::CreateInstance<ShaderState>(table["Name"][i]);
+
+			shaderState->Vshader = Core::Find<VertexShader>(table["VertexShader"][i]);
+			shaderState->Pshader = Core::Find<PixelShader>(table["PixelShader"][i]);
+			shaderState->Gshader = Core::Find<GeometryShader>(table["GeometryShader"][i]);
 		}
 		return true;
 	}
@@ -314,6 +334,7 @@ void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
 	
 	for (auto & r : renderables) {
 		ApplyMaterialProperties(r.GetMaterial());
+		ApplyShaderState(r.GetShaderState());
 		RenderMesh(r.GetMesh(), worldMat, wvpMat);
 	}
 }
@@ -406,23 +427,6 @@ void Graphics::ApplySceneBuffer()
 
 void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material)
 {
-	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
-		auto vs = material->Vshader ? material->Vshader : VertexShader::GetDefault();
-		SetVSInputLayout(vs->GetInputLayout());
-		SetVertexShader(vs->GetShader());
-	}
-	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
-		auto ps = material->Pshader ? material->Pshader : PixelShader::GetDefault();
-		SetPixelShader(ps->GetShader());
-	}
-	if (m_DrawFlag & DrawFlag::Apply_MaterialGeometryShader) {
-		auto shader = material->Gshader ? material->Gshader->GetShader() : NULL;
-		SetGeometryShader(shader);
-	}
-	else {
-		auto shader = material->Gshader ? GeometryShader::GetDefault()->GetShader() : NULL;
-		SetGeometryShader(shader);
-	}
 	if (m_DrawFlag & DrawFlag::Apply_MaterialTexture){
 		SetPSShaderResources(TextureBindTypes::MaterialAlbedo, 1, material->Albedo ?
 			material->Albedo->GetTextureResourceViewAddress() :
@@ -449,6 +453,27 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 	m_GpuMaterialBuffer.ApplyChanges();
 }
 
+void Graphics::ApplyShaderState(const std::shared_ptr<ShaderState>& shaderState)
+{
+	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
+		auto vs = shaderState->Vshader ? shaderState->Vshader : VertexShader::GetDefault();
+		SetVSInputLayout(vs->GetInputLayout());
+		SetVertexShader(vs->GetShader());
+	}
+	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
+		auto ps = shaderState->Pshader ? shaderState->Pshader : PixelShader::GetDefault();
+		SetPixelShader(ps->GetShader());
+	}
+	if (m_DrawFlag & DrawFlag::Apply_MaterialGeometryShader) {
+		auto shader = shaderState->Gshader ? shaderState->Gshader->GetShader() : NULL;
+		SetGeometryShader(shader);
+	}
+	else {
+		auto shader = shaderState->Gshader ? GeometryShader::GetDefault()->GetShader() : NULL;
+		SetGeometryShader(shader);
+	}
+}
+
 void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 {
 	if (m_DrawFlag & DrawFlag::Apply_SkinnedMeshBone &&
@@ -464,7 +489,7 @@ void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 
 bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 {
-	if (m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) {
+	if (!m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) {
 		return true;
 	}
 

@@ -99,5 +99,27 @@ void Material::OnGui(const char* option)
 		}
 		ImGui::TreePop();
 	}
+}
 
+std::shared_ptr<ShaderState> ShaderState::GetDefault() {
+	static std::weak_ptr<ShaderState> s_Default = Core::Find<ShaderState>("Mesh");
+	return s_Default.lock();
+}
+
+std::shared_ptr<ShaderState> ShaderState::GetSkinnedDefault()
+{
+	static std::weak_ptr<ShaderState> s_Default = Core::Find<ShaderState>("SkinnedMesh");
+	return s_Default.lock();
+}
+
+void ShaderState::OnGui(const char* option) {
+	if (Vshader) {
+		ImGui::Text(("Vertex : " + Vshader->Name).c_str());
+	}
+	if (Gshader) {
+		ImGui::Text(("Geometry : " + Gshader->Name).c_str());
+	}
+	if (Pshader) {
+		ImGui::Text(("Pixel : " + Pshader->Name).c_str());
+	}
 }

@@ -24,6 +24,7 @@ class VertexShader;
 class PixelShader;
 class ComputeShader;
 class Material;
+class ShaderState;
 class LightBase;
 
 struct TextureBindTypes {
@@ -110,12 +111,14 @@ private:
 
 	void ApplySceneBuffer();
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
+	void ApplyShaderState(const std::shared_ptr<ShaderState> & shaderState);
 	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
 
 	bool IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer);
 
 	void InitializeConstantBuffer();
 	bool ProcessMaterialTable();
+	bool ProcessShaderStateTable();
 
 	ConstantBuffer<GpuObjectBuffer> m_GpuObjectBuffer;
 	ConstantBuffer<GpuBoneBuffer> m_GpuBoneBuffer;
@@ -155,11 +158,6 @@ private:
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT m_DrawFlag = 0;
 
-	
-
 	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
 	DirectX::BoundingFrustum m_CullFrustum;
-
-	
-	
 };

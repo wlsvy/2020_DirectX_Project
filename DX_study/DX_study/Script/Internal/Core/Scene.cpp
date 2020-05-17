@@ -46,18 +46,18 @@ void Scene::Initialize()
 		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Normal = Core::Find<Texture>("OrganicMeat");
 	}
 	{
-		auto sphere = Core::CreateInstance<GameObject>("sphere");
+		auto sphere = Core::CreateInstance<GameObject>("Cube");
 		sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
 		sphere->GetRendererable().SetModel(Core::Find<Model>("Box"));
 		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
 	}
 	{
-		auto sphere = Core::CreateInstance<GameObject>("Fu");
+		auto sphere = Core::CreateInstance<GameObject>("Furry");
 		sphere->GetTransform().SetPosition(2.0f, 5.0f, -3.f);
 		sphere->GetTransform().SetScale(3.0f, 3.0f, 3.f);
 		sphere->GetRendererable().SetModel(Core::Find<Model>("torus"));
-		//sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
 		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("FurTest"));
+		sphere->GetRendererable().SetShaderState(0, Core::Find<ShaderState>("FurMesh"));
 	}
 	
 

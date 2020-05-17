@@ -46,3 +46,18 @@ public:
 	SharedMaterial() {}
 	SharedMaterial(const std::string& name) : Material(name) {}
 };
+
+class ShaderState : public Object {
+	MANAGED_OBJECT(ShaderState)
+public:
+	static std::shared_ptr<ShaderState> GetDefault();
+	static std::shared_ptr<ShaderState> GetSkinnedDefault();
+
+	ShaderState() {}
+	ShaderState(const std::string& name) : Object(name) {}
+	void OnGui(const char* option = "-1") override;
+
+	std::shared_ptr<VertexShader> Vshader;
+	std::shared_ptr<PixelShader> Pshader;
+	std::shared_ptr<GeometryShader> Gshader;
+};

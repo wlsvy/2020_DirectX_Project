@@ -24,7 +24,11 @@ bool ModelImporter::CreateModel(
 
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Core::CreateInstance<Model>(m_Meshes, m_Materials, StringHelper::GetFileNameFromPath(fileName));
+	for (int i = 0; i < m_Meshes.size(); i++) {
+		m_ShaderState.push_back(ShaderState::GetDefault());
+	}
+
+	auto model = Core::CreateInstance<Model>(m_Meshes, m_Materials, m_ShaderState, StringHelper::GetFileNameFromPath(fileName));
 	return true;
 }
 
@@ -224,7 +228,11 @@ bool SkinnedModelImporter::CreateModel(
 	
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	auto model = Core::CreateInstance<SkinnedModel>(m_Meshes, m_Materials, m_BoneOffsets, m_BoneIdMap, fileName);
+	for (int i = 0; i < m_Meshes.size(); i++) {
+		m_ShaderState.push_back(ShaderState::GetSkinnedDefault());
+	}
+
+	auto model = Core::CreateInstance<SkinnedModel>(m_Meshes, m_Materials, m_ShaderState, m_BoneOffsets, m_BoneIdMap, fileName);
 	return true;
 }
 

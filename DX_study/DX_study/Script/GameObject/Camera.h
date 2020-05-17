@@ -25,5 +25,5 @@ private:
 
 	float m_ViewRange;
 
-	std::queue<RenderablePair> m_RenderQueue;
+	std::queue<Renderable> m_RenderQueue;
 };

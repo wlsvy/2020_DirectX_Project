@@ -12,9 +12,10 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 
 	auto & meshes = model->GetMeshes();
 	auto & mats = model->GetDefaultMaterials();
+	auto & shaderStats = model->GetDefaultShaderState();
 
 	for (int i = 0; i < meshes.size(); i++) {
-		m_Renderables.emplace_back(meshes[i], mats[i]);
+		m_Renderables.emplace_back(meshes[i], mats[i], shaderStats[i]);
 	}
 }
 
@@ -53,7 +54,10 @@ void RenderInfo::OnGui(const char* option) {
 			r.GetMesh()->OnGui();
 
 			auto mat = r.GetMaterial();
-			char guiMatKey[15];
+			auto shaderState = r.GetShaderState();
+			char guiMatKey[15], guiShaderKey[15];
+
+			std::sprintf(guiShaderKey, "GuiS%s_%d", index, shaderState->GetId());
 			std::sprintf(guiMatKey, "GuiM%s_%d", index, mat->GetId());
 
 			ImGui::Text("Material : ");
@@ -75,8 +79,12 @@ void RenderInfo::OnGui(const char* option) {
 				ImGui::EndPopup();
 			}
 
-			if (ImGui::TreeNode(guiMatKey, "Property")) {
+			if (ImGui::TreeNode(guiMatKey, "Material")) {
 				mat->OnGui(index);
+				ImGui::TreePop();
+			}
+			if (ImGui::TreeNode(guiShaderKey, "Shader")) {
+				shaderState->OnGui(index);
 				ImGui::TreePop();
 			}
 			ImGui::Separator();
