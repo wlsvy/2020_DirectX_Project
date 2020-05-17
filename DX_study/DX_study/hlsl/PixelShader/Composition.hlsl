@@ -9,19 +9,16 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float4 Tex1 = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord);
     float4 Tex2 = DeferredRenderingResource2.Sample(PointClamp, input.inTexCoord);
     float4 Tex3 = DeferredRenderingResource3.Sample(PointClamp, input.inTexCoord);
+    float ambientOcclusion = ssaoTexture.Sample(PointClamp, input.inTexCoord).x;
 
     float3 position = Tex0.xyz;
     float3 albedo = Tex1.xyz;
     float3 normal = Tex2.xyz;
-    float3 matProperty = Tex3.xyz;
-    float metal = matProperty.x;
-    float roughness = matProperty.y;
-    float specular = matProperty.z;
-    float ambientOcclusion = ssaoTexture.Sample(PointClamp, input.inTexCoord).x;
+    float3 specular = Tex3.xyz;
     float depth = Tex0.w;
     float colorFlag = Tex1.w;
-    //return float4(depth.yyy, 1.0f);
-    return float4(ambientOcclusion.xxx, 1.0f);
+    float metal = Tex2.w;
+    float roughness = Tex3.w;
     
     float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
     float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);

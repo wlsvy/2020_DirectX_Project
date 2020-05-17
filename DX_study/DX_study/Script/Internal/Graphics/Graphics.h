@@ -28,10 +28,10 @@ class LightBase;
 
 struct TextureBindTypes {
 	enum {
-		Position = 0,
-		Normal,
-		Albedo,
-		Material,
+		DeferredRenderingResource0 = 0,
+		DeferredRenderingResource1,
+		DeferredRenderingResource2,
+		DeferredRenderingResource3,
 		Depth,
 		ShadowMap,
 		SSAO,
@@ -75,7 +75,6 @@ public:
 	void RenderBegin();
 	void Pass_ShadowMap(const std::shared_ptr<LightBase> & light);
 	void Pass_GBuffer();
-	void Pass_Light();
 	void Pass_SSAO();
 	void Pass_Composition();
 	void Pass_PostProcess();

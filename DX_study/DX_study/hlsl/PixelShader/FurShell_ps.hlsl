@@ -36,7 +36,6 @@ Pixel_Deferred main(G2P input) : SV_TARGET
     diffuseColor.rgb *= 0.8f + (float) input.inFurLayer / (2 * FurLayer);
     
     Pixel_DeferredOpaque output;
-
     output.pos = input.inWorldPos;
     output.colorFlag = diffuseColor.a;
     output.normal = input.inNormal;
@@ -45,7 +44,5 @@ Pixel_Deferred main(G2P input) : SV_TARGET
     output.metal = metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
     output.specular = specularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
     output.roughness = roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
-    
-    
     return output;
 }

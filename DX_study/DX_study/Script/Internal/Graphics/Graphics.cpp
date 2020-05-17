@@ -221,49 +221,12 @@ void Graphics::Pass_GBuffer()
 	SetGeometryShader(NULL);
 }
 
-void Graphics::Pass_Light()
-{
-	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
-	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
-	//SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
-	SetPSShaderResources(TextureBindTypes::Dithering, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
-
-	SetBlendState(m_BlendStateOpaque.Get(), m_BackgroundColor);
-
-	{
-		SetRenderTarget
-		(
-			1,
-			m_RenderTargetViewArr[RenderTargetTypes::Light].GetAddressOf(),
-			NULL
-		);
-
-		SetPixelShader(m_LightShader->GetShader());
-
-		RenderQuadPlane();
-
-		SetRenderTarget
-		(
-			1,
-			m_NullRtv,
-			NULL
-		);
-	}
-	SetBlendState(m_BlendStateAlpha.Get(), m_BackgroundColor);
-	
-}
-
 void Graphics::Pass_SSAO()
 {
-	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 
 	{
@@ -299,22 +262,16 @@ void Graphics::Pass_Composition()
 		NULL
 	);
 
-	//Pass_DownSample(m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize].GetAddressOf(), m_WindowWidth, m_WindowHeight);
-	//Pass_DownSample(m_RenderTargetSrvs[RenderTargetTypes::HalfSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize + 1].GetAddressOf(), m_WindowWidth/2 , m_WindowHeight/2);
-	//Pass_DownSample(m_RenderTargetSrvs[RenderTargetTypes::HalfSize + 1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize + 2].GetAddressOf(), m_WindowWidth/4, m_WindowHeight/4);
-
 	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 	SetPixelShader(m_CompositionShader->GetShader());
 
-	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());
 
 	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
 	SetPSShaderResources(TextureBindTypes::Dithering, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
@@ -322,11 +279,6 @@ void Graphics::Pass_Composition()
 	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());	//skybox
 	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());	//Iradiance
 	
-	
-	//SetPSShaderResources(TextureBindTypes::Depth, 1, GetBaseDepthStencilSrvAddress());
-
-	
-
 	RenderQuadPlane();
 
 	SetPSShaderResources(0, DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT + 1, m_NullSrv);

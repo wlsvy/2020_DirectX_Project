@@ -18,10 +18,6 @@ struct PS_OUTPUT
 Pixel_Deferred main(PS_INPUT input) : SV_TARGET
 {
     Pixel_DeferredOpaque output;
-    //output.pos = float4(input.inLocalPos * 1000, -1.0f);
-    //output.normal = float4(-1.0f, -1.0f, -1.0f, -1.0f);
-    //output.color = skyBoxCube.Sample(LinearWrap, input.inLocalPos);
-    
     output.pos = input.inLocalPos * 1000;
     output.colorFlag = -1.0f;
     output.normal = float3(-1.0f, -1.0f, -1.0f);

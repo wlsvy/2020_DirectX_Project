@@ -115,11 +115,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateSamplerState(m_SamplerAnisotropicWrap.GetAddressOf(), D3D11_FILTER_ANISOTROPIC, D3D11_TEXTURE_ADDRESS_WRAP);
 		CreateSamplerState(m_SamplerTrilinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
 		
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Position].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Normal].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Albedo].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Material].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Depth].GetAddressOf(), width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf(), width, height);
+		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition0].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition0].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition0].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Composition1].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Composition1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Composition1].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::BlurIn].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::BlurIn].GetAddressOf(), width * 0.5, height * 0.5, DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -128,8 +127,6 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::QuarterSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::QuarterSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::QuarterSize].GetAddressOf(), width * 0.25, height * 0.25, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfQuarterSize].GetAddressOf(), width * 0.125, height * 0.125, DXGI_FORMAT_R8G8B8A8_UNORM);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::SSAO].GetAddressOf(), width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::Light].GetAddressOf(), width, height);
-		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::PBR].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::PBR].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::PBR].GetAddressOf(), width, height);
 
 		m_SpriteBatch = std::make_unique<DirectX::SpriteBatch>(m_DeviceContext.Get());
 		m_SpriteFont = std::make_unique<DirectX::SpriteFont>(m_Device.Get(), L"Data\\Fonts\\comic_sans_ms_16.spritefont");

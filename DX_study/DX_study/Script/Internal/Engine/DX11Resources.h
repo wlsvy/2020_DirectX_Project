@@ -11,11 +11,10 @@
 
 struct RenderTargetTypes {
 	enum {
-		Position = 0,
-		Normal,
-		Albedo,
-		Material,
-		Depth,
+		DeferredRenderingResource0 = 0,
+		DeferredRenderingResource1,
+		DeferredRenderingResource2,
+		DeferredRenderingResource3,
 		Composition0,
 		Composition1,
 		BlurIn,
@@ -24,8 +23,6 @@ struct RenderTargetTypes {
 		QuarterSize,
 		HalfQuarterSize,
 		SSAO,
-		Light,
-		PBR,
 		Max
 	};
 };
