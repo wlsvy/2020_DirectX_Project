@@ -5,10 +5,10 @@
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
-    float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
-    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord).xyz;
-    float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord).xyz;
-    float3 matProperty = matPropertyTexture.Sample(PointClamp, input.inTexCoord).xyz;
+    float4 position = DeferredRenderingResource0.Sample(PointClamp, input.inTexCoord);
+    float3 normal = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord).xyz;
+    float3 albedo = DeferredRenderingResource2.Sample(PointClamp, input.inTexCoord).xyz;
+    float3 matProperty = DeferredRenderingResource3.Sample(PointClamp, input.inTexCoord).xyz;
     float metal = matProperty.x;
     float roughness = matProperty.y;
     float specular = matProperty.z;

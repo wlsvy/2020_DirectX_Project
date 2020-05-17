@@ -4,7 +4,7 @@
 
 float ComputeOcclusionPixel(in float2 tcoord, in float2 uv, in float3 p, in float3 cnorm)
 {
-    float3 diff = positionTexture.Sample(PointClamp, tcoord + uv).xyz - p;
+    float3 diff = DeferredRenderingResource0.Sample(PointClamp, tcoord + uv).xyz - p;
     const float3 v = normalize(diff);
     const float d = length(diff) * SSAO_scale;
     return max(0.0, dot(cnorm, v) - SSAO_bias) * (1.0 / (1.0 + d)) * SSAO_strength;
@@ -41,8 +41,8 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
-    float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
-    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord);
+    float4 position = DeferredRenderingResource0.Sample(PointClamp, input.inTexCoord);
+    float3 normal = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord);
 
     float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
     return float4(ambientOcclusionFactor.xxx, 1.0f);

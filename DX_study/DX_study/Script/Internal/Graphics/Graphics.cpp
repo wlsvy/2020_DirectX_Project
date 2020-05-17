@@ -192,7 +192,7 @@ void Graphics::Pass_GBuffer()
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
-
+	SetBlendState(m_BlendStateOpaque.Get(), m_BlendFactors);
 	SetRenderTarget
 	(
 		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
@@ -301,7 +301,7 @@ void Graphics::Pass_Composition()
 	//Pass_DownSample(m_RenderTargetSrvs[RenderTargetTypes::HalfSize].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize + 1].GetAddressOf(), m_WindowWidth/2 , m_WindowHeight/2);
 	//Pass_DownSample(m_RenderTargetSrvs[RenderTargetTypes::HalfSize + 1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::HalfSize + 2].GetAddressOf(), m_WindowWidth/4, m_WindowHeight/4);
 
-
+	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 	SetPixelShader(m_CompositionShader->GetShader());
 
 	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());

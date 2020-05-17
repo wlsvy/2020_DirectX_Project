@@ -54,10 +54,10 @@ void Material::OnGui(const char* option)
 		ImGui::ColorEdit4(albedoTextureGuiKey, "Albedo Color", &Color.x);
 	}
 	{
-		char normalTextureGuiKey[15];
-		std::sprintf(normalTextureGuiKey, "%s_M%d_N", option, GetId());
+		char DeferredRenderingResource1GuiKey[15];
+		std::sprintf(DeferredRenderingResource1GuiKey, "%s_M%d_N", option, GetId());
 
-		TEXTURE_SELECTION_POPUP(Normal, normalTextureGuiKey);
+		TEXTURE_SELECTION_POPUP(Normal, DeferredRenderingResource1GuiKey);
 		ImGui::SliderFloat("Normal Intensity", &NormalIntensity, 0.0f, 1.0f);
 	}
 	{

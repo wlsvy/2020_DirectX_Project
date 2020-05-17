@@ -58,8 +58,6 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
 
 float3 VolumetricLight(float2 uv, float3 wpos, float3 rayDir, float rayLength)
 {
-    float linearDepth = depthTexture.Sample(LinearWrap, uv).x;
-
     float3 rayStart = CameraPosition;
     float3 rayEnd = wpos + rayDir * 0.001;
     

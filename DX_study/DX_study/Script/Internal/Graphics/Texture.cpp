@@ -19,12 +19,12 @@ std::shared_ptr<Texture> Texture::GetDefaultNormalMap()
 
 Texture::Texture(const Color4Byte & color)
 {
-	Initialize1x1ColorTexture(color);
+	Initialize1x1DeferredRenderingResource2(color);
 }
 
 Texture::Texture(const Color4Byte * colorData, UINT width, UINT height)
 {
-	InitializeColorTexture(colorData, width, height);
+	InitializeDeferredRenderingResource2(colorData, width, height);
 }
 
 
@@ -40,7 +40,7 @@ Texture::Texture(const std::string & filePath) : Object(StringHelper::GetFileNam
 
 	if (FAILED(hr))
 	{
-		Initialize1x1ColorTexture(Color4Byte::UnloadedTextureColor);
+		Initialize1x1DeferredRenderingResource2(Color4Byte::UnloadedTextureColor);
 	}
 }
 
@@ -52,12 +52,12 @@ Texture::Texture(const uint8_t * pData, size_t size)
 		"Failed to create Texture from.");
 }
 
-void Texture::Initialize1x1ColorTexture(const Color4Byte & colorData)
+void Texture::Initialize1x1DeferredRenderingResource2(const Color4Byte & colorData)
 {
-	InitializeColorTexture(&colorData, 1, 1);
+	InitializeDeferredRenderingResource2(&colorData, 1, 1);
 }
 
-void Texture::InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height)
+void Texture::InitializeDeferredRenderingResource2(const Color4Byte * colorData, UINT width, UINT height)
 {
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 

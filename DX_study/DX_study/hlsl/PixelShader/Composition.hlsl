@@ -5,10 +5,15 @@
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
-    float4 position = positionTexture.Sample(PointClamp, input.inTexCoord);
-    float3 normal = normalTexture.Sample(PointClamp, input.inTexCoord).xyz;
-    float3 albedo = colorTexture.Sample(PointClamp, input.inTexCoord).xyz;
-    float3 matProperty = matPropertyTexture.Sample(PointClamp, input.inTexCoord).xyz;
+    float4 Tex0 = DeferredRenderingResource0.Sample(PointClamp, input.inTexCoord);
+    float4 Tex1 = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord);
+    float4 Tex2 = DeferredRenderingResource2.Sample(PointClamp, input.inTexCoord);
+    float4 Tex3 = DeferredRenderingResource3.Sample(PointClamp, input.inTexCoord);
+
+    float3 position = Tex0.xyz;
+    float3 normal = Tex1.xyz;
+    float3 albedo = Tex2.xyz;
+    float3 matProperty = Tex3.xyz;
     float depth = depthTexture.Sample(PointClamp, input.inTexCoord).x;
     float metal = matProperty.x;
     float roughness = matProperty.y;
@@ -20,7 +25,7 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float3 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);
 
     
-    if (position.w < 0.0f)
+    if (Tex0.w < 0.0f)
     {
         return float4(albedo + vl, 1.0f);
     }

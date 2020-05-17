@@ -31,8 +31,8 @@ public:
 	ID3D11ShaderResourceView * const *	GetTextureResourceViewAddress()	const { return m_ShaderResourceView.GetAddressOf(); }
 
 private:
-	void Initialize1x1ColorTexture(const Color4Byte & colorData);
-	void InitializeColorTexture(const Color4Byte * colorData, UINT width, UINT height);
+	void Initialize1x1DeferredRenderingResource2(const Color4Byte & colorData);
+	void InitializeDeferredRenderingResource2(const Color4Byte * colorData, UINT width, UINT height);
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShaderResourceView = nullptr;
 };
