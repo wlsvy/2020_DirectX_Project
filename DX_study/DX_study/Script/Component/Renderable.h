@@ -45,7 +45,7 @@ public:
 	bool IsVisible() const										{ return m_IsVisible; }
 
 	void SetModel(const std::shared_ptr<Model>& model);
-	void OnGui() override;
+	void OnGui(const char* option = "-1") override;
 
 	void SetMaterial(int index, const std::shared_ptr<Material> & mat) { m_Renderables[index].SetMaterial(mat);}
 

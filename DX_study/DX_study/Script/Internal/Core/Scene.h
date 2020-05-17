@@ -13,7 +13,7 @@ public:
 	void Initialize();
 	void ProcessGameObjectTable();
 	void Update();
-	void OnGui();
+	void OnGui(const char * option = "-1");
 
 	std::shared_ptr<Transform> GetWorldTransform() const { return m_WorldTransform; }
 	std::shared_ptr<Camera> GetMainCam() const { return m_MainCam; }

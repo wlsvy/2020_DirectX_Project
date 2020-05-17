@@ -73,7 +73,8 @@ bool CreateModel(const std::string & dirPath, const std::string& name) {
 	Assimp::Importer importer;
 	const aiScene* pScene = importer.ReadFile(
 		filePath,
-		importer_flags);
+		aiProcessPreset_TargetRealtime_Fast |
+		aiProcess_ConvertToLeftHanded);
 
 	if (pScene == nullptr) return false;
 

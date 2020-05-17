@@ -145,7 +145,7 @@ void Transform::EraseChild(Transform* child)
 	}
 }
 
-void Transform::OnGui()
+void Transform::OnGui(const char* option)
 {
 	ImGui::DragFloat3("Position", &position.x, 0.1f, POSITION_MIN, POSITION_MAX);
 	ImGui::DragFloat3("Rotation", &rotation.x, 0.1f, -1000.0f, 1000.0f);

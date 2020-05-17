@@ -15,12 +15,12 @@ ImGui::SameLine();																\
 if (target) {																	\
 	ImGui::Image(target->GetTextureResourceView(), imageSize);					\
 	ImGui::SameLine();															\
-	if (ImGui::Button(target->Name.c_str())) {									\
+	if (ImGui::Button(target->Name.c_str(), guiKey)) {							\
 		ImGui::OpenPopup(guiKey);												\
 	}																			\
 }																				\
 else {																			\
-	if (ImGui::Button("No Texture")) {											\
+	if (ImGui::Button("No Texture", guiKey)) {									\
 		ImGui::OpenPopup(guiKey);												\
 	}																			\
 }																				\
@@ -39,7 +39,7 @@ if (ImGui::BeginPopup(guiKey))													\
 	ImGui::EndPopup();															\
 }																				\
 
-void Material::OnGui()
+void Material::OnGui(const char* option)
 {
 	auto displaySize = GUI::GetDisplaySize();
 	auto imageSize = ImVec2(displaySize.x * 0.02f, displaySize.y * 0.02f);
@@ -48,35 +48,35 @@ void Material::OnGui()
 
 	{
 		char albedoTextureGuiKey[15];
-		std::sprintf(albedoTextureGuiKey, "Albedo_%d", GetId());
+		std::sprintf(albedoTextureGuiKey, "%s_M%d_A", option, GetId());
 
 		TEXTURE_SELECTION_POPUP(Albedo, albedoTextureGuiKey);
 		ImGui::ColorEdit4(albedoTextureGuiKey, "Albedo Color", &Color.x);
 	}
 	{
 		char normalTextureGuiKey[15];
-		std::sprintf(normalTextureGuiKey, "Normal_%d", GetId());
+		std::sprintf(normalTextureGuiKey, "%s_M%d_N", option, GetId());
 
 		TEXTURE_SELECTION_POPUP(Normal, normalTextureGuiKey);
 		ImGui::SliderFloat("Normal Intensity", &NormalIntensity, 0.0f, 1.0f);
 	}
 	{
 		char metalTextureGuiKey[15];
-		std::sprintf(metalTextureGuiKey, "Metal_%d", GetId());
+		std::sprintf(metalTextureGuiKey, "%s_M%d_M", option, GetId());
 
 		TEXTURE_SELECTION_POPUP(Metal, metalTextureGuiKey);
 		ImGui::SliderFloat("Metal Intensity", &MetalIntensity, 0.0f, 1.0f);
 	}
 	{
 		char roughTextureGuiKey[15];
-		std::sprintf(roughTextureGuiKey, "Rough_%d", GetId());
+		std::sprintf(roughTextureGuiKey, "%s_M%d_R", option, GetId());
 
 		TEXTURE_SELECTION_POPUP(Roughness, roughTextureGuiKey);
 		ImGui::SliderFloat("Roughness Intensity", &RoughnessIntensity, 0.0f, 1.0f);
 	}
 	{
 		char specularTextureGuiKey[15];
-		std::sprintf(specularTextureGuiKey, "Specular_%d", GetId());
+		std::sprintf(specularTextureGuiKey, "%s_M%d_S", option, GetId());
 
 		TEXTURE_SELECTION_POPUP(Specular, specularTextureGuiKey);
 		ImGui::SliderFloat("Specular Intensity", &SpecularIntensity, 0.0f, 1.0f);

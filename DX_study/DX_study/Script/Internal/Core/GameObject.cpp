@@ -26,7 +26,7 @@ void GameObject::RemoveExpiredComponent()
 	});
 }
 
-void GameObject::OnGui()
+void GameObject::OnGui(const char* option)
 {
 	ImGuiInputTextFlags flags = ImGuiInputTextFlags_AutoSelectAll;
 	ImGui::InputText("Name", &Name[0], flags);

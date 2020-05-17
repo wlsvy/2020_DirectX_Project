@@ -18,7 +18,7 @@ Mesh::Mesh(
 	}
 }
 
-void Mesh::OnGui()
+void Mesh::OnGui(const char* option)
 {
 	ImGui::Text(("Mesh : " + Name).c_str());
 }

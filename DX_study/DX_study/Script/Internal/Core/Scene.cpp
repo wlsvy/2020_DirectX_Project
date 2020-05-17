@@ -130,7 +130,7 @@ void Scene::Update()
 	m_MainCam->UpdateView();
 }
 
-void Scene::OnGui()
+void Scene::OnGui(const char* option)
 {
 	for (auto child : m_WorldTransform->m_Children)
 	{

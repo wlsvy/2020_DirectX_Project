@@ -4,6 +4,6 @@
 class LightSystem : public Behaviour {
 	COMPONENT_CONSTRUCTOR(LightSystem, Behaviour)
 public:
-	void OnGui() override;
+	void OnGui(const char* option = "-1") override;
 private:
 };

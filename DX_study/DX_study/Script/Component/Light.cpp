@@ -77,7 +77,7 @@ void SpotLight::ProcessLight()
 {
 }
 
-void SpotLight::OnGui()
+void SpotLight::OnGui(const char* option)
 {
 	LightBase::OnGui();
 	float range = m_Range;
@@ -113,7 +113,7 @@ void SpotLight::SetProjectionMatrix()
 	m_ProjectionMatrix = DirectX::XMMatrixPerspectiveFovLH(fovRadians, 1024/768, 0.1f, m_Range);
 }
 
-void LightBase::OnGui()
+void LightBase::OnGui(const char* option)
 {
 	ImGui::ColorEdit3("Color", &Color.x, ImGuiColorEditFlags_NoAlpha);
 	ImGui::DragFloat("Strength", &Strength, 0.1f, 0.0f, LIGHT_STRENGTH_MAX);

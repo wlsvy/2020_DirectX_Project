@@ -85,12 +85,8 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 
 		for (UINT j = 0; j < face.mNumIndices; j++) {
 			indices.push_back(face.mIndices[j]);
-			if (face.mNumIndices != 3) {
-
-			}
 		}
 	}
-	//Math::ComputeVertexTangent(vertices, indices);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
@@ -313,33 +309,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 		for (UINT j = 0; j < face.mNumIndices; j++) {
 			indices.push_back(face.mIndices[j]);
 		}
-			
-		if (face.mNumIndices != 3) {
-			int i = 0;
-		}
-
-		/*DirectX::XMFLOAT3 pos0 = vertices[face.mIndices[0]].pos;
-		DirectX::XMFLOAT3 pos1 = vertices[face.mIndices[1]].pos;
-		DirectX::XMFLOAT3 pos2 = vertices[face.mIndices[2]].pos;
-		DirectX::XMFLOAT2 uv0 = vertices[face.mIndices[0]].texCoord;
-		DirectX::XMFLOAT2 uv1 = vertices[face.mIndices[1]].texCoord;
-		DirectX::XMFLOAT2 uv2 = vertices[face.mIndices[2]].texCoord;
-
-		DirectX::XMFLOAT3 deltaPos1 = DirectX::XMFLOAT3(pos1.x - pos0.x, pos1.y - pos0.y, pos1.z - pos0.z);
-		DirectX::XMFLOAT3 deltaPos2 = DirectX::XMFLOAT3(pos2.x - pos0.x, pos2.y - pos0.y, pos2.z - pos0.z);
-		DirectX::XMFLOAT2 deltaUv1 = DirectX::XMFLOAT2(uv1.x - uv0.x, uv1.y - uv0.y);
-		DirectX::XMFLOAT2 deltaUv2 = DirectX::XMFLOAT2(uv2.x - uv0.x, uv2.y - uv0.y);
-*/
-		
-		/*
-		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
-        glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
-        glm::vec3 bitangent = (deltaPos2 * deltaUV1.x   - deltaPos1 * deltaUV2.x)*r;
-		*/
-
 	}
-	//Math::ComputeVertexTangent(vertices, indices);
-
 	//Get Material & Textures
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);

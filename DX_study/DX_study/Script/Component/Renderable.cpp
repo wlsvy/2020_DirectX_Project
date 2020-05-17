@@ -18,7 +18,7 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 	}
 }
 
-void RenderInfo::OnGui() {
+void RenderInfo::OnGui(const char* option) {
 	
 	ImGui::Text("Model : ");
 	ImGui::SameLine();
@@ -48,13 +48,13 @@ void RenderInfo::OnGui() {
 	ImGui::Separator();
 
 	if (m_Model) {
+		char index[2] = { '0', '\0' };
 		for (auto & r : m_Renderables) {
 			r.GetMesh()->OnGui();
 
 			auto mat = r.GetMaterial();
-			char guiMatKey[15], guiMatPropertyKey[15];
-			std::sprintf(guiMatKey, "MatPopUp_%d", mat->GetId());
-			std::sprintf(guiMatPropertyKey, "MatProp_%d", mat->GetId());
+			char guiMatKey[15];
+			std::sprintf(guiMatKey, "GuiM%s_%d", index, mat->GetId());
 
 			ImGui::Text("Material : ");
 			ImGui::SameLine();
@@ -75,11 +75,13 @@ void RenderInfo::OnGui() {
 				ImGui::EndPopup();
 			}
 
-			if (ImGui::TreeNode(guiMatPropertyKey, "Property")) {
-				mat->OnGui();
+			if (ImGui::TreeNode(guiMatKey, "Property")) {
+				mat->OnGui(index);
 				ImGui::TreePop();
 			}
 			ImGui::Separator();
+
+			index[0]++;
 		}
 	}
 

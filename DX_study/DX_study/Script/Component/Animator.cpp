@@ -76,7 +76,7 @@ void Animator::SetClip(const std::shared_ptr<AnimationClip>& clip)
 	m_AnimResult.resize(clip->NumChannel);
 }
 
-void Animator::OnGui()
+void Animator::OnGui(const char* option)
 {
 	ImGui::Checkbox("Play", &m_IsRunning);
 

@@ -45,7 +45,7 @@ float3 GetRandomVector(float seed)
 float3 CalcPerPixelNormal(float2 uv, float3 n, float3 t)
 {
     t = normalize(t - dot(t, n) * n);
-    float3 b = -cross(n, t);
+    float3 b = -cross(n, t);        //부호에 따라서 음각/ 양각이 변경 
     float3x3 tbn = float3x3(t, b, n);
 
     float3 srcNormal = normalMap.Sample(LinearWrap, uv).xyz;

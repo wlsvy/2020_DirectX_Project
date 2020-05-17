@@ -5,7 +5,7 @@
 #include "../../Internal/Graphics/Graphics.h"
 #include "../../Internal/Core/InternalHelper.h"
 
-void LightSystem::OnGui()
+void LightSystem::OnGui(const char* option)
 {
 	auto & cbScene = Core::GetGraphics().GetCbScene();
 	auto & cbFurData = Core::GetGraphics().GetCbFurData();

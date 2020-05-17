@@ -13,7 +13,7 @@ class Material : public Object {
 public:
 	Material() {}
 	Material(const std::string& name) : Object(name) {}
-	void OnGui() override;
+	void OnGui(const char* option = "-1") override;
 
 	DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
