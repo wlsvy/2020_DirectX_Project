@@ -12,16 +12,17 @@ float ComputeOcclusionPixel(in float2 tcoord, in float2 uv, in float3 p, in floa
 
 const float SSf = 0.7;
 #define SSAO_FACTOR 0.3
-float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
+float ComputeAmbientOcclusion(float3 position, float3 normal, float depth, float2 texcoord)
 {
     const float2 vec[4] = { float2(1, 0), float2(-1, 0), float2(0, 1), float2(0, -1) };
     float3 p = position;
     float3 n = normal;
-    float3 depth = 1 - depthTexture.Sample(LinearMirror, texcoord).r;
+    
+    float oneMinusDepth = 1 - depth;
     //float2 rand = float2(1, 1);
     float2 rand = getRandom(texcoord);
     float ao = 0.0f;
-    float rad = SSAO_radius / depth;
+    float rad = SSAO_radius / oneMinusDepth;
   
   //**SSAO Calculation**// 
     int iterations = 4;
@@ -41,9 +42,13 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float2 texcoord)
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
-    float4 position = DeferredRenderingResource0.Sample(PointClamp, input.inTexCoord);
-    float3 normal = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord);
+    float4 Tex0 = DeferredRenderingResource0.Sample(PointClamp, input.inTexCoord);
+    float4 Tex2 = DeferredRenderingResource2.Sample(PointClamp, input.inTexCoord);
+    
+    float3 position = Tex0.xyz;
+    float3 normal = Tex2.xyz;
+    float depth = Tex0.w;
 
-    float ambientOcclusionFactor = ComputeAmbientOcclusion(position.xyz, normal.xyz, input.inTexCoord);
+    float ambientOcclusionFactor = ComputeAmbientOcclusion(position, normal, depth, input.inTexCoord);
     return float4(ambientOcclusionFactor.xxx, 1.0f);
 }

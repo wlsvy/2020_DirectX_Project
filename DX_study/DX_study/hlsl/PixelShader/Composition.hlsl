@@ -11,21 +11,24 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float4 Tex3 = DeferredRenderingResource3.Sample(PointClamp, input.inTexCoord);
 
     float3 position = Tex0.xyz;
-    float3 normal = Tex1.xyz;
-    float3 albedo = Tex2.xyz;
+    float3 albedo = Tex1.xyz;
+    float3 normal = Tex2.xyz;
     float3 matProperty = Tex3.xyz;
-    float depth = depthTexture.Sample(PointClamp, input.inTexCoord).x;
     float metal = matProperty.x;
     float roughness = matProperty.y;
     float specular = matProperty.z;
     float ambientOcclusion = ssaoTexture.Sample(PointClamp, input.inTexCoord).x;
+    float depth = Tex0.w;
+    float colorFlag = Tex1.w;
+    //return float4(depth.yyy, 1.0f);
+    return float4(ambientOcclusion.xxx, 1.0f);
     
     float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
     float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
     float3 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);
 
     
-    if (Tex0.w < 0.0f)
+    if (colorFlag < 0.0f)
     {
         return float4(albedo + vl, 1.0f);
     }

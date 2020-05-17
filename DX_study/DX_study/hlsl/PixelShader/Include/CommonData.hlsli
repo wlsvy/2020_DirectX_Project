@@ -29,7 +29,7 @@ Texture2D specularBRDF_LUT : register(t25);
 cbuffer CB_Scene : register(b0)
 {
     float3 CameraPosition;
-    float pad0;
+    float CameraViewRange;
     float3 CameraForward;
     float pad1;
     

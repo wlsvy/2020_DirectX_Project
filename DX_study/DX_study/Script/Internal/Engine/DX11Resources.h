@@ -121,7 +121,7 @@ public:
 	DirectX::PrimitiveBatch<DirectX::VertexPositionColor>*	GetPrimitiveBatch() const	{ return m_PrimitiveBatch.get(); }
 	ID3D11InputLayout*				GetDebugInputLayout() const							{ return m_DebugInputLayout.Get(); }
 
-	static const UINT MAX_RENDER_TARGET_BINDING_COUNT = 5; 
+	static const UINT MAX_RENDER_TARGET_BINDING_COUNT = 4; 
 	static const UINT MAX_SHADER_RESOURCE_VIEW_BINDING_COUNT = 12;
 	static const UINT MAX_UNORDERED_ACCESS_VIEW_BINDING_COUNT = 2;
 

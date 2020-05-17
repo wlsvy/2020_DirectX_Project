@@ -262,7 +262,9 @@ void Graphics::Pass_SSAO()
 {
 	SetPSShaderResources(TextureBindTypes::Position, 1, m_RenderTargetSrvs[RenderTargetTypes::Position].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 
 	{
 		SetPSShaderResources(TextureBindTypes::SSAO, 1, m_NullSrv);
@@ -308,7 +310,7 @@ void Graphics::Pass_Composition()
 	SetPSShaderResources(TextureBindTypes::Normal, 1, m_RenderTargetSrvs[RenderTargetTypes::Normal].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Albedo, 1, m_RenderTargetSrvs[RenderTargetTypes::Albedo].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Material, 1, m_RenderTargetSrvs[RenderTargetTypes::Material].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::Depth, 1, m_RenderTargetSrvs[RenderTargetTypes::Depth].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[RenderTargetTypes::Light].GetAddressOf());
@@ -439,7 +441,8 @@ void Graphics::ApplySceneBuffer()
 	m_GpuSpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
 	m_GpuSpotLight.ApplyChanges();
 
-	m_GpuSceneBuffer.data.CamPosition = mainCam->GetTransform().positionVec;
+	DirectX::XMStoreFloat3(&m_GpuSceneBuffer.data.CamPosition, mainCam->GetTransform().positionVec);
+	m_GpuSceneBuffer.data.CamViewRange = mainCam->GetViewRange();
 	m_GpuSceneBuffer.data.CameraForward = mainCam->GetTransform().GetForwardVector();
 	m_GpuSceneBuffer.data.ElapsedTime = Time::GetTime();
 	m_GpuSceneBuffer.data.DeltaTime = Time::GetDeltaTime();
@@ -688,7 +691,9 @@ void Graphics::Pass_EditorUI()
 	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition0].Get(), scene_size);
 	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition1].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].Get(), scene_size);
+	ImGui::Image(m_MainDepthStencilSRV.Get(), scene_size);
+	ImGui::Image(m_SubDepthStencilSRV.Get(), scene_size);
+	//ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].Get(), scene_size);
 	ImGui::End();
 
 	GUI::DrawDeferredChannelImage();

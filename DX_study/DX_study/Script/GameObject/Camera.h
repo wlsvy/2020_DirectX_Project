@@ -15,12 +15,15 @@ public:
 	const DirectX::XMMATRIX & GetProjectionMatrix() const { return projectionMatrix; }
 	const DirectX::XMMATRIX & GetViewProjectionMatrix() const { return viewProjectionMatrix; }
 	const DirectX::BoundingFrustum & GetViewFrustum() const { return viewFrustum; }
+	float GetViewRange() const { return m_ViewRange; }
 
 private:
 	DirectX::XMMATRIX viewMatrix;
 	DirectX::XMMATRIX projectionMatrix;
 	DirectX::XMMATRIX viewProjectionMatrix;
 	DirectX::BoundingFrustum viewFrustum;
+
+	float m_ViewRange;
 
 	std::queue<RenderablePair> m_RenderQueue;
 };

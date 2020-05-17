@@ -34,15 +34,31 @@ struct Vertex_Quad
     float2 inTexCoord : TEXCOORD;
 };
 
-struct Pixel_Deferred
+struct Pixel_DeferredOpaque
 {
-    float4 pos : WORLD_POSITION;
-    float4 normal : NORMAL;
-    float4 color : COLOR0;
-    float4 materialProperty : COLOR1;
-    float4 depth : COLOR2;
+    //Render Target 0
+    float3 pos : WORLD_POSITION;
+    float depth : DEPTH;
+    
+    //Render Target 1
+    float3 color : COLOR0;
+    float colorFlag : FLAG; // -1 : skybox, 0 ~ 1 : objectTransparency
+    
+    //Render Target 2
+    float3 normal : NORMAL;
+    float metal : METAL;
+    
+    //Render Target 3
+    float3 specular : SPECULAR;
+    float roughness : ROUGHNESS;
 };
 
-
+struct Pixel_Deferred
+{
+    float4 output0;
+    float4 output1;
+    float4 output2;
+    float4 output3;
+};
 
 #endif

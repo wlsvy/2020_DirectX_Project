@@ -15,13 +15,21 @@ struct PS_OUTPUT
     float4 depth : COLOR2;
 };
 
-PS_OUTPUT main(PS_INPUT input) : SV_TARGET
+Pixel_Deferred main(PS_INPUT input) : SV_TARGET
 {
-    PS_OUTPUT output;
-    output.pos = float4(input.inLocalPos * 1000, -1.0f);
-    output.normal = float4(-1.0f, -1.0f, -1.0f, -1.0f);
+    Pixel_DeferredOpaque output;
+    //output.pos = float4(input.inLocalPos * 1000, -1.0f);
+    //output.normal = float4(-1.0f, -1.0f, -1.0f, -1.0f);
+    //output.color = skyBoxCube.Sample(LinearWrap, input.inLocalPos);
+    
+    output.pos = input.inLocalPos * 1000;
+    output.colorFlag = -1.0f;
+    output.normal = float3(-1.0f, -1.0f, -1.0f);
+    output.depth = 1.0f;
     output.color = skyBoxCube.Sample(LinearWrap, input.inLocalPos);
-    output.depth = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    output.metal = 1.0f;
+    output.specular = float3(1.0f, 1.0f, 1.0f);
+    output.roughness = 1.0f;
     return output;
 }
 

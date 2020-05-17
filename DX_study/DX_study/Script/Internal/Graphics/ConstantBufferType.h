@@ -71,7 +71,9 @@ struct GpuBlurBuffer {
 
 
 struct GpuSceneBuffer {
-	DirectX::XMVECTOR CamPosition;
+	DirectX::XMFLOAT3 CamPosition;
+	float CamViewRange;
+
 	DirectX::XMVECTOR CameraForward;
 
 	float ElapsedTime;
@@ -91,7 +93,7 @@ struct GpuSceneBuffer {
 	UINT SkyBoxMaxMipLevel = 0.0f;
 
 	float ssao_Strength = 0.07f;
-	float ssao_Radius = 0.05f;
+	float ssao_Radius = 0.08f;
 	float ssao_Bias = 0.16f;
 	float ssao_Scale = 1.0f;
 
