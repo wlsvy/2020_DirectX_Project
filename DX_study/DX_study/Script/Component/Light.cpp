@@ -26,12 +26,9 @@ void LightBase::Awake() {
 		textureDesc.CPUAccessFlags = 0;
 		textureDesc.MiscFlags = 0;
 
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture2;
+		Microsoft::WRL::ComPtr<ID3D11Texture2D> texture;
 		ThrowIfFailed(
-			Core::GetDevice()->CreateTexture2D(&textureDesc, NULL, m_ShadowMapRenderTargetTexture.GetAddressOf()),
-			"Failed to create renderTargetTextureArr.");
-		ThrowIfFailed(
-			Core::GetDevice()->CreateTexture2D(&textureDesc, NULL, texture2.GetAddressOf()),
+			Core::GetDevice()->CreateTexture2D(&textureDesc, NULL, texture.GetAddressOf()),
 			"Failed to create renderTargetTextureArr.");
 
 		D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
@@ -39,10 +36,7 @@ void LightBase::Awake() {
 		renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 		renderTargetViewDesc.Texture2D.MipSlice = 0;
 		ThrowIfFailed(
-			Core::GetDevice()->CreateRenderTargetView(m_ShadowMapRenderTargetTexture.Get(), &renderTargetViewDesc, m_ShadowMapRenderTargetView.GetAddressOf()),
-			"Failed to create renderTargetViewArr.");
-		ThrowIfFailed(
-			Core::GetDevice()->CreateRenderTargetView(texture2.Get(), &renderTargetViewDesc, m_ResultRenderTargetView.GetAddressOf()),
+			Core::GetDevice()->CreateRenderTargetView(texture.Get(), &renderTargetViewDesc, m_ShadowMapRenderTargetView.GetAddressOf()),
 			"Failed to create renderTargetViewArr.");
 
 		D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
@@ -51,10 +45,7 @@ void LightBase::Awake() {
 		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 		shaderResourceViewDesc.Texture2D.MipLevels = 1;
 		ThrowIfFailed(
-			Core::GetDevice()->CreateShaderResourceView(m_ShadowMapRenderTargetTexture.Get(), &shaderResourceViewDesc, m_ShadowMapShaderResourceView.GetAddressOf()),
-			"Failed to create shaderResourceViewArr.");
-		ThrowIfFailed(
-			Core::GetDevice()->CreateShaderResourceView(texture2.Get(), &shaderResourceViewDesc, m_ResultShaderResourceView.GetAddressOf()),
+			Core::GetDevice()->CreateShaderResourceView(texture.Get(), &shaderResourceViewDesc, m_ShadowMapShaderResourceView.GetAddressOf()),
 			"Failed to create shaderResourceViewArr.");
 	}
 	catch (CustomException & exception) {
@@ -117,8 +108,4 @@ void LightBase::OnGui(const char* option)
 {
 	ImGui::ColorEdit3("Color", &Color.x, ImGuiColorEditFlags_NoAlpha);
 	ImGui::DragFloat("Strength", &Strength, 0.1f, 0.0f, LIGHT_STRENGTH_MAX);
-}
-
-bool PointLight::CullRenderable(const DirectX::BoundingBox & target) {
-	return Math::GetDistance(m_GameObject->GetTransform(), target.Center) > Range;
 }

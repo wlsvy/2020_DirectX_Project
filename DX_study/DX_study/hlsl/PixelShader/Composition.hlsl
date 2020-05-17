@@ -9,7 +9,7 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float4 Tex1 = DeferredRenderingResource1.Sample(PointClamp, input.inTexCoord);
     float4 Tex2 = DeferredRenderingResource2.Sample(PointClamp, input.inTexCoord);
     float4 Tex3 = DeferredRenderingResource3.Sample(PointClamp, input.inTexCoord);
-    float ambientOcclusion = ssaoTexture.Sample(PointClamp, input.inTexCoord).x;
+    float ambientOcclusion = SsaoTexture.Sample(PointClamp, input.inTexCoord).x;
 
     float3 position = Tex0.xyz;
     float3 albedo = Tex1.xyz;

@@ -24,6 +24,9 @@ void LightSystem::OnGui(const char* option)
 	ImGui::DragFloat3("VolumetricLight", &cbScene.data.VolumetricLightVar.x, 0.01f, 0.0f, 10.0f);
 	ImGui::DragInt("VolumetricLightSampleCount", &cbScene.data.VolumetricLightSampleCount, 1, 0, 100);
 
+	ImGui::DragFloat("BloomThreshold", &cbScene.data.bloom_Threshold, 0.01f, 0.0f, 100.0f);
+	ImGui::DragFloat("BloomIntensity", &cbScene.data.bloom_Intensity, 0.01f, 0.0f, 100.0f);
+
 	ImGui::DragInt("FurLayer", &cbFurData.data.FurLayer, 1, 0, 100);
 	ImGui::DragFloat("FurLength", &cbFurData.data.FurLength, 0.01f, 0.0f, 100.0f);
 	ImGui::DragFloat("FurOpacityThreshold", &cbFurData.data.FurOpacityThreshold, 0.01f, 0.0f, 1.0f);

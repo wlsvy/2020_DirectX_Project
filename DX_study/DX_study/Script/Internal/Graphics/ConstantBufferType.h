@@ -97,8 +97,12 @@ struct GpuSceneBuffer {
 	float ssao_Bias = 0.16f;
 	float ssao_Scale = 1.0f;
 
-	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.04f, 0.1f, 0.2f);
+	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.00f, 0.1f, 0.2f);
 	int VolumetricLightSampleCount = 60;
+
+	float bloom_Threshold = 0.2f;
+	float bloom_Intensity = 0.1f;
+	DirectX::XMFLOAT2 pad2;
 };
 
 struct GpuFurBuffer {

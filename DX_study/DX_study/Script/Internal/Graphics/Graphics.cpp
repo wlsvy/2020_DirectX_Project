@@ -35,14 +35,14 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		
 		InitializeConstantBuffer();
 
-		ThrowIfFailed(Importer::LoadBaseResources(),							"Failed to LoadBaseResources.");
-		ThrowIfFailed(ProcessShaderStateTable(),								"Failed to ProcessMaterialTable.");
-		ThrowIfFailed(ProcessMaterialTable(),									"Failed to ProcessMaterialTable.");
-		ThrowIfFailed(BaseGeometry::Initialize(),								"Failed to Initialize BaseGeometry.");
-		ThrowIfFailed(Importer::LoadModelResources(),							"Failed to LoadModelResources.");
+		ThrowIfFailed(Importer::LoadBaseResources(),						"Failed to LoadBaseResources.");
+		ThrowIfFailed(ProcessShaderStateTable(),							"Failed to ProcessMaterialTable.");
+		ThrowIfFailed(ProcessMaterialTable(),								"Failed to ProcessMaterialTable.");
+		ThrowIfFailed(BaseGeometry::Initialize(),							"Failed to Initialize BaseGeometry.");
+		ThrowIfFailed(Importer::LoadModelResources(),						"Failed to LoadModelResources.");
 		
 		m_Skybox = std::make_shared<Skybox>();
-		std::string filename[6] = { //순서는 나중에
+		std::string filename[6] = { 
 			"Data\\Skybox\\Test1\\oasisnight_ft_p.png",	// +X
 			"Data\\Skybox\\Test1\\oasisnight_bk_p.png",	// -X
 			"Data\\Skybox\\Test1\\oasisnight_up_p.png",	// +Y
@@ -61,7 +61,6 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		m_ShadowMapPshader =			Core::Find<PixelShader>("ShadowMap");
 		m_SsaoShader =					Core::Find<PixelShader>("SSAO");
 		m_CompositionShader =			Core::Find<PixelShader>("Composition");
-		m_LightShader =					Core::Find<PixelShader>("Light");
 		m_BloomShader =					Core::Find<PixelShader>("Bloom");
 		m_ToneMappingShader =			Core::Find<PixelShader>("ToneMapping");
 		m_GammaCorrectionShader =		Core::Find<PixelShader>("GammaCorrection");
@@ -288,14 +287,14 @@ void Graphics::Pass_Composition()
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			//shadowmap
+	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
 
-	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());	//random Texture
-	SetPSShaderResources(TextureBindTypes::Dithering, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	//Dithering
-	SetPSShaderResources(TextureBindTypes::SpecularBRDF, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	//specularBRDF_LUT
-	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());	//skybox
-	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());	//Iradiance
+	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());
+	SetPSShaderResources(TextureBindTypes::Dithering, 1, m_DitheringTexture.lock()->GetTextureResourceViewAddress());	
+	SetPSShaderResources(TextureBindTypes::SpecularBRDF, 1, m_IblBrdfTexture.lock()->GetTextureResourceViewAddress());	
+	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());	
+	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());	
 	
 	RenderQuadPlane();
 
@@ -309,24 +308,24 @@ void Graphics::Pass_Composition()
 	);
 }
 
-void Graphics::Render(const std::shared_ptr<RenderInfo>& renderer)
+void Graphics::Render(const std::shared_ptr<RenderInfo>& renderInfo)
 {
-	auto & renderables = renderer->GetRenerables();
-	renderer->m_IsVisible = false;
+	auto & renderables = renderInfo->GetRenerables();
+	renderInfo->m_IsVisible = false;
 
 	if (renderables.size() == 0) {
 		return;
 	}
 
-	bool isVisible = IsInViewFrustum(renderer);
-	renderer->m_IsVisible = isVisible;
+	bool isVisible = IsInViewFrustum(renderInfo);
+	renderInfo->m_IsVisible = isVisible;
 	if (!isVisible) {
 		return;
 	}
 
-	ApplySkinnedBone(renderer);
+	ApplySkinnedBone(renderInfo);
 
-	auto& tf = renderer->m_GameObject->GetTransform();
+	auto& tf = renderInfo->m_GameObject->GetTransform();
 	auto& worldMat = tf.GetWorldMatrix();
 	auto wvpMat = worldMat * m_TargetViewProjectionMatrix;
 	
@@ -377,7 +376,7 @@ void Graphics::RenderSkybox()
 
 void Graphics::RenderQuadPlane()
 {
-	auto& mesh = m_QuadWindowModel->GetMeshes()[0];
+	auto& mesh = m_QuadWindowModel->GetDefaultRenderables()[0].GetMesh();
 	SetVertexShader(m_PostProcesVshader->GetShader());
 	SetVSInputLayout(m_PostProcesVshader->GetInputLayout());
 	SetVertexBuffer(mesh->GetVertexBufferAddr(), mesh->GetVertexBufferStridePtr());
@@ -388,8 +387,8 @@ void Graphics::RenderQuadPlane()
 void Graphics::RenderGizmo(const std::shared_ptr<RenderInfo>& renderer)
 {
 	if (renderer->m_Model) {
-		for (auto& mesh : renderer->m_Model->GetMeshes()) {
-			GUI::Draw(m_PrimitiveBatch.get(), Math::GetGlobalBoundingBox(mesh->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+		for (auto& r : renderer->GetRenerables()) {
+			GUI::Draw(m_PrimitiveBatch.get(), Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
 		}
 	}
 }
@@ -399,27 +398,30 @@ void Graphics::ApplySceneBuffer()
 	static auto mainCam = Core::GetCurrentScene().GetMainCam();
 	static auto light = Core::Find<GameObject>("Light");
 	static auto lightc = light->GetComponent<SpotLight>();
+
+	DirectX::XMVECTOR spotLightPlaneCenter = light->GetTransform().positionVec + light->GetTransform().GetForwardVector() * lightc->GetRange();
+
+	DirectX::XMStoreFloat3(&m_GpuSpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
 	m_GpuSpotLight.data.color = lightc->Color;
 	m_GpuSpotLight.data.strength = lightc->Strength;
 	m_GpuSpotLight.data.position = light->GetTransform().position;
 	m_GpuSpotLight.data.attenuation = lightc->Attentuation;
-	DirectX::XMStoreFloat3(&m_GpuSpotLight.data.forwardVector, light->GetTransform().GetForwardVector());
-	m_GpuSpotLight.data.spotAngle = lightc->m_SpotAngle * 0.5f * Math::Deg2Rad;
-	m_GpuSpotLight.data.range = lightc->m_Range;
-	lightc->SetProjectionMatrix();
+	m_GpuSpotLight.data.spotAngle = lightc->GetSpotAngle() * 0.5f * Math::Deg2Rad;
+	m_GpuSpotLight.data.range = lightc->GetRange();
 	m_GpuSpotLight.data.vpMat = lightc->GetLightViewProjectMat();
-	DirectX::XMVECTOR center = light->GetTransform().positionVec + light->GetTransform().GetForwardVector() * lightc->m_Range;
-	m_GpuSpotLight.data.conePlaneD = DirectX::XMVector3Dot(center, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
+	m_GpuSpotLight.data.conePlaneD = DirectX::XMVector3Dot(spotLightPlaneCenter, light->GetTransform().GetForwardVector()).m128_f32[0] * -1;
 	m_GpuSpotLight.ApplyChanges();
 
 	DirectX::XMStoreFloat3(&m_GpuSceneBuffer.data.CamPosition, mainCam->GetTransform().positionVec);
 	m_GpuSceneBuffer.data.CamViewRange = mainCam->GetViewRange();
+	m_GpuSceneBuffer.data.SkyBoxMaxMipLevel = m_Skybox->GetMaxMipLevel();
 	m_GpuSceneBuffer.data.CameraForward = mainCam->GetTransform().GetForwardVector();
 	m_GpuSceneBuffer.data.ElapsedTime = Time::GetTime();
 	m_GpuSceneBuffer.data.DeltaTime = Time::GetDeltaTime();
 	m_GpuSceneBuffer.data.InverseViewMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetViewMatrix());
 	m_GpuSceneBuffer.data.InverseProjMat = DirectX::XMMatrixInverse(nullptr, mainCam->GetProjectionMatrix());
 	m_GpuSceneBuffer.ApplyChanges();
+
 	m_GpuFurDataBuffer.ApplyChanges();
 }
 
@@ -487,7 +489,7 @@ void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 
 bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 {
-	if (!m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) {
+	if (!m_DrawFlag & (UINT)DrawFlag::Apply_ViewFrustumCulling) {
 		return true;
 	}
 
@@ -630,8 +632,9 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 		DrawFlag::Apply_ObjectVertexShader |
 		DrawFlag::Apply_SkinnedMeshBone;
 
-	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);
-	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
+	for (auto & r : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
+		Render(r);
+	}
 
 	SetVertexShader(NULL);
 	SetPixelShader(NULL);
@@ -714,8 +717,9 @@ void Graphics::Pass_Gizmo()
 
 	m_PrimitiveBatch->Begin();
 
-	static auto drawFunc = std::bind(&Graphics::RenderGizmo, this, std::placeholders::_1);
-	Core::Pool<RenderInfo>::GetInstance().ForEach(drawFunc);
+	for (auto & r : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
+		RenderGizmo(r);
+	}
 
 	m_PrimitiveBatch->End();
 
@@ -777,18 +781,16 @@ void Graphics::Pass_DownSample(
 	UINT texInwidth, 
 	UINT texInheight)
 {
-	{
-		m_GpuDownSampleBuffer.ApplyChanges();
-		SetComputeShader(m_DownSampleShader->GetShader());
-		SetCSConstantBuffer(0, m_GpuDownSampleBuffer.GetAddressOf());
-		SetCSShaderResources(0, 1, texIn);
-		SetCSUavResources(0, 1, texOut);
+	m_GpuDownSampleBuffer.ApplyChanges();
+	SetComputeShader(m_DownSampleShader->GetShader());
+	SetCSConstantBuffer(0, m_GpuDownSampleBuffer.GetAddressOf());
+	SetCSShaderResources(0, 1, texIn);
+	SetCSUavResources(0, 1, texOut);
 
-		DispatchComputeShader(texInwidth / 8, texInheight / 8);
+	DispatchComputeShader(texInwidth / 8, texInheight / 8);
 
-		SetCSUavResources(0, 1, m_NullUav);
-		SetCSShaderResources(0, 1, m_NullSrv);
-	}
+	SetCSUavResources(0, 1, m_NullUav);
+	SetCSShaderResources(0, 1, m_NullSrv);
 }
 
 void Graphics::RenderEnd()

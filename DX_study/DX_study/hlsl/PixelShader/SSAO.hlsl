@@ -10,8 +10,7 @@ float ComputeOcclusionPixel(in float2 tcoord, in float2 uv, in float3 p, in floa
     return max(0.0, dot(cnorm, v) - SSAO_bias) * (1.0 / (1.0 + d)) * SSAO_strength;
 }
 
-const float SSf = 0.7;
-#define SSAO_FACTOR 0.3
+static const float TexelBias = 0.3;
 float ComputeAmbientOcclusion(float3 position, float3 normal, float depth, float2 texcoord)
 {
     const float2 vec[4] = { float2(1, 0), float2(-1, 0), float2(0, 1), float2(0, -1) };
@@ -19,7 +18,6 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float depth, float
     float3 n = normal;
     
     float oneMinusDepth = 1 - depth;
-    //float2 rand = float2(1, 1);
     float2 rand = getRandom(texcoord);
     float ao = 0.0f;
     float rad = SSAO_radius / oneMinusDepth;
@@ -29,7 +27,7 @@ float ComputeAmbientOcclusion(float3 position, float3 normal, float depth, float
     for (int i = 0; i < iterations; ++i)
     {
         float2 coord1 = reflect(vec[i], rand) * rad;
-        float2 coord2 = float2(coord1.x * SSAO_FACTOR - coord1.y * SSAO_FACTOR, coord1.x * SSAO_FACTOR + coord1.y * SSAO_FACTOR);
+        float2 coord2 = float2(coord1.x * TexelBias - coord1.y * TexelBias, coord1.x * TexelBias + coord1.y * TexelBias);
     
         ao += ComputeOcclusionPixel(texcoord, coord1 * 0.25, p, n);
         ao += ComputeOcclusionPixel(texcoord, coord2 * 0.5, p, n);

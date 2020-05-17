@@ -15,7 +15,7 @@ Pixel_Deferred main(G2P input) : SV_TARGET
 {
     //if (!gShowShells)
     //    return float4(0, 0, 0, 0);
-    float4 diffuseColor = albedoMap.Sample(LinearWrap, input.inTexCoord);
+    float4 diffuseColor = MaterialAlbedoMap.Sample(LinearWrap, input.inTexCoord);
 	
     //opacity
     float opacity = input.inFurLayer == 0 ? 1.0f : saturate(1.0f - FurShellOpacityMap.Sample(LinearWrap, input.inTexCoord * FurDensity).r);
@@ -40,9 +40,9 @@ Pixel_Deferred main(G2P input) : SV_TARGET
     output.colorFlag = diffuseColor.a;
     output.normal = input.inNormal;
     output.depth = input.inPosition.z / input.inPosition.w;
-    output.color = diffuseColor.rgb * materialColor.rgb;
-    output.metal = metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
-    output.specular = specularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
-    output.roughness = roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
+    output.color = diffuseColor.rgb * AlbedoColor.rgb;
+    output.metal = MaterialMetalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
+    output.specular = MaterialSpecularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
+    output.roughness = MaterialRoughMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
     return output;
 }

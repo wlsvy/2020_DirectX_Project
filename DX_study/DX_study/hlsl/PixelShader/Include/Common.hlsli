@@ -24,7 +24,7 @@ float hash(float x)
 
 float2 getRandom(in float2 uv)
 {
-    return normalize(randomMap.Sample(LinearWrap, uv).xy * 2.0f - 1.0f);
+    return normalize(RandomValueTexture.Sample(LinearWrap, uv).xy * 2.0f - 1.0f);
 }
 
 float FogAttenuation(float density, float distance)
@@ -48,7 +48,7 @@ float3 CalcPerPixelNormal(float2 uv, float3 n, float3 t)
     float3 b = -cross(n, t);        //부호에 따라서 음각/ 양각이 변경 
     float3x3 tbn = float3x3(t, b, n);
 
-    float3 srcNormal = normalMap.Sample(LinearWrap, uv).xyz;
+    float3 srcNormal = MaterialNormalMap.Sample(LinearWrap, uv).xyz;
     srcNormal = normalize(2.0f * srcNormal - 1.0f);
     srcNormal.xy *= NormalIntensity;
     

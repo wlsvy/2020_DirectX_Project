@@ -11,7 +11,6 @@ struct ID3D11Texture2D;
 class Graphics;
 
 class LightBase abstract : public Component {
-	friend class Graphics;
 	COMPONENT_CONSTRUCTOR(LightBase, Component)
 	MANAGED_OBJECT(LightBase)
 public:
@@ -30,19 +29,15 @@ public:
 	static const float LIGHT_STRENGTH_MAX;
 
 	DirectX::XMFLOAT3 Color = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
-	float Strength = 1.5f;
+	float Strength = 40.0f;
 
 public:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ShadowMapRenderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ShadowMapShaderResourceView;
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> m_ShadowMapRenderTargetTexture;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> m_ResultRenderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_ResultShaderResourceView;
 	
 };
 
 class SpotLight : public LightBase {
-	friend class Graphics;
 	COMPONENT_CONSTRUCTOR(SpotLight, LightBase)
 public:
 	void Awake() override { LightBase::Awake(); SetProjectionMatrix(); }
@@ -57,6 +52,9 @@ public:
 
 	void SetRange(float range);
 	void SetSpotAngle(float angle);
+
+	float GetRange() const { return m_Range; }
+	float GetSpotAngle() const { return m_SpotAngle; }
 
 	DirectX::XMFLOAT3 Attentuation = DirectX::XMFLOAT3(0.1f, 0.1f, 0.01f);
 
@@ -80,13 +78,4 @@ public:
 private:
 
 	bool m_IsShadowEnable = true;
-};
-
-class PointLight : public LightBase {
-	COMPONENT_CONSTRUCTOR(PointLight, LightBase)
-public:
-	bool CullRenderable(const DirectX::BoundingBox &) override;
-
-	float Range = 10.0f;
-	DirectX::XMFLOAT3 Attentuation = DirectX::XMFLOAT3(1.0f, 0.1f, 0.1f);
 };

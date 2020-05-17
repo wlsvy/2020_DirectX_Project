@@ -23,7 +23,7 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
 {
     float2 interleavedPos = (fmod(floor(float2(screenPos.x * 1024, screenPos.y * 768)), 16.0));
     float offset = DitheringTexture.Sample(LinearWrap, interleavedPos / 16.0 + float2(0.5 / 8.0, 0.5 / 8.0)).x;
-    int stepCount = VolumetricLightSampleCount;
+    int stepCount = VolumetricLight_SampleCount;
 
     float stepSize = rayLength / stepCount;
     float3 step = rayDir * stepSize;
@@ -43,7 +43,7 @@ float RayMarch(float2 screenPos, float3 rayStart, float3 rayDir, float rayLength
         {
             float atten = 1 / (spotLight.Attenuation.x + (spotLight.Attenuation.y * distToLight) + (spotLight.Attenuation.z * pow(distToLight, 2)));
 
-            float scattering = VolumetricLightVar.x * stepSize;
+            float scattering = VolumetricLight_ScatterCoef * stepSize;
 
             float light = atten * scattering;
             vlight += light;

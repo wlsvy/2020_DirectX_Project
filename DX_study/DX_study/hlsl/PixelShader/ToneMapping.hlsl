@@ -20,7 +20,7 @@ float3 Uncharted2(float3 x)
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
-    float4 color = ComDeferredRenderingResource0.Sample(LinearWrap, input.inTexCoord);
+    float4 color = CompositionTexture.Sample(LinearWrap, input.inTexCoord);
     
     //return color;
     //return float4(Reinhard(color.xyz * exp(HdrExposure)), 1.0f);

@@ -46,10 +46,11 @@ struct TextureBindTypes {
 		MaterialRoughness,
 		MaterialSpecualr,
 
-		Random = 21,
-		Skybox,
-		Dithering,
+		Skybox = 21,
 		IrradianceSkybox,
+
+		Random = 31,
+		Dithering,
 		SpecularBRDF,
 
 		Max
@@ -136,7 +137,6 @@ private:
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<PixelShader> m_SsaoShader;
 	std::shared_ptr<PixelShader> m_CompositionShader;
-	std::shared_ptr<PixelShader> m_LightShader;
 	std::shared_ptr<PixelShader> m_BloomShader;
 	std::shared_ptr<PixelShader> m_ToneMappingShader;
 	std::shared_ptr<PixelShader> m_GammaCorrectionShader;

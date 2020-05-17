@@ -18,13 +18,13 @@ static const float ShadowMapDepthBias = 0.01011f;
 
 float CompareShadowMapDepth(float2 uv, float depth)
 {
-    return step(shadowMap.Sample(LinearWrap, uv), depth).x;
+    return step(ShadowMap.Sample(LinearWrap, uv), depth).x;
 
 }
 
 float LerpShadowMapDepth(float2 size, float2 uv, float depth)
 {
-    float2 texelSize = float2(1.0f, 1.0f) / size * softShadowInterpoloateBias;
+    float2 texelSize = float2(1.0f, 1.0f) / size * SoftShadow_InterpoloateBias;
     
     float lb = CompareShadowMapDepth(uv + texelSize * float2(0.0f, 0.0f), depth);
     float lt = CompareShadowMapDepth(uv + texelSize * float2(0.0f, 1.0f), depth);
@@ -43,7 +43,7 @@ float PCF(float2 size, float2 uv, float depth)
     {
         for (float y = -2; y <= 2; y += 1.0f)
         {
-            float2 offset = float2(x, y) / size *  softShadowPCFBias;
+            float2 offset = float2(x, y) / size *  SoftShadow_PCFBias;
             result += LerpShadowMapDepth(size, uv + offset, depth);
             //result += CompareShadowMapDepth(uv + offset, depth);
         }
@@ -83,7 +83,7 @@ float2 CalculateShadow(int lightIndex, float4 lightSpacePos)
     
     return float2(CompareShadowMapDepth(projectTexCoord, lightDepth), linearDepth);
 
-    return float2(step(shadowMap.Sample(AnisotropicWrap, projectTexCoord).x, lightDepth), linearDepth);
+    return float2(step(ShadowMap.Sample(AnisotropicWrap, projectTexCoord).x, lightDepth), linearDepth);
 }
 
 #endif 

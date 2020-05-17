@@ -6,6 +6,7 @@
 #include "Mesh.h"
 #include "Model.h"
 #include "Texture.h"
+#include "Renderable.h"
 #include "../Core/ObjectPool.h"
 #include "../../Util/ErrorLogger.h"
 #include "../../Util/Math.h"
@@ -65,7 +66,8 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Box"
 			);
-		Core::CreateInstance<Model>(mesh, "Box");
+		auto r = Renderable(mesh, SharedMaterial::GetDefault(), ShaderState::GetDefault());
+		Core::CreateInstance<Model>(std::vector<Renderable>(1,r), "Box");
 	}
 	static void CreatePlane() {
 		std::vector<Vertex3D> vertices = {//position	//texcoord		//normal
@@ -87,7 +89,8 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Plane"
 			);
-		Core::CreateInstance<Model>(mesh, "Plane");
+		auto r = Renderable(mesh, SharedMaterial::GetDefault(), ShaderState::GetDefault());
+		Core::CreateInstance<Model>(std::vector<Renderable>(1, r), "Plane");
 	}
 	static void CreateSphere(UINT slice, UINT stack) {
 		float radius = 0.5f;
@@ -174,7 +177,8 @@ namespace BaseGeometry {
 			DirectX::XMMatrixIdentity(),
 			"Sphere"
 			);
-		Core::CreateInstance<Model>(mesh, "Sphere");
+		auto r = Renderable(mesh, SharedMaterial::GetDefault(), ShaderState::GetDefault());
+		Core::CreateInstance<Model>(std::vector<Renderable>(1, r), "Sphere");
 	}
 	
 	static bool Initialize() {

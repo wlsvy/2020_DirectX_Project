@@ -44,10 +44,7 @@ bool Skybox::Initialize(const std::string * filePath)
 
 bool Skybox::InitializeCubeMap()
 {
-	//큐브맵 만드는 함수 출처 : https://stackoverflow.com/questions/19364012/d3d11-creating-a-cube-map-from-6-images
 	try {
-		//Each element in the texture array has the same format/dimensions.
-		HRESULT hr;
 		D3D11_TEXTURE2D_DESC texElementDesc;
 		((ID3D11Texture2D*)mSkybox_Resource[0].Get())->GetDesc(&texElementDesc);
 

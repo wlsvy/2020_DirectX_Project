@@ -9,9 +9,9 @@ Pixel_Deferred main(Vertex_Basic input) : SV_TARGET
     output.colorFlag = 1.0f;
     output.normal = normal;
     output.depth = input.inPosition.z / input.inPosition.w;
-    output.color = albedoMap.Sample(PointClamp, input.inTexCoord).rgb * materialColor.rgb;
-    output.metal = metalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
-    output.specular = specularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
-    output.roughness = roughnessMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
+    output.color = MaterialAlbedoMap.Sample(PointClamp, input.inTexCoord).rgb * AlbedoColor.rgb;
+    output.metal = MaterialMetalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
+    output.specular = MaterialSpecularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
+    output.roughness = MaterialRoughMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
     return output;
 }
