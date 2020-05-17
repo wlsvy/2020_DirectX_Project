@@ -13,7 +13,7 @@
 #include "ImportHelper.h"
 #include "../Engine/Engine.h"
 #include "../../Component/Transform.h"
-#include "../../Component/Renderable.h"
+#include "../../Component/RenderInfo.h"
 #include "../../Component/Animator.h"
 #include "../../Component/Light.h"
 #include "../../Component/Custom/CamMove.h"
@@ -42,9 +42,6 @@ void Scene::Initialize()
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
-	{
-		Core::Find<GameObject>("Ground")->GetRenderablePtr()->GetRenerables()[0].GetMaterial()->Normal = Core::Find<Texture>("OrganicMeat");
-	}
 	{
 		auto sphere = Core::CreateInstance<GameObject>("Cube");
 		sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);

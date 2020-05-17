@@ -159,9 +159,6 @@
     <ClCompile Include="Script\Internal\Core\Scene.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Component\Renderable.cpp">
-      <Filter>소스 파일\Component</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Core\GameObject.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>
@@ -233,6 +230,9 @@
     </ClCompile>
     <ClCompile Include="Script\Internal\Engine\Profiler.cpp">
       <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Script\Component\RenderInfo.cpp">
+      <Filter>소스 파일\Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -335,9 +335,6 @@
     <ClInclude Include="Script\Internal\Core\Scene.h">
       <Filter>헤더 파일\Internal\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Script\Component\Renderable.h">
-      <Filter>헤더 파일\Component</Filter>
-    </ClInclude>
     <ClInclude Include="Script\Component\Behaviour.h">
       <Filter>헤더 파일\Component</Filter>
     </ClInclude>
@@ -420,6 +417,12 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Script\Internal\Engine\Profiler.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Component\RenderInfo.h">
+      <Filter>헤더 파일\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Script\Internal\Graphics\Renderable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

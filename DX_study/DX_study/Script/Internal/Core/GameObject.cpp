@@ -4,7 +4,7 @@
 #include "ObjectPool.h"
 #include "InternalHelper.h"
 #include "../../Component/Transform.h"
-#include "../../Component/Renderable.h"
+#include "../../Component/RenderInfo.h"
 
 #include "../Engine/Ui.h"
 

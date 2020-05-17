@@ -182,7 +182,7 @@
     <ClCompile Include="Script\Component\Custom\LightSystem.cpp" />
     <ClCompile Include="Script\Component\Custom\PrototypeManager.cpp" />
     <ClCompile Include="Script\Component\Light.cpp" />
-    <ClCompile Include="Script\Component\Renderable.cpp" />
+    <ClCompile Include="Script\Component\RenderInfo.cpp" />
     <ClCompile Include="Script\Internal\Core\FileImporter.cpp" />
     <ClCompile Include="Script\Internal\Core\ImportHelper.cpp" />
     <ClCompile Include="Script\Internal\Core\Scene.cpp" />
@@ -235,7 +235,7 @@
     <ClInclude Include="Script\Component\Custom\LightSystem.h" />
     <ClInclude Include="Script\Component\Custom\PrototypeManager.h" />
     <ClInclude Include="Script\Component\Light.h" />
-    <ClInclude Include="Script\Component\Renderable.h" />
+    <ClInclude Include="Script\Component\RenderInfo.h" />
     <ClInclude Include="Script\Internal\Core\FileImporter.h" />
     <ClInclude Include="Script\Internal\Core\ImportHelper.h" />
     <ClInclude Include="Script\Internal\Core\Scene.h" />
@@ -250,6 +250,7 @@
     <ClInclude Include="Script\Internal\Graphics\BaseGeometry.h" />
     <ClInclude Include="Script\Internal\Graphics\DebugDraw.h" />
     <ClInclude Include="Script\Internal\Graphics\Material.h" />
+    <ClInclude Include="Script\Internal\Graphics\Renderable.h" />
     <ClInclude Include="Script\Internal\Graphics\Skybox.h" />
     <ClInclude Include="Script\Util\Color.h" />
     <ClInclude Include="Script\Util\COMException.h" />

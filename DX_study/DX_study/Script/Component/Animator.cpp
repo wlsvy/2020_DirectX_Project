@@ -1,6 +1,6 @@
 #include "Animator.h"
 
-#include "Renderable.h"
+#include "RenderInfo.h"
 #include "../Internal/Engine/Ui.h"
 #include "../Internal/Graphics/AnimationClip.h"
 #include "../Internal/Core/InternalHelper.h"

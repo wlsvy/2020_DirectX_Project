@@ -54,10 +54,10 @@ void Material::OnGui(const char* option)
 		ImGui::ColorEdit4(albedoTextureGuiKey, "Albedo Color", &Color.x);
 	}
 	{
-		char DeferredRenderingResource1GuiKey[15];
-		std::sprintf(DeferredRenderingResource1GuiKey, "%s_M%d_N", option, GetId());
+		char normalTextureGuiKey[15];
+		std::sprintf(normalTextureGuiKey, "%s_M%d_N", option, GetId());
 
-		TEXTURE_SELECTION_POPUP(Normal, DeferredRenderingResource1GuiKey);
+		TEXTURE_SELECTION_POPUP(Normal, normalTextureGuiKey);
 		ImGui::SliderFloat("Normal Intensity", &NormalIntensity, 0.0f, 1.0f);
 	}
 	{
@@ -83,22 +83,6 @@ void Material::OnGui(const char* option)
 	}
 
 	ImGui::PopItemWidth();
-	
-	char guiShaderNodeKey[15];
-	std::sprintf(guiShaderNodeKey, "Shader_%d", GetId());
-
-	if (ImGui::TreeNode(guiShaderNodeKey, "Shader")) {
-		if (Vshader) {
-			ImGui::Text(("Vertex : " + Vshader->Name).c_str());
-		}
-		if (Gshader) {
-			ImGui::Text(("Geometry : " + Gshader->Name).c_str());
-		}
-		if (Pshader) {
-			ImGui::Text(("Pixel : " + Pshader->Name).c_str());
-		}
-		ImGui::TreePop();
-	}
 }
 
 std::shared_ptr<ShaderState> ShaderState::GetDefault() {

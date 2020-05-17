@@ -1,6 +1,6 @@
 #pragma once
 #include "Component.h"
-#include "Renderable.h"
+#include "RenderInfo.h"
 #include "../Util/Math.h"
 #include <Queue>
 #include <wrl/client.h>

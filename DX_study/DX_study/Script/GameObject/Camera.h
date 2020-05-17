@@ -3,7 +3,7 @@
 #include <DirectXMath.h>
 #include <DirectXCollision.h>
 #include "../Internal/Core/GameObject.h"
-#include "../Component/Renderable.h"
+#include "../Component/RenderInfo.h"
 
 class Camera : public GameObject {
 public:

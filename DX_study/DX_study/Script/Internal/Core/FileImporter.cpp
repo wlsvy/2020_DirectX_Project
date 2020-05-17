@@ -27,8 +27,9 @@ bool ModelImporter::CreateModel(
 	for (int i = 0; i < m_Meshes.size(); i++) {
 		m_ShaderState.push_back(ShaderState::GetDefault());
 	}
+	//auto model = Core::CreateInstance<Model>(m_Meshes, m_Materials, m_ShaderState, StringHelper::GetFileNameFromPath(fileName));
 
-	auto model = Core::CreateInstance<Model>(m_Meshes, m_Materials, m_ShaderState, StringHelper::GetFileNameFromPath(fileName));
+	auto model = Core::CreateInstance<Model>(m_Renderable, StringHelper::GetFileNameFromPath(fileName));
 	return true;
 }
 
@@ -92,13 +93,14 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 		}
 	}
 
+	auto newMesh = Core::CreateInstance<MeshReal<Vertex3D>>(vertices, indices, transformMatrix, mesh->mName.data);
+	m_Meshes.emplace_back(newMesh);
+
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	mat->Vshader = Core::Find<VertexShader>("Mesh");
-	mat->Pshader = PixelShader::GetDefault();
-
 	m_Materials.push_back(mat);
-	m_Meshes.emplace_back(Core::CreateInstance<MeshReal<Vertex3D>>(vertices, indices, transformMatrix, mesh->mName.data));
+
+	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetDefault());
 }
 
 TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene * pScene, aiMaterial * pMat, unsigned int index, aiTextureType textureType)
@@ -231,8 +233,9 @@ bool SkinnedModelImporter::CreateModel(
 	for (int i = 0; i < m_Meshes.size(); i++) {
 		m_ShaderState.push_back(ShaderState::GetSkinnedDefault());
 	}
+	//auto model = Core::CreateInstance<SkinnedModel>(m_Renderable, StringHelper::GetFileNameFromPath(fileName));
 
-	auto model = Core::CreateInstance<SkinnedModel>(m_Meshes, m_Materials, m_ShaderState, m_BoneOffsets, m_BoneIdMap, fileName);
+	auto model = Core::CreateInstance<SkinnedModel>(m_Renderable, m_BoneOffsets, m_BoneIdMap, fileName);
 	return true;
 }
 
@@ -318,14 +321,15 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 			indices.push_back(face.mIndices[j]);
 		}
 	}
-	//Get Material & Textures
+
+	auto newMesh = Core::CreateInstance<MeshReal<SkinnedVertex>>(vertices, indices, transformMatrix, mesh->mName.data);
+	m_Meshes.push_back(newMesh);
+
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
-	mat->Vshader = Core::Find<VertexShader>("SkinnedMesh");
-	mat->Pshader = PixelShader::GetDefault();
-
 	m_Materials.push_back(mat);
-	m_Meshes.emplace_back(Core::CreateInstance<MeshReal<SkinnedVertex>>(vertices, indices, transformMatrix, mesh->mName.data));
+
+	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetSkinnedDefault());
 }
 
 DirectX::XMMATRIX GetAiMatrixData(aiMatrix4x4 & pSource)

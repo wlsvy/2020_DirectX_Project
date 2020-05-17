@@ -17,7 +17,7 @@
 #include "../Core/ImportHelper.h"
 #include "../Core/Scene.h"
 #include "../../Component/Transform.h"
-#include "../../Component/Renderable.h"
+#include "../../Component/RenderInfo.h"
 #include "../../Component/Animator.h"
 #include "../../Component/Light.h"
 #include "../../GameObject/Camera.h"
@@ -55,22 +55,23 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 
 		GUI::InitImGUI(hwnd);
 
-		m_QuadWindowModel = Core::Find<Model>("Plane");
-		m_PostProcesVshader = Core::Find<VertexShader>("QuadPlane");
-		m_ShadowMapPshader = Core::Find<PixelShader>("ShadowMap");
-		m_SsaoShader = Core::Find<PixelShader>("SSAO");
-		m_CompositionShader = Core::Find<PixelShader>("Composition");
-		m_LightShader = Core::Find<PixelShader>("Light");
-		m_BloomShader = Core::Find<PixelShader>("Bloom");
-		m_ToneMappingShader = Core::Find<PixelShader>("ToneMapping");
-		m_GammaCorrectionShader = Core::Find<PixelShader>("GammaCorrection");
+		m_QuadWindowModel =				Core::Find<Model>("Plane");
 
-		m_RandomTexture = Core::Find<Texture>("NoiseNormal");
-		m_DitheringTexture = Core::Find<Texture>("Dithering");
-		m_IblBrdfTexture = Core::Find<Texture>("ibl_brdf_lut");
-		m_FurOpacityTexture = Core::Find<Texture>("Fur_Noise");
-		m_BlurShader = Core::Find<ComputeShader>("Blur");
-		m_DownSampleShader = Core::Find<ComputeShader>("ThresholdDownSample");
+		m_PostProcesVshader =			Core::Find<VertexShader>("QuadPlane");
+		m_ShadowMapPshader =			Core::Find<PixelShader>("ShadowMap");
+		m_SsaoShader =					Core::Find<PixelShader>("SSAO");
+		m_CompositionShader =			Core::Find<PixelShader>("Composition");
+		m_LightShader =					Core::Find<PixelShader>("Light");
+		m_BloomShader =					Core::Find<PixelShader>("Bloom");
+		m_ToneMappingShader =			Core::Find<PixelShader>("ToneMapping");
+		m_GammaCorrectionShader =		Core::Find<PixelShader>("GammaCorrection");
+		m_BlurShader =					Core::Find<ComputeShader>("Blur");
+		m_DownSampleShader =			Core::Find<ComputeShader>("ThresholdDownSample");
+
+		m_RandomTexture =				Core::Find<Texture>("NoiseNormal");
+		m_DitheringTexture =			Core::Find<Texture>("Dithering");
+		m_IblBrdfTexture =				Core::Find<Texture>("ibl_brdf_lut");
+		m_FurOpacityTexture =			Core::Find<Texture>("Fur_Noise");
 
 		return true;
 	}
@@ -127,9 +128,6 @@ bool Graphics::ProcessMaterialTable()
 		for (int i = 0; i < rowcount; i++) {
 			auto material = Core::CreateInstance<SharedMaterial>(table["Name"][i]);
 
-			material->Vshader = Core::Find<VertexShader>(table["VertexShader"][i]);
-			material->Pshader = Core::Find<PixelShader>(table["PixelShader"][i]);
-			material->Gshader = Core::Find<GeometryShader>(table["GeometryShader"][i]);
 			material->Albedo = Core::Find<Texture>(table["Albedo"][i]);
 			material->Normal = Core::Find<Texture>(table["NormalMap"][i]);
 			material->Metal = Core::Find<Texture>(table["MetalMap"][i]);
@@ -301,7 +299,7 @@ void Graphics::Pass_Composition()
 	
 	RenderQuadPlane();
 
-	SetPSShaderResources(0, DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT + 1, m_NullSrv);
+	SetPSShaderResources(0, 10, m_NullSrv);
 	SetPSShaderResources(9, 1, m_NullSrv);
 	SetRenderTarget
 	(
@@ -370,8 +368,8 @@ void Graphics::RenderSkybox()
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto worldMat = DirectX::XMMatrixTranslationFromVector(mainCam->GetTransform().positionVec);
 	auto wvpMat = worldMat * mainCam->GetViewProjectionMatrix();
-	for (auto & mesh : m_Skybox->GetModel()->GetMeshes()) {
-		RenderMesh(mesh, worldMat, wvpMat);
+	for (auto & r : m_Skybox->GetModel()->GetDefaultRenderables()) {
+		RenderMesh(r.GetMesh(), worldMat, wvpMat);
 	}
 
 	SetRasterizerState(m_RasterizerCullBack.Get());
@@ -455,16 +453,16 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 
 void Graphics::ApplyShaderState(const std::shared_ptr<ShaderState>& shaderState)
 {
-	if (m_DrawFlag & DrawFlag::Apply_MaterialVertexShader) {
+	if (m_DrawFlag & DrawFlag::Apply_ObjectVertexShader) {
 		auto vs = shaderState->Vshader ? shaderState->Vshader : VertexShader::GetDefault();
 		SetVSInputLayout(vs->GetInputLayout());
 		SetVertexShader(vs->GetShader());
 	}
-	if (m_DrawFlag & DrawFlag::Apply_MaterialPixelShader) {
+	if (m_DrawFlag & DrawFlag::Apply_ObjectPixelShader) {
 		auto ps = shaderState->Pshader ? shaderState->Pshader : PixelShader::GetDefault();
 		SetPixelShader(ps->GetShader());
 	}
-	if (m_DrawFlag & DrawFlag::Apply_MaterialGeometryShader) {
+	if (m_DrawFlag & DrawFlag::Apply_ObjectGeometryShader) {
 		auto shader = shaderState->Gshader ? shaderState->Gshader->GetShader() : NULL;
 		SetGeometryShader(shader);
 	}
@@ -618,12 +616,18 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 
 	m_DeviceContext->ClearDepthStencilView(m_SubDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	m_DeviceContext->ClearRenderTargetView(spotLight->GetShadowMapRenderTargetView(), m_BackgroundColor);
+	SetRenderTarget
+	(
+		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
+		m_NullRtv,
+		NULL
+	);
 
 	SetRenderTarget(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
 	SetPixelShader(m_ShadowMapPshader->GetShader());
 
 	m_DrawFlag =
-		DrawFlag::Apply_MaterialVertexShader |
+		DrawFlag::Apply_ObjectVertexShader |
 		DrawFlag::Apply_SkinnedMeshBone;
 
 	static auto drawFunc = std::bind(&Graphics::Render, this, std::placeholders::_1);

@@ -5,7 +5,7 @@
 #include <DirectXMesh/DirectXMeshNormals.cpp>
 #include "../Internal/Graphics/Mesh.h"
 #include "../Component/Transform.h"
-#include "../Component/Renderable.h"
+#include "../Component/RenderInfo.h"
 
 
 

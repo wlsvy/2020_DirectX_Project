@@ -23,7 +23,7 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
     float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
     float3 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);
-
+    //return float4(albedo, 1.0f);
     
     if (colorFlag < 0.0f)
     {

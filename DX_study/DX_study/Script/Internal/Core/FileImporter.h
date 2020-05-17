@@ -4,10 +4,11 @@
 #include <DirectXMath.h>
 #include <unordered_map>
 
+#include "../Graphics/Model.h"
 #include "../Graphics/Texture.h"
 #include "../Graphics/Mesh.h"
 #include "../Graphics/Material.h"
-#include "../../Component/Renderable.h"
+#include "../../Component/RenderInfo.h"
 
 struct aiScene;
 struct aiNode;
@@ -31,10 +32,10 @@ protected:
 	std::shared_ptr<SharedMaterial> LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
 	int GetTextureIndex(aiString * pStr);
 
-	std::vector<Renderable> m_Renderable;
 	std::vector<std::shared_ptr<Mesh>> m_Meshes;
 	std::vector<std::shared_ptr<SharedMaterial>> m_Materials;
 	std::vector<std::shared_ptr<ShaderState>> m_ShaderState;
+	std::vector<Renderable> m_Renderable;
 	std::string m_Directory;
 };
 
