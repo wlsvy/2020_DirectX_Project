@@ -7,6 +7,10 @@
 #include "../Util/StringHelper.h"
 
 void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
+	if(!model){
+		return;
+	}
+
 	m_Model = model;
 	m_Renderables = model->GetDefaultRenderables();
 }

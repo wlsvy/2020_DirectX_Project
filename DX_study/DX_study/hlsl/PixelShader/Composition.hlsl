@@ -20,6 +20,8 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float metal = Tex2.w;
     float roughness = Tex3.w;
     
+    //float3 pt = mul(InverseViewMatrix, float4(input.inTexCoord, -1, 1)).xyz;
+    
     float3 rayDir = normalize(position.xyz - CameraPosition.xyz);
     float cameraToPixelDistance = length(position.xyz - CameraPosition.xyz);
     float3 vl = VolumetricLight(input.inTexCoord, position.xyz, rayDir, cameraToPixelDistance);

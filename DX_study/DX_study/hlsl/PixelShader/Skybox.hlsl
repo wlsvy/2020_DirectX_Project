@@ -18,7 +18,7 @@ struct PS_OUTPUT
 Pixel_Deferred main(PS_INPUT input) : SV_TARGET
 {
     Pixel_DeferredOpaque output;
-    output.pos = input.inLocalPos * 1000;
+    output.pos = input.inLocalPos * 1000 + CameraPosition;
     output.colorFlag = -1.0f;
     output.normal = float3(-1.0f, -1.0f, -1.0f);
     output.depth = 1.0f;

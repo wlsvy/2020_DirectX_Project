@@ -1,0 +1,12 @@
+Name,Position,Rotation,Scale,TransformParent,Model,AddComponent
+Ground,0.0/-0.5/0.0,0.0/0.0/0.0,100.0/1.0/100.0,null,cube,null
+Sphere0,0.0/50.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere1,15.0/50.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere2,30.0/50.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere3,0.0/35.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere4,15.0/35.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere5,30.0/35.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere6,0.0/20.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere7,15.0/20.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Sphere8,30.0/20.0/0.0,0.0/0.0/0.0,10.0/10.0/10.0,null,sphere,null
+Light,10.0/55.0/00.0,130.0/0.0/0.0,10.0/1.0/1.0,null,null,SpotLight

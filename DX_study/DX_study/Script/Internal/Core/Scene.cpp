@@ -33,14 +33,14 @@ void Scene::Initialize()
 {
 	{
 		auto manager = Core::CreateInstance<GameObject>("Prototype Manager");
-		auto ls = Core::CreateInstance<GameObject>("Light System");
-		ls->AddComponent<LightSystem>();
-		ls->GetTransform().SetParent(manager->GetTransformPtr());
+		//auto ls = Core::CreateInstance<GameObject>("Light System");
+		manager->AddComponent<LightSystem>();
+		//ls->GetTransform().SetParent(manager->GetTransformPtr());
 	}
 
 	ProcessGameObjectTable();
-	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
-	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
+	//Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
+	//Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	{
 		auto sphere = Core::CreateInstance<GameObject>("Cube");
@@ -58,10 +58,10 @@ void Scene::Initialize()
 	}
 	
 
-	auto light = Core::CreateInstance<GameObject>("Light");
-	light->GetTransform().SetPosition(8.2f, 11.1f, -8.9f);
-	light->GetTransform().SetRotation(45.0f, 0.0f, 0.0f);
-	light->AddComponent<SpotLight>()->Awake();
+	//auto light = Core::CreateInstance<GameObject>("Light");
+	//light->GetTransform().SetPosition(8.2f, 11.1f, -8.9f);
+	//light->GetTransform().SetRotation(45.0f, 0.0f, 0.0f);
+	//light->AddComponent<SpotLight>()->Awake();
 
 	m_MainCam = Core::CreateInstance<Camera>();
 	m_MainCam->GetTransform().SetPosition(-2.6f, 11.3f, -8.6f);
@@ -102,10 +102,12 @@ void Scene::ProcessGameObjectTable()
 
 		if (table["AddComponent"][i] != "null") {
 			splitted = Importer::SplitString(table["AddComponent"][i], '/');
-			for (auto& str : splitted) {
+			for (auto& str : splitted) {		//HardCoding
 				if (str == "") continue;
 				else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
 				else if (str == "Animator") gameObject->GetRendererable().Anim = gameObject->AddComponent<Animator>();
+				else if (str == "SpotLight") gameObject->AddComponent<SpotLight>();
+
 			}
 		}
 	}
