@@ -33,9 +33,6 @@ protected:
 	std::shared_ptr<Texture> LoadTexture(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
 	int GetTextureIndex(aiString * pStr);
 
-	std::vector<std::shared_ptr<Mesh>> m_Meshes;
-	std::vector<std::shared_ptr<SharedMaterial>> m_Materials;
-	std::vector<std::shared_ptr<ShaderState>> m_ShaderState;
 	std::vector<Renderable> m_Renderable;
 	std::string m_Directory;
 };

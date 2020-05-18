@@ -493,13 +493,13 @@ bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 		return true;
 	}
 
-	bool isVisible = true;
+	bool isVisible = false;
 
 	auto& tf = renderer->m_GameObject->GetTransform();
 	for (auto & r : renderer->GetRenerables()) {
 		auto globalAABB = Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), tf);
 		auto containment = m_CullFrustum.Contains(globalAABB);
-		isVisible &= containment != DirectX::DISJOINT;
+		isVisible |= containment != DirectX::DISJOINT;
 	}
 
 	return isVisible;

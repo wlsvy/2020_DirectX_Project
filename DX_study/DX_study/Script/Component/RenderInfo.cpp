@@ -2,9 +2,11 @@
 #include "../Internal/Engine/Ui.h"
 #include "../Internal/Graphics/Mesh.h"
 #include "../Internal/Graphics/Model.h"
+#include "../Internal/Graphics/AnimationClip.h"
 #include "../Internal/Core/ObjectPool.h"
 #include "../Util/Math.h"
 #include "../Util/StringHelper.h"
+#include "../Component/Animator.h"
 
 void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 	if(!model){
@@ -13,6 +15,10 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 
 	m_Model = model;
 	m_Renderables = model->GetDefaultRenderables();
+
+	if (Anim) {
+		Anim->SetClip(Core::Find<AnimationClip>(model->Name + "_Idle"));
+	}
 }
 
 void RenderInfo::OnGui(const char* option) {

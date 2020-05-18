@@ -24,11 +24,6 @@ bool ModelImporter::CreateModel(
 
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
 
-	for (int i = 0; i < m_Meshes.size(); i++) {
-		m_ShaderState.push_back(ShaderState::GetDefault());
-	}
-	//auto model = Core::CreateInstance<Model>(m_Meshes, m_Materials, m_ShaderState, StringHelper::GetFileNameFromPath(fileName));
-
 	auto model = Core::CreateInstance<Model>(m_Renderable, StringHelper::GetFileNameFromPath(fileName));
 	return true;
 }
@@ -94,11 +89,9 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	}
 
 	auto newMesh = Core::CreateInstance<MeshReal<Vertex3D>>(vertices, indices, transformMatrix, mesh->mName.data);
-	m_Meshes.emplace_back(newMesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, scene);
-	m_Materials.push_back(mat);
 
 	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetDefault());
 }
@@ -209,14 +202,19 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 	}
 	if (auto metal = LoadTexture(pMaterial, aiTextureType::aiTextureType_REFLECTION, pScene)) {
 		mat->Metal = metal;
-		pMaterial->Get(AI_MATKEY_REFLECTIVITY, mat->MetalIntensity);
 	}
 	if (auto roughness = LoadTexture(pMaterial, aiTextureType::aiTextureType_SHININESS, pScene)) {
 		mat->Roughness = roughness;
-		pMaterial->Get(AI_MATKEY_SHININESS, mat->RoughnessIntensity);
 	}
 	if (auto emission = LoadTexture(pMaterial, aiTextureType::aiTextureType_EMISSIVE, pScene)) {
 		mat->Emission = emission;
+	}
+
+	{
+		pMaterial->Get(AI_MATKEY_REFLECTIVITY, mat->MetalIntensity);
+		pMaterial->Get(AI_MATKEY_SHININESS, mat->RoughnessIntensity);
+		mat->RoughnessIntensity * 0.01f;
+
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
 		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, aiColor);
 		mat->EmissionColor = DirectX::XMFLOAT3(aiColor.r, aiColor.g, aiColor.b);
@@ -239,11 +237,6 @@ bool SkinnedModelImporter::CreateModel(
 	m_Directory = dirPath;
 	
 	this->ProcessNode(scene->mRootNode, scene, DirectX::XMMatrixIdentity());
-
-	for (int i = 0; i < m_Meshes.size(); i++) {
-		m_ShaderState.push_back(ShaderState::GetSkinnedDefault());
-	}
-	//auto model = Core::CreateInstance<SkinnedModel>(m_Renderable, StringHelper::GetFileNameFromPath(fileName));
 
 	auto model = Core::CreateInstance<SkinnedModel>(m_Renderable, m_BoneOffsets, m_BoneIdMap, fileName);
 	return true;
@@ -333,11 +326,9 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	}
 
 	auto newMesh = Core::CreateInstance<MeshReal<SkinnedVertex>>(vertices, indices, transformMatrix, mesh->mName.data);
-	m_Meshes.push_back(newMesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	auto mat = LoadMaterial(material, scene);
-	m_Materials.push_back(mat);
 
 	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetSkinnedDefault());
 }
@@ -426,9 +417,9 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 
 	ProcessBoneHierarchy(ainode, clip.get(), nullptr, DirectX::XMMatrixIdentity());
 
-	clip->NumChannel = (short)clip->Channels.size();
+	clip->NumChannel = (USHORT)clip->Channels.size();
 	for (auto& channel : clip->Channels) {
-		channel.NumChildBone = (short)channel.ChildBoneIndex.size();
+		channel.NumChildBone = (USHORT)channel.ChildBoneIndex.size();
 	}
 }
 
