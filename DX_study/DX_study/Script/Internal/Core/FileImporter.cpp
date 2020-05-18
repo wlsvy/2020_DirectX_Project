@@ -258,35 +258,35 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 
 	std::vector<DWORD> indices;
 	std::vector<std::shared_ptr<Texture>> textures;
-	std::vector<Vertex_Bone_Data> bones;
+	std::vector<Vertex_BoneData> bones;
 	std::vector<SkinnedVertex> vertices(vericesSize);
 
 	bones.resize(mesh->mNumVertices);
 
 	//Get Bones
-	UINT BoneIndex = 0;
+	USHORT boneIndex = 0;
 
-	for (UINT i = 0; i < mesh->mNumBones; i++) {
+	for (USHORT i = 0; i < mesh->mNumBones; i++) {
 		aiBone *bone = mesh->mBones[i];
 		std::string boneName = bone->mName.data;
 
 		if (m_BoneIdMap.find(boneName) == m_BoneIdMap.end()) {
-			BoneIndex = (UINT)m_BoneIdMap.size();
+			boneIndex = (USHORT)m_BoneIdMap.size();
 			m_BoneOffsets.push_back(DirectX::XMMatrixTranspose(GetAiMatrixData(bone->mOffsetMatrix)));
-			m_BoneIdMap[boneName] = BoneIndex;
+			m_BoneIdMap[boneName] = boneIndex;
 		}
 		else {
-			BoneIndex = m_BoneIdMap[boneName];
+			boneIndex = m_BoneIdMap[boneName];
 		}
 
-		for (UINT j = 0; j < bone->mNumWeights; j++) {
-			UINT VertexID = bone->mWeights[j].mVertexId;
+		for (USHORT j = 0; j < bone->mNumWeights; j++) {
+			USHORT VertexID = bone->mWeights[j].mVertexId;
 			float Weight = bone->mWeights[j].mWeight;
 
-			for (int index = 0; index < Vertex_Bone_Data::MAX_BONE_PER_VERTEX; index++) {
+			for (int index = 0; index < Vertex_BoneData::MAX_BONE_PER_VERTEX; index++) {
 				if (bones[VertexID].BoneIDs[index] == -1)
 				{
-					bones[VertexID].BoneIDs[index] = BoneIndex;
+					bones[VertexID].BoneIDs[index] = boneIndex;
 					bones[VertexID].BoneWeights[index] = Weight;
 					break;
 				}
@@ -371,25 +371,33 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 	clip->Channels.resize(boneIdMap.size());
 	clip->TickPerSecond = (float)(anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f);
 	clip->Duration = (float)anim->mDuration;
+	clip->Avatar = m_BaseModel;
+
+	for (auto & p : boneIdMap) {
+		auto & channel = clip->Channels[p.second];
+		channel.ChannelName = p.first;
+	}
 
 	int numChannel = anim->mNumChannels;
 	for (int i = 0; i < numChannel; i++) {
 		aiNodeAnim *ainodeAnim = anim->mChannels[i];
 		BoneChannel channel;
 
-		channel.ChannelName = ainodeAnim->mNodeName.data;
-		size_t pos = channel.ChannelName.find("_$Assimp");	//불필요한 문장 제거
-		if (pos != std::string::npos) 
-			channel.ChannelName = channel.ChannelName.substr(0, pos);
-		auto it = boneIdMap.find(channel.ChannelName);
-		if (it != boneIdMap.end()) {
-			channel.BoneIndex = it->second;
+		std::string nodeName = ainodeAnim->mNodeName.data;
+		size_t pos = nodeName.find("_$Assimp");	//불필요한 문장 제거
+		if (pos != std::string::npos)
+		{
+			nodeName = nodeName.substr(0, pos);
+		}
+		auto it = boneIdMap.find(nodeName);
+		if (it == boneIdMap.end()) {
+			continue;
 		}
 
+		USHORT boneIndex = it->second;
 		channel.NumPositionKeys = ainodeAnim->mNumPositionKeys;
 		channel.NumRotationKeys = ainodeAnim->mNumRotationKeys;
 		channel.NumScaleKeys = ainodeAnim->mNumScalingKeys;
-		channel.BoneOffset = boneOffsets[channel.BoneIndex];
 
 		for (int j = 0; j < channel.NumPositionKeys; j++) {
 			auto& posKey = ainodeAnim->mPositionKeys[j];
@@ -412,7 +420,7 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 			channel.ScaleKeys.emplace_back(scaleValue.x, scaleValue.y, scaleValue.z, scaleKey.mTime);
 		}
 
-		clip->Channels[channel.BoneIndex] = channel;
+		clip->Channels[boneIndex] = channel;
 	}
 
 	aiNode * ainode = scene->mRootNode;
@@ -429,43 +437,33 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 {
 	auto& boneIdMap = m_BaseModel->GetBoneIdMap();
 	std::string nodeName = node->mName.data;
-	int nodeIndex = -1;
 	DirectX::XMMATRIX nodeTransform = GetAiMatrixData(node->mTransformation);
 	nodeTransform = DirectX::XMMatrixTranspose(nodeTransform);
+	DirectX::XMMATRIX globalTransform = nodeTransform * parentTransform;
 
 	BoneChannel * currentBoneChannel = nullptr;
+	USHORT boneIndex = 9999;
 
 	auto it = boneIdMap.find(nodeName);
 	if (it != boneIdMap.end()) {
-		nodeIndex = it->second;
-		currentBoneChannel = &animClip->Channels[nodeIndex];
+		boneIndex = it->second;
 	}
 
-	int childNum = node->mNumChildren;
-
-	if (currentBoneChannel != nullptr) {
-		if (parentBone != nullptr)
-			parentBone->ChildBoneIndex.push_back(currentBoneChannel->BoneIndex);
-
-		DirectX::XMMATRIX globalTransform = DirectX::XMMatrixIdentity();
-
-		for (int i = 0; i < childNum; i++) {
-			aiNode * childNode = node->mChildren[i];
-			std::string childName = childNode->mName.data;
-
-			if (boneIdMap.find(childName) == boneIdMap.end()) {
-				ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
-			}
-		}
+	if (boneIndex == 9999) {
+		currentBoneChannel = parentBone;
 	}
 	else {
-		DirectX::XMMATRIX globalTransform = nodeTransform * parentTransform;
+		currentBoneChannel = &animClip->Channels[boneIndex];
 
-		for (int i = 0; i < childNum; i++) {
-			aiNode * childNode = node->mChildren[i];
-
-			ProcessBoneHierarchy(childNode, animClip, parentBone, globalTransform);
+		if (parentBone != nullptr) {
+			parentBone->ChildBoneIndex.push_back(boneIndex);
 		}
+	}
+
+	USHORT childNum = node->mNumChildren;
+	for (USHORT i = 0; i < childNum; i++) {
+		aiNode * childNode = node->mChildren[i];
+		ProcessBoneHierarchy(childNode, animClip, currentBoneChannel, globalTransform);
 	}
 }
 

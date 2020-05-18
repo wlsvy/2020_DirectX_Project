@@ -62,7 +62,7 @@ private:
 	struct Bone {
 		DirectX::XMMATRIX BoneOffset;
 	};
-	struct Vertex_Bone_Data {
+	struct Vertex_BoneData {
 		const static int MAX_BONE_PER_VERTEX = 4;
 
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
@@ -79,17 +79,6 @@ public:
 private:
 	void ProcessAnimation(const std::string & name, aiAnimation * anim, const aiScene * scene);
 	void ProcessBoneHierarchy(aiNode * node, AnimationClip * animClip, BoneChannel * parentBone, const DirectX::XMMATRIX & parentTransform);
-
-	struct Bone {
-		DirectX::XMMATRIX BoneOffset;
-		DirectX::XMMATRIX FinalTransform;
-	};
-	struct Vertex_Bone_Data {
-		const static int MAX_BONE_PER_VERTEX = 4;
-
-		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
-		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	};
 
 	std::shared_ptr<SkinnedModel> m_BaseModel;
 };

@@ -39,8 +39,8 @@ void Scene::Initialize()
 	}
 
 	ProcessGameObjectTable();
-	//Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
-	//Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
+	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
+	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
 	{
 		auto sphere = Core::CreateInstance<GameObject>("Cube");

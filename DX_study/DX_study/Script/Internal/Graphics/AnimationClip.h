@@ -6,6 +6,8 @@
 
 class SkinnedModel;
 
+using USHORT = unsigned short;
+
 struct PositionKey {
 	PositionKey(float x, float y, float z, float time) : Position(DirectX::XMVectorSet(x, y, z, 0.0f)), Time(time) {}
 	DirectX::XMVECTOR Position;
@@ -25,21 +27,19 @@ struct ScaleKey {
 };
 
 struct BoneChannel {
-	std::string ChannelName = "";
-	int BoneIndex = -1;
+	std::string ChannelName;
+	
+	USHORT NumPositionKeys = 0;
+	USHORT NumRotationKeys = 0;
+	USHORT NumScaleKeys = 0;
 
-	short NumPositionKeys = 0;
-	short NumRotationKeys = 0;
-	short NumScaleKeys = 0;
-
-	short NumChildBone = 0;
+	USHORT NumChildBone = 0;
 
 	std::vector<PositionKey> PositionKeys;
 	std::vector<RotationKey> RotationKeys;
 	std::vector<ScaleKey> ScaleKeys;
 	
-	std::vector<int> ChildBoneIndex;
-	DirectX::XMMATRIX BoneOffset;
+	std::vector<USHORT> ChildBoneIndex;
 
 public:
 	DirectX::XMVECTOR positionInterpolate(float time) const;
@@ -69,7 +69,7 @@ public:
 
 private:
 	void HierarchyBoneAnim(
-		const BoneChannel & channel,
+		const USHORT boneIndex,
 		float animTime, 
 		const DirectX::XMMATRIX & parentTransform, 
 		std::vector<bool> & check,

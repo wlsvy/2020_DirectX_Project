@@ -3,6 +3,7 @@
 #include "RenderInfo.h"
 #include "../Internal/Engine/Ui.h"
 #include "../Internal/Graphics/AnimationClip.h"
+#include "../Internal/Graphics/Model.h"
 #include "../Internal/Core/InternalHelper.h"
 #include "../Internal/Core/GameObject.h"
 #include "../Util/Time.h"
@@ -82,14 +83,27 @@ void Animator::OnGui(const char* option)
 
 	ImGui::Text("Clip : ");
 	ImGui::SameLine();
-	if (ImGui::Button(m_Clip->Name.c_str())) {
-		ImGui::OpenPopup("Animator_Clip_PopUp");
+	if (m_Clip) {
+		if (ImGui::Button(m_Clip->Name.c_str())) {
+			ImGui::OpenPopup("Animator_Clip_PopUp");
+		}
 	}
+	else {
+		if (ImGui::Button("No Animation Clip")) {
+			ImGui::OpenPopup("Animator_Clip_PopUp");
+		}
+	}
+	
 	if (ImGui::BeginPopup("Animator_Clip_PopUp"))
 	{
 		ImGui::Text("Animation Clip");
 		ImGui::Separator();
+
+		int modelID = m_Renderable.lock()->GetModel()->GetId();
 		for (auto & clip : Core::Pool<AnimationClip>::GetInstance().GetItems()) {
+			if (clip->Avatar->GetId() != modelID) {
+				continue;
+			}
 			if (ImGui::Selectable(clip->Name.c_str())) {
 				SetClip(clip, 1.0f);
 			}

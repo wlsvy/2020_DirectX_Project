@@ -1,13 +1,15 @@
 #include "AnimationClip.h"
+#include "Model.h"
 
 void AnimationClip::HierarchyBoneAnim(
-	const BoneChannel & channel, 
+	const USHORT boneIndex,
 	float time, 
 	const DirectX::XMMATRIX & parentTransform, 
 	std::vector<bool> & check, 
 	std::vector<DirectX::XMMATRIX> & result)
 {
-	check[channel.BoneIndex] = false;
+	check[boneIndex] = false;
+	auto & channel = Channels[boneIndex];
 
 	DirectX::XMMATRIX posMat = DirectX::XMMatrixTranslationFromVector(channel.positionInterpolate(time));
 	DirectX::XMMATRIX rotMat = DirectX::XMMatrixRotationQuaternion(channel.rotationInterpolate(time));
@@ -15,13 +17,14 @@ void AnimationClip::HierarchyBoneAnim(
 
 	DirectX::XMMATRIX boneTransform = scaleMat * rotMat * posMat;
 	DirectX::XMMATRIX boneGlobalMatrix = boneTransform * parentTransform;
-	DirectX::XMMATRIX FinalMatrix = channel.BoneOffset * boneGlobalMatrix;
+	DirectX::XMMATRIX boneOffset = Avatar->GetBoneOffsets()[boneIndex];
+	DirectX::XMMATRIX FinalMatrix = boneOffset * boneGlobalMatrix;
 
-	result[channel.BoneIndex] = FinalMatrix;
+	result[boneIndex] = FinalMatrix;
 
 	for (auto i : channel.ChildBoneIndex) {
 		//if (check[i])
-			HierarchyBoneAnim(Channels[i], time, boneGlobalMatrix, check, result);
+			HierarchyBoneAnim(i, time, boneGlobalMatrix, check, result);
 	}
 }
 
@@ -33,7 +36,7 @@ void AnimationClip::GetResultInTime(float time, std::vector<DirectX::XMMATRIX> &
 	std::vector<bool> check(Channels.size(), true);
 	for (int i = 0; i < NumChannel; i++) {
 		if (check[i])
-			HierarchyBoneAnim(Channels[i], AnimationTime, DirectX::XMMatrixIdentity(), check, result);
+			HierarchyBoneAnim(i, AnimationTime, DirectX::XMMatrixIdentity(), check, result);
 	}
 }
 
@@ -110,7 +113,7 @@ DirectX::XMVECTOR BoneChannel::scaleInterpolate(float time) const
 
 
 void HierarchyBlendBoneAnim(
-	int boneIndex,
+	const USHORT boneIndex,
 	float blendFactor,
 	const std::shared_ptr<AnimationClip>& clip1,
 	const std::shared_ptr<AnimationClip>& clip2,
@@ -137,13 +140,14 @@ void HierarchyBlendBoneAnim(
 
 	DirectX::XMMATRIX boneTransform = scaleMat * rotMat * posMat;
 	DirectX::XMMATRIX boneGlobalMatrix = boneTransform * parentTransform;
-	DirectX::XMMATRIX FinalMatrix = channel1.BoneOffset * boneGlobalMatrix;
+	DirectX::XMMATRIX boneOffset = clip1->Avatar->GetBoneOffsets()[boneIndex];
+	DirectX::XMMATRIX FinalMatrix = boneOffset * boneGlobalMatrix;
 
 	result[boneIndex] = FinalMatrix;
 
 	for (auto i : channel1.ChildBoneIndex) {
 		if (check[i])
-			HierarchyBlendBoneAnim(clip1->Channels[i].BoneIndex, blendFactor, clip1, clip2, time1, time2, boneGlobalMatrix, check, result);
+			HierarchyBlendBoneAnim(i, blendFactor, clip1, clip2, time1, time2, boneGlobalMatrix, check, result);
 	}
 }
 
@@ -161,6 +165,6 @@ void AnimationClip::BlendAnimation(
 	std::vector<bool> check(clip1->Channels.size(), true);
 	for (int i = 0; i < clip1->NumChannel; i++) {
 		if (check[i])
-			HierarchyBlendBoneAnim(clip1->Channels[i].BoneIndex, blendFactor, clip1, clip2, clip1Time, clip2Time, DirectX::XMMatrixIdentity(), check, result);
+			HierarchyBlendBoneAnim(i, blendFactor, clip1, clip2, clip1Time, clip2Time, DirectX::XMMatrixIdentity(), check, result);
 	}
 }
