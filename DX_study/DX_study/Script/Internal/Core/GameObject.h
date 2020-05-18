@@ -28,7 +28,7 @@ public:
 	std::shared_ptr<Transform> GetTransformPtr() { return m_Transform; }
 	std::shared_ptr<RenderInfo> GetRenderablePtr() { return m_Renderer; }
 
-	void OnGui(const char * option = "-1") override;
+	void OnGui(const char * option = "op") override;
 
 protected:
 

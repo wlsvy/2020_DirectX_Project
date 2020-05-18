@@ -30,9 +30,8 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 	try {
 		m_WindowWidth = width;
 		m_WindowHeight = height;
-
 		ThrowIfFailed(DX11Resources::Initialize(hwnd, width, height),		"Failed to initialize Device Resources");
-		
+
 		InitializeConstantBuffer();
 
 		ThrowIfFailed(Importer::LoadBaseResources(),						"Failed to LoadBaseResources.");
@@ -40,6 +39,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		ThrowIfFailed(ProcessMaterialTable(),								"Failed to ProcessMaterialTable.");
 		ThrowIfFailed(BaseGeometry::Initialize(),							"Failed to Initialize BaseGeometry.");
 		ThrowIfFailed(Importer::LoadModelResources(),						"Failed to LoadModelResources.");
+
 		
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { 

@@ -29,7 +29,7 @@ public:
 	size_t GetRenderableSize() const							{ return m_Renderables.size();}
 
 	void SetModel(const std::shared_ptr<Model>& model);
-	void OnGui(const char* option = "-1") override;
+	void OnGui(const char* option = "op") override;
 
 	void SetMaterial(int index, const std::shared_ptr<Material> & mat) { m_Renderables[index].SetMaterial(mat);}
 	void SetShaderState(int index, const std::shared_ptr<ShaderState> & shaderState) { m_Renderables[index].SetShaderState(shaderState); }

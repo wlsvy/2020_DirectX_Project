@@ -11,7 +11,7 @@ class Transform : public Component {
 	COMPONENT_CONSTRUCTOR(Transform, Component)
 public:
 	~Transform();
-	void OnGui(const char* option = "-1") override;
+	void OnGui(const char* option = "op") override;
 
 	void SetPosition(const DirectX::XMVECTOR & pos)			{ positionVec = pos; }
 	void SetPosition(const DirectX::XMFLOAT3 & pos)			{ position = pos; }

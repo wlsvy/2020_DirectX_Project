@@ -1,0 +1,4 @@
+Name,VertexShader,PixelShader,GeometryShader
+Mesh,Mesh,PerObject,null
+SkinnedMesh,SkinnedMesh,PerObject,null
+FurMesh,FurMesh,FurShell_ps,FurShell_gs

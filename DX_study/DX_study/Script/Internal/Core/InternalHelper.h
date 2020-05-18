@@ -32,4 +32,5 @@ namespace Core {
 	std::shared_ptr<Object> GetObjectById(int id);
 
 	std::string GetBuildPath();
+	std::string GetShaderCsoFilePath();
 }

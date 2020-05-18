@@ -71,4 +71,8 @@ std::string Core::GetBuildPath()
 #endif
 }
 
+std::string Core::GetShaderCsoFilePath() {
+	return "hlsl\\cso\\";
+}
+
 

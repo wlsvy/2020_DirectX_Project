@@ -22,7 +22,7 @@ public:
 	const IndexBuffer &				GetIndexBuffer() const { return m_IndexBuffer; }
 	const DirectX::BoundingBox &	GetLocalAABB() const { return m_Aabb; }
 
-	void OnGui(const char* option = "-1") override;
+	void OnGui(const char* option = "op") override;
 
 protected:
 	IndexBuffer m_IndexBuffer;

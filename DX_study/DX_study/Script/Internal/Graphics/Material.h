@@ -13,7 +13,7 @@ class Material : public Object {
 public:
 	Material() {}
 	Material(const std::string& name) : Object(name) {}
-	void OnGui(const char* option = "-1") override;
+	void OnGui(const char* option = "op") override;
 
 	DirectX::XMFLOAT4 Color = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -51,7 +51,7 @@ public:
 
 	ShaderState() {}
 	ShaderState(const std::string& name) : Object(name) {}
-	void OnGui(const char* option = "-1") override;
+	void OnGui(const char* option = "op") override;
 
 	std::shared_ptr<VertexShader> Vshader;
 	std::shared_ptr<PixelShader> Pshader;

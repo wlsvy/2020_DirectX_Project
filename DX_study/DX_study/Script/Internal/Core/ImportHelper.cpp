@@ -150,7 +150,7 @@ void Importer::LoadVertexShader2D(const std::string & dirPath, const std::string
 
 		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
-			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
+			Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
 			ARRAYSIZE(layout)))
 		{
@@ -173,7 +173,7 @@ void Importer::LoadVertexShader3D(const std::string & dirPath, const std::string
 
 		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
-			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
+			Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
 			ARRAYSIZE(layout)))
 		{
@@ -198,7 +198,7 @@ void Importer::LoadVertexShader(const std::string & dirPath, const std::string& 
 
 		auto vs = Core::CreateInstance<VertexShader>();
 		if (!vs->Initialize(
-			Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso",
+			Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso",
 			layout,
 			ARRAYSIZE(layout)))
 		{
@@ -214,7 +214,7 @@ void Importer::LoadPixelShader(const std::string & dirPath, const std::string& n
 	if (ext == "hlsl")
 	{
 		auto ps = Core::CreateInstance<PixelShader>();
-		if (!ps->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
+		if (!ps->Initialize(Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
@@ -227,7 +227,7 @@ void Importer::LoadComputeShader(const std::string & dirPath, const std::string 
 	if (ext == "hlsl")
 	{
 		auto cs = Core::CreateInstance<ComputeShader>();
-		if (!cs->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
+		if (!cs->Initialize(Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
@@ -240,7 +240,7 @@ void Importer::LoadGeometryShader(const std::string & dirPath, const std::string
 	if (ext == "hlsl")
 	{
 		auto gs = Core::CreateInstance<GeometryShader>();
-		if (!gs->Initialize(Core::GetBuildPath() + StringHelper::EraseFileExtension(name) + ".cso"))
+		if (!gs->Initialize(Core::GetShaderCsoFilePath() + StringHelper::EraseFileExtension(name) + ".cso"))
 		{
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
