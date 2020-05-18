@@ -25,16 +25,16 @@ public:
 	SkinnedModel(
 		const std::vector<Renderable> & rendearbles,
 		const std::vector<DirectX::XMMATRIX> & boneMatrices,
-		const std::unordered_map<std::string, UINT> & boneIdMap,
+		const std::unordered_map<std::string, USHORT> & boneIdMap,
 		const std::string & name = "Model") :
 		Model(rendearbles, name),
 		m_BoneIdMap(boneIdMap),
 		m_BoneOffsets(boneMatrices) {}
 
-	const std::unordered_map<std::string, UINT> & GetBoneIdMap() const	{ return m_BoneIdMap; }
+	const std::unordered_map<std::string, USHORT> & GetBoneIdMap() const	{ return m_BoneIdMap; }
 	const std::vector<DirectX::XMMATRIX> & GetBoneOffsets() const		{ return m_BoneOffsets; }
 
 private:
-	std::unordered_map<std::string, UINT> m_BoneIdMap;
+	std::unordered_map<std::string, USHORT> m_BoneIdMap;
 	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
 };

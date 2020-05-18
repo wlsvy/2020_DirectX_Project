@@ -34,7 +34,7 @@ void AnimationClip::GetResultInTime(float time, std::vector<DirectX::XMMATRIX> &
 	float AnimationTime = fmod(TimeInTicks, Duration);
 
 	std::vector<bool> check(Channels.size(), true);
-	for (int i = 0; i < NumChannel; i++) {
+	for (USHORT i = 0; i < NumChannel; i++) {
 		if (check[i])
 			HierarchyBoneAnim(i, AnimationTime, DirectX::XMMatrixIdentity(), check, result);
 	}
@@ -45,9 +45,12 @@ DirectX::XMVECTOR BoneChannel::positionInterpolate(float time) const
 	if (NumPositionKeys == 1) {
 		return PositionKeys[0].Position;
 	}
+	else if (NumPositionKeys == 0) {
+		return DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	}
 
-	int keyIndex;
-	for (int i = 0; i < NumPositionKeys - 1; i++) {
+	USHORT keyIndex;
+	for (USHORT i = 0; i < NumPositionKeys - 1; i++) {
 		if (time < (float)PositionKeys[i + 1].Time) {
 			keyIndex = i;
 			break;
@@ -68,9 +71,12 @@ DirectX::XMVECTOR BoneChannel::rotationInterpolate(float time) const
 	if (NumRotationKeys == 1) {
 		return RotationKeys[0].Quaternion;
 	}
+	else if (NumRotationKeys == 0) {
+		return DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	}
 
-	int keyIndex;
-	for (int i = 0; i < NumRotationKeys - 1; i++) {
+	USHORT keyIndex;
+	for (USHORT i = 0; i < NumRotationKeys - 1; i++) {
 		if (time < (float)RotationKeys[i + 1].Time) {
 			keyIndex = i;
 			break;
@@ -92,9 +98,12 @@ DirectX::XMVECTOR BoneChannel::scaleInterpolate(float time) const
 	if (NumScaleKeys == 1) {
 		return ScaleKeys[0].Scale;
 	}
+	else if (NumScaleKeys == 0) {
+		return DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
+	}
 
-	int keyIndex;
-	for (int i = 0; i < NumScaleKeys - 1; i++) {
+	USHORT keyIndex;
+	for (USHORT i = 0; i < NumScaleKeys - 1; i++) {
 		if (time < (float)ScaleKeys[i + 1].Time) {
 			keyIndex = i;
 			break;

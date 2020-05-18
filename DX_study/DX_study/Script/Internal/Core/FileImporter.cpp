@@ -283,7 +283,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 			USHORT VertexID = bone->mWeights[j].mVertexId;
 			float Weight = bone->mWeights[j].mWeight;
 
-			for (int index = 0; index < Vertex_BoneData::MAX_BONE_PER_VERTEX; index++) {
+			for (USHORT index = 0; index < Vertex_BoneData::MAX_BONE_PER_VERTEX; index++) {
 				if (bones[VertexID].BoneIDs[index] == -1)
 				{
 					bones[VertexID].BoneIDs[index] = boneIndex;
@@ -355,8 +355,8 @@ void AnimationImporter::LoadAnimation(const std::string & name, const std::share
 {
 	m_BaseModel = baseModel;
 
-	int animationNum = scene->mNumAnimations;
-	for (int i = 0; i < animationNum; i++) {
+	USHORT animationNum = scene->mNumAnimations;
+	for (USHORT i = 0; i < animationNum; i++) {
 		aiAnimation *anim = scene->mAnimations[i];
 		ProcessAnimation(name, anim, scene);
 	}
@@ -378,10 +378,10 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 		channel.ChannelName = p.first;
 	}
 
-	int numChannel = anim->mNumChannels;
-	for (int i = 0; i < numChannel; i++) {
+	USHORT numChannel = anim->mNumChannels;
+	for (USHORT i = 0; i < numChannel; i++) {
 		aiNodeAnim *ainodeAnim = anim->mChannels[i];
-		BoneChannel channel;
+		
 
 		std::string nodeName = ainodeAnim->mNodeName.data;
 		size_t pos = nodeName.find("_$Assimp");	//불필요한 문장 제거
@@ -395,32 +395,31 @@ void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation *
 		}
 
 		USHORT boneIndex = it->second;
+		BoneChannel & channel = clip->Channels[boneIndex];
 		channel.NumPositionKeys = ainodeAnim->mNumPositionKeys;
 		channel.NumRotationKeys = ainodeAnim->mNumRotationKeys;
 		channel.NumScaleKeys = ainodeAnim->mNumScalingKeys;
 
-		for (int j = 0; j < channel.NumPositionKeys; j++) {
+		for (USHORT j = 0; j < channel.NumPositionKeys; j++) {
 			auto& posKey = ainodeAnim->mPositionKeys[j];
 			auto& posValue = posKey.mValue;
 
 			channel.PositionKeys.emplace_back(posValue.x, posValue.y, posValue.z, posKey.mTime);
 		}
 
-		for (int j = 0; j < channel.NumRotationKeys; j++) {
+		for (USHORT j = 0; j < channel.NumRotationKeys; j++) {
 			auto& rotKey = ainodeAnim->mRotationKeys[j];
 			auto& rotValue = rotKey.mValue;
 
 			channel.RotationKeys.emplace_back(rotValue.x, rotValue.y, rotValue.z, rotValue.w, rotKey.mTime);
 		}
 
-		for (int j = 0; j < channel.NumScaleKeys; j++) {
+		for (USHORT j = 0; j < channel.NumScaleKeys; j++) {
 			auto& scaleKey = ainodeAnim->mScalingKeys[j];
 			auto& scaleValue = scaleKey.mValue;
 
 			channel.ScaleKeys.emplace_back(scaleValue.x, scaleValue.y, scaleValue.z, scaleKey.mTime);
 		}
-
-		clip->Channels[boneIndex] = channel;
 	}
 
 	aiNode * ainode = scene->mRootNode;

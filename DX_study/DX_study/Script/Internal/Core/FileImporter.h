@@ -68,7 +68,7 @@ private:
 		int BoneIDs[MAX_BONE_PER_VERTEX] = { -1, -1, -1, -1 };
 		float BoneWeights[MAX_BONE_PER_VERTEX] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	};
-	std::unordered_map<std::string, UINT> m_BoneIdMap;
+	std::unordered_map<std::string, USHORT> m_BoneIdMap;
 	std::vector<DirectX::XMMATRIX> m_BoneOffsets;
 };
 

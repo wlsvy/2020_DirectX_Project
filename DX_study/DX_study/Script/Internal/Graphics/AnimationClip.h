@@ -60,7 +60,7 @@ public:
 
 	void GetResultInTime(float time, std::vector<DirectX::XMMATRIX> & result);
 
-	short NumChannel;
+	USHORT NumChannel;
 	std::vector<BoneChannel> Channels;
 	std::shared_ptr<SkinnedModel> Avatar;
 
