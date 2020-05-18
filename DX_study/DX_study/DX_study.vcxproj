@@ -177,6 +177,7 @@
   <ItemGroup>
     <ClCompile Include="Script\Component\Animator.cpp" />
     <ClCompile Include="Script\Component\Component.cpp" />
+    <ClCompile Include="Script\Component\Custom\AutoRotation.cpp" />
     <ClCompile Include="Script\Component\Custom\CamMove.cpp" />
     <ClCompile Include="Script\Component\Custom\CharacterMove.cpp" />
     <ClCompile Include="Script\Component\Custom\LightSystem.cpp" />
@@ -230,6 +231,7 @@
     <ClInclude Include="Script\Component\Animator.h" />
     <ClInclude Include="Script\Component\Behaviour.h" />
     <ClInclude Include="Script\Component\Component.h" />
+    <ClInclude Include="Script\Component\Custom\AutoRotation.h" />
     <ClInclude Include="Script\Component\Custom\CamMove.h" />
     <ClInclude Include="Script\Component\Custom\CharacterMove.h" />
     <ClInclude Include="Script\Component\Custom\LightSystem.h" />

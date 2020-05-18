@@ -131,11 +131,11 @@ bool Graphics::ProcessMaterialTable()
 			material->Normal = Core::Find<Texture>(table["NormalMap"][i]);
 			material->Metal = Core::Find<Texture>(table["MetalMap"][i]);
 			material->Roughness = Core::Find<Texture>(table["RoughnessMap"][i]);
-			material->Specular = Core::Find<Texture>(table["SpecularMap"][i]);
+			material->Emission = Core::Find<Texture>(table["EmissionMap"][i]);
 			material->NormalIntensity = std::stof(table["NormalIntensity"][i]);
 			material->MetalIntensity = std::stof(table["MetalIntensity"][i]);
 			material->RoughnessIntensity = std::stof(table["RoughnessIntensity"][i]);
-			material->SpecularIntensity = std::stof(table["SpecularIntensity"][i]);
+			material->EmissionIntensity = std::stof(table["EmissionIntensity"][i]);
 			
 			auto splitted = Importer::SplitString(table["Color"][i], '/');
 			material->Color.x = std::stof(splitted[0]) / 255;
@@ -440,15 +440,15 @@ void Graphics::ApplyMaterialProperties(const std::shared_ptr<Material>& material
 		SetPSShaderResources(TextureBindTypes::MaterialRoughness, 1, material->Roughness ?
 			material->Roughness->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
-		SetPSShaderResources(TextureBindTypes::MaterialSpecualr, 1, material->Specular ?
-			material->Specular->GetTextureResourceViewAddress() :
+		SetPSShaderResources(TextureBindTypes::MaterialEmission, 1, material->Emission ?
+			material->Emission->GetTextureResourceViewAddress() :
 			Texture::GetDefault()->GetTextureResourceViewAddress());
 	}
 
 	m_GpuMaterialBuffer.data.color = material->Color;
 	m_GpuMaterialBuffer.data.NormalIntensity = material->NormalIntensity;
 	m_GpuMaterialBuffer.data.RoughnessIntensity = material->RoughnessIntensity;
-	m_GpuMaterialBuffer.data.SpecularIntensity = material->SpecularIntensity;
+	m_GpuMaterialBuffer.data.EmissionIntensity = material->EmissionIntensity;
 	m_GpuMaterialBuffer.data.MetalIntensity = material->MetalIntensity;
 	m_GpuMaterialBuffer.ApplyChanges();
 }

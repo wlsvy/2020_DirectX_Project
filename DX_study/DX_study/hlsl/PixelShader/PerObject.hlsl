@@ -11,7 +11,7 @@ Pixel_Deferred main(Vertex_Basic input) : SV_TARGET
     output.depth = input.inPosition.z / input.inPosition.w;
     output.color = MaterialAlbedoMap.Sample(PointClamp, input.inTexCoord).rgb * AlbedoColor.rgb;
     output.metal = MaterialMetalMap.Sample(PointClamp, input.inTexCoord).r * MetalIntensity;
-    output.specular = MaterialSpecularMap.Sample(PointClamp, input.inTexCoord).rgb * SpecularIntensity;
+    output.emission = MaterialEmissionMap.Sample(PointClamp, input.inTexCoord).r * EmissionIntensity;
     output.roughness = MaterialRoughMap.Sample(PointClamp, input.inTexCoord).r * RoughnessIntensity;
     return output;
 }

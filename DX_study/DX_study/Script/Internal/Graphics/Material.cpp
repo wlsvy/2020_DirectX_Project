@@ -75,11 +75,12 @@ void Material::OnGui(const char* option)
 		ImGui::SliderFloat("Roughness Intensity", &RoughnessIntensity, 0.0f, 1.0f);
 	}
 	{
-		char specularTextureGuiKey[15];
-		std::sprintf(specularTextureGuiKey, "%s_M%d_S", option, GetId());
+		char emissionTextureGuiKey[15];
+		std::sprintf(emissionTextureGuiKey, "%s_M%d_E", option, GetId());
 
-		TEXTURE_SELECTION_POPUP(Specular, specularTextureGuiKey);
-		ImGui::SliderFloat("Specular Intensity", &SpecularIntensity, 0.0f, 1.0f);
+		TEXTURE_SELECTION_POPUP(Emission, emissionTextureGuiKey);
+		ImGui::ColorEdit4(emissionTextureGuiKey, "Emission Color", &EmissionColor.x);
+		ImGui::SliderFloat("Emission Intensity", &EmissionIntensity, 0.0f, 1.0f);
 	}
 
 	ImGui::PopItemWidth();

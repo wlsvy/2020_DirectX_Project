@@ -44,7 +44,7 @@ struct TextureBindTypes {
 		MaterialNormal,
 		MaterialMetal,
 		MaterialRoughness,
-		MaterialSpecualr,
+		MaterialEmission,
 
 		Skybox = 21,
 		IrradianceSkybox,

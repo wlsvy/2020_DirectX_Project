@@ -14,11 +14,11 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float3 position = Tex0.xyz;
     float3 albedo = Tex1.xyz;
     float3 normal = Tex2.xyz;
-    float3 specular = Tex3.xyz;
+    float emission = Tex3.x;
+    float roughness = Tex3.y;
     float depth = Tex0.w;
     float colorFlag = Tex1.w;
     float metal = Tex2.w;
-    float roughness = Tex3.w;
     
     //float3 pt = mul(InverseViewMatrix, float4(input.inTexCoord, -1, 1)).xyz;
     

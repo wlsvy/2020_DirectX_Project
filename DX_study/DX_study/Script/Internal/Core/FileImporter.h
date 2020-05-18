@@ -29,7 +29,8 @@ protected:
 
 	void ProcessNode(aiNode * node, const aiScene * scene, const DirectX::XMMATRIX & parentTransformMatrix);
 	TextureStorageType DetermineTextureStorageType(const aiScene* pScene, aiMaterial* pMat, unsigned int index, aiTextureType textureType);
-	std::shared_ptr<SharedMaterial> LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
+	std::shared_ptr<SharedMaterial> LoadMaterial(aiMaterial * pMaterial, const aiScene * pScene);
+	std::shared_ptr<Texture> LoadTexture(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene);
 	int GetTextureIndex(aiString * pStr);
 
 	std::vector<std::shared_ptr<Mesh>> m_Meshes;

@@ -50,7 +50,7 @@ struct GpuMaterialBuffer {
 	float NormalIntensity;
 	float MetalIntensity;
 	float RoughnessIntensity;
-	float SpecularIntensity;
+	float EmissionIntensity;
 };
 
 struct GpuDownSampleBuffer {

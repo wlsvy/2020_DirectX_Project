@@ -24,7 +24,7 @@ Pixel_Deferred main(PS_INPUT input) : SV_TARGET
     output.depth = 1.0f;
     output.color = SkyboxCubeMap.Sample(LinearWrap, input.inLocalPos);
     output.metal = 1.0f;
-    output.specular = float3(1.0f, 1.0f, 1.0f);
+    output.emission = 1.0f;
     output.roughness = 1.0f;
     return output;
 }

@@ -97,7 +97,7 @@ void ModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, const Dire
 	m_Meshes.emplace_back(newMesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	auto mat = LoadMaterial(material, scene);
 	m_Materials.push_back(mat);
 
 	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetDefault());
@@ -146,72 +146,82 @@ TextureStorageType ModelImporterBase::DetermineTextureStorageType(const aiScene 
 	return TextureStorageType::None; // No texture exists
 }
 
-std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene)
+std::shared_ptr<Texture> ModelImporterBase::LoadTexture(aiMaterial * pMaterial, aiTextureType textureType, const aiScene * pScene) {
+	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
+
+	if (textureCount == 0) return std::shared_ptr<Texture>();
+
+	aiString path;
+	pMaterial->GetTexture(textureType, 0, &path);
+	TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, 0, textureType);
+	std::shared_ptr<Texture> texturePtr;
+	switch (storetype)
+	{
+		case TextureStorageType::EmbeddedIndexCompressed:
+		{
+			int index = GetTextureIndex(&path);
+			texturePtr = Core::CreateInstance<Texture>(
+				reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
+				pScene->mTextures[index]->mWidth);
+			texturePtr->Name = pScene->mTextures[index]->mFilename.data;
+			break;
+		}
+		case TextureStorageType::EmbeddedCompressed:
+		{
+			const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
+			texturePtr = Core::CreateInstance<Texture>(
+				reinterpret_cast<uint8_t*>(pTexture->pcData),
+				pTexture->mWidth);
+			texturePtr->Name = pTexture->mFilename.data;
+			break;
+		}
+		case TextureStorageType::Disk:
+		{
+			std::string filename = m_Directory + '\\' + path.C_Str();
+			texturePtr = Core::CreateInstance<Texture>(filename);
+			texturePtr->Name = StringHelper::GetFileNameFromPath(filename);
+			break;
+		}
+	}
+	return texturePtr;
+}
+std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMaterial, const aiScene * pScene)
 {
 	TextureStorageType storetype = TextureStorageType::Invalid;
-	unsigned int textureCount = pMaterial->GetTextureCount(textureType);
 
 	aiString matName;
 	pMaterial->Get(AI_MATKEY_NAME, matName);
+
 	auto mat = Core::CreateInstance<SharedMaterial>(matName.data);
 
-	if (textureCount == 0) //If there are no textures
-	{
+	if (auto albedo = LoadTexture(pMaterial, aiTextureType::aiTextureType_DIFFUSE, pScene)) {
+		mat->Albedo = albedo;
+	}
+	else {
 		storetype = TextureStorageType::None;
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
-		switch (textureType)
-		{
-		case aiTextureType_DIFFUSE:
-			pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
-			mat->Albedo = Texture::GetDefault();
-			mat->Color = DirectX::XMFLOAT4(aiColor.r, aiColor.g, aiColor.b, 1.0f);
-		}
+		pMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, aiColor);
+		mat->Albedo = Texture::GetDefault();
+		mat->Color = DirectX::XMFLOAT4(aiColor.r, aiColor.g, aiColor.b, 1.0f);
 	}
-	else
-	{
-		for (UINT i = 0; i < textureCount; i++)
-		{
-			aiString path;
-			pMaterial->GetTexture(textureType, i, &path);
-			TextureStorageType storetype = DetermineTextureStorageType(pScene, pMaterial, i, textureType);
-			std::shared_ptr<Texture> texturePtr;
-			switch (storetype)
-			{
-			case TextureStorageType::EmbeddedIndexCompressed:
-			{
-				int index = GetTextureIndex(&path);
-				texturePtr = Core::CreateInstance<Texture>(
-					reinterpret_cast<uint8_t*>(pScene->mTextures[index]->pcData),
-					pScene->mTextures[index]->mWidth);
-				texturePtr->Name = pScene->mTextures[index]->mFilename.data;
-				break;
-			}
-			case TextureStorageType::EmbeddedCompressed:
-			{
-				const aiTexture * pTexture = pScene->GetEmbeddedTexture(path.C_Str());
-				texturePtr = Core::CreateInstance<Texture>(
-					reinterpret_cast<uint8_t*>(pTexture->pcData),
-					pTexture->mWidth);
-				texturePtr->Name = pTexture->mFilename.data;
-				break;
-			}
-			case TextureStorageType::Disk:
-			{
-				std::string filename = m_Directory + '\\' + path.C_Str();
-				texturePtr = Core::CreateInstance<Texture>(filename);
-				texturePtr->Name = StringHelper::GetFileNameFromPath(filename);
-				break;
-			}
-			}
-			if (i == 0) mat->Albedo = texturePtr;
-			else mat->SubTextures.push_back(texturePtr);
-		}
+	if (auto normal = LoadTexture(pMaterial, aiTextureType::aiTextureType_NORMALS, pScene)) {
+		mat->Normal = normal;
+	}
+	if (auto metal = LoadTexture(pMaterial, aiTextureType::aiTextureType_REFLECTION, pScene)) {
+		mat->Metal = metal;
+		pMaterial->Get(AI_MATKEY_REFLECTIVITY, mat->MetalIntensity);
+	}
+	if (auto roughness = LoadTexture(pMaterial, aiTextureType::aiTextureType_SHININESS, pScene)) {
+		mat->Roughness = roughness;
+		pMaterial->Get(AI_MATKEY_SHININESS, mat->RoughnessIntensity);
+	}
+	if (auto emission = LoadTexture(pMaterial, aiTextureType::aiTextureType_EMISSIVE, pScene)) {
+		mat->Emission = emission;
+		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
+		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, aiColor);
+		mat->EmissionColor = DirectX::XMFLOAT3(aiColor.r, aiColor.g, aiColor.b);
 	}
 
-	if (!mat->Albedo)
-	{
-		mat->Albedo = Core::Find<Texture>("UnhandledTexture");
-	}
 	return mat;
 }
 
@@ -326,7 +336,7 @@ void SkinnedModelImporter::ProcessMesh(aiMesh * mesh, const aiScene * scene, con
 	m_Meshes.push_back(newMesh);
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-	auto mat = LoadMaterial(material, aiTextureType::aiTextureType_DIFFUSE, scene);
+	auto mat = LoadMaterial(material, scene);
 	m_Materials.push_back(mat);
 
 	m_Renderable.emplace_back(newMesh, mat, ShaderState::GetSkinnedDefault());

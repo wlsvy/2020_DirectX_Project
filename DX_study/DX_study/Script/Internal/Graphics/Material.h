@@ -28,8 +28,9 @@ public:
 	std::shared_ptr<Texture> Roughness;
 	float RoughnessIntensity = 1.0f;
 
-	std::shared_ptr<Texture> Specular;
-	float SpecularIntensity = 1.0f;
+	std::shared_ptr<Texture> Emission;
+	DirectX::XMFLOAT3 EmissionColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	float EmissionIntensity = 1.0f;
 
 	std::vector<std::shared_ptr<Texture>> SubTextures;
 };

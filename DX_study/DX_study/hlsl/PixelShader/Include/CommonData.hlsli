@@ -18,7 +18,7 @@ Texture2D MaterialAlbedoMap : TEXTURE : register(t11);
 Texture2D MaterialNormalMap : TEXTURE : register(t12);
 Texture2D MaterialMetalMap : TEXTURE : register(t13);
 Texture2D MaterialRoughMap : TEXTURE : register(t14);
-Texture2D MaterialSpecularMap : TEXTURE : register(t15);
+Texture2D MaterialEmissionMap : TEXTURE : register(t15);
 
 TextureCube SkyboxCubeMap : register(t21);
 TextureCube IrradianceCubeMap : register(t22);
@@ -77,7 +77,7 @@ cbuffer Material : register(b2)
     float NormalIntensity;
     float MetalIntensity;
     float RoughnessIntensity;
-    float SpecularIntensity;
+    float EmissionIntensity;
 };
 
 cbuffer FurData : register(b3)

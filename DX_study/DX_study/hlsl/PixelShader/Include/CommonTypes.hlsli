@@ -49,8 +49,9 @@ struct Pixel_DeferredOpaque
     float metal : METAL;
     
     //Render Target 3
-    float3 specular : SPECULAR;
+    float emission : EMISSION;
     float roughness : ROUGHNESS;
+    float2 pad;
 };
 
 struct Pixel_Deferred
