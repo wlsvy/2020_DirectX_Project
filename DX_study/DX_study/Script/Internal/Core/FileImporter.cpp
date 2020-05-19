@@ -213,8 +213,8 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 	{
 		pMaterial->Get(AI_MATKEY_REFLECTIVITY, mat->MetalIntensity);
 		pMaterial->Get(AI_MATKEY_SHININESS, mat->RoughnessIntensity);
-		mat->MetalIntensity * 0.01f;
-		mat->RoughnessIntensity * 0.01f;
+		mat->MetalIntensity *= 0.01f;
+		mat->RoughnessIntensity *= 0.01f;
 
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
 		pMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, aiColor);

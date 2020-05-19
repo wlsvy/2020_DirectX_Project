@@ -12,6 +12,7 @@
 #include "../../Util/Math.h"
 #include "../Engine/Engine.h"
 #include "../Engine/Ui.h"
+#include "../Engine/Profiler.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/GameObject.h"
 #include "../Core/ImportHelper.h"
@@ -206,6 +207,8 @@ void Graphics::RenderBegin()
 
 void Graphics::Pass_GBuffer()
 {
+	ScopedProfilingSample("Pass_GBuffer");
+
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
@@ -240,6 +243,8 @@ void Graphics::Pass_GBuffer()
 
 void Graphics::Pass_SSAO()
 {
+	ScopedProfilingSample("Pass_SSAO");
+
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
@@ -270,6 +275,9 @@ void Graphics::Pass_SSAO()
 
 void Graphics::Pass_Composition()
 {
+	ScopedProfilingSample("Pass_Composition");
+
+
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	SetRenderTarget
@@ -507,6 +515,8 @@ bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 
 void Graphics::Pass_PostProcess()
 {
+	ScopedProfilingSample("Pass_PostProcess");
+
 	auto inType = RenderTargetTypes::Composition0;
 	auto outType = RenderTargetTypes::Composition1;
 
@@ -521,6 +531,8 @@ void Graphics::Pass_PostProcess()
 
 void Graphics::Pass_Bloom(const UINT inout)
 {
+	ScopedProfilingSample("Pass_Bloom");
+
 	static const UINT MAX_DOWNSAMPLE_COUNT = 3;
 
 	ID3D11ShaderResourceView** downSampleIn = m_RenderTargetSrvs[inout].GetAddressOf();
@@ -563,6 +575,8 @@ void Graphics::Pass_Bloom(const UINT inout)
 
 void Graphics::Pass_ToneMap(const UINT input, const UINT output)
 {
+	ScopedProfilingSample("Pass_ToneMap");
+
 	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[input].GetAddressOf());
 	SetRenderTarget
 	(
@@ -607,6 +621,8 @@ void Graphics::Pass_GammaCorrection(const UINT input, const UINT output)
 
 void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 {
+	ScopedProfilingSample("Pass_ShadowMap");
+
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto spotLight = std::dynamic_pointer_cast<SpotLight>(light);
 	auto& lightTransform = spotLight->GetGameObject()->GetTransform();
@@ -649,6 +665,8 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 
 void Graphics::Pass_EditorUI()
 {
+	ScopedProfilingSample("Pass_EditorUI");
+
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	
 	SetRenderTarget
@@ -662,26 +680,6 @@ void Graphics::Pass_EditorUI()
 	
 	GUI::DrawEditorUI(m_RenderTargetSrvs[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].Get());
 	
-	ImGuiIO& io = ImGui::GetIO();
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.2f, io.DisplaySize.y * 0.2f);
-
-	
-
-	ImGui::Begin("Texture Resources");
-	Core::Pool<Texture>::GetInstance().ForEach(GUI::DrawTexture);
-	ImGui::End();
-
-	ImGui::Begin("RederTarget Window");
-	ImGui::DragFloat("ThresHold", &m_GpuDownSampleBuffer.data.threshold, 0.01f, 0.0f, 10.0f);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition0].Get(), scene_size);
-	ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::Composition1].Get(), scene_size);
-	ImGui::Image(m_MainDepthStencilSRV.Get(), scene_size);
-	ImGui::Image(m_SubDepthStencilSRV.Get(), scene_size);
-	//ImGui::Image(m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].Get(), scene_size);
-	ImGui::End();
-
-	GUI::DrawDeferredChannelImage();
-
 	GUI::Render();
 
 	SetRenderTarget
@@ -694,6 +692,8 @@ void Graphics::Pass_EditorUI()
 
 void Graphics::Pass_Gizmo()
 {
+	ScopedProfilingSample("Pass_Gizmo");
+
 	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
 
 	m_BasicEffect->SetVertexColorEnabled(true);

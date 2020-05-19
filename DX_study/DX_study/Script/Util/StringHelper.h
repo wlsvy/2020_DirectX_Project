@@ -46,4 +46,9 @@ namespace std {
 			to_string(val.r[2]) + "\n" +
 			to_string(val.r[3]);
 	}
+	_NODISCARD inline string to_string(const wchar_t * val)
+	{
+		std::wstring ws(val);
+		return std::string(ws.begin(), ws.end());
+	}
 }

@@ -2,6 +2,7 @@
 #include <functional>
 
 #include "Timer.h"
+#include "Profiler.h"
 #include "../Core/ObjectPool.h"
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
@@ -52,6 +53,7 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 	}
 
 	m_CurrentScene->Initialize();
+	Profiler::GetInstance().Initialize();
 
 	m_Graphics->InitializeDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
 
@@ -69,6 +71,7 @@ void UpdateBehaviour(const std::shared_ptr<Behaviour> & behaviour) {
 }
 
 void Engine::Update() {
+	ScopedProfilingSample("Engine Update");
 	m_Timer->Tick();
 	
 	UpdateInput();
@@ -76,6 +79,8 @@ void Engine::Update() {
 	Core::Pool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
 
 	m_CurrentScene->Update();
+
+	Profiler::GetInstance().Update();
 }
 
 void Engine::UpdateInput()
@@ -96,11 +101,16 @@ void Engine::UpdateInput()
 
 void Engine::FixedUpdate()
 {
-	Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
+	{
+		ScopedProfilingSample("Animation Update");
+		Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
+	}
 }
 
 void Engine::RenderFrame()
 {
+	ScopedProfilingSample("Render Frame");
+
 	m_Graphics->RenderBegin();
 	m_Graphics->Pass_ShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
 	m_Graphics->Pass_GBuffer();
@@ -117,7 +127,7 @@ void Engine::Run()
 	float fixedTimeStamp = 0.0f;
 
 	while (ProcessMessage()) {
-
+		ScopedProfilingSample("Frame Updaet");
 		fixedTimeStamp += m_Timer->GetDeltaTime();
 
 		if (fixedTimeStamp > Engine::s_FixedFrameRate) 
@@ -129,5 +139,7 @@ void Engine::Run()
 
 		Update();
 		RenderFrame();
+
+		Profiler::GetInstance().Clear();
 	}
 }

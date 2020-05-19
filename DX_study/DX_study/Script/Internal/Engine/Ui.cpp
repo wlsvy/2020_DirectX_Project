@@ -2,6 +2,9 @@
 #include <d3d11.h>
 #include <ImGui/imgui_impl_dx11.h>
 #include <ImGui/imgui_impl_win32.h>
+#include <array>
+#include <unordered_map>
+#include <algorithm>
 
 #include "Engine.h"
 
@@ -46,6 +49,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	static bool s_ShowEditor = true;
 	static bool s_ShowProfiler = false;
 	static bool s_ShowResources = false;
+	static bool s_ShowImGuiDemo = false;
 
 	ImGuiIO& io = ImGui::GetIO();
 	auto& graphics = Core::GetGraphics();
@@ -75,6 +79,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 			ImGui::MenuItem("Show Hierarchy", "", &s_ShowEditor);
 			ImGui::MenuItem("Show Profiler", "", &s_ShowProfiler);
 			ImGui::MenuItem("Show Resources", "", &s_ShowResources);
+			ImGui::MenuItem("Show ImGuiDemo", "", &s_ShowImGuiDemo);
 
 			if (ImGui::MenuItem("Exit", "Alt+F4"))
 			{
@@ -98,7 +103,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	
 	//Editor
 	if (s_ShowEditor) {
-		ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin("Editor", &s_ShowEditor, ImGuiWindowFlags_NoCollapse);
 		ImGui::BeginChild("Editor##Hierarchy", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
 		ImGui::Text("Hierarchy");
 		ImGui::Separator();
@@ -127,13 +132,12 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	//Profiler
 	if (s_ShowProfiler) {
-		ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin("Profiler", &s_ShowProfiler, ImGuiWindowFlags_NoCollapse);
 		ImGui::BeginChild("Profiler##ShowList", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
 		ImGui::Separator();
 		ImGui::Spacing();
 
-		auto& scene = Engine::Get().GetCurrentScene();
-		scene.OnGui();
+		auto & p = Profiler::GetInstance();
 
 		static UINT s_Selected = 0;
 		if (ImGui::Selectable("Status")) {
@@ -156,22 +160,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 		switch (s_Selected) {
 		case 1:
 		{
-			/*
-			UINT SamplerStateBindingCount = 0;
-	UINT ConstantBufferBindingCount = 0;
-	UINT VertexShaderBindingCount = 0;
-	UINT PixelShaderBindingCount = 0;
-	UINT GeometryShaderBindingCount = 0;
-	UINT ComputeShaderBindingCount = 0;
-	UINT ShaderResourcesBindingCount = 0;
-	UINT UnorderedAccessViewBindingCount = 0;
-	UINT RenderTargetBindingCount = 0;
-	UINT VertexBufferBindingCount = 0;
-	UINT IndexBufferBindingCount = 0;
-	UINT DrawCallCount = 0;
-	UINT DispatchCallCount = 0;
-			*/
-			auto & p = Profiler::GetInstance();
+			ImGui::Text("GPU Device : %s", p.GPU_Name.c_str());
 			ImGui::Text("SamplerStateBindingCount : %u", p.SamplerStateBindingCount);
 			ImGui::Text("ConstantBufferBindingCount : %u", p.ConstantBufferBindingCount);
 			ImGui::Text("VertexShaderBindingCount : %u", p.VertexShaderBindingCount);
@@ -185,9 +174,16 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 			ImGui::Text("IndexBufferBindingCount : %u", p.IndexBufferBindingCount);
 			ImGui::Text("DrawCallCount : %u", p.DrawCallCount);
 			ImGui::Text("DispatchCallCount : %u", p.DispatchCallCount);
+			ImGui::Text("Gpu Memory : %u MB", p.GPU_MemoryUsed);
+			break;
 		}
 		case 2:
 		{
+			for (auto & pair : p.GetSampleMap()) {
+				ImGui::PlotLines(pair.first.c_str(), pair.second.data(), Profiler::MAX_TIME_SAMPLE_COUNT);
+				ImGui::SameLine();
+				ImGui::Text(" - %f ms", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
+			}
 			break;
 		}
 		case 3: {
@@ -207,7 +203,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 	//Resources
 	if (s_ShowResources) {
-		ImGui::Begin("Resources", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::Begin("Resources", &s_ShowResources, ImGuiWindowFlags_NoCollapse);
 		ImGui::BeginChild("Resource##type", ImVec2(io.DisplaySize.x * 0.12f, 0), true);
 		ImGui::Text("Type");
 		ImGui::Separator();
@@ -298,6 +294,11 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 		
 		ImGui::EndChild();
 		ImGui::End();
+	}
+
+	//ImGuiDemo
+	if (s_ShowImGuiDemo) {
+		ImGui::ShowDemoWindow(&s_ShowImGuiDemo);
 	}
 }
 

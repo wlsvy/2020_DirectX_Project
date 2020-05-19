@@ -2,6 +2,21 @@
 
 std::vector<AdapterData> AdapterReader::s_Adapters; //static º¯¼ö
 
+AdapterData::AdapterData(IDXGIAdapter *pAdapter) {
+	this->m_Adapter = pAdapter;
+}
+
+DXGI_ADAPTER_DESC AdapterData::GetDescription()
+{
+	DXGI_ADAPTER_DESC desc;
+	HRESULT hr = m_Adapter->GetDesc(&desc);
+	if (FAILED(hr)) {
+		StringHelper::ErrorLog(hr, "Failed to Get Description for IDXGIAdapter.");
+	}
+
+	return desc;
+}
+
 std::vector<AdapterData> AdapterReader::GetAdapters() {
 	if (s_Adapters.size() > 0) {
 		return s_Adapters;
@@ -25,10 +40,4 @@ std::vector<AdapterData> AdapterReader::GetAdapters() {
 	return s_Adapters;
 }
 
-AdapterData::AdapterData(IDXGIAdapter *pAdapter) {
-	this->m_Adapter = pAdapter;
-	HRESULT hr = pAdapter->GetDesc(&this->m_Description);
-	if (FAILED(hr)) {
-		StringHelper::ErrorLog(hr, "Failed to Get Description for IDXGIAdapter.");
-	}
-}
+
