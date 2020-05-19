@@ -207,7 +207,7 @@ void Graphics::RenderBegin()
 
 void Graphics::Pass_GBuffer()
 {
-	ScopedProfilingSample("Pass_GBuffer");
+	Profiler::SampleBegin("Pass_GBuffer");
 
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
@@ -239,11 +239,13 @@ void Graphics::Pass_GBuffer()
 	SetVertexShader(NULL);
 	SetPixelShader(NULL);
 	SetGeometryShader(NULL);
+
+	Profiler::SampleEnd("Pass_GBuffer");
 }
 
 void Graphics::Pass_SSAO()
 {
-	ScopedProfilingSample("Pass_SSAO");
+	Profiler::SampleBegin("Pass_SSAO");
 
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
@@ -271,12 +273,12 @@ void Graphics::Pass_SSAO()
 			NULL
 		);
 	}
+
+	Profiler::SampleEnd("Pass_SSAO");
 }
 
 void Graphics::Pass_Composition()
 {
-	ScopedProfilingSample("Pass_Composition");
-
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	SetRenderTarget
@@ -514,7 +516,7 @@ bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 
 void Graphics::Pass_PostProcess()
 {
-	ScopedProfilingSample("Pass_PostProcess");
+	Profiler::SampleBegin("Pass_PostProcess");
 
 	auto inType = RenderTargetTypes::Composition0;
 	auto outType = RenderTargetTypes::Composition1;
@@ -526,12 +528,12 @@ void Graphics::Pass_PostProcess()
 
 	Pass_GammaCorrection(inType, outType);
 	std::swap(inType, outType);
+
+	Profiler::SampleEnd("Pass_PostProcess");
 }
 
 void Graphics::Pass_Bloom(const UINT inout)
 {
-	ScopedProfilingSample("Pass_Bloom");
-
 	static const UINT MAX_DOWNSAMPLE_COUNT = 3;
 
 	ID3D11ShaderResourceView** downSampleIn = m_RenderTargetSrvs[inout].GetAddressOf();
@@ -574,8 +576,6 @@ void Graphics::Pass_Bloom(const UINT inout)
 
 void Graphics::Pass_ToneMap(const UINT input, const UINT output)
 {
-	ScopedProfilingSample("Pass_ToneMap");
-
 	SetPSShaderResources(TextureBindTypes::Composition, 1, m_RenderTargetSrvs[input].GetAddressOf());
 	SetRenderTarget
 	(
@@ -620,7 +620,7 @@ void Graphics::Pass_GammaCorrection(const UINT input, const UINT output)
 
 void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 {
-	ScopedProfilingSample("Pass_ShadowMap");
+	Profiler::SampleBegin("Pass_ShadowMap");
 
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
 	auto spotLight = std::dynamic_pointer_cast<SpotLight>(light);
@@ -660,11 +660,13 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 		m_NullRtv,
 		NULL
 	);
+
+	Profiler::SampleEnd("Pass_ShadowMap");
 }
 
 void Graphics::Pass_EditorUI()
 {
-	ScopedProfilingSample("Pass_EditorUI");
+	Profiler::SampleBegin("Pass_EditorUI");
 
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	
@@ -687,11 +689,13 @@ void Graphics::Pass_EditorUI()
 		m_NullRtv,
 		NULL
 	);
+	Profiler::SampleEnd("Pass_EditorUI");
+
 }
 
 void Graphics::Pass_Gizmo()
 {
-	ScopedProfilingSample("Pass_Gizmo");
+	Profiler::SampleBegin("Pass_Gizmo");
 
 	auto& camera = *Engine::Get().GetCurrentScene().GetMainCam();
 
@@ -728,6 +732,8 @@ void Graphics::Pass_Gizmo()
 		m_NullRtv,
 		NULL
 	);
+	Profiler::SampleEnd("Pass_Gizmo");
+
 }
 
 void Graphics::Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height)
@@ -794,5 +800,9 @@ void Graphics::Pass_DownSample(
 
 void Graphics::RenderEnd()
 {
+	Profiler::SampleBegin("Present Swapchain");
+
 	m_Swapchain->Present(1, NULL);
+
+	Profiler::SampleEnd("Present Swapchain");
 }

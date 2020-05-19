@@ -202,12 +202,12 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 				for (auto & pair : p.GetSampleMap()) {
 					ImGui::PlotLines(pair.first.c_str(), pair.second.data(), Profiler::MAX_TIME_SAMPLE_COUNT);
 					ImGui::SameLine();
-					ImGui::Text(" - %f ms", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
+					ImGui::Text(" %f MicroSec", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
 				}
 				ImGui::EndTabItem();
 			}
 			if (ImGui::BeginTabItem("Render Targets", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
-				ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.2f, s_ImGuiIO->DisplaySize.y * 0.2f);
+				ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.4f, s_ImGuiIO->DisplaySize.y * 0.4f);
 				for (UINT i = 0; i < RenderTargetTypes::Max; i++) {
 					ImGui::Image(graphics.GetRenderTargetSrv(i), scene_size);
 				}

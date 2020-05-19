@@ -10,6 +10,8 @@
 #include "../../Util/StringHelper.h"
 #include "../../Util/Time.h"
 
+static std::unordered_map<std::string, std::chrono::high_resolution_clock::time_point> s_SampleTimeMap;
+
 static PDH_HQUERY cpuQuery;
 static PDH_HCOUNTER cpuTotal;
 static ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
@@ -38,6 +40,32 @@ double GetCurrentCpuUsageByProcess() {
 	return percent * 100;
 }
 
+void Profiler::SampleBegin(const std::string & sampleName)
+{
+	auto it = s_SampleTimeMap.find(sampleName);
+	if (it != s_SampleTimeMap.end()) {
+		MessageBoxW(NULL, StringHelper::StringToWide("Already " + sampleName + " Sample begin!").c_str(), L"Error", MB_ICONERROR);
+		return;
+	}
+	s_SampleTimeMap[sampleName] = std::chrono::high_resolution_clock::now();
+}
+
+void Profiler::SampleEnd(const std::string & sampleName)
+{
+	auto it = s_SampleTimeMap.find(sampleName);
+	if (it == s_SampleTimeMap.end()) {
+		MessageBoxW(NULL, StringHelper::StringToWide("No " + sampleName + " SampleBegin() Called!").c_str(), L"Error", MB_ICONERROR);
+		return;
+	}
+
+	auto endTime = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(endTime - s_SampleTimeMap[sampleName]).count();
+
+	s_SampleTimeMap.erase(it);
+
+	GetInstance().AddSample(sampleName, duration);
+}
+
 void Profiler::Initialize()
 {
 	auto adapter = AdapterReader::GetAdapters();
@@ -62,9 +90,6 @@ void Profiler::Initialize()
 
 void Profiler::Update()
 {
-	using ns = std::chrono::nanoseconds;
-	auto start = std::chrono::high_resolution_clock::now();
-
 	auto adapter = AdapterReader::GetAdapters();
 	auto description = adapter[0].GetDescription();
 
@@ -86,7 +111,7 @@ void Profiler::Update()
 
 		auto it = m_SampleMap.find(sample.Name);
 		if (it == m_SampleMap.end()) {
-			auto pair = m_SampleMap.insert(std::make_pair(sample.Name, std::array<float, MAX_TIME_SAMPLE_COUNT>{ { 0.0, }}));
+			auto pair = m_SampleMap.insert(std::make_pair(sample.Name, std::array<float, MAX_TIME_SAMPLE_COUNT>{ { 0, }}));
 			it = pair.first;
 		}
 
@@ -98,25 +123,8 @@ void Profiler::Update()
 	if (s_UpdateRemainTime < 0.0f) {
 		s_UpdateRemainTime = SAMPLE_UPDATE_TERM;
 
-		MEMORYSTATUSEX memInfo;
-		memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&memInfo);
-		CPU_TotalVirtualMemory = memInfo.ullTotalPageFile >> 20;
-		CPU_VirtualMemoryUsed = (memInfo.ullTotalPageFile - memInfo.ullAvailPageFile) >> 20;
-
-		PROCESS_MEMORY_COUNTERS pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-
-		CPU_TotalPhysicsMemory = memInfo.ullTotalPhys >> 20;
-		CPU_PhysicsMemoryUsed = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) >> 20;
-		CPU_PhysicsMemoryUsedByThis = pmc.WorkingSetSize >> 20;
-
-		CPU_Usage = GetCurrentCpuUsageByProcess();
+		UpdateMemoryDescription();
 	}
-
-	auto end = std::chrono::high_resolution_clock::now();
-
-	auto du = std::chrono::duration_cast<ns>(end - start).count();
 }
 
 void Profiler::AddSample(const std::string & name, float timeCost)
@@ -152,4 +160,22 @@ void Profiler::Clear()
 	Call_Dispatch = 0;
 
 	m_SampleDescription.clear();
+}
+
+void Profiler::UpdateMemoryDescription()
+{
+	MEMORYSTATUSEX memInfo;
+	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+	GlobalMemoryStatusEx(&memInfo);
+	CPU_TotalVirtualMemory = memInfo.ullTotalPageFile >> 20;
+	CPU_VirtualMemoryUsed = (memInfo.ullTotalPageFile - memInfo.ullAvailPageFile) >> 20;
+
+	PROCESS_MEMORY_COUNTERS pmc;
+	GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+
+	CPU_TotalPhysicsMemory = memInfo.ullTotalPhys >> 20;
+	CPU_PhysicsMemoryUsed = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) >> 20;
+	CPU_PhysicsMemoryUsedByThis = pmc.WorkingSetSize >> 20;
+
+	CPU_Usage = GetCurrentCpuUsageByProcess();
 }

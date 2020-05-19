@@ -38,6 +38,8 @@ Engine::~Engine()
 	s_Ptr = nullptr;
 
 	Core::Pool<Object>::GetInstance().Clear();
+
+	Profiler::GetInstance().UpdateMemoryDescription();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)
@@ -71,7 +73,8 @@ void UpdateBehaviour(const std::shared_ptr<Behaviour> & behaviour) {
 }
 
 void Engine::Update() {
-	ScopedProfilingSample("Engine Update");
+	Profiler::SampleBegin("Update");
+
 	m_Timer->Tick();
 	
 	UpdateInput();
@@ -81,6 +84,8 @@ void Engine::Update() {
 	m_CurrentScene->Update();
 
 	Profiler::GetInstance().Update();
+
+	Profiler::SampleEnd("Update");
 }
 
 void Engine::UpdateInput()
@@ -101,15 +106,16 @@ void Engine::UpdateInput()
 
 void Engine::FixedUpdate()
 {
-	{
-		ScopedProfilingSample("Animation Update");
-		Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
-	}
+	Profiler::SampleBegin("Fixed Update");
+
+	Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
+
+	Profiler::SampleEnd("Fixed Update");
 }
 
 void Engine::RenderFrame()
 {
-	ScopedProfilingSample("Render Frame");
+	Profiler::SampleBegin("Render Frame");
 
 	m_Graphics->RenderBegin();
 	m_Graphics->Pass_ShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
@@ -120,6 +126,9 @@ void Engine::RenderFrame()
 	//m_Graphics->Pass_Gizmo();
 	m_Graphics->Pass_EditorUI();
 	m_Graphics->RenderEnd();
+
+
+	Profiler::SampleEnd("Render Frame");
 }
 
 void Engine::Run()
@@ -127,7 +136,6 @@ void Engine::Run()
 	float fixedTimeStamp = 0.0f;
 
 	while (ProcessMessage()) {
-		ScopedProfilingSample("Frame Updaet");
 		fixedTimeStamp += m_Timer->GetDeltaTime();
 
 		if (fixedTimeStamp > Engine::s_FixedFrameRate) 

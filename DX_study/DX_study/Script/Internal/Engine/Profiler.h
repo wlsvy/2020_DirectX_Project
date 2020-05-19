@@ -10,6 +10,9 @@
 #include "../../Util/Math.h"
 #include "../../Util/Singleton.h"
 
+using UINT = unsigned int;
+using DWORDLONG = unsigned long long;
+
 struct ProfilingSample {
 	ProfilingSample(const std::string & name, float timeCost) : Name(name), TimeCost(timeCost) {}
 	const std::string Name;
@@ -18,13 +21,16 @@ struct ProfilingSample {
 
 class Profiler : public Singleton<Profiler> {
 public:
-	using UINT = unsigned int;
 	static const UINT MAX_TIME_SAMPLE_COUNT = 10;
-
 	using SampleMap = std::unordered_map<std::string, std::array<float, MAX_TIME_SAMPLE_COUNT>>;
+
+	static void SampleBegin(const std::string & sampleName);
+	static void SampleEnd(const std::string & sampleName);
 
 	void Initialize();
 	void Update();
+	void UpdateMemoryDescription();
+
 	void AddSample(const std::string & name, float timeCost);
 	ProfilingSample PopSample();
 	bool IsSampleEmpty() { return m_SampleQueue.empty(); }
@@ -37,11 +43,11 @@ public:
 	UINT CPU_MemoryUsed = 0;
 	UINT GPU_MemoryUsed = 0;
 	double CPU_Usage = 0.0f;
-	unsigned long long CPU_TotalVirtualMemory = 0;
-	unsigned long long CPU_VirtualMemoryUsed = 0;
-	unsigned long long CPU_TotalPhysicsMemory = 0;
-	unsigned long long CPU_PhysicsMemoryUsed = 0;
-	unsigned long long CPU_PhysicsMemoryUsedByThis = 0;
+	DWORDLONG CPU_TotalVirtualMemory = 0;
+	DWORDLONG CPU_VirtualMemoryUsed = 0;
+	DWORDLONG CPU_TotalPhysicsMemory = 0;
+	DWORDLONG CPU_PhysicsMemoryUsed = 0;
+	DWORDLONG CPU_PhysicsMemoryUsedByThis = 0;
 
 	UINT BindingCount_SamplerState = 0;
 	UINT BindingCount_ConstantBuffer = 0;
@@ -59,29 +65,26 @@ public:
 	UINT Call_Dispatch = 0;
 
 private:
+
 	std::queue<ProfilingSample> m_SampleQueue;
 	std::string m_SampleDescription;
 	SampleMap m_SampleMap;
-	
 };
 
+/*
+	사용 불가능
+	이유는 모르겠지만, 소멸자에서 정상적인 현재 시간 값을 구할 수 없음
+*/
 struct ScopedProfilingSample {
-	ScopedProfilingSample(const std::string & name) :
-		BlockName(name)
+	ScopedProfilingSample(const std::string & name) : SampleName(name)
 	{
-		StartTime = std::chrono::high_resolution_clock::now();
+		Profiler::SampleBegin(SampleName);
 	}
 
-	~ScopedProfilingSample() {
-		using MicroSec = std::chrono::microseconds;
-
-		auto endTime = std::chrono::high_resolution_clock::now();
-
-		auto du = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - StartTime).count();
-		//ong long duration = std::chrono::high_resolution_clock::duration(endTime - StartTime).count() * 0.001; //milisecond
-		Profiler::GetInstance().AddSample(BlockName, du);
+	~ScopedProfilingSample() 
+	{
+		Profiler::SampleEnd(SampleName);
 	}
 
-	const std::string BlockName;
-	std::chrono::high_resolution_clock::time_point StartTime;
+	const std::string SampleName;
 };
