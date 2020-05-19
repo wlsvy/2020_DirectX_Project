@@ -17,7 +17,9 @@ void RenderInfo::SetModel(const std::shared_ptr<Model>& model) {
 	m_Renderables = model->GetDefaultRenderables();
 
 	if (Anim) {
-		Anim->SetClip(Core::Find<AnimationClip>(model->Name + "_Idle"));
+		if (auto clip = Core::Find<AnimationClip>(model->Name + "_Idle")) {
+			Anim->SetClip(clip);
+		}
 	}
 }
 

@@ -85,7 +85,7 @@ void Engine::UpdateInput()
 		if (key.GetKeyCode() == VK_ESCAPE &&
 			render_window.GetHWND() != NULL)
 		{
-			DestroyWindow(render_window.GetHWND());
+			CloseWindow();
 		}
 	}
 	while (!keyboard.CharBufferIsEmpty()) {
@@ -107,7 +107,7 @@ void Engine::RenderFrame()
 	m_Graphics->Pass_SSAO();
 	m_Graphics->Pass_Composition();	
 	m_Graphics->Pass_PostProcess();
-	m_Graphics->Pass_Gizmo();
+	//m_Graphics->Pass_Gizmo();
 	m_Graphics->Pass_EditorUI();
 	m_Graphics->RenderEnd();
 }

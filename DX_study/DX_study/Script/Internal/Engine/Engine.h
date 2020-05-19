@@ -18,7 +18,7 @@ class Model;
 class Scene;
 class RenderInfo;
 
-class Engine : WindowContainer{
+class Engine : public WindowContainer{
 public:
 	static Engine& Get();
 	Engine();

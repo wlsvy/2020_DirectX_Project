@@ -1,14 +1,21 @@
 #include "Ui.h"
 #include <d3d11.h>
+#include <ImGui/imgui_impl_dx11.h>
+#include <ImGui/imgui_impl_win32.h>
+
+#include "Engine.h"
 
 #include "../Graphics/Graphics.h"
 #include "../Graphics/Texture.h"
-#include <ImGui/imgui_impl_dx11.h>
-#include <ImGui/imgui_impl_win32.h>
-#include "Engine.h"
+#include "../Graphics/Model.h"
+#include "../Graphics/Material.h"
+#include "../Graphics/AnimationClip.h"
+#include "../Graphics/Shaders.h"
+
 #include "../Core/Scene.h"
 #include "../Core/InternalHelper.h"
 #include "../Core//GameObject.h"
+#include "../Engine/Profiler.h"
 #include "../../Component/Transform.h"
 
 ImGuiIO * s_ImGuiIO;
@@ -36,11 +43,12 @@ void GUI::NewFrame()
 
 void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 {
-	static bool show_editor = true;
-	static bool show_statistics = false;
-	static bool show_texture_viewer = false;
+	static bool s_ShowEditor = true;
+	static bool s_ShowProfiler = false;
+	static bool s_ShowResources = false;
 
 	ImGuiIO& io = ImGui::GetIO();
+	auto& graphics = Core::GetGraphics();
 
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
 	ImGui::SetNextWindowSize(io.DisplaySize);
@@ -59,17 +67,18 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 		return;
 	}
 
+	//Menu Bar
 	if (ImGui::BeginMenuBar())
 	{
 		if (ImGui::BeginMenu("Menu"))
 		{
-			ImGui::MenuItem("Show Statistics", "", &show_statistics);
-			ImGui::MenuItem("Show Editor", "", &show_editor);
-			ImGui::MenuItem("Show Texture Viewer", "", &show_texture_viewer);
+			ImGui::MenuItem("Show Hierarchy", "", &s_ShowEditor);
+			ImGui::MenuItem("Show Profiler", "", &s_ShowProfiler);
+			ImGui::MenuItem("Show Resources", "", &s_ShowResources);
 
 			if (ImGui::MenuItem("Exit", "Alt+F4"))
 			{
-				//Engine::ref().window()->forceExit();
+				Engine::Get().CloseWindow();
 			}
 			ImGui::EndMenu();
 		}
@@ -78,65 +87,218 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 
 		ImGui::EndMenuBar();
 	}
-
-	if (!show_editor)
+	//Scene
 	{
+		ImGui::Spacing();
 		ImGui::Image(image, { io.DisplaySize.x, io.DisplaySize.y });
 
 		ImGui::End();
 		ImGui::PopStyleVar();
-
-		return;
 	}
-
-	ImGui::Spacing();
-
-	ImGui::BeginGroup();
-
-	ImGui::BeginChild("Scene##Editor", ImVec2(io.DisplaySize.x * 0.5, io.DisplaySize.y * 0.5), true, ImGuiWindowFlags_NoScrollbar);
-	ImGui::Text("Scene");
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	ImVec2 scene_size = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
-	ImGui::Image(image, scene_size);
-
-	ImGui::EndChild();
-
-	ImGui::BeginChild("Debug##Editor", ImVec2(io.DisplaySize.x * 0.5f, 0), true);
-	ImGui::Text("Project Info");
-	ImGui::Separator();
-	ImGui::Spacing();
-	ImGui::EndChild();
-
-	ImGui::EndGroup();
-	ImGui::SameLine();
-
-	ImGui::BeginChild("Hierarchy##Editor", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
-	ImGui::Text("Hierarchy");
-	ImGui::Separator();
-	ImGui::Spacing();
-
-	auto& scene = Engine::Get().GetCurrentScene();
-	scene.OnGui();
-
-	ImGui::EndChild();
-	ImGui::SameLine();
-
-	ImGui::BeginChild("Inspector##Editor", ImVec2(0, 0), true);
-	ImGui::Text("Inspector");
-	ImGui::Separator();
-	ImGui::Spacing();
-
 	
-	if (auto selected = scene.GetGuiSelected().lock())
-	{
-		selected->GetGameObject()->OnGui();
+	//Editor
+	if (s_ShowEditor) {
+		ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::BeginChild("Editor##Hierarchy", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
+		ImGui::Text("Hierarchy");
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		auto& scene = Engine::Get().GetCurrentScene();
+		scene.OnGui();
+
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		ImGui::BeginChild("Editor##Inspector", ImVec2(0, 0), true);
+		ImGui::Text("Inspector");
+		ImGui::Separator();
+		ImGui::Spacing();
+
+
+		if (auto selected = scene.GetGuiSelected().lock())
+		{
+			selected->GetGameObject()->OnGui();
+		}
+
+		ImGui::EndChild();
+		ImGui::End();
 	}
 
-	ImGui::EndChild();
-	ImGui::PopStyleVar();
-	ImGui::End();
+	//Profiler
+	if (s_ShowProfiler) {
+		ImGui::Begin("Profiler", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::BeginChild("Profiler##ShowList", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		auto& scene = Engine::Get().GetCurrentScene();
+		scene.OnGui();
+
+		static UINT s_Selected = 0;
+		if (ImGui::Selectable("Status")) {
+			s_Selected = 1;
+		}
+		if (ImGui::Selectable("Render Pass")) {
+			s_Selected = 2;
+		}
+		if (ImGui::Selectable("Render Targets")) {
+			s_Selected = 3;
+		}
+
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		ImGui::BeginChild("Profiler##Inspector", ImVec2(0, 0), true);
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		switch (s_Selected) {
+		case 1:
+		{
+			/*
+			UINT SamplerStateBindingCount = 0;
+	UINT ConstantBufferBindingCount = 0;
+	UINT VertexShaderBindingCount = 0;
+	UINT PixelShaderBindingCount = 0;
+	UINT GeometryShaderBindingCount = 0;
+	UINT ComputeShaderBindingCount = 0;
+	UINT ShaderResourcesBindingCount = 0;
+	UINT UnorderedAccessViewBindingCount = 0;
+	UINT RenderTargetBindingCount = 0;
+	UINT VertexBufferBindingCount = 0;
+	UINT IndexBufferBindingCount = 0;
+	UINT DrawCallCount = 0;
+	UINT DispatchCallCount = 0;
+			*/
+			auto & p = Profiler::GetInstance();
+			ImGui::Text("SamplerStateBindingCount : %u", p.SamplerStateBindingCount);
+			ImGui::Text("ConstantBufferBindingCount : %u", p.ConstantBufferBindingCount);
+			ImGui::Text("VertexShaderBindingCount : %u", p.VertexShaderBindingCount);
+			ImGui::Text("PixelShaderBindingCount : %u", p.PixelShaderBindingCount);
+			ImGui::Text("GeometryShaderBindingCount : %u", p.GeometryShaderBindingCount);
+			ImGui::Text("ComputeShaderBindingCount : %u", p.ComputeShaderBindingCount);
+			ImGui::Text("ShaderResourcesBindingCount : %u", p.ShaderResourcesBindingCount);
+			ImGui::Text("UnorderedAccessViewBindingCount : %u", p.UnorderedAccessViewBindingCount);
+			ImGui::Text("RenderTargetBindingCount : %u", p.RenderTargetBindingCount);
+			ImGui::Text("VertexBufferBindingCount : %u", p.VertexBufferBindingCount);
+			ImGui::Text("IndexBufferBindingCount : %u", p.IndexBufferBindingCount);
+			ImGui::Text("DrawCallCount : %u", p.DrawCallCount);
+			ImGui::Text("DispatchCallCount : %u", p.DispatchCallCount);
+		}
+		case 2:
+		{
+			break;
+		}
+		case 3: {
+			ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.2f, s_ImGuiIO->DisplaySize.y * 0.2f);
+			for (UINT i = 0; i < RenderTargetTypes::Max; i++) {
+				ImGui::Image(graphics.GetRenderTargetSrv(i), scene_size);
+			}
+			break;
+		}
+		default: break;
+		}
+		
+
+		ImGui::EndChild();
+		ImGui::End();
+	}
+
+	//Resources
+	if (s_ShowResources) {
+		ImGui::Begin("Resources", nullptr, ImGuiWindowFlags_NoCollapse);
+		ImGui::BeginChild("Resource##type", ImVec2(io.DisplaySize.x * 0.12f, 0), true);
+		ImGui::Text("Type");
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		static UINT s_Selected = 0;
+		if (ImGui::Selectable("Model")) {
+			s_Selected = 1;
+		}
+		if (ImGui::Selectable("Texture")) {
+			s_Selected = 2;
+		}
+		if (ImGui::Selectable("Material")) {
+			s_Selected = 3;
+		}
+		if (ImGui::Selectable("Shaders")) {
+			s_Selected = 4;
+		}
+		if (ImGui::Selectable("Animation Clip")) {
+			s_Selected = 5;
+		}
+		
+		ImGui::EndChild();
+		ImGui::SameLine();
+
+		ImGui::BeginChild("Resource##Inspector", ImVec2(0, 0), true);
+		ImGui::Separator();
+		ImGui::Spacing();
+
+		switch (s_Selected) {
+		case 1:
+		{
+			for (auto & item : Core::Pool<Model>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			break;
+		}
+		case 2:
+		{
+			for (auto & item : Core::Pool<Texture>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			break;
+		}
+		case 3:
+		{
+			for (auto & item : Core::Pool<SharedMaterial>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			break;
+		}
+		case 4:
+		{
+			ImGui::Text("Vertex Shader");
+			ImGui::Separator();
+			for (auto & item : Core::Pool<VertexShader>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			ImGui::Spacing();
+			ImGui::Text("Geometry Shader");
+			ImGui::Separator();
+			for (auto & item : Core::Pool<GeometryShader>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			ImGui::Spacing();
+			ImGui::Text("Pixel Shader");
+			ImGui::Separator();
+			for (auto & item : Core::Pool<PixelShader>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			ImGui::Spacing();
+			ImGui::Text("Compute Shader");
+			ImGui::Separator();
+			for (auto & item : Core::Pool<ComputeShader>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			break;
+		}
+		case 5:
+		{
+			for (auto & item : Core::Pool<AnimationClip>::GetInstance().GetItems()) {
+				ImGui::Text(item->Name.c_str());
+			}
+			break;
+		}
+		default: break;
+		}
+		
+		ImGui::EndChild();
+		ImGui::End();
+	}
 }
 
 void GUI::DrawDeferredChannelImage()

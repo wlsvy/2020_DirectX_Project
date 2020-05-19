@@ -38,7 +38,7 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
 		HRESULT hr;
-		hr = D3D11CreateDeviceAndSwapChain(adapters[0].pAdapter, //IDXGI Adapter
+		hr = D3D11CreateDeviceAndSwapChain(adapters[0].GetAdapter(), //IDXGI Adapter
 			D3D_DRIVER_TYPE_UNKNOWN,
 			NULL, //FOR SOFTWARE DRIVER TYPE
 			D3D11_CREATE_DEVICE_DEBUG, //FLAGS FOR RUNTIME LAYERS

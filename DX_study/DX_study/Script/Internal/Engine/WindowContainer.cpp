@@ -119,3 +119,8 @@ LRESULT WindowContainer::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+
+void WindowContainer::CloseWindow()
+{
+	DestroyWindow(render_window.GetHWND());
+}

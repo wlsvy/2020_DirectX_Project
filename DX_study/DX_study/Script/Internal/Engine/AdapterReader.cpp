@@ -1,9 +1,11 @@
 #include "AdapterReader.h"
 
-std::vector<AdapterData> AdapterReader::adapters; //static 변수
+std::vector<AdapterData> AdapterReader::s_Adapters; //static 변수
 
 std::vector<AdapterData> AdapterReader::GetAdapters() {
-	if (adapters.size() > 0) return adapters;
+	if (s_Adapters.size() > 0) {
+		return s_Adapters;
+	}
 
 	Microsoft::WRL::ComPtr<IDXGIFactory> pFactory;
 
@@ -17,15 +19,15 @@ std::vector<AdapterData> AdapterReader::GetAdapters() {
 	IDXGIAdapter* pAdapter;
 	UINT index = 0;
 	while (SUCCEEDED(pFactory->EnumAdapters(index, &pAdapter))) {
-		adapters.push_back(AdapterData(pAdapter));
+		s_Adapters.push_back(AdapterData(pAdapter));
 		index += 1;
 	}
-	return adapters;
+	return s_Adapters;
 }
 
 AdapterData::AdapterData(IDXGIAdapter *pAdapter) {
-	this->pAdapter = pAdapter;
-	HRESULT hr = pAdapter->GetDesc(&this->description);
+	this->m_Adapter = pAdapter;
+	HRESULT hr = pAdapter->GetDesc(&this->m_Description);
 	if (FAILED(hr)) {
 		StringHelper::ErrorLog(hr, "Failed to Get Description for IDXGIAdapter.");
 	}

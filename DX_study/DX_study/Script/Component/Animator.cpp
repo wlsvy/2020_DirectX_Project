@@ -105,7 +105,7 @@ void Animator::OnGui(const char* option)
 				continue;
 			}
 			if (ImGui::Selectable(clip->Name.c_str())) {
-				SetClip(clip);
+				SetClip(clip, 1.0f);
 			}
 		}
 		ImGui::EndPopup();

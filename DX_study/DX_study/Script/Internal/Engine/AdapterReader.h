@@ -11,13 +11,17 @@ class AdapterData
 {
 public:
 	AdapterData(IDXGIAdapter* pAdapter);
-	IDXGIAdapter* pAdapter; // 생성할 장치를 나타내는 디스플레이 어댑터를 지정
-	DXGI_ADAPTER_DESC description;
+	IDXGIAdapter* GetAdapter() { return m_Adapter; }
+	const DXGI_ADAPTER_DESC & GetDescription() const { return m_Description; }
+
+private:
+	IDXGIAdapter* m_Adapter; // 생성할 장치를 나타내는 디스플레이 어댑터를 지정
+	DXGI_ADAPTER_DESC m_Description;
 };
 
 class AdapterReader {
 public:
 	static std::vector<AdapterData> GetAdapters();
 private:
-	static std::vector<AdapterData> adapters;
+	static std::vector<AdapterData> s_Adapters;
 };

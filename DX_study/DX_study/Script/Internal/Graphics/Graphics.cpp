@@ -43,12 +43,12 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		
 		m_Skybox = std::make_shared<Skybox>();
 		std::string filename[6] = { 
-			"Data\\Skybox\\Test1\\oasisnight_ft_p.png",	// +X
-			"Data\\Skybox\\Test1\\oasisnight_bk_p.png",	// -X
-			"Data\\Skybox\\Test1\\oasisnight_up_p.png",	// +Y
-			"Data\\Skybox\\Test1\\oasisnight_dn_p.png",	// -Y
-			"Data\\Skybox\\Test1\\oasisnight_rt_p.png",	// +Z
-			"Data\\Skybox\\Test1\\oasisnight_lf_p.png"	// -Z
+			"Data\\Skybox\\posx.jpg",	// +X
+			"Data\\Skybox\\negx.jpg",	// -X
+			"Data\\Skybox\\posy.jpg",	// +Y
+			"Data\\Skybox\\negy.jpg",	// -Y
+			"Data\\Skybox\\posz.jpg",	// +Z
+			"Data\\Skybox\\negz.jpg"	// -Z
 		};
 		ThrowIfFailed(m_Skybox->Initialize(filename), "Failed to Initialize Skybox");
 		m_GpuSceneBuffer.data.SkyBoxMaxMipLevel = m_Skybox->GetMaxMipLevel();

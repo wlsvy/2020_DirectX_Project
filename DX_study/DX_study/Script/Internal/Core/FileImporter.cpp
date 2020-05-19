@@ -213,6 +213,7 @@ std::shared_ptr<SharedMaterial> ModelImporterBase::LoadMaterial(aiMaterial * pMa
 	{
 		pMaterial->Get(AI_MATKEY_REFLECTIVITY, mat->MetalIntensity);
 		pMaterial->Get(AI_MATKEY_SHININESS, mat->RoughnessIntensity);
+		mat->MetalIntensity * 0.01f;
 		mat->RoughnessIntensity * 0.01f;
 
 		aiColor3D aiColor(0.0f, 0.0f, 0.0f);
@@ -351,19 +352,20 @@ void AnimationImporter::LoadAnimation(const std::string & name, const std::share
 		aiAnimation *anim = scene->mAnimations[i];
 		ProcessAnimation(name, anim, scene);
 	}
+
 }
 
 void AnimationImporter::ProcessAnimation(const std::string & name, aiAnimation * anim, const aiScene * scene)
 {
 	auto& boneIdMap = m_BaseModel->GetBoneIdMap();
 	auto& boneOffsets = m_BaseModel->GetBoneOffsets();
+
 	auto clip = Core::CreateInstance<AnimationClip>();
 	clip->Name = name;
 	clip->Channels.resize(boneIdMap.size());
 	clip->TickPerSecond = (float)(anim->mTicksPerSecond != 0 ? anim->mTicksPerSecond : 25.0f);
 	clip->Duration = (float)anim->mDuration;
 	clip->Avatar = m_BaseModel;
-
 	for (auto & p : boneIdMap) {
 		auto & channel = clip->Channels[p.second];
 		channel.ChannelName = p.first;
@@ -432,22 +434,18 @@ void AnimationImporter::ProcessBoneHierarchy(aiNode * node, AnimationClip * anim
 	DirectX::XMMATRIX globalTransform = nodeTransform * parentTransform;
 
 	BoneChannel * currentBoneChannel = nullptr;
-	USHORT boneIndex = 9999;
 
 	auto it = boneIdMap.find(nodeName);
 	if (it != boneIdMap.end()) {
-		boneIndex = it->second;
-	}
-
-	if (boneIndex == 9999) {
-		currentBoneChannel = parentBone;
-	}
-	else {
+		USHORT boneIndex = it->second;
 		currentBoneChannel = &animClip->Channels[boneIndex];
 
 		if (parentBone != nullptr) {
 			parentBone->ChildBoneIndex.push_back(boneIndex);
 		}
+	}
+	else {
+		currentBoneChannel = parentBone;
 	}
 
 	USHORT childNum = node->mNumChildren;
