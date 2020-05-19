@@ -38,8 +38,6 @@ Engine::~Engine()
 	s_Ptr = nullptr;
 
 	Core::Pool<Object>::GetInstance().Clear();
-
-	Profiler::GetInstance().UpdateMemoryDescription();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)

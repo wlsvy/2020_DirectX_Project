@@ -498,7 +498,7 @@ void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
 
 bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 {
-	if (!m_DrawFlag & (UINT)DrawFlag::Apply_ViewFrustumCulling) {
+	if ((m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) == false) {
 		return true;
 	}
 

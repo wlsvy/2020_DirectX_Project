@@ -90,13 +90,6 @@ void Profiler::Initialize()
 
 void Profiler::Update()
 {
-	auto adapter = AdapterReader::GetAdapters();
-	auto description = adapter[0].GetDescription();
-
-	float MegaInverse = 1.0f / 1024.0f / 1024.0f; //Mega Byte
-
-	GPU_MemoryUsed = description.DedicatedVideoMemory >> 20;
-
 	static const float SAMPLE_UPDATE_TERM = 1.0f;
 	static float s_UpdateRemainTime = SAMPLE_UPDATE_TERM;
 	s_UpdateRemainTime -= Time::GetDeltaTime();
@@ -164,6 +157,11 @@ void Profiler::Clear()
 
 void Profiler::UpdateMemoryDescription()
 {
+	auto adapter = AdapterReader::GetAdapters();
+	auto description = adapter[0].GetDescription();
+
+	GPU_MemoryUsed = description.DedicatedVideoMemory >> 20;
+
 	MEMORYSTATUSEX memInfo;
 	memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&memInfo);

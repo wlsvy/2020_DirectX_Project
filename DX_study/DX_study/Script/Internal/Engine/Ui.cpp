@@ -202,7 +202,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 				for (auto & pair : p.GetSampleMap()) {
 					ImGui::PlotLines(pair.first.c_str(), pair.second.data(), Profiler::MAX_TIME_SAMPLE_COUNT);
 					ImGui::SameLine();
-					ImGui::Text(" %f MicroSec", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
+					ImGui::Text(" %.0f microSec", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
 				}
 				ImGui::EndTabItem();
 			}
