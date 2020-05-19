@@ -274,7 +274,7 @@ void DX11Resources::SetPsSampler(UINT startSlot, ID3D11SamplerState ** sampler)
 
 	m_DeviceContext->PSSetSamplers(startSlot, 1, sampler);
 
-	Profiler::GetInstance().SamplerStateBindingCount++;
+	Profiler::GetInstance().BindingCount_SamplerState++;
 }
 
 void DX11Resources::SetVertexBuffer(ID3D11Buffer * const * vertexBuffer, const UINT * stridePtr)
@@ -290,7 +290,7 @@ void DX11Resources::SetVertexBuffer(ID3D11Buffer * const * vertexBuffer, const U
 
 	offset = 0;
 	m_DeviceContext->IASetVertexBuffers(0, 1, vertexBuffer, stridePtr, &offset);
-	Profiler::GetInstance().VertexBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_VertexBuffer++;
 }
 
 void DX11Resources::SetIndexBuffer(ID3D11Buffer * indexBuffer)
@@ -306,7 +306,7 @@ void DX11Resources::SetIndexBuffer(ID3D11Buffer * indexBuffer)
 
 	offset = 0;
 	m_DeviceContext->IASetIndexBuffer(indexBuffer, DXGI_FORMAT::DXGI_FORMAT_R32_UINT, 0);
-	Profiler::GetInstance().IndexBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_IndexBuffer++;
 }
 
 void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
@@ -320,7 +320,7 @@ void DX11Resources::SetVSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 
 	m_DeviceContext->VSSetConstantBuffers(startSlot, 1, buffer);
 
-	Profiler::GetInstance().ConstantBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_ConstantBuffer++;
 }
 
 void DX11Resources::SetVSInputLayout(ID3D11InputLayout * inputLayout)
@@ -344,7 +344,7 @@ void DX11Resources::SetVertexShader(ID3D11VertexShader * shader)
 
 	if (shader != prevShader) {
 		m_DeviceContext->VSSetShader(shader, NULL, 0);
-		Profiler::GetInstance().VertexShaderBindingCount++;
+		Profiler::GetInstance().BindingCount_VertexShader++;
 	}
 }
 
@@ -359,7 +359,7 @@ void DX11Resources::SetPSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 
 	m_DeviceContext->PSSetConstantBuffers(startSlot, 1, buffer);
 
-	Profiler::GetInstance().ConstantBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_ConstantBuffer++;
 }
 
 void DX11Resources::SetPixelShader(ID3D11PixelShader * shader)
@@ -371,7 +371,7 @@ void DX11Resources::SetPixelShader(ID3D11PixelShader * shader)
 
 	if (shader != prevShader) {
 		m_DeviceContext->PSSetShader(shader, NULL, 0);
-		Profiler::GetInstance().PixelShaderBindingCount++;
+		Profiler::GetInstance().BindingCount_PixelShader++;
 	}
 }
 
@@ -390,7 +390,7 @@ void DX11Resources::SetPSShaderResources(UINT startSlot, UINT range, ID3D11Shade
 	}
 
 	m_DeviceContext->PSSetShaderResources(startSlot, range, srv);
-	Profiler::GetInstance().ShaderResourcesBindingCount++;
+	Profiler::GetInstance().BindingCount_ShaderResources++;
 }
 
 void DX11Resources::SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buffer)
@@ -404,7 +404,7 @@ void DX11Resources::SetGSConstantBuffer(UINT startSlot, ID3D11Buffer *const* buf
 
 	m_DeviceContext->GSSetConstantBuffers(startSlot, 1, buffer);
 
-	Profiler::GetInstance().ConstantBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_ConstantBuffer++;
 }
 
 void DX11Resources::SetGeometryShader(ID3D11GeometryShader * shader)
@@ -416,7 +416,7 @@ void DX11Resources::SetGeometryShader(ID3D11GeometryShader * shader)
 
 	if (shader != prevShader) {
 		m_DeviceContext->GSSetShader(shader, NULL, 0);
-		Profiler::GetInstance().GeometryShaderBindingCount++;
+		Profiler::GetInstance().BindingCount_GeometryShader++;
 	}
 }
 
@@ -429,7 +429,7 @@ void DX11Resources::SetComputeShader(ID3D11ComputeShader * shader)
 
 	if (shader != prevShader) {
 		m_DeviceContext->CSSetShader(shader, NULL, 0);
-		Profiler::GetInstance().ComputeShaderBindingCount++;
+		Profiler::GetInstance().BindingCount_ComputeShader++;
 	}
 }
 
@@ -444,7 +444,7 @@ void DX11Resources::SetCSConstantBuffer(UINT startSlot, ID3D11Buffer * const * b
 
 	m_DeviceContext->CSSetConstantBuffers(startSlot, 1, buffer);
 
-	Profiler::GetInstance().ConstantBufferBindingCount++;
+	Profiler::GetInstance().BindingCount_ConstantBuffer++;
 }
 
 void DX11Resources::SetCSShaderResources(UINT startSlot, UINT range, ID3D11ShaderResourceView * const * srv)
@@ -462,7 +462,7 @@ void DX11Resources::SetCSShaderResources(UINT startSlot, UINT range, ID3D11Shade
 	}
 
 	m_DeviceContext->CSSetShaderResources(startSlot, range, srv);
-	Profiler::GetInstance().ShaderResourcesBindingCount++;
+	Profiler::GetInstance().BindingCount_ShaderResources++;
 }
 
 void DX11Resources::SetCSUavResources(UINT startSlot, UINT range, ID3D11UnorderedAccessView * const * uav)
@@ -480,7 +480,7 @@ void DX11Resources::SetCSUavResources(UINT startSlot, UINT range, ID3D11Unordere
 	}
 
 	m_DeviceContext->CSSetUnorderedAccessViews(startSlot, range, uav, nullptr);
-	Profiler::GetInstance().UnorderedAccessViewBindingCount++;
+	Profiler::GetInstance().BindingCount_UnorderedAccessView++;
 }
 
 void DX11Resources::SetBlendState(ID3D11BlendState * blendState, const float * factor)
@@ -549,20 +549,20 @@ void DX11Resources::SetRenderTarget(
 			depthStencilView
 		);
 
-		Profiler::GetInstance().RenderTargetBindingCount++;
+		Profiler::GetInstance().BindingCount_RenderTarget++;
 	}
 }
 
 void DX11Resources::DrawIndexed(const UINT indexCount)
 {
 	m_DeviceContext->DrawIndexed(indexCount, 0, 0);
-	Profiler::GetInstance().DrawCallCount++;
+	Profiler::GetInstance().Call_DrawIndexed++;
 }
 
 void DX11Resources::DispatchComputeShader(const UINT X, const UINT Y, const UINT Z)
 {
 	m_DeviceContext->Dispatch(X, Y, Z);
-	Profiler::GetInstance().DispatchCallCount++;
+	Profiler::GetInstance().Call_Dispatch++;
 }
 
 bool DX11Resources::InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p)

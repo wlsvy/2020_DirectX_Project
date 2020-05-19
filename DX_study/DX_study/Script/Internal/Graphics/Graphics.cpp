@@ -277,7 +277,6 @@ void Graphics::Pass_Composition()
 {
 	ScopedProfilingSample("Pass_Composition");
 
-
 	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	SetRenderTarget

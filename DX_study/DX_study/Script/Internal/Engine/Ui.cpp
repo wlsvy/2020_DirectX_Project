@@ -47,7 +47,7 @@ void GUI::NewFrame()
 void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 {
 	static bool s_ShowEditor = true;
-	static bool s_ShowProfiler = false;
+	static bool s_ShowStat = false;
 	static bool s_ShowResources = false;
 	static bool s_ShowImGuiDemo = false;
 
@@ -77,7 +77,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 		if (ImGui::BeginMenu("Menu"))
 		{
 			ImGui::MenuItem("Show Hierarchy", "", &s_ShowEditor);
-			ImGui::MenuItem("Show Profiler", "", &s_ShowProfiler);
+			ImGui::MenuItem("Show Profiler", "", &s_ShowStat);
 			ImGui::MenuItem("Show Resources", "", &s_ShowResources);
 			ImGui::MenuItem("Show ImGuiDemo", "", &s_ShowImGuiDemo);
 
@@ -131,168 +131,154 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 	}
 
 	//Profiler
-	if (s_ShowProfiler) {
-		ImGui::Begin("Profiler", &s_ShowProfiler, ImGuiWindowFlags_NoCollapse);
-		ImGui::BeginChild("Profiler##ShowList", ImVec2(io.DisplaySize.x * 0.15f, 0), true);
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		auto & p = Profiler::GetInstance();
-
-		static UINT s_Selected = 0;
-		if (ImGui::Selectable("Status")) {
-			s_Selected = 1;
-		}
-		if (ImGui::Selectable("Render Pass")) {
-			s_Selected = 2;
-		}
-		if (ImGui::Selectable("Render Targets")) {
-			s_Selected = 3;
-		}
-
-		ImGui::EndChild();
-		ImGui::SameLine();
-
-		ImGui::BeginChild("Profiler##Inspector", ImVec2(0, 0), true);
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		switch (s_Selected) {
-		case 1:
+	if (s_ShowStat ) {
+		ImGui::Begin("Profiler", &s_ShowStat, ImGuiWindowFlags_NoCollapse);
+		if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_FittingPolicyDefault_))
 		{
-			ImGui::Text("GPU Device : %s", p.GPU_Name.c_str());
-			ImGui::Text("SamplerStateBindingCount : %u", p.SamplerStateBindingCount);
-			ImGui::Text("ConstantBufferBindingCount : %u", p.ConstantBufferBindingCount);
-			ImGui::Text("VertexShaderBindingCount : %u", p.VertexShaderBindingCount);
-			ImGui::Text("PixelShaderBindingCount : %u", p.PixelShaderBindingCount);
-			ImGui::Text("GeometryShaderBindingCount : %u", p.GeometryShaderBindingCount);
-			ImGui::Text("ComputeShaderBindingCount : %u", p.ComputeShaderBindingCount);
-			ImGui::Text("ShaderResourcesBindingCount : %u", p.ShaderResourcesBindingCount);
-			ImGui::Text("UnorderedAccessViewBindingCount : %u", p.UnorderedAccessViewBindingCount);
-			ImGui::Text("RenderTargetBindingCount : %u", p.RenderTargetBindingCount);
-			ImGui::Text("VertexBufferBindingCount : %u", p.VertexBufferBindingCount);
-			ImGui::Text("IndexBufferBindingCount : %u", p.IndexBufferBindingCount);
-			ImGui::Text("DrawCallCount : %u", p.DrawCallCount);
-			ImGui::Text("DispatchCallCount : %u", p.DispatchCallCount);
-			ImGui::Text("Gpu Memory : %u MB", p.GPU_MemoryUsed);
-			break;
-		}
-		case 2:
-		{
-			for (auto & pair : p.GetSampleMap()) {
-				ImGui::PlotLines(pair.first.c_str(), pair.second.data(), Profiler::MAX_TIME_SAMPLE_COUNT);
-				ImGui::SameLine();
-				ImGui::Text(" - %f ms", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
-			}
-			break;
-		}
-		case 3: {
-			ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.2f, s_ImGuiIO->DisplaySize.y * 0.2f);
-			for (UINT i = 0; i < RenderTargetTypes::Max; i++) {
-				ImGui::Image(graphics.GetRenderTargetSrv(i), scene_size);
-			}
-			break;
-		}
-		default: break;
-		}
-		
+			auto & p = Profiler::GetInstance();
+			if (ImGui::BeginTabItem("Status", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				ImGui::Text("Device");
+				ImGui::Separator();
 
-		ImGui::EndChild();
+				ImGui::Text(
+					" GPU Device : %s \
+				\n GPU Memory : %u MB\
+				\n CPU Usage : %f %% \
+				\n CPU TotalVirtualMemory : %llu MB\
+				\n CPU VirtualMemoryUsed : %llu MB\
+				\n CPU TotalPhysicsMemory : %llu MB\
+				\n CPU PhysicsMemoryUsed : %llu MB\
+				\n CPU PhysicsMemoryUsedByThis : %llu MB",
+					p.GPU_Name.c_str(),
+					p.GPU_MemoryUsed,
+					p.CPU_Usage,
+					p.CPU_TotalVirtualMemory,
+					p.CPU_VirtualMemoryUsed,
+					p.CPU_TotalPhysicsMemory,
+					p.CPU_PhysicsMemoryUsed,
+					p.CPU_PhysicsMemoryUsedByThis
+				);
+
+				ImGui::Spacing();
+				ImGui::Text("Binding Count");
+				ImGui::Separator();
+
+				ImGui::Text(
+					" SamplerState : %u	\
+				\n ConstantBuffer : %u \
+				\n VertexShader : %u \
+				\n PixelShader : %u \
+				\n GeometryShader : %u \
+				\n ComputeShader : %u \
+				\n ShaderResources : %u \
+				\n UnorderedAccessView : %u \
+				\n RenderTarget : %u \
+				\n VertexBuffer : %u \
+				\n IndexBuffer : %u ",
+					p.BindingCount_SamplerState,
+					p.BindingCount_ConstantBuffer,
+					p.BindingCount_VertexShader,
+					p.BindingCount_PixelShader,
+					p.BindingCount_GeometryShader,
+					p.BindingCount_ComputeShader,
+					p.BindingCount_ShaderResources,
+					p.BindingCount_UnorderedAccessView,
+					p.BindingCount_RenderTarget,
+					p.BindingCount_VertexBuffer,
+					p.BindingCount_IndexBuffer);
+
+				ImGui::Spacing();
+				ImGui::Text("Call");
+				ImGui::Separator();
+
+				ImGui::Text(
+					" DrawCall : %u \
+				\n DispatchCall : %u",
+					p.Call_DrawIndexed,
+					p.Call_Dispatch);
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Performance", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				for (auto & pair : p.GetSampleMap()) {
+					ImGui::PlotLines(pair.first.c_str(), pair.second.data(), Profiler::MAX_TIME_SAMPLE_COUNT);
+					ImGui::SameLine();
+					ImGui::Text(" - %f ms", pair.second[Profiler::MAX_TIME_SAMPLE_COUNT - 1]);
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Render Targets", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.2f, s_ImGuiIO->DisplaySize.y * 0.2f);
+				for (UINT i = 0; i < RenderTargetTypes::Max; i++) {
+					ImGui::Image(graphics.GetRenderTargetSrv(i), scene_size);
+				}
+				ImGui::EndTabItem();
+			}
+
+			ImGui::EndTabBar();
+		}
 		ImGui::End();
 	}
 
 	//Resources
 	if (s_ShowResources) {
 		ImGui::Begin("Resources", &s_ShowResources, ImGuiWindowFlags_NoCollapse);
-		ImGui::BeginChild("Resource##type", ImVec2(io.DisplaySize.x * 0.12f, 0), true);
-		ImGui::Text("Type");
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		static UINT s_Selected = 0;
-		if (ImGui::Selectable("Model")) {
-			s_Selected = 1;
-		}
-		if (ImGui::Selectable("Texture")) {
-			s_Selected = 2;
-		}
-		if (ImGui::Selectable("Material")) {
-			s_Selected = 3;
-		}
-		if (ImGui::Selectable("Shaders")) {
-			s_Selected = 4;
-		}
-		if (ImGui::Selectable("Animation Clip")) {
-			s_Selected = 5;
-		}
-		
-		ImGui::EndChild();
-		ImGui::SameLine();
-
-		ImGui::BeginChild("Resource##Inspector", ImVec2(0, 0), true);
-		ImGui::Separator();
-		ImGui::Spacing();
-
-		switch (s_Selected) {
-		case 1:
+		if (ImGui::BeginTabBar("##tabs", ImGuiTabBarFlags_FittingPolicyDefault_))
 		{
-			for (auto & item : Core::Pool<Model>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
+			if (ImGui::BeginTabItem("Model", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				for (auto & item : Core::Pool<Model>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::EndTabItem();
 			}
-			break;
+			if (ImGui::BeginTabItem("Texture", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				ImVec2 scene_size = ImVec2(s_ImGuiIO->DisplaySize.x * 0.1f, s_ImGuiIO->DisplaySize.y * 0.1f);
+				for (auto & item : Core::Pool<Texture>::GetInstance().GetItems()) {
+					ImGui::Image(item->GetTextureResourceView(), scene_size);
+					ImGui::SameLine();
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Material", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				for (auto & item : Core::Pool<SharedMaterial>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Shader", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				ImGui::Text("Vertex Shader");
+				ImGui::Separator();
+				for (auto & item : Core::Pool<VertexShader>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::Spacing();
+				ImGui::Text("Geometry Shader");
+				ImGui::Separator();
+				for (auto & item : Core::Pool<GeometryShader>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::Spacing();
+				ImGui::Text("Pixel Shader");
+				ImGui::Separator();
+				for (auto & item : Core::Pool<PixelShader>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::Spacing();
+				ImGui::Text("Compute Shader");
+				ImGui::Separator();
+				for (auto & item : Core::Pool<ComputeShader>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::EndTabItem();
+			}
+			if (ImGui::BeginTabItem("Animation Clip", nullptr, ImGuiTabItemFlags_NoCloseWithMiddleMouseButton)) {
+				for (auto & item : Core::Pool<AnimationClip>::GetInstance().GetItems()) {
+					ImGui::Text(item->Name.c_str());
+				}
+				ImGui::EndTabItem();
+			}
+			ImGui::EndTabBar();
 		}
-		case 2:
-		{
-			for (auto & item : Core::Pool<Texture>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			break;
-		}
-		case 3:
-		{
-			for (auto & item : Core::Pool<SharedMaterial>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			break;
-		}
-		case 4:
-		{
-			ImGui::Text("Vertex Shader");
-			ImGui::Separator();
-			for (auto & item : Core::Pool<VertexShader>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			ImGui::Spacing();
-			ImGui::Text("Geometry Shader");
-			ImGui::Separator();
-			for (auto & item : Core::Pool<GeometryShader>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			ImGui::Spacing();
-			ImGui::Text("Pixel Shader");
-			ImGui::Separator();
-			for (auto & item : Core::Pool<PixelShader>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			ImGui::Spacing();
-			ImGui::Text("Compute Shader");
-			ImGui::Separator();
-			for (auto & item : Core::Pool<ComputeShader>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			break;
-		}
-		case 5:
-		{
-			for (auto & item : Core::Pool<AnimationClip>::GetInstance().GetItems()) {
-				ImGui::Text(item->Name.c_str());
-			}
-			break;
-		}
-		default: break;
-		}
-		
-		ImGui::EndChild();
 		ImGui::End();
 	}
 

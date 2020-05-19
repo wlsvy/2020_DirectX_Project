@@ -1,28 +1,76 @@
 #include "Profiler.h"
 
+#include <Windows.h>
+#include <Psapi.h>
 #include <algorithm>
+#include <TCHAR.h>
+#include <pdh.h>
 #include "AdapterReader.h"
 #include "../Core/InternalHelper.h"
 #include "../../Util/StringHelper.h"
 #include "../../Util/Time.h"
 
+static PDH_HQUERY cpuQuery;
+static PDH_HCOUNTER cpuTotal;
+static ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
+static int numProcessors;
+static HANDLE self;
+
+double GetCurrentCpuUsageByProcess() {
+	FILETIME ftime, fsys, fuser;
+	ULARGE_INTEGER now, sys, user;
+	double percent;
+
+	GetSystemTimeAsFileTime(&ftime);
+	memcpy(&now, &ftime, sizeof(FILETIME));
+
+
+	GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser);
+	memcpy(&sys, &fsys, sizeof(FILETIME));
+	memcpy(&user, &fuser, sizeof(FILETIME));
+	percent = (sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart);
+	percent /= (now.QuadPart - lastCPU.QuadPart);
+	percent /= numProcessors;
+	lastCPU = now;
+	lastUserCPU = user;
+	lastSysCPU = sys;
+
+	return percent * 100;
+}
+
 void Profiler::Initialize()
 {
 	auto adapter = AdapterReader::GetAdapters();
 	auto description = adapter[0].GetDescription();
-
-	auto d = Core::GetDevice();
-	auto dc = Core::GetDeviceContext();
 	
 	GPU_Name = std::to_string(description.Description);
+
+	SYSTEM_INFO sysInfo;
+	FILETIME ftime, fsys, fuser;
+	GetSystemInfo(&sysInfo);
+	numProcessors = sysInfo.dwNumberOfProcessors;
+
+	GetSystemTimeAsFileTime(&ftime);
+	memcpy(&lastCPU, &ftime, sizeof(FILETIME));
+
+
+	self = GetCurrentProcess();
+	GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser);
+	memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
+	memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
 }
 
 void Profiler::Update()
 {
+	using ns = std::chrono::nanoseconds;
+	auto start = std::chrono::high_resolution_clock::now();
+
 	auto adapter = AdapterReader::GetAdapters();
 	auto description = adapter[0].GetDescription();
 
-	GPU_MemoryUsed = description.DedicatedSystemMemory / 1024 / 1024; //Mega Byte
+	float MegaInverse = 1.0f / 1024.0f / 1024.0f; //Mega Byte
+
+	GPU_MemoryUsed = description.DedicatedVideoMemory >> 20;
 
 	static const float SAMPLE_UPDATE_TERM = 1.0f;
 	static float s_UpdateRemainTime = SAMPLE_UPDATE_TERM;
@@ -49,7 +97,26 @@ void Profiler::Update()
 
 	if (s_UpdateRemainTime < 0.0f) {
 		s_UpdateRemainTime = SAMPLE_UPDATE_TERM;
+
+		MEMORYSTATUSEX memInfo;
+		memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+		GlobalMemoryStatusEx(&memInfo);
+		CPU_TotalVirtualMemory = memInfo.ullTotalPageFile >> 20;
+		CPU_VirtualMemoryUsed = (memInfo.ullTotalPageFile - memInfo.ullAvailPageFile) >> 20;
+
+		PROCESS_MEMORY_COUNTERS pmc;
+		GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
+
+		CPU_TotalPhysicsMemory = memInfo.ullTotalPhys >> 20;
+		CPU_PhysicsMemoryUsed = (memInfo.ullTotalPhys - memInfo.ullAvailPhys) >> 20;
+		CPU_PhysicsMemoryUsedByThis = pmc.WorkingSetSize >> 20;
+
+		CPU_Usage = GetCurrentCpuUsageByProcess();
 	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	auto du = std::chrono::duration_cast<ns>(end - start).count();
 }
 
 void Profiler::AddSample(const std::string & name, float timeCost)
@@ -70,21 +137,19 @@ ProfilingSample Profiler::PopSample()
 
 void Profiler::Clear()
 {
-	SamplerStateBindingCount = 0;
-	ConstantBufferBindingCount = 0;
-	VertexShaderBindingCount = 0;
-	PixelShaderBindingCount = 0;
-	GeometryShaderBindingCount = 0;
-	ComputeShaderBindingCount = 0;
-	ShaderResourcesBindingCount = 0;
-	UnorderedAccessViewBindingCount = 0;
-	RenderTargetBindingCount = 0;
-	VertexBufferBindingCount = 0;
-	IndexBufferBindingCount = 0;
-	DrawCallCount = 0;
-	DispatchCallCount = 0;
+	BindingCount_SamplerState = 0;
+	BindingCount_ConstantBuffer = 0;
+	BindingCount_VertexShader = 0;
+	BindingCount_PixelShader = 0;
+	BindingCount_GeometryShader = 0;
+	BindingCount_ComputeShader = 0;
+	BindingCount_ShaderResources = 0;
+	BindingCount_UnorderedAccessView = 0;
+	BindingCount_RenderTarget = 0;
+	BindingCount_VertexBuffer = 0;
+	BindingCount_IndexBuffer = 0;
+	Call_DrawIndexed = 0;
+	Call_Dispatch = 0;
 
-	CPU_MemoryUsed = 0;
-	GPU_MemoryUsed = 0;
 	m_SampleDescription.clear();
 }

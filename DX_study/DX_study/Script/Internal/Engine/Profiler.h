@@ -6,7 +6,6 @@
 #include <chrono>
 #include <unordered_map>
 #include <array>
-#include <time.h>
 
 #include "../../Util/Math.h"
 #include "../../Util/Singleton.h"
@@ -35,23 +34,29 @@ public:
 
 	std::string GPU_Name;
 
-	UINT SamplerStateBindingCount = 0;
-	UINT ConstantBufferBindingCount = 0;
-	UINT VertexShaderBindingCount = 0;
-	UINT PixelShaderBindingCount = 0;
-	UINT GeometryShaderBindingCount = 0;
-	UINT ComputeShaderBindingCount = 0;
-	UINT ShaderResourcesBindingCount = 0;
-	UINT UnorderedAccessViewBindingCount = 0;
-	UINT RenderTargetBindingCount = 0;
-	UINT VertexBufferBindingCount = 0;
-	UINT IndexBufferBindingCount = 0;
-	UINT DrawCallCount = 0;
-	UINT DispatchCallCount = 0;
-
 	UINT CPU_MemoryUsed = 0;
 	UINT GPU_MemoryUsed = 0;
+	double CPU_Usage = 0.0f;
+	unsigned long long CPU_TotalVirtualMemory = 0;
+	unsigned long long CPU_VirtualMemoryUsed = 0;
+	unsigned long long CPU_TotalPhysicsMemory = 0;
+	unsigned long long CPU_PhysicsMemoryUsed = 0;
+	unsigned long long CPU_PhysicsMemoryUsedByThis = 0;
 
+	UINT BindingCount_SamplerState = 0;
+	UINT BindingCount_ConstantBuffer = 0;
+	UINT BindingCount_VertexShader = 0;
+	UINT BindingCount_PixelShader = 0;
+	UINT BindingCount_GeometryShader = 0;
+	UINT BindingCount_ComputeShader = 0;
+	UINT BindingCount_ShaderResources = 0;
+	UINT BindingCount_UnorderedAccessView = 0;
+	UINT BindingCount_RenderTarget = 0;
+	UINT BindingCount_VertexBuffer = 0;
+	UINT BindingCount_IndexBuffer = 0;
+
+	UINT Call_DrawIndexed = 0;
+	UINT Call_Dispatch = 0;
 
 private:
 	std::queue<ProfilingSample> m_SampleQueue;
@@ -62,16 +67,21 @@ private:
 
 struct ScopedProfilingSample {
 	ScopedProfilingSample(const std::string & name) :
-		BlockName(name),
-		StartTime(std::chrono::high_resolution_clock::now()) {}
+		BlockName(name)
+	{
+		StartTime = std::chrono::high_resolution_clock::now();
+	}
 
 	~ScopedProfilingSample() {
+		using MicroSec = std::chrono::microseconds;
+
 		auto endTime = std::chrono::high_resolution_clock::now();
 
-		float duration = std::chrono::high_resolution_clock::duration(endTime - StartTime).count() * 0.001; //milisecond
-		Profiler::GetInstance().AddSample(BlockName, duration);
+		auto du = std::chrono::duration_cast<std::chrono::nanoseconds>(endTime - StartTime).count();
+		//ong long duration = std::chrono::high_resolution_clock::duration(endTime - StartTime).count() * 0.001; //milisecond
+		Profiler::GetInstance().AddSample(BlockName, du);
 	}
 
 	const std::string BlockName;
-	const std::chrono::high_resolution_clock::time_point StartTime;
+	std::chrono::high_resolution_clock::time_point StartTime;
 };
