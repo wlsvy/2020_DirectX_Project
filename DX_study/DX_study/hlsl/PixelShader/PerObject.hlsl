@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 Pixel_Deferred main(Vertex_Basic input) : SV_TARGET
 {

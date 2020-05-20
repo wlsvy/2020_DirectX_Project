@@ -63,7 +63,7 @@ void Profiler::SampleEnd(const std::string & sampleName)
 
 	s_SampleTimeMap.erase(it);
 
-	GetInstance().AddSample(sampleName, duration);
+	GetInstance().AddSample(sampleName, (float)duration * 0.001);
 }
 
 void Profiler::Initialize()

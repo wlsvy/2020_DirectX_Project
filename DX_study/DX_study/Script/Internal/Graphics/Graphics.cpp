@@ -66,6 +66,7 @@ bool Graphics::Initialize(HWND hwnd, UINT width, UINT height) {
 		m_ToneMappingShader =			Core::Find<PixelShader>("ToneMapping");
 		m_GammaCorrectionShader =		Core::Find<PixelShader>("GammaCorrection");
 		m_BlurShader =					Core::Find<ComputeShader>("Blur");
+		m_UpSampleShader =				Core::Find<ComputeShader>("UpSample");
 		m_DownSampleShader =			Core::Find<ComputeShader>("ThresholdDownSample");
 
 		m_RandomTexture =				Core::Find<Texture>("NoiseNormal");
@@ -542,6 +543,9 @@ void Graphics::Pass_Bloom(const UINT inout)
 	UINT height = m_WindowHeight;
 
 	for (UINT i = 0; i < MAX_DOWNSAMPLE_COUNT; i++) {
+		m_GpuDownSampleBuffer.data.pad.x = i;
+		m_GpuDownSampleBuffer.ApplyChanges();
+
 		downSampleOut = m_RenderTargetUavs[RenderTargetTypes::HalfSize + i].GetAddressOf();
 		Pass_DownSample(downSampleIn, downSampleOut, width, height);
 
@@ -550,8 +554,28 @@ void Graphics::Pass_Bloom(const UINT inout)
 		downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::HalfSize + i].GetAddressOf();
 	}
 
+	downSampleOut = m_RenderTargetUavs[RenderTargetTypes::QuarterSize].GetAddressOf();
+	Pass_UpSample(downSampleIn, downSampleOut, width * 2, height * 2);
+
+	downSampleOut = m_RenderTargetUavs[RenderTargetTypes::HalfSize].GetAddressOf();
+	downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::QuarterSize].GetAddressOf();
+	Pass_UpSample(downSampleIn, downSampleOut, width * 4, height * 4);
+
+	downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::HalfSize].GetAddressOf();
+	Pass_Blur(downSampleIn, width * 4, height * 4);
+
+
+	/*for (UINT i = MAX_DOWNSAMPLE_COUNT - 2; i >= 0; i--) {
+		downSampleOut = m_RenderTargetUavs[RenderTargetTypes::HalfSize + i].GetAddressOf();
+		Pass_UpSample(downSampleIn, downSampleOut, width, height);
+
+		width *= 2;
+		height *= 2;
+		downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::HalfSize + i].GetAddressOf();
+	}*/
+
 	SetBlendState(m_BlendStateAdditive.Get(), m_BackgroundColor);
-	SetPSShaderResources(TextureBindTypes::Bloom, 1, m_RenderTargetSrvs[RenderTargetTypes::HalfQuarterSize].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::Bloom, 1, m_RenderTargetSrvs[RenderTargetTypes::BlurOut].GetAddressOf());
 	SetRenderTarget
 	(
 		1,
@@ -738,45 +762,28 @@ void Graphics::Pass_Gizmo()
 
 void Graphics::Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height)
 {
-	//ThresHold DownSample
-	{
-		m_GpuDownSampleBuffer.ApplyChanges();
-		SetComputeShader(m_DownSampleShader->GetShader());
-		SetCSConstantBuffer(0, m_GpuDownSampleBuffer.GetAddressOf());
-		SetCSShaderResources(0, 1, texIn);
-		SetCSUavResources(0, 1, m_RenderTargetUavs[RenderTargetTypes::BlurOut].GetAddressOf());
-
-		DispatchComputeShader(m_WindowWidth / 16, m_WindowHeight / 16);
-
-		SetCSUavResources(0, 1, m_NullUav);
-		SetCSShaderResources(0, 1, m_NullSrv);
-	}
-	//Blur
-	{
-		
-		ID3D11ShaderResourceView* csSRVs[2] = { 
-			m_RenderTargetSrvs[RenderTargetTypes::BlurOut].Get(),
+	ID3D11ShaderResourceView* csSRVs[2] = {
+			m_RenderTargetSrvs[RenderTargetTypes::HalfSize].Get(),
 			m_RenderTargetSrvs[RenderTargetTypes::BlurIn].Get() };
-		ID3D11UnorderedAccessView* csUAVs[2] = {
-			m_RenderTargetUavs[RenderTargetTypes::BlurIn].Get(),
-			m_RenderTargetUavs[RenderTargetTypes::BlurOut].Get() };
+	ID3D11UnorderedAccessView* csUAVs[2] = {
+		m_RenderTargetUavs[RenderTargetTypes::BlurIn].Get(),
+		m_RenderTargetUavs[RenderTargetTypes::BlurOut].Get() };
 
-		SetComputeShader(m_BlurShader->GetShader());
+	SetComputeShader(m_BlurShader->GetShader());
 
-		for (UINT i = 0; i < 2; ++i)
-		{
-			m_GpuBlurBuffer.data.direction = i;
-			m_GpuBlurBuffer.ApplyChanges();
+	for (UINT i = 0; i < 2; ++i)
+	{
+		m_GpuBlurBuffer.data.direction = i;
+		m_GpuBlurBuffer.ApplyChanges();
 
-			SetCSConstantBuffer(0, m_GpuBlurBuffer.GetAddressOf());
-			SetCSShaderResources(0, 1, &csSRVs[i]);
-			SetCSUavResources(0, 1, &csUAVs[i]);
+		SetCSConstantBuffer(0, m_GpuBlurBuffer.GetAddressOf());
+		SetCSShaderResources(0, 1, &csSRVs[i]);
+		SetCSUavResources(0, 1, &csUAVs[i]);
 
-			DispatchComputeShader(width / 16, height / 16);
+		DispatchComputeShader(width / 8, height / 8);
 
-			SetCSShaderResources(0, 1, m_NullSrv);
-			SetCSUavResources(0, 1, m_NullUav);
-		}
+		SetCSShaderResources(0, 1, m_NullSrv);
+		SetCSUavResources(0, 1, m_NullUav);
 	}
 }
 
@@ -789,6 +796,23 @@ void Graphics::Pass_DownSample(
 	m_GpuDownSampleBuffer.ApplyChanges();
 	SetComputeShader(m_DownSampleShader->GetShader());
 	SetCSConstantBuffer(0, m_GpuDownSampleBuffer.GetAddressOf());
+	SetCSShaderResources(0, 1, texIn);
+	SetCSUavResources(0, 1, texOut);
+
+	DispatchComputeShader(texInwidth / 8, texInheight / 8);
+
+	SetCSUavResources(0, 1, m_NullUav);
+	SetCSShaderResources(0, 1, m_NullSrv);
+}
+
+void Graphics::Pass_UpSample(
+	ID3D11ShaderResourceView ** texIn,
+	ID3D11UnorderedAccessView ** texOut,
+	UINT texInwidth,
+	UINT texInheight)
+{
+	m_GpuDownSampleBuffer.ApplyChanges();
+	SetComputeShader(m_UpSampleShader->GetShader());
 	SetCSShaderResources(0, 1, texIn);
 	SetCSUavResources(0, 1, texOut);
 

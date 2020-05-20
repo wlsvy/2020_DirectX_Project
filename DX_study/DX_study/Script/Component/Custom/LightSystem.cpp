@@ -9,6 +9,7 @@ void LightSystem::OnGui(const char* option)
 {
 	auto & cbScene = Core::GetGraphics().GetCbScene();
 	auto & cbFurData = Core::GetGraphics().GetCbFurData();
+	auto & cbDownSample = Core::GetGraphics().GetCbDownSampleData();
 	ImGui::SliderFloat("Ambient Strength", &cbScene.data.ambientLightStrength,  0.0f, 10.0f);
 	ImGui::ColorEdit3("Ambient Color", &cbScene.data.ambientLightColor.x, ImGuiColorEditFlags_NoAlpha);
 	ImGui::SliderFloat("Gamma", &cbScene.data.GammaCorrection, 0.0f, 10.0f);
@@ -26,6 +27,7 @@ void LightSystem::OnGui(const char* option)
 
 	ImGui::DragFloat("BloomThreshold", &cbScene.data.bloom_Threshold, 0.01f, 0.0f, 100.0f);
 	ImGui::DragFloat("BloomIntensity", &cbScene.data.bloom_Intensity, 0.01f, 0.0f, 100.0f);
+	ImGui::DragFloat("BloomThreshold_DS", &cbDownSample.data.threshold, 0.01f, 0.0f, 100.0f);
 
 	ImGui::DragInt("FurLayer", &cbFurData.data.FurLayer, 1, 0, 100);
 	ImGui::DragFloat("FurLength", &cbFurData.data.FurLength, 0.01f, 0.0f, 100.0f);

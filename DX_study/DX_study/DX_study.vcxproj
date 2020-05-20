@@ -340,6 +340,16 @@
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
       <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
     </FxCompile>
+    <FxCompile Include="hlsl\ComputeShader\UpSample.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)hlsl\cso\%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
     <FxCompile Include="hlsl\GeometryShader\BillBoardSample.hlsl">
       <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</DisableOptimizations>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EnableDebuggingInformation>
@@ -568,12 +578,12 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="hlsl\PixelShader\Include\Common.hlsli" />
-    <None Include="hlsl\PixelShader\Include\CommonData.hlsli" />
-    <None Include="hlsl\PixelShader\Include\PBR.hlsli" />
-    <None Include="hlsl\PixelShader\Include\Shadow.hlsli" />
-    <None Include="hlsl\PixelShader\Include\CommonTypes.hlsli" />
-    <None Include="hlsl\PixelShader\Include\VolumetricLight.hlsli" />
+    <None Include="hlsl\Include\Common.hlsli" />
+    <None Include="hlsl\Include\CommonData.hlsli" />
+    <None Include="hlsl\Include\PBR.hlsli" />
+    <None Include="hlsl\Include\Shadow.hlsli" />
+    <None Include="hlsl\Include\CommonTypes.hlsli" />
+    <None Include="hlsl\Include\VolumetricLight.hlsli" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

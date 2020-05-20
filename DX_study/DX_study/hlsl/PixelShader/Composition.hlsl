@@ -1,7 +1,7 @@
-#include "Include/Common.hlsli"
-#include "Include/Shadow.hlsli"
-#include "Include/PBR.hlsli"
-#include "Include/VolumetricLight.hlsli"
+#include "../Include/Common.hlsli"
+#include "../Include/Shadow.hlsli"
+#include "../Include/PBR.hlsli"
+#include "../Include/VolumetricLight.hlsli"
 
 float4 main(Vertex_Quad input) : SV_TARGET
 {
@@ -12,7 +12,7 @@ float4 main(Vertex_Quad input) : SV_TARGET
     float ambientOcclusion = SsaoTexture.Sample(PointClamp, input.inTexCoord).x;
 
     float3 position = Tex0.xyz;
-    float3 albedo = Tex1.xyz;
+    float3 albedo = Tex1.xyz * Tex3.x;
     float3 normal = Tex2.xyz;
     float emission = Tex3.x;
     float roughness = Tex3.y;

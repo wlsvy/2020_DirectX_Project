@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 struct PS_INPUT
 {

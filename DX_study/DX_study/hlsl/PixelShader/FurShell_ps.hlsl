@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 struct G2P
 {

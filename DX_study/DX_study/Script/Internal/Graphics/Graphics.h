@@ -86,6 +86,7 @@ public:
 	void Pass_ToneMap(const UINT input, const UINT output);
 	void Pass_GammaCorrection(const UINT input, const UINT output);
 	void Pass_Blur(ID3D11ShaderResourceView** texIn, UINT width, UINT height);
+	void Pass_UpSample(ID3D11ShaderResourceView ** texIn, ID3D11UnorderedAccessView ** texOut, UINT texInwidth, UINT texInheight);
 	void Pass_DownSample(ID3D11ShaderResourceView** texIn, ID3D11UnorderedAccessView** texOut, UINT texInwidth, UINT texInheight);
 	void RenderEnd();
 
@@ -94,6 +95,7 @@ public:
 	ConstantBuffer<GpuAmbientLightBuffer> & GetCbAmbientLight() { return m_GpuAmbientLightBuffer; }
 	ConstantBuffer<GpuSceneBuffer> & GetCbScene() { return m_GpuSceneBuffer; }
 	ConstantBuffer<GpuFurBuffer> & GetCbFurData() { return m_GpuFurDataBuffer; }
+	ConstantBuffer<GpuDownSampleBuffer> & GetCbDownSampleData() { return m_GpuDownSampleBuffer; }
 
 	UINT GetWindowWidth() const { return m_WindowWidth; }
 	UINT GetWindowHeight() const { return m_WindowHeight; }
@@ -144,6 +146,7 @@ private:
 
 	std::shared_ptr<Model> m_QuadWindowModel;
 	std::shared_ptr<ComputeShader> m_BlurShader;
+	std::shared_ptr<ComputeShader> m_UpSampleShader;
 	std::shared_ptr<ComputeShader> m_DownSampleShader;
 
 	std::weak_ptr<SharedMaterial> m_DefaultMaterial;

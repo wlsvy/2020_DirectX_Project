@@ -80,7 +80,7 @@ void Material::OnGui(const char* option)
 
 		TEXTURE_SELECTION_POPUP(Emission, emissionTextureGuiKey);
 		ImGui::ColorEdit4(emissionTextureGuiKey, "Emission Color", &EmissionColor.x);
-		ImGui::SliderFloat("Emission Intensity", &EmissionIntensity, 0.0f, 1.0f);
+		ImGui::DragFloat("Emission Intensity", &EmissionIntensity, 0.1f, 0.0f, 100.0f);
 	}
 
 	ImGui::PopItemWidth();

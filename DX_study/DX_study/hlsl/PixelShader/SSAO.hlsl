@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 //√‚√≥ : https://www.gamedev.net/articles/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/
 

@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 float4 main(Vertex_Basic input) : SV_TARGET
 {

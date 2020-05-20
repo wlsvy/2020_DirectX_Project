@@ -464,13 +464,14 @@
     <FxCompile Include="hlsl\PixelShader\Bloom.hlsl" />
     <FxCompile Include="hlsl\PixelShader\GammaCorrection.hlsl" />
     <FxCompile Include="hlsl\PixelShader\ToneMapping.hlsl" />
+    <FxCompile Include="hlsl\ComputeShader\UpSample.hlsl" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="hlsl\PixelShader\Include\Common.hlsli" />
-    <None Include="hlsl\PixelShader\Include\PBR.hlsli" />
-    <None Include="hlsl\PixelShader\Include\Shadow.hlsli" />
-    <None Include="hlsl\PixelShader\Include\VolumetricLight.hlsli" />
-    <None Include="hlsl\PixelShader\Include\CommonTypes.hlsli" />
-    <None Include="hlsl\PixelShader\Include\CommonData.hlsli" />
+    <None Include="hlsl\Include\Common.hlsli" />
+    <None Include="hlsl\Include\CommonData.hlsli" />
+    <None Include="hlsl\Include\CommonTypes.hlsli" />
+    <None Include="hlsl\Include\PBR.hlsli" />
+    <None Include="hlsl\Include\Shadow.hlsli" />
+    <None Include="hlsl\Include\VolumetricLight.hlsli" />
   </ItemGroup>
 </Project>

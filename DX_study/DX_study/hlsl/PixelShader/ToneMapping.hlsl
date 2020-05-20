@@ -1,4 +1,4 @@
-#include "Include/Common.hlsli"
+#include "../Include/Common.hlsli"
 
 float3 Reinhard(float3 hdr, float k = 1.0f)
 {
