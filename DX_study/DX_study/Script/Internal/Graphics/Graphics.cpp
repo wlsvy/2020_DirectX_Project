@@ -564,16 +564,6 @@ void Graphics::Pass_Bloom(const UINT inout)
 	downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::HalfSize].GetAddressOf();
 	Pass_Blur(downSampleIn, width * 4, height * 4);
 
-
-	/*for (UINT i = MAX_DOWNSAMPLE_COUNT - 2; i >= 0; i--) {
-		downSampleOut = m_RenderTargetUavs[RenderTargetTypes::HalfSize + i].GetAddressOf();
-		Pass_UpSample(downSampleIn, downSampleOut, width, height);
-
-		width *= 2;
-		height *= 2;
-		downSampleIn = m_RenderTargetSrvs[RenderTargetTypes::HalfSize + i].GetAddressOf();
-	}*/
-
 	SetBlendState(m_BlendStateAdditive.Get(), m_BackgroundColor);
 	SetPSShaderResources(TextureBindTypes::Bloom, 1, m_RenderTargetSrvs[RenderTargetTypes::BlurOut].GetAddressOf());
 	SetRenderTarget
