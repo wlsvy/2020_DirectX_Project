@@ -28,6 +28,7 @@ void LightSystem::OnGui(const char* option)
 	ImGui::DragFloat("BloomThreshold", &cbScene.data.bloom_Threshold, 0.01f, 0.0f, 100.0f);
 	ImGui::DragFloat("BloomIntensity", &cbScene.data.bloom_Intensity, 0.01f, 0.0f, 100.0f);
 	ImGui::DragFloat("BloomThreshold_DS", &cbDownSample.data.threshold, 0.01f, 0.0f, 100.0f);
+	ImGui::DragFloat2("BloomRadius", &cbDownSample.data.radius.x, 0.01f, 0.0f, 10.0f);
 
 	ImGui::DragInt("FurLayer", &cbFurData.data.FurLayer, 1, 0, 100);
 	ImGui::DragFloat("FurLength", &cbFurData.data.FurLength, 0.01f, 0.0f, 100.0f);

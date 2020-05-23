@@ -54,8 +54,9 @@ struct GpuMaterialBuffer {
 };
 
 struct GpuDownSampleBuffer {
-	float threshold = 0.5f;;
-	DirectX::XMFLOAT3 pad;
+	float threshold = 1.2f;
+	float cnt;
+	DirectX::XMFLOAT2 radius = DirectX::XMFLOAT2(5.0f, 5.0f);
 };
 
 struct GpuBlurBuffer {
@@ -100,8 +101,8 @@ struct GpuSceneBuffer {
 	DirectX::XMFLOAT3 VolumetricLightVar = DirectX::XMFLOAT3(0.00f, 0.1f, 0.2f);
 	int VolumetricLightSampleCount = 60;
 
-	float bloom_Threshold = 0.2f;
-	float bloom_Intensity = 0.1f;
+	float bloom_Threshold = 0.0f;
+	float bloom_Intensity = 1.0f;
 	DirectX::XMFLOAT2 pad2;
 };
 

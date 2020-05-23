@@ -543,7 +543,7 @@ void Graphics::Pass_Bloom(const UINT inout)
 	UINT height = m_WindowHeight;
 
 	for (UINT i = 0; i < MAX_DOWNSAMPLE_COUNT; i++) {
-		m_GpuDownSampleBuffer.data.pad.x = i;
+		m_GpuDownSampleBuffer.data.cnt = i;
 		m_GpuDownSampleBuffer.ApplyChanges();
 
 		downSampleOut = m_RenderTargetUavs[RenderTargetTypes::HalfSize + i].GetAddressOf();

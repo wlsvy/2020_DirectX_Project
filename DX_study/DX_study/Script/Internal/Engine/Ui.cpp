@@ -77,7 +77,7 @@ void GUI::DrawEditorUI(ID3D11ShaderResourceView * image)
 		if (ImGui::BeginMenu("Menu"))
 		{
 			ImGui::MenuItem("Show Hierarchy", "", &s_ShowEditor);
-			ImGui::MenuItem("Show Profiler", "", &s_ShowStat);
+			ImGui::MenuItem("Show Status", "", &s_ShowStat);
 			ImGui::MenuItem("Show Resources", "", &s_ShowResources);
 			ImGui::MenuItem("Show ImGuiDemo", "", &s_ShowImGuiDemo);
 
