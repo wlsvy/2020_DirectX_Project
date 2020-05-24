@@ -13,14 +13,14 @@ inline half luminance(half3 color)
 
 cbuffer DownSampleBuffer : register(b0)
 {
-    float tr;
+    float Threshold;
     float cnt;
-    float2 radius;
+    float2 Radius;
 }
 
 half3 Dt(half3 c)
 {
-    if (length(c) > tr)
+    if (length(c) > Threshold)
     {
         return c;
     }
@@ -30,7 +30,7 @@ half3 Dt(half3 c)
 
 half3 DownSampleBox2(float2 pixel)
 {
-    half4 o = float4(radius, radius * -1);
+    half4 o = float4(Radius, Radius * -1);
 
     half3 s1 = Dt(inputTexture[pixel + o.xy].xyz);
     half3 s2 = Dt(inputTexture[pixel + o.zy].xyz);
@@ -44,7 +44,7 @@ half3 DownSampleBox2(float2 pixel)
 
 half3 DownSampleBox(float2 pixel)
 {
-    half4 o = float4(radius, radius * -1);
+    half4 o = float4(Radius, Radius * -1);
 
     half3 s1 = inputTexture[pixel + o.xy].xyz;
     half3 s2 = inputTexture[pixel + o.zy].xyz;
