@@ -5,8 +5,8 @@ DirectX를 활용해서 기초적인 렌더링 시스템, ECS(Entity-Component S
 
 '게임은 어떻게 동작하는 것인가' 에 대한 궁금증을 풀기 위해 진행하였습니다.
 
-<img align="right" width="256" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/AnimationBlending.gif"/>
-<img align="right" width="256" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/ezgif-7-5df44fa34356.gif"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/AnimationBlending.gif"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/ezgif-7-5df44fa34356.gif"/>
 
 ## Feature
 - DirectX 11 Backend
