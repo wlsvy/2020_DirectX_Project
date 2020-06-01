@@ -19,7 +19,6 @@ DirectX를 활용해서 기초적인 렌더링 시스템, ECS(Entity-Component S
 - Fur Shader
 - Physics Based Rendering
 - Entity-Component System
-- Simple Profiling
 
 ## Dependencies
 - [Dear ImGui](https://github.com/ocornut/imgui)
