@@ -10,23 +10,8 @@
 namespace Core {
 	template<typename T>
 	class Pool : public Singleton<Pool<T>> {
+		friend class Pool<Object>;
 	public:
-		void Register(const std::shared_ptr<T>& obj) {
-			m_Objects.push_back(obj);
-		}
-
-		void DeRegister(std::shared_ptr<T> obj) {
-			auto iter = std::find(m_Objects.begin(), m_Objects.end(), obj);
-			if (iter != m_Objects.end()) {
-				m_Objects.erase(iter);
-			}
-		}
-
-		template<class CallBack>
-		void ForEach(CallBack func) {
-			std::for_each(m_Objects.begin(), m_Objects.end(), func);
-		}
-
 		std::shared_ptr<T> Find(const int objId) {
 			for (auto& ptr : m_Objects) {
 				if (ptr->GetId() == objId) {
@@ -48,16 +33,55 @@ namespace Core {
 			return m_Objects;
 		}
 
-	protected:
+	private:
+		void Register(const std::shared_ptr<T>& obj) {
+			m_Objects.push_back(obj);
+		}
+
+		void DeRegister(std::shared_ptr<T> obj) {
+			auto iter = std::find(m_Objects.begin(), m_Objects.end(), obj);
+			if (iter != m_Objects.end()) {
+				m_Objects.erase(iter);
+			}
+		}
+
 		std::vector<std::shared_ptr<T>> m_Objects;
 	};
 
 	template<>
 	class Pool<Object> : public Singleton<Pool<Object>> {
 	public:
+		template<typename T, typename ...Arg>
+		friend std::shared_ptr<T> CreateInstance(Arg&&... arg);
+
+		friend void Destroy(Object* obj);
+
+		
+
+		void Clear() { m_Objects.clear(); }
+
+	private:
+		struct PoolItemBase {
+			virtual std::shared_ptr<Object> Get() = 0;
+		};
+
+		template<typename T>
+		struct PoolItem : PoolItemBase {
+			PoolItem(const std::shared_ptr<T>& obj) : Ptr(obj) {
+				Pool<typename T::ManagedType>::GetInstance().Register(Ptr);
+			}
+			~PoolItem() {
+				Pool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
+			}
+			virtual std::shared_ptr<Object> Get() override { return Ptr; }
+
+		private:
+			std::shared_ptr<T> Ptr;
+		};
+
 		template<typename T>
 		void Register(const std::shared_ptr<T>& obj) {
-			m_Objects.insert(make_pair(obj->GetId(), std::make_unique<ObjectWrapper<T>>(obj)));
+			m_Objects.insert(make_pair(obj->GetId(), std::make_unique<PoolItem<T>>(obj)));
 		}
 
 		void DeRegister(const int objId) {
@@ -70,28 +94,7 @@ namespace Core {
 			DeRegister(obj->GetId());
 		}
 
-		void Clear() { m_Objects.clear(); }
-
-	private:
-		struct ObjWrapperBase {
-			virtual std::shared_ptr<Object> Get() = 0;
-		};
-
-		template<typename T>
-		struct ObjectWrapper : ObjWrapperBase {
-			ObjectWrapper(const std::shared_ptr<T>& obj) : Ptr(obj) {
-				Pool<typename T::ManagedType>::GetInstance().Register(Ptr);
-			}
-			~ObjectWrapper() {
-				Pool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
-			}
-			virtual std::shared_ptr<Object> Get() override { return Ptr; }
-
-		private:
-			std::shared_ptr<T> Ptr;
-		};
-
-		std::unordered_map<int, std::unique_ptr<ObjWrapperBase>> m_Objects;
+		std::unordered_map<int, std::unique_ptr<PoolItemBase>> m_Objects;
 	};
 
 	template<typename T, typename ...Arg>

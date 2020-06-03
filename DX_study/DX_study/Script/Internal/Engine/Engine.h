@@ -25,11 +25,6 @@ public:
 	~Engine();
 
 	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height);
-	bool ProcessMessage();
-	void Update();
-	void UpdateInput();
-	void FixedUpdate();
-	void RenderFrame();
 	void Run();
 
 	Graphics& GetGraphics() { return *m_Graphics; }
@@ -41,6 +36,14 @@ public:
 	static const float s_FixedFrameRate;
 
 private:
+	bool ProcessMessage();
+	void Update();
+	void UpdateInput();
+	void UpdateAnimator();
+	void UpdateBehaviour();
+	void FixedUpdate();
+	void RenderFrame();
+
 	static Engine* s_Ptr;
 
 	std::unique_ptr<Graphics> m_Graphics;

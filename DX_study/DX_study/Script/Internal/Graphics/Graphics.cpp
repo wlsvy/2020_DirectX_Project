@@ -175,7 +175,7 @@ bool Graphics::ProcessShaderStateTable() {
 void Graphics::RenderBegin()
 {
 	ApplySceneBuffer();
-
+	
 	m_DeviceContext->ClearRenderTargetView(m_MainRenderTargetView.Get(), m_BackgroundColor);
 	for (int i = 0; i < RenderTargetTypes::Max; i++) {
 		m_DeviceContext->ClearRenderTargetView(m_RenderTargetViewArr[i].Get(), m_BackgroundColor);

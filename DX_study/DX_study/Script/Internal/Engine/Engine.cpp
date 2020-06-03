@@ -64,12 +64,6 @@ bool Engine::ProcessMessage() {
 	return this->render_window.ProcessMessage();
 }
 
-void UpdateBehaviour(const std::shared_ptr<Behaviour> & behaviour) {
-	if (behaviour->Enable) {
-		behaviour->Update();
-	}
-}
-
 void Engine::Update() {
 	Profiler::SampleBegin("Update");
 
@@ -77,7 +71,7 @@ void Engine::Update() {
 	
 	UpdateInput();
 	
-	Core::Pool<Behaviour>::GetInstance().ForEach(UpdateBehaviour);
+	UpdateBehaviour();
 
 	m_CurrentScene->Update();
 
@@ -102,11 +96,29 @@ void Engine::UpdateInput()
 	mouse.Update();
 }
 
+void Engine::UpdateAnimator()
+{
+	for (auto anim : Core::Pool<Animator>::GetInstance().GetItems()) {
+		if (anim->Enable) {
+			anim->Update();
+		}
+	}
+}
+
+void Engine::UpdateBehaviour()
+{
+	for (auto behaviour : Core::Pool<Behaviour>::GetInstance().GetItems()) {
+		if (behaviour->Enable) {
+			behaviour->Update();
+		}
+	}
+}
+
 void Engine::FixedUpdate()
 {
 	Profiler::SampleBegin("Fixed Update");
 
-	Core::Pool<Animator>::GetInstance().ForEach(UpdateBehaviour);
+	UpdateAnimator();
 
 	Profiler::SampleEnd("Fixed Update");
 }

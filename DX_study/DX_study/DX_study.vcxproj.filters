@@ -153,9 +153,6 @@
     <ClCompile Include="Script\Component\Transform.cpp">
       <Filter>소스 파일\Component</Filter>
     </ClCompile>
-    <ClCompile Include="Script\Internal\Core\ObjectPool.cpp">
-      <Filter>소스 파일\Internal\Core</Filter>
-    </ClCompile>
     <ClCompile Include="Script\Internal\Core\Scene.cpp">
       <Filter>소스 파일\Internal\Core</Filter>
     </ClCompile>

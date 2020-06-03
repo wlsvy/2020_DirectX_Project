@@ -190,7 +190,6 @@
     <ClCompile Include="Script\Component\Transform.cpp" />
     <ClCompile Include="Script\Internal\Core\InternalHelper.cpp" />
     <ClCompile Include="Script\Internal\Core\Object.cpp" />
-    <ClCompile Include="Script\Internal\Core\ObjectPool.cpp" />
     <ClCompile Include="Script\Internal\Engine\DX11Resources.cpp" />
     <ClCompile Include="Script\Internal\Engine\Profiler.cpp" />
     <ClCompile Include="Script\Internal\Engine\Ui.cpp" />

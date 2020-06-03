@@ -33,12 +33,13 @@ void Scene::Initialize()
 {
 	{
 		auto manager = Core::CreateInstance<GameObject>("Prototype Manager");
-		//auto ls = Core::CreateInstance<GameObject>("Light System");
 		manager->AddComponent<LightSystem>();
-		//ls->GetTransform().SetParent(manager->GetTransformPtr());
 	}
 
 	ProcessGameObjectTable();
+
+	AwakeGameObject();
+
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
 	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
 
@@ -111,14 +112,14 @@ void Scene::ProcessGameObjectTable()
 			}
 		}
 	}
-
-	Core::Pool<GameObject>::GetInstance().ForEach(AwakeGameObject);
 }
 
-void Scene::AwakeGameObject(const std::shared_ptr<GameObject> & obj) {
-	for (auto weakPtr : obj->m_Components) {
-		if (auto component = weakPtr.lock()) {
-			component->Awake();
+void Scene::AwakeGameObject() {
+	for (auto obj : Core::Pool<GameObject>::GetInstance().GetItems()) {
+		for (auto weakPtr : obj->m_Components) {
+			if (auto component = weakPtr.lock()) {
+				component->Awake();
+			}
 		}
 	}
 }
