@@ -112,6 +112,8 @@ namespace Core {
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
 
-	void Destroy(Object* obj);
-	void Destroy(std::shared_ptr<Object> obj);
+	inline void Destroy(Object* obj)
+	{
+		Pool<Object>::GetInstance().DeRegister(obj->GetId());
+	}
 };
