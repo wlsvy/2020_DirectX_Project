@@ -10,15 +10,27 @@
 
 GameObject::GameObject(const std::string & name) :
 	m_Transform(std::make_shared<Transform>(this)),
-	m_Renderer(Core::CreateInstance<RenderInfo>(this)),
+	m_RenderInfo(Core::CreateInstance<RenderInfo>(this)),
 	Object(name)
 {
 	m_Transform->SetParent(Core::GetWorldTransform());
 }
 
+GameObject::~GameObject()
+{
+	for (auto wp : m_Components) {
+		if (auto sp = wp.lock()) {
+			Core::Destroy(sp.get());
+		}
+	}
+}
+
 void GameObject::RemoveExpiredComponent()
 {
-	if (m_Components.size() == 0) return;
+	if (m_Components.size() == 0) {
+		return;
+	}
+
 	std::remove_if(m_Components.begin(), m_Components.end(), 
 		[](std::weak_ptr<Component>& ptr)
 	{
@@ -62,10 +74,10 @@ void GameObject::OnGui(const char* option)
 		}
 	}
 
-	if (ImGui::CollapsingHeader(m_Renderer->Name.c_str(), node_flags))
+	if (ImGui::CollapsingHeader(m_RenderInfo->Name.c_str(), node_flags))
 	{
 		ImGui::Spacing();
-		m_Renderer->OnGui();
+		m_RenderInfo->OnGui();
 	}
 	ImGui::Spacing();
 

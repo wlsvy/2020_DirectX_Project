@@ -40,22 +40,22 @@ void Scene::Initialize()
 
 	AwakeGameObject();
 
-	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
-	Core::Find<GameObject>("X_Bot")->GetRendererable().Anim->Play();
+	Core::Find<GameObject>("X_Bot")->GetRenderInfo().Anim->SetClip(Core::Find<AnimationClip>("X_Bot_Idle"));
+	Core::Find<GameObject>("X_Bot")->GetRenderInfo().Anim->Play();
 
 	{
 		auto sphere = Core::CreateInstance<GameObject>("Cube");
 		sphere->GetTransform().SetPosition(3.0f, 5.0f, 2.9f);
-		sphere->GetRendererable().SetModel(Core::Find<Model>("Box"));
-		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
+		sphere->GetRenderInfo().SetModel(Core::Find<Model>("Box"));
+		sphere->GetRenderInfo().SetMaterial(0, Core::Find<SharedMaterial>("AluminiumInsulator"));
 	}
 	{
 		auto sphere = Core::CreateInstance<GameObject>("Furry");
 		sphere->GetTransform().SetPosition(2.0f, 5.0f, -3.f);
 		sphere->GetTransform().SetScale(3.0f, 3.0f, 3.f);
-		sphere->GetRendererable().SetModel(Core::Find<Model>("torus"));
-		sphere->GetRendererable().SetMaterial(0, Core::Find<SharedMaterial>("FurTest"));
-		sphere->GetRendererable().SetShaderState(0, Core::Find<ShaderState>("FurMesh"));
+		sphere->GetRenderInfo().SetModel(Core::Find<Model>("torus"));
+		sphere->GetRenderInfo().SetMaterial(0, Core::Find<SharedMaterial>("FurTest"));
+		sphere->GetRenderInfo().SetShaderState(0, Core::Find<ShaderState>("FurMesh"));
 	}
 	
 
@@ -94,11 +94,11 @@ void Scene::ProcessGameObjectTable()
 		gameObject->GetTransform().SetScale(std::stof(splitted[0]), std::stof(splitted[1]), std::stof(splitted[2]));
 
 		if (table["TransformParent"][i] != "null") {
-			gameObject->GetTransform().SetParent(Core::Find<GameObject>(table["TransformParent"][i])->GetTransformPtr());
+			gameObject->GetTransform().SetParent(Core::Find<GameObject>(table["TransformParent"][i])->GetTransform().GetPtr<Transform>());
 		}
 
 		if (table["Model"][i] != "null") {
-			gameObject->GetRendererable().SetModel(Core::Find<Model>(table["Model"][i]));
+			gameObject->GetRenderInfo().SetModel(Core::Find<Model>(table["Model"][i]));
 		}
 
 		if (table["AddComponent"][i] != "null") {
@@ -106,7 +106,7 @@ void Scene::ProcessGameObjectTable()
 			for (auto& str : splitted) {		//HardCoding
 				if (str == "") continue;
 				else if (str == "CharacterMove") gameObject->AddComponent<CharacterMove>();
-				else if (str == "Animator") gameObject->GetRendererable().Anim = gameObject->AddComponent<Animator>();
+				else if (str == "Animator") gameObject->GetRenderInfo().Anim = gameObject->AddComponent<Animator>();
 				else if (str == "SpotLight") gameObject->AddComponent<SpotLight>();
 
 			}

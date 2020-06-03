@@ -9,8 +9,8 @@
 #include "../Util/Time.h"
 
 void Animator::Awake() {
-	m_GameObject->GetRendererable().Anim = m_GameObject->GetComponent<Animator>();
-	m_Renderable = m_GameObject->GetRenderablePtr();
+	m_GameObject->GetRenderInfo().Anim = m_GameObject->GetComponent<Animator>();
+	m_Renderable = m_GameObject->GetRenderInfo().GetPtr<RenderInfo>();
 }
 
 void Animator::Update()

@@ -630,7 +630,8 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 
 	m_DrawFlag =
 		DrawFlag::Apply_ObjectVertexShader |
-		DrawFlag::Apply_SkinnedMeshBone;
+		DrawFlag::Apply_SkinnedMeshBone |
+		DrawFlag::Apply_ViewFrustumCulling;
 
 	for (auto & r : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
 		Render(r);

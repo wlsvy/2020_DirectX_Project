@@ -156,6 +156,7 @@ void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 {
 	auto parent = GetParent();
 	auto* target = transform.get();
+	auto thisPtr = GetPtr<Transform>();
 
 	if (transform.get() == this ||
 		transform == parent ||
@@ -168,7 +169,7 @@ void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 		if (parent == Core::GetWorldTransform()) {
 			return;
 		}
-		Core::GetWorldTransform()->SetChild(m_GameObject->GetTransformPtr());
+		Core::GetWorldTransform()->SetChild(thisPtr);
 		parent->EraseChild(this);
 		m_Parent = Core::GetWorldTransform();
 		return;
@@ -179,7 +180,7 @@ void Transform::SetParent(const std::shared_ptr<Transform> & transform)
 		parent->EraseChild(this);
 	}
 
-	transform->SetChild(m_GameObject->GetTransformPtr());
+	transform->SetChild(thisPtr);
 	m_Parent = transform;
 }
 
