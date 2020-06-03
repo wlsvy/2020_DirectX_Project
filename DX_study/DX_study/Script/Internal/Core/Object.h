@@ -25,7 +25,7 @@ public:
 		return std::dynamic_pointer_cast<T>(shared_from_this());
 	}
 
-	virtual void OnGui(const char* option = "op") {}
+	virtual void OnGui(const char* option = nullptr) {}
 
 	std::string Name = "Object";
 	

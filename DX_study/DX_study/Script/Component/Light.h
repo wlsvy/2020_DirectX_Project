@@ -24,7 +24,7 @@ public:
 	ID3D11ShaderResourceView *			GetShadowMapShaderResourceView() const		{ return m_ShadowMapShaderResourceView.Get(); }
 	ID3D11ShaderResourceView* const *	GetShadowMapShaderResourceViewAddr() const	{ return m_ShadowMapShaderResourceView.GetAddressOf(); }
 
-	void OnGui(const char* option = "op") override;
+	void OnGui(const char* option = nullptr) override;
 
 	static const float LIGHT_STRENGTH_MAX;
 
@@ -48,7 +48,7 @@ public:
 	bool CullRenderable(const DirectX::BoundingBox &) override;
 	bool IsShadowEnable() override { return m_IsShadowEnable; }
 	void ProcessLight() override;
-	void OnGui(const char* option = "op") override;
+	void OnGui(const char* option = nullptr) override;
 
 	void SetRange(float range);
 	void SetSpotAngle(float angle);

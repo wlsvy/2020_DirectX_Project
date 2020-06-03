@@ -24,7 +24,7 @@ public:
 	void SetClip(const std::shared_ptr<AnimationClip>& clip);
 	std::shared_ptr<AnimationClip> GetClip() { return m_Clip; }
 
-	void OnGui(const char* option = "op") override;
+	void OnGui(const char* option = nullptr) override;
 
 	float Speed = 1.0f;
 
