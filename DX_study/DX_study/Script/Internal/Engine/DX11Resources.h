@@ -11,10 +11,10 @@
 
 struct RenderTargetTypes {
 	enum {
-		DeferredRenderingResource0 = 0,
-		DeferredRenderingResource1,
-		DeferredRenderingResource2,
-		DeferredRenderingResource3,
+		DeferredRenderTexture0 = 0,
+		DeferredRenderTexture1,
+		DeferredRenderTexture2,
+		DeferredRenderTexture3,
 		Composition0,
 		Composition1,
 		BlurIn,
@@ -131,7 +131,7 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerTrilinearWrap;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> m_SamplerAnisotropicWrap;
 
-	//Depth/Stencil
+	//Depth/Stencil View
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_MainDepthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_MainDepthStencilSRV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> m_SubDepthStencilView;

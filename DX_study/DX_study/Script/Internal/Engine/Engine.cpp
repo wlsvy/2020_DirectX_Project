@@ -44,15 +44,16 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 {
 	m_Timer->Start();
 
-	if (!this->render_window.Initialize(this, hInstance, window_title, window_class, width, height)) {
+	if (!m_RenderWindow.Initialize(this, hInstance, window_title, window_class, width, height)) {
 		return false;
 	}
 
-	if (!m_Graphics->Initialize(this->render_window.GetHWND(), width, height)) {
+	if (!m_Graphics->Initialize(this->m_RenderWindow.GetHWND(), width, height)) {
 		return false;
 	}
 
 	m_CurrentScene->Initialize();
+
 	Profiler::GetInstance().Initialize();
 
 	m_Graphics->InitializeDebugLayout(m_CurrentScene->GetMainCam()->GetViewMatrix(), m_CurrentScene->GetMainCam()->GetProjectionMatrix());
@@ -61,8 +62,18 @@ bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::stri
 }
 
 bool Engine::ProcessMessage() {
-	return this->render_window.ProcessMessage();
+	return this->m_RenderWindow.ProcessMessage();
 }
+
+void Engine::FixedUpdate()
+{
+	Profiler::SampleBegin("Fixed Update");
+
+	UpdateAnimator();
+
+	Profiler::SampleEnd("Fixed Update");
+}
+
 
 void Engine::Update() {
 	Profiler::SampleBegin("Update");
@@ -82,18 +93,18 @@ void Engine::Update() {
 
 void Engine::UpdateInput()
 {
-	while (!keyboard.KeyBufferIsEmpty()) {
-		auto key = keyboard.ReadKey();
+	while (!m_Keyboard.KeyBufferIsEmpty()) {
+		auto key = m_Keyboard.ReadKey();
 		if (key.GetKeyCode() == VK_ESCAPE &&
-			render_window.GetHWND() != NULL)
+			m_RenderWindow.GetHWND() != NULL)
 		{
 			CloseWindow();
 		}
 	}
-	while (!keyboard.CharBufferIsEmpty()) {
-		keyboard.ReadChar();
+	while (!m_Keyboard.CharBufferIsEmpty()) {
+		m_Keyboard.ReadChar();
 	}
-	mouse.Update();
+	m_Mouse.Update();
 }
 
 void Engine::UpdateAnimator()
@@ -112,15 +123,6 @@ void Engine::UpdateBehaviour()
 			behaviour->Update();
 		}
 	}
-}
-
-void Engine::FixedUpdate()
-{
-	Profiler::SampleBegin("Fixed Update");
-
-	UpdateAnimator();
-
-	Profiler::SampleEnd("Fixed Update");
 }
 
 void Engine::RenderFrame()

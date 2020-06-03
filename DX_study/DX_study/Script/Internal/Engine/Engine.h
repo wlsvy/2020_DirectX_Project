@@ -24,14 +24,18 @@ public:
 	Engine();
 	~Engine();
 
-	bool Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height);
+	bool Initialize(
+		HINSTANCE hInstance, 
+		std::string window_title, 
+		std::string window_class, 
+		UINT width, UINT height);
 	void Run();
 
-	Graphics& GetGraphics() { return *m_Graphics; }
-	Timer& GetTimer() { return *m_Timer; }
-	Scene& GetCurrentScene() { return *m_CurrentScene; }
-	KeyboardClass& GetKeyboard() { return keyboard; }
-	MouseClass& GetMouse() { return mouse; }
+	Graphics& GetGraphics()			{ return *m_Graphics; }
+	Timer& GetTimer()				{ return *m_Timer; }
+	Scene& GetCurrentScene()		{ return *m_CurrentScene; }
+	KeyboardClass& GetKeyboard()	{ return m_Keyboard; }
+	MouseClass& GetMouse()			{ return m_Mouse; }
 
 	static const float s_FixedFrameRate;
 

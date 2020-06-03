@@ -248,10 +248,10 @@ void Graphics::Pass_SSAO()
 {
 	Profiler::SampleBegin("Pass_SSAO");
 
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 
 	{
@@ -292,10 +292,10 @@ void Graphics::Pass_Composition()
 	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 	SetPixelShader(m_CompositionShader->GetShader());
 
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource0].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource1].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource2].GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderingResource3].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf());
+	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
