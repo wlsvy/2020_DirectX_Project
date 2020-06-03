@@ -56,21 +56,19 @@ namespace Core {
 
 		friend void Destroy(Object* obj);
 
-		
-
 		void Clear() { m_Objects.clear(); }
 
 	private:
-		struct PoolItemBase {
+		struct ElementBase {
 			virtual std::shared_ptr<Object> Get() = 0;
 		};
 
 		template<typename T>
-		struct PoolItem : PoolItemBase {
-			PoolItem(const std::shared_ptr<T>& obj) : Ptr(obj) {
+		struct Element : ElementBase {
+			Element(const std::shared_ptr<T>& obj) : Ptr(obj) {
 				Pool<typename T::ManagedType>::GetInstance().Register(Ptr);
 			}
-			~PoolItem() {
+			~Element() {
 				Pool<typename T::ManagedType>::GetInstance().DeRegister(Ptr);
 			}
 			virtual std::shared_ptr<Object> Get() override { return Ptr; }
@@ -81,7 +79,7 @@ namespace Core {
 
 		template<typename T>
 		void Register(const std::shared_ptr<T>& obj) {
-			m_Objects.insert(make_pair(obj->GetId(), std::make_unique<PoolItem<T>>(obj)));
+			m_Objects.insert(make_pair(obj->GetId(), std::make_unique<Element<T>>(obj)));
 		}
 
 		void DeRegister(const int objId) {
@@ -94,7 +92,7 @@ namespace Core {
 			DeRegister(obj->GetId());
 		}
 
-		std::unordered_map<int, std::unique_ptr<PoolItemBase>> m_Objects;
+		std::unordered_map<int, std::unique_ptr<ElementBase>> m_Objects;
 	};
 
 	template<typename T, typename ...Arg>

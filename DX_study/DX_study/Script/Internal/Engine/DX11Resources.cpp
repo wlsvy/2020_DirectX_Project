@@ -9,97 +9,16 @@
 bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 {
 	try {
-		std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+		CreateDeviceAndSwapChain(hwnd, width, height);
+		CreateBackBufferAndMainRTV(width, height);
 
-		if (adapters.size() < 1)
-		{
-			StringHelper::ErrorLog("No IDXGI Adapters found.");
-			return false;
-		}
+		CreateDepthStencilView(m_MainDepthStencilView.GetAddressOf(), m_MainDepthStencilSRV.GetAddressOf(), width, height);
+		CreateDepthStencilView(m_SubDepthStencilView.GetAddressOf(), m_SubDepthStencilSRV.GetAddressOf(), width, height);
 
-		DXGI_SWAP_CHAIN_DESC scd = { 0 };
-
-		scd.BufferDesc.Width = width;
-		scd.BufferDesc.Height = height;
-		scd.BufferDesc.RefreshRate.Numerator = 60;
-		scd.BufferDesc.RefreshRate.Denominator = 1;
-		scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-		scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-
-		scd.SampleDesc.Count = 1;
-		scd.SampleDesc.Quality = 0;
-
-		scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scd.BufferCount = 1;
-		scd.OutputWindow = hwnd;
-		scd.Windowed = TRUE;
-		scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
-
-		HRESULT hr;
-		hr = D3D11CreateDeviceAndSwapChain(adapters[0].GetAdapter(), //IDXGI Adapter
-			D3D_DRIVER_TYPE_UNKNOWN,
-			NULL, //FOR SOFTWARE DRIVER TYPE
-			D3D11_CREATE_DEVICE_DEBUG, //FLAGS FOR RUNTIME LAYERS
-			NULL, //FEATURE LEVELS ARRAY
-			0, //# OF FEATURE LEVELS IN ARRAY
-			D3D11_SDK_VERSION,
-			&scd, //Swapchain description
-			this->m_Swapchain.GetAddressOf(), //Swapchain Address
-			this->m_Device.GetAddressOf(), //Device Address
-			NULL, //Supported feature level
-			this->m_DeviceContext.GetAddressOf()); //Device Context Address
-
-		ThrowIfFailed(hr, "Failed to create device and swapchain.");
-
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
-		hr = this->m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf()));
-		ThrowIfFailed(hr, "GetBuffer Failed.");
-
-		hr = this->m_Device->CreateRenderTargetView(backBuffer.Get(), NULL, this->m_MainRenderTargetView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create render target view.");
-
-		//뷰포트 만들기 & 세팅
-		CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
-		m_DeviceContext->RSSetViewports(1, &viewport);
-
-		//Describe our Depth/Stencil Buffer
-		CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R32_TYPELESS, width, height);
-		depthStencilDesc.MipLevels = 1;
-		depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-
-		Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer, depthStencilBuffer2;
-		hr = this->m_Device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
-		hr = this->m_Device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer2.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil buffer.");
-
-		CD3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
-		descDSV.Format = DXGI_FORMAT_D32_FLOAT;
-		descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-		descDSV.Texture2D.MipSlice = 0;
-		descDSV.Flags = 0;
-		hr = this->m_Device->CreateDepthStencilView(depthStencilBuffer.Get(), &descDSV, this->m_MainDepthStencilView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil view.");
-		hr = this->m_Device->CreateDepthStencilView(depthStencilBuffer2.Get(), &descDSV, this->m_SubDepthStencilView.GetAddressOf());
-		ThrowIfFailed(hr, "Failed to create depth stencil view.");
-
-		CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-		ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
-		shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
-		shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D; 
-		shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
-		shaderResourceViewDesc.Texture2D.MipLevels = 1;
-		ThrowIfFailed(
-			m_Device->CreateShaderResourceView(depthStencilBuffer.Get(), &shaderResourceViewDesc, m_MainDepthStencilSRV.GetAddressOf()),
-			"Failed to create shaderResourceViewArr.");
-		ThrowIfFailed(
-			m_Device->CreateShaderResourceView(depthStencilBuffer2.Get(), &shaderResourceViewDesc, m_SubDepthStencilSRV.GetAddressOf()),
-			"Failed to create shaderResourceViewArr.");
-
-		CreateDepthStencilState(m_DepthStencilState.GetAddressOf());
-
+		CreateDepthStencilState(m_DepthDefault.GetAddressOf(), true, D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL, false);
+		CreateDepthStencilState(m_DepthNone.GetAddressOf(), false, D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL, false);
+		CreateDepthStencilState(m_DepthDefault_StencilEnable.GetAddressOf(), true, D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL, true);
+		
 		CreateRasterizerState(m_RasterizerCullBack.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_BACK);
 		CreateRasterizerState(m_RasterizerCullFront.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_FRONT);
 		CreateRasterizerState(m_RasterizerCullNone.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
@@ -143,6 +62,100 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 	return true;
 }
 
+bool DX11Resources::CreateDeviceAndSwapChain(HWND hwnd, UINT width, UINT height)
+{
+	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
+
+	if (adapters.size() < 1)
+	{
+		StringHelper::ErrorLog("No IDXGI Adapters found.");
+		return false;
+	}
+
+	DXGI_SWAP_CHAIN_DESC scd = { 0 };
+
+	scd.BufferDesc.Width = width;
+	scd.BufferDesc.Height = height;
+	scd.BufferDesc.RefreshRate.Numerator = 60;
+	scd.BufferDesc.RefreshRate.Denominator = 1;
+	scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	scd.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+	scd.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+
+	scd.SampleDesc.Count = 1;
+	scd.SampleDesc.Quality = 0;
+
+	scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	scd.BufferCount = 1;
+	scd.OutputWindow = hwnd;
+	scd.Windowed = TRUE;
+	scd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+	scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+	HRESULT hr;
+	hr = D3D11CreateDeviceAndSwapChain(adapters[0].GetAdapter(), //IDXGI Adapter
+		D3D_DRIVER_TYPE_UNKNOWN,
+		NULL, //FOR SOFTWARE DRIVER TYPE
+		D3D11_CREATE_DEVICE_DEBUG, //FLAGS FOR RUNTIME LAYERS
+		NULL, //FEATURE LEVELS ARRAY
+		0, //# OF FEATURE LEVELS IN ARRAY
+		D3D11_SDK_VERSION,
+		&scd, //Swapchain description
+		this->m_Swapchain.GetAddressOf(), //Swapchain Address
+		this->m_Device.GetAddressOf(), //Device Address
+		NULL, //Supported feature level
+		this->m_DeviceContext.GetAddressOf()); //Device Context Address
+
+	ThrowIfFailed(hr, "Failed to create device and swapchain.");
+}
+
+void DX11Resources::CreateBackBufferAndMainRTV(UINT width, UINT height)
+{
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backBuffer;
+	ThrowIfFailed(
+		m_Swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(backBuffer.GetAddressOf())),
+		"GetBuffer Failed.");
+
+	ThrowIfFailed(
+		m_Device->CreateRenderTargetView(backBuffer.Get(), NULL, this->m_MainRenderTargetView.GetAddressOf()),
+		"Failed to create render target view.");
+
+	//뷰포트 만들기 & 세팅
+	CD3D11_VIEWPORT viewport(0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height));
+	m_DeviceContext->RSSetViewports(1, &viewport);
+}
+
+void DX11Resources::CreateDepthStencilView(ID3D11DepthStencilView ** depthStencilView, ID3D11ShaderResourceView ** shaderResourceView, UINT width, UINT height)
+{
+	CD3D11_TEXTURE2D_DESC depthStencilDesc(DXGI_FORMAT_R32_TYPELESS, width, height);
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
+	ThrowIfFailed(
+		m_Device->CreateTexture2D(&depthStencilDesc, NULL, depthStencilBuffer.GetAddressOf()),
+		"Failed to create depth stencil buffer.");
+
+	CD3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+	descDSV.Format = DXGI_FORMAT_D32_FLOAT;
+	descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	descDSV.Texture2D.MipSlice = 0;
+	descDSV.Flags = 0;
+	ThrowIfFailed(
+		m_Device->CreateDepthStencilView(depthStencilBuffer.Get(), &descDSV, depthStencilView),
+		"Failed to create depth stencil view.");
+
+	CD3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(shaderResourceViewDesc));
+	shaderResourceViewDesc.Format = DXGI_FORMAT_R32_FLOAT;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+	ThrowIfFailed(
+		m_Device->CreateShaderResourceView(depthStencilBuffer.Get(), &shaderResourceViewDesc, shaderResourceView),
+		"Failed to create shaderResourceViewArr.");
+}
+
 void DX11Resources::CreateRasterizerState(
 	ID3D11RasterizerState** addr,
 	D3D11_FILL_MODE fillMode,
@@ -156,13 +169,18 @@ void DX11Resources::CreateRasterizerState(
 		"Failed to create rasterizer state.");
 }
 
-void DX11Resources::CreateDepthStencilState(ID3D11DepthStencilState** addr)
+void DX11Resources::CreateDepthStencilState(
+	ID3D11DepthStencilState** addr,
+	bool depthEnable,
+	D3D11_COMPARISON_FUNC depthFunc,
+	bool stencilEnable)
 {
-	CD3D11_DEPTH_STENCIL_DESC depthstencildesc(D3D11_DEFAULT);
-	depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+	CD3D11_DEPTH_STENCIL_DESC desc(D3D11_DEFAULT);
+	desc.DepthFunc = depthFunc;
+	desc.StencilEnable = stencilEnable;
 
 	ThrowIfFailed(
-		m_Device->CreateDepthStencilState(&depthstencildesc, addr),
+		m_Device->CreateDepthStencilState(&desc, addr),
 		"Failed to create depth stencil state.");
 }
 

@@ -194,7 +194,7 @@ void Graphics::RenderBegin()
 	SetVSConstantBuffer(1, m_GpuBoneBuffer.GetAddressOf());
 
 	SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	SetDepthStencilState(m_DepthStencilState.Get());
+	SetDepthStencilState(m_DepthDefault.Get());
 	SetRasterizerState(m_RasterizerCullBack.Get());
 	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 
