@@ -141,7 +141,9 @@ void Scene::OnGui(const char* option)
 
 void Scene::ProcessGuiHirarchy(std::weak_ptr<Transform> ptr)
 {
-	if (ptr.expired()) return;
+	if (ptr.expired()) {
+		return;
+	}
 
 	auto tf = ptr.lock();
 	bool check = false;

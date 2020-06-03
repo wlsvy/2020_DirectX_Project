@@ -193,17 +193,17 @@ void Graphics::RenderBegin()
 	SetVSConstantBuffer(0, m_GpuObjectBuffer.GetAddressOf());
 	SetVSConstantBuffer(1, m_GpuBoneBuffer.GetAddressOf());
 
-	SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	SetDepthStencilState(m_DepthDefault.Get());
-	SetRasterizerState(m_RasterizerCullBack.Get());
-	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
-
 	SetPsSampler(0, m_SamplerPointClamp.GetAddressOf());
 	SetPsSampler(1, m_SamplerLinearClamp.GetAddressOf());
 	SetPsSampler(2, m_SamplerLinearWrap.GetAddressOf());
 	SetPsSampler(3, m_SamplerLinearMirror.GetAddressOf());
 	SetPsSampler(4, m_SamplerAnisotropicWrap.GetAddressOf());
 	SetPsSampler(5, m_SamplerTrilinearWrap.GetAddressOf());
+
+	SetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	SetDepthStencilState(m_DepthDefault.Get());
+	SetRasterizerState(m_RasterizerCullBack.Get());
+	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
 }
 
 void Graphics::Pass_GBuffer()
@@ -211,9 +211,13 @@ void Graphics::Pass_GBuffer()
 	Profiler::SampleBegin("Pass_GBuffer");
 
 	auto mainCam = Engine::Get().GetCurrentScene().GetMainCam();
+
 	m_TargetViewProjectionMatrix = mainCam->GetViewProjectionMatrix();
 	m_CullFrustum = mainCam->GetViewFrustum();
+	m_DrawFlag = DrawFlag::All;
+
 	SetBlendState(m_BlendStateOpaque.Get(), m_BlendFactors);
+	SetRasterizerState(m_RasterizerCullBack.Get());
 	SetRenderTarget
 	(
 		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
@@ -224,19 +228,13 @@ void Graphics::Pass_GBuffer()
 
 	SetPSShaderResources(TextureBindTypes::Fur, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
 
-	m_DrawFlag = DrawFlag::All;
 	for (auto & renderInfo : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
 		Render(renderInfo);
 	}
 
 	RenderSkybox();
 
-	SetRenderTarget
-	(
-		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
-		m_NullRtv,
-		NULL
-	);
+	SetRenderTarget(DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT, m_NullRtv, NULL);
 	SetVertexShader(NULL);
 	SetPixelShader(NULL);
 	SetGeometryShader(NULL);
@@ -254,50 +252,28 @@ void Graphics::Pass_SSAO()
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
 
-	{
-		SetPSShaderResources(TextureBindTypes::SSAO, 1, m_NullSrv);
-		SetRenderTarget
-		(
-			1,
-			m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(),
-			NULL
-		);
+	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_NullSrv);
+	SetRenderTarget(1, m_RenderTargetViewArr[RenderTargetTypes::SSAO].GetAddressOf(), NULL);
+	SetPixelShader(m_SsaoShader->GetShader());
+	SetRasterizerState(m_RasterizerCullBack.Get());
 
-		SetPixelShader(m_SsaoShader->GetShader());
+	RenderQuadPlane();
 
-		RenderQuadPlane();
-
-		SetRenderTarget
-		(
-			1,
-			m_NullRtv,
-			NULL
-		);
-	}
+	SetRenderTarget(1, m_NullRtv, NULL);
 
 	Profiler::SampleEnd("Pass_SSAO");
 }
 
 void Graphics::Pass_Composition()
 {
-	auto l = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
-
-	SetRenderTarget
-	(
-		1,
-		m_RenderTargetViewArr[RenderTargetTypes::Composition0].GetAddressOf(),
-		NULL
-	);
-
-	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
-	SetPixelShader(m_CompositionShader->GetShader());
+	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource0, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource1, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource2, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::DeferredRenderingResource3, 1, m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture3].GetAddressOf());
 	SetPSShaderResources(TextureBindTypes::Depth, 1, m_MainDepthStencilSRV.GetAddressOf());
-	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, l->GetShadowMapShaderResourceViewAddr());			
+	SetPSShaderResources(TextureBindTypes::ShadowMap, 1, light->GetShadowMapShaderResourceViewAddr());
 	SetPSShaderResources(TextureBindTypes::SSAO, 1, m_RenderTargetSrvs[RenderTargetTypes::SSAO].GetAddressOf());
 
 	SetPSShaderResources(TextureBindTypes::Random, 1, m_RandomTexture.lock()->GetTextureResourceViewAddress());
@@ -306,16 +282,16 @@ void Graphics::Pass_Composition()
 	SetPSShaderResources(TextureBindTypes::Skybox, 1, m_Skybox->GetCubeMapView());	
 	SetPSShaderResources(TextureBindTypes::IrradianceSkybox, 1, m_Skybox->GetIrMapView());	
 	
+	SetRenderTarget(1, m_RenderTargetViewArr[RenderTargetTypes::Composition0].GetAddressOf(), NULL);
+	SetBlendState(m_BlendStateAlpha.Get(), m_BlendFactors);
+	SetPixelShader(m_CompositionShader->GetShader());
+	SetRasterizerState(m_RasterizerCullBack.Get());
+
 	RenderQuadPlane();
 
 	SetPSShaderResources(0, 10, m_NullSrv);
 	SetPSShaderResources(9, 1, m_NullSrv);
-	SetRenderTarget
-	(
-		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
-		m_NullRtv,
-		NULL
-	);
+	SetRenderTarget(DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT, m_NullRtv, NULL);
 }
 
 void Graphics::Render(const std::shared_ptr<RenderInfo>& renderInfo)
@@ -380,8 +356,6 @@ void Graphics::RenderSkybox()
 	for (auto & r : m_Skybox->GetModel()->GetDefaultRenderables()) {
 		RenderMesh(r.GetMesh(), worldMat, wvpMat);
 	}
-
-	SetRasterizerState(m_RasterizerCullBack.Get());
 }
 
 void Graphics::RenderQuadPlane()
@@ -578,6 +552,7 @@ void Graphics::Pass_Bloom(const UINT inout)
 
 	SetPSShaderResources(0, DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT + 1, m_NullSrv);
 	SetPSShaderResources(TextureBindTypes::Bloom, 1, m_NullSrv);
+	SetRasterizerState(m_RasterizerCullBack.Get());
 	SetRenderTarget
 	(
 		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
@@ -647,12 +622,8 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 
 	m_DeviceContext->ClearDepthStencilView(m_SubDepthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 	m_DeviceContext->ClearRenderTargetView(spotLight->GetShadowMapRenderTargetView(), m_BackgroundColor);
-	SetRenderTarget
-	(
-		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
-		m_NullRtv,
-		NULL
-	);
+	SetRasterizerState(m_RasterizerCullBack.Get());
+	SetRenderTarget(DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT, m_NullRtv, NULL);
 
 	SetRenderTarget(1, spotLight->GetShadowMapRenderTargetViewAddr(), m_SubDepthStencilView.Get());
 	SetPixelShader(m_ShadowMapPshader->GetShader());
@@ -668,12 +639,7 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 	SetVertexShader(NULL);
 	SetPixelShader(NULL);
 	SetGeometryShader(NULL);
-	SetRenderTarget
-	(
-		1,
-		m_NullRtv,
-		NULL
-	);
+	SetRenderTarget(1, m_NullRtv, NULL);
 
 	Profiler::SampleEnd("Pass_ShadowMap");
 }
@@ -684,12 +650,7 @@ void Graphics::Pass_EditorUI()
 
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
 	
-	SetRenderTarget
-	(
-		1, 
-		m_MainRenderTargetView.GetAddressOf(), 
-		NULL
-	);
+	SetRenderTarget(1, m_MainRenderTargetView.GetAddressOf(), NULL);
 
 	GUI::NewFrame();
 	
@@ -697,12 +658,8 @@ void Graphics::Pass_EditorUI()
 	
 	GUI::Render();
 
-	SetRenderTarget
-	(
-		1,
-		m_NullRtv,
-		NULL
-	);
+	SetRenderTarget(1, m_NullRtv, NULL);
+
 	Profiler::SampleEnd("Pass_EditorUI");
 
 }
@@ -739,13 +696,8 @@ void Graphics::Pass_Gizmo()
 	}
 
 	m_PrimitiveBatch->End();
+	SetRenderTarget(DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT, m_NullRtv, NULL);
 
-	SetRenderTarget
-	(
-		DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT,
-		m_NullRtv,
-		NULL
-	);
 	Profiler::SampleEnd("Pass_Gizmo");
 
 }
