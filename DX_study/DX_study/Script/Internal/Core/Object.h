@@ -15,7 +15,7 @@ public:
 	virtual ~Object() {}
 	Object& operator=(const Object &);
 
-	int GetId() const { return m_Id; }
+	unsigned int GetId() const { return m_Id; }
 
 	std::shared_ptr<Object> GetPtr() {
 		return shared_from_this();
@@ -32,5 +32,5 @@ public:
 private:
 	void InitObject();
 
-	int m_Id;
+	unsigned int m_Id;
 };

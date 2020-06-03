@@ -70,15 +70,6 @@ namespace Core {
 			DeRegister(obj->GetId());
 		}
 
-
-		std::shared_ptr<Object> Find(const int objId) {
-			auto iter = m_Objects.find(objId);
-			if (iter != m_Objects.end()) {
-				return iter->second->Get();
-			}
-			return std::shared_ptr<Object>();
-		}
-
 		void Clear() { m_Objects.clear(); }
 
 	private:
@@ -111,7 +102,7 @@ namespace Core {
 	}
 
 	template<typename T>
-	std::shared_ptr<T> Find(const int objId) {
+	std::shared_ptr<T> Find(const unsigned int objId) {
 		auto ptr = Pool<typename T::ManagedType>::GetInstance().Find(objId);
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
@@ -121,7 +112,6 @@ namespace Core {
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
 
-	std::shared_ptr<Object> Find(const int objId);
 	void Destroy(Object* obj);
 	void Destroy(std::shared_ptr<Object> obj);
 };

@@ -49,11 +49,6 @@ std::shared_ptr<Transform> Core::GetWorldTransform()
 	return GetCurrentScene().GetWorldTransform();
 }
 
-std::shared_ptr<Object> Core::GetObjectById(int id)
-{
-	return Core::Find(id);
-}
-
 std::string Core::GetBuildPath()
 {
 #ifdef _DEBUG //Debug Mode

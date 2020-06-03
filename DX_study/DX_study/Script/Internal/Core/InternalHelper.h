@@ -29,8 +29,6 @@ namespace Core {
 	Scene& GetCurrentScene();
 	std::shared_ptr<Transform> GetWorldTransform();
 
-	std::shared_ptr<Object> GetObjectById(int id);
-
 	std::string GetBuildPath();
 	std::string GetShaderCsoFilePath();
 }
