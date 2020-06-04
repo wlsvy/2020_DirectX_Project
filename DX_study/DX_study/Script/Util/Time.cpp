@@ -16,5 +16,5 @@ double Time::GetDeltaTime()
 
 float Time::GetFixedDeltaTime()
 {
-	return Engine::s_FixedFrameRate;
+	return Engine::FIXED_FRAME_RATE;
 }

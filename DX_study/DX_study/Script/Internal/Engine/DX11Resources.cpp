@@ -23,10 +23,6 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateRasterizerState(m_RasterizerCullFront.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_FRONT);
 		CreateRasterizerState(m_RasterizerCullNone.GetAddressOf(), D3D11_FILL_SOLID, D3D11_CULL_NONE);
 
-		CreateBlenderState(m_BlendStateOpaque.GetAddressOf(), false);
-		CreateBlenderState(m_BlendStateAlpha.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
-		CreateBlenderState(m_BlendStateAdditive.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
-
 		CreateSamplerState(m_SamplerPointClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 		CreateSamplerState(m_SamplerLinearClamp.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_CLAMP);
 		CreateSamplerState(m_SamplerLinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT, D3D11_TEXTURE_ADDRESS_WRAP);
@@ -34,6 +30,10 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 		CreateSamplerState(m_SamplerAnisotropicWrap.GetAddressOf(), D3D11_FILTER_ANISOTROPIC, D3D11_TEXTURE_ADDRESS_WRAP);
 		CreateSamplerState(m_SamplerTrilinearWrap.GetAddressOf(), D3D11_FILTER_MIN_MAG_MIP_LINEAR, D3D11_TEXTURE_ADDRESS_WRAP);
 		
+		CreateBlenderState(m_BlendStateOpaque.GetAddressOf(), false);
+		CreateBlenderState(m_BlendStateAlpha.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_INV_SRC_ALPHA, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
+		CreateBlenderState(m_BlendStateAdditive.GetAddressOf(), true, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE, D3D11_BLEND::D3D11_BLEND_ONE);
+
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderTexture0].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderTexture1].GetAddressOf(), width, height);
 		CreateRenderTarget(m_RenderTargetViewArr[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf(), m_RenderTargetSrvs[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf(), m_RenderTargetUavs[RenderTargetTypes::DeferredRenderTexture2].GetAddressOf(), width, height);
@@ -62,14 +62,14 @@ bool DX11Resources::Initialize(HWND hwnd, UINT width, UINT height)
 	return true;
 }
 
-bool DX11Resources::CreateDeviceAndSwapChain(HWND hwnd, UINT width, UINT height)
+void DX11Resources::CreateDeviceAndSwapChain(HWND hwnd, UINT width, UINT height)
 {
 	std::vector<AdapterData> adapters = AdapterReader::GetAdapters();
 
 	if (adapters.size() < 1)
 	{
 		StringHelper::ErrorLog("No IDXGI Adapters found.");
-		return false;
+		return;
 	}
 
 	DXGI_SWAP_CHAIN_DESC scd = { 0 };

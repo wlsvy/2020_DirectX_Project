@@ -30,6 +30,7 @@ public:
 		std::string window_class, 
 		UINT width, UINT height);
 	void Run();
+	void Release();
 
 	Graphics& GetGraphics()			{ return *m_Graphics; }
 	Timer& GetTimer()				{ return *m_Timer; }
@@ -37,7 +38,7 @@ public:
 	KeyboardClass& GetKeyboard()	{ return m_Keyboard; }
 	MouseClass& GetMouse()			{ return m_Mouse; }
 
-	static const float s_FixedFrameRate;
+	static const float FIXED_FRAME_RATE;
 
 private:
 	bool ProcessMessage();

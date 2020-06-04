@@ -6,4 +6,5 @@ public:
 	Uncopyable& operator=(const Uncopyable&) = delete;
 protected:
 	Uncopyable() {}
+	virtual ~Uncopyable() {}
 };

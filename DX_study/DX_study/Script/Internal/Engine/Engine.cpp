@@ -18,10 +18,13 @@ using DirectX::operator*;
 using namespace DirectX;
 
 Engine* Engine::s_Ptr = nullptr;
-const float Engine::s_FixedFrameRate = 0.05f;
+const float Engine::FIXED_FRAME_RATE = 0.05f;
 
 Engine & Engine::Get()
 {
+	if (s_Ptr == nullptr) {
+		s_Ptr = new Engine();
+	}
 	return *s_Ptr;
 }
 
@@ -29,15 +32,10 @@ Engine::Engine() :
 	m_Timer(std::make_unique<Timer>()),
 	m_CurrentScene(std::make_unique<Scene>()),
 	m_Graphics(std::make_unique<Graphics>())
-{
-	s_Ptr = this;
-}
+{}
 
-Engine::~Engine()
+Engine::~Engine() 
 {
-	s_Ptr = nullptr;
-
-	Core::Pool<Object>::GetInstance().Clear();
 }
 
 bool Engine::Initialize(HINSTANCE hInstance, std::string window_title, std::string window_class, UINT width, UINT height)
@@ -129,8 +127,10 @@ void Engine::RenderFrame()
 {
 	Profiler::SampleBegin("Render Frame");
 
+	auto mainLight = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
+
 	m_Graphics->RenderBegin();
-	m_Graphics->Pass_ShadowMap(Core::Find<GameObject>("Light")->GetComponent<SpotLight>());
+	m_Graphics->Pass_ShadowMap(mainLight);
 	m_Graphics->Pass_GBuffer();
 	m_Graphics->Pass_SSAO();
 	m_Graphics->Pass_Composition();	
@@ -150,16 +150,27 @@ void Engine::Run()
 	while (ProcessMessage()) {
 		fixedTimeStamp += m_Timer->GetDeltaTime();
 
-		if (fixedTimeStamp > Engine::s_FixedFrameRate) 
+		if (fixedTimeStamp > Engine::FIXED_FRAME_RATE) 
 		{
 			FixedUpdate();
 
-			fixedTimeStamp -= Engine::s_FixedFrameRate;
+			fixedTimeStamp -= Engine::FIXED_FRAME_RATE;
 		}
 
 		Update();
 		RenderFrame();
 
 		Profiler::GetInstance().Clear();
+	}
+}
+
+void Engine::Release()
+{
+	m_CurrentScene.release();
+	Core::Pool<Object>::GetInstance().Clear();
+
+	if (s_Ptr != nullptr) {
+		delete s_Ptr;
+		s_Ptr = nullptr;
 	}
 }

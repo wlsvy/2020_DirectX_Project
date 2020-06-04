@@ -225,9 +225,6 @@ void Graphics::Pass_GBuffer()
 		m_MainDepthStencilView.Get()
 	);
 
-
-	SetPSShaderResources(TextureBindTypes::Fur, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
-
 	for (auto & renderInfo : Core::Pool<RenderInfo>::GetInstance().GetItems()) {
 		Render(renderInfo);
 	}
@@ -368,11 +365,11 @@ void Graphics::RenderQuadPlane()
 	DrawIndexed(mesh->GetIndexBuffer().IndexCount());
 }
 
-void Graphics::RenderGizmo(const std::shared_ptr<RenderInfo>& renderer)
+void Graphics::RenderGizmo(const std::shared_ptr<RenderInfo>& renderInfo)
 {
-	if (renderer->m_Model) {
-		for (auto& r : renderer->GetRenerables()) {
-			GUI::Draw(m_PrimitiveBatch.get(), Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), renderer->GetGameObject()->GetTransform()));
+	if (renderInfo->m_Model) {
+		for (auto& r : renderInfo->GetRenerables()) {
+			GUI::Draw(m_PrimitiveBatch.get(), Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), renderInfo->GetGameObject()->GetTransform()));
 		}
 	}
 }
@@ -458,20 +455,20 @@ void Graphics::ApplyShaderState(const std::shared_ptr<ShaderState>& shaderState)
 	}
 }
 
-void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer)
+void Graphics::ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderInfo)
 {
 	if (m_DrawFlag & DrawFlag::Apply_SkinnedMeshBone &&
-		renderer->Anim &&
-		renderer->Anim->GetClip())
+		renderInfo->Anim &&
+		renderInfo->Anim->GetClip())
 	{
 		CopyMemory(m_GpuBoneBuffer.data.boneTransform,
-			renderer->Anim->GetAnimResult().data(),
-			renderer->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
+			renderInfo->Anim->GetAnimResult().data(),
+			renderInfo->Anim->GetAnimResult().size() * sizeof(DirectX::XMMATRIX));
 		m_GpuBoneBuffer.ApplyChanges();
 	}
 }
 
-bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
+bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderInfo)
 {
 	if ((m_DrawFlag & DrawFlag::Apply_ViewFrustumCulling) == false) {
 		return true;
@@ -479,11 +476,11 @@ bool Graphics::IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer)
 
 	bool isVisible = false;
 
-	auto& tf = renderer->m_GameObject->GetTransform();
-	for (auto & r : renderer->GetRenerables()) {
+	auto& tf = renderInfo->m_GameObject->GetTransform();
+	for (auto & r : renderInfo->GetRenerables()) {
 		auto globalAABB = Math::GetGlobalBoundingBox(r.GetMesh()->GetLocalAABB(), tf);
-		auto containment = m_CullFrustum.Contains(globalAABB);
-		isVisible |= containment != DirectX::DISJOINT;
+		auto containment = m_CullFrustum.Contains(globalAABB) != DirectX::DISJOINT;
+		isVisible |= containment;
 	}
 
 	return isVisible;

@@ -71,9 +71,17 @@ struct DrawFlag {
 };
 
 class Graphics : public DX11Resources {
+
+#pragma region 함수가 많아서 잠시 가립니다
+
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
-
+	void RenderGizmo(const std::shared_ptr<RenderInfo>& renderInfo);
+	void RenderSkybox();
+	void RenderQuadPlane();
+	void InitializeConstantBuffer();
+	bool ProcessMaterialTable();
+	bool ProcessShaderStateTable();
 	void RenderBegin();
 	void Pass_ShadowMap(const std::shared_ptr<LightBase> & light);
 	void Pass_GBuffer();
@@ -100,6 +108,7 @@ public:
 	UINT GetWindowWidth() const { return m_WindowWidth; }
 	UINT GetWindowHeight() const { return m_WindowHeight; }
 
+#pragma endregion
 private:
 	void Render(const std::shared_ptr<RenderInfo>& renderer);
 	void RenderMesh
@@ -108,20 +117,16 @@ private:
 		const DirectX::XMMATRIX & worldMat,
 		const DirectX::XMMATRIX & wvpMat
 	);
-	void RenderSkybox();
-	void RenderQuadPlane();
-	void RenderGizmo(const std::shared_ptr<RenderInfo>& renderer);
-
+	
 	void ApplySceneBuffer();
 	void ApplyMaterialProperties(const std::shared_ptr<Material>& material);
 	void ApplyShaderState(const std::shared_ptr<ShaderState> & shaderState);
-	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderer);
+	void ApplySkinnedBone(const std::shared_ptr<RenderInfo>& renderInfo);
 
-	bool IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderer);
+	bool IsInViewFrustum(const std::shared_ptr<RenderInfo>& renderInfo);
 
-	void InitializeConstantBuffer();
-	bool ProcessMaterialTable();
-	bool ProcessShaderStateTable();
+	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
+	DirectX::BoundingFrustum m_CullFrustum;
 
 	ConstantBuffer<GpuObjectBuffer> m_GpuObjectBuffer;
 	ConstantBuffer<GpuBoneBuffer> m_GpuBoneBuffer;
@@ -132,18 +137,6 @@ private:
 	ConstantBuffer<GpuSpotLightBuffer> m_GpuSpotLight;
 	ConstantBuffer<GpuAmbientLightBuffer> m_GpuAmbientLightBuffer;
 	ConstantBuffer<GpuFurBuffer> m_GpuFurDataBuffer;
-	
-	
-	std::shared_ptr<Skybox> m_Skybox;
-	std::shared_ptr<VertexShader> m_PostProcesVshader;
-	std::shared_ptr<PixelShader> m_ShadowMapPshader;
-	std::shared_ptr<PixelShader> m_SsaoShader;
-	std::shared_ptr<PixelShader> m_CompositionShader;
-	std::shared_ptr<PixelShader> m_BloomShader;
-	std::shared_ptr<PixelShader> m_ToneMappingShader;
-	std::shared_ptr<PixelShader> m_GammaCorrectionShader;
-
-
 	std::shared_ptr<Model> m_QuadWindowModel;
 	std::shared_ptr<ComputeShader> m_BlurShader;
 	std::shared_ptr<ComputeShader> m_UpSampleShader;
@@ -161,6 +154,13 @@ private:
 	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	UINT m_DrawFlag = 0;
 
-	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
-	DirectX::BoundingFrustum m_CullFrustum;
+
+	std::shared_ptr<Skybox> m_Skybox;
+	std::shared_ptr<VertexShader> m_PostProcesVshader;
+	std::shared_ptr<PixelShader> m_ShadowMapPshader;
+	std::shared_ptr<PixelShader> m_SsaoShader;
+	std::shared_ptr<PixelShader> m_CompositionShader;
+	std::shared_ptr<PixelShader> m_BloomShader;
+	std::shared_ptr<PixelShader> m_ToneMappingShader;
+	std::shared_ptr<PixelShader> m_GammaCorrectionShader;
 };

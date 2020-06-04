@@ -32,7 +32,7 @@ public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
 	bool InitializeDebugLayout(DirectX::XMMATRIX v, DirectX::XMMATRIX p);
 
-	bool CreateDeviceAndSwapChain(HWND hwnd, UINT width, UINT height);
+	void CreateDeviceAndSwapChain(HWND hwnd, UINT width, UINT height);
 	void CreateBackBufferAndMainRTV(UINT width, UINT height);
 	void CreateDepthStencilView(
 		ID3D11DepthStencilView** depthStencilView, 

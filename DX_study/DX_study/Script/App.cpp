@@ -4,10 +4,12 @@
 
 void RunApplication(HINSTANCE& hInstance) 
 {
-	Engine engine;
+	auto& engine = Engine::Get();
 	engine.Initialize(hInstance, "title", "class", 1024, 768);
 
-	return engine.Run();
+	engine.Run();
+
+	engine.Release();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -22,5 +24,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 	RunApplication(hInstance);
 	
+	int a = 0;
+
 	return 0;
 }

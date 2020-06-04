@@ -33,6 +33,10 @@ namespace Core {
 			return m_Objects;
 		}
 
+		~Pool() {
+			int a = 0;
+		}
+
 	private:
 		void Register(const std::shared_ptr<T>& obj) {
 			m_Objects.push_back(obj);
