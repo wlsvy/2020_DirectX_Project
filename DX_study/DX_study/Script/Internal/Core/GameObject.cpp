@@ -20,7 +20,7 @@ GameObject::~GameObject()
 {
 	for (auto wp : m_Components) {
 		if (auto sp = wp.lock()) {
-			Core::Destroy(sp.get());
+			Core::Destroy(sp);
 		}
 	}
 }

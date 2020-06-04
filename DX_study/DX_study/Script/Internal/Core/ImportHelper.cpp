@@ -202,7 +202,7 @@ void Importer::LoadVertexShader(const std::string & dirPath, const std::string& 
 			layout,
 			ARRAYSIZE(layout)))
 		{
-			Core::Destroy(vs.get());
+			Core::Destroy(vs);
 			MessageBoxA(NULL, "Shader Initialize error.", ERROR, MB_ICONERROR);
 		}
 	}

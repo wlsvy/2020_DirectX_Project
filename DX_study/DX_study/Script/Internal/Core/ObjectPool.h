@@ -57,8 +57,8 @@ namespace Core {
 	public:
 		template<typename T, typename ...Arg>
 		friend std::shared_ptr<T> CreateInstance(Arg&&... arg);
-
-		friend void Destroy(Object* obj);
+		friend void Destroy(const Object* obj);
+		friend void Destroy(const std::shared_ptr<Object> & obj);
 
 		void Clear() { m_Objects.clear(); }
 
@@ -101,7 +101,7 @@ namespace Core {
 
 	template<typename T, typename ...Arg>
 	std::shared_ptr<T> CreateInstance(Arg&&... arg) {
-		auto ptr = std::make_shared<T>(arg...);
+		auto ptr = std::make_shared<T>(std::forward<Arg>(arg)...);
 		Pool<Object>::GetInstance().Register<typename T::ManagedType>(ptr);
 		return ptr;
 	}
@@ -117,8 +117,16 @@ namespace Core {
 		return std::dynamic_pointer_cast<T>(ptr);
 	}
 
-	inline void Destroy(Object* obj)
+	inline void Destroy(const Object* obj)
 	{
-		Pool<Object>::GetInstance().DeRegister(obj->GetId());
+		if (obj != nullptr) {
+			Pool<Object>::GetInstance().DeRegister(obj->GetId());
+		}
+	}
+	inline void Destroy(const std::shared_ptr<Object> & obj)
+	{
+		if (obj) {
+			Pool<Object>::GetInstance().DeRegister(obj->GetId());
+		}
 	}
 };
