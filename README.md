@@ -20,6 +20,7 @@ DirectX를 활용해서 기초적인 렌더링 시스템, ECS(Entity-Component S
 ## ScreenShot
 <img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/AnimationBlending.gif"/>
 <img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/ezgif-7-5df44fa34356.gif"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/screenshot0.png"/>
 <img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/SSAO.png"/>
 <img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/furRendering0.png"/>
 <img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/screenshot1.png"/>
