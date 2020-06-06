@@ -65,6 +65,9 @@ cbuffer CB_Scene : register(b0)
     float Bloom_Intensity;
     float Bloom_Var;
     float pad3;
+    
+    float3 SkyBoxColor;
+    float pad4;
 }
 
 cbuffer CB_SpotLight : register(b1)

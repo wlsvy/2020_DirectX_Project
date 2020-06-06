@@ -216,6 +216,7 @@ void Graphics::Pass_GBuffer()
 	m_CullFrustum = mainCam->GetViewFrustum();
 	m_DrawFlag = DrawFlag::All;
 
+	SetPSShaderResources(TextureBindTypes::Fur, 1, m_FurOpacityTexture.lock()->GetTextureResourceViewAddress());
 	SetBlendState(m_BlendStateOpaque.Get(), m_BlendFactors);
 	SetRasterizerState(m_RasterizerCullBack.Get());
 	SetRenderTarget
@@ -652,7 +653,7 @@ void Graphics::Pass_EditorUI()
 
 	GUI::NewFrame();
 	
-	GUI::DrawEditorUI(m_RenderTargetSrvs[DX11Resources::MAX_RENDER_TARGET_BINDING_COUNT].Get());
+	GUI::DrawEditorUI(m_RenderTargetSrvs[RenderTargetTypes::Composition0].Get());
 	
 	GUI::Render();
 

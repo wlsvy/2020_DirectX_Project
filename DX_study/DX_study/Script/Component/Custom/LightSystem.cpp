@@ -12,6 +12,8 @@ void LightSystem::OnGui(const char* option)
 	auto & cbDownSample = Core::GetGraphics().GetCbDownSampleData();
 	ImGui::SliderFloat("Ambient Strength", &cbScene.data.ambientLightStrength,  0.0f, 10.0f);
 	ImGui::ColorEdit3("Ambient Color", &cbScene.data.ambientLightColor.x, ImGuiColorEditFlags_NoAlpha);
+	ImGui::ColorEdit3("Skybox Color", &cbScene.data.skyboxColor.x, ImGuiColorEditFlags_NoAlpha);
+
 	ImGui::SliderFloat("Gamma", &cbScene.data.GammaCorrection, 0.0f, 10.0f);
 	ImGui::SliderFloat("HdrExposure", &cbScene.data.HdrExposure, 0.0f, 10.0f);
 	ImGui::DragFloat("SSAO Strength", &cbScene.data.ssao_Strength, 0.01f, 0.0f, 10.0f);

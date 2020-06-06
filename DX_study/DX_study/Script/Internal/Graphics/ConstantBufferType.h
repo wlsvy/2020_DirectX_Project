@@ -104,6 +104,9 @@ struct GpuSceneBuffer {
 	float bloom_Threshold = 0.0f;
 	float bloom_Intensity = 1.0f;
 	DirectX::XMFLOAT2 pad2;
+
+	DirectX::XMFLOAT3 skyboxColor = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
+	float pad3;
 };
 
 struct GpuFurBuffer {

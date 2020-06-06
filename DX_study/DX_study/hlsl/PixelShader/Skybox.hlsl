@@ -22,7 +22,7 @@ Pixel_Deferred main(PS_INPUT input) : SV_TARGET
     output.colorFlag = -1.0f;
     output.normal = float3(-1.0f, -1.0f, -1.0f);
     output.depth = 1.0f;
-    output.color = SkyboxCubeMap.Sample(LinearWrap, input.inLocalPos);
+    output.color = SkyboxCubeMap.Sample(LinearWrap, input.inLocalPos) * SkyBoxColor;
     output.metal = 1.0f;
     output.emission = 1.0f;
     output.roughness = 1.0f;
