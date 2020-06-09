@@ -93,15 +93,15 @@ public:
 	void Pass_DownSample(ID3D11ShaderResourceView** texIn, ID3D11UnorderedAccessView** texOut, UINT texInwidth, UINT texInheight);
 	void RenderEnd();
 
-	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader() { return m_GpuObjectBuffer; }
-	ConstantBuffer<GpuBoneBuffer> & GetCbBoneInfo() { return m_GpuBoneBuffer; }
+	ConstantBuffer<GpuObjectBuffer> & GetCbVertexShader()		{ return m_GpuObjectBuffer; }
+	ConstantBuffer<GpuBoneBuffer> & GetCbBoneInfo()				{ return m_GpuBoneBuffer; }
 	ConstantBuffer<GpuAmbientLightBuffer> & GetCbAmbientLight() { return m_GpuAmbientLightBuffer; }
-	ConstantBuffer<GpuSceneBuffer> & GetCbScene() { return m_GpuSceneBuffer; }
-	ConstantBuffer<GpuFurBuffer> & GetCbFurData() { return m_GpuFurDataBuffer; }
+	ConstantBuffer<GpuSceneBuffer> & GetCbScene()				{ return m_GpuSceneBuffer; }
+	ConstantBuffer<GpuFurBuffer> & GetCbFurData()				{ return m_GpuFurDataBuffer; }
 	ConstantBuffer<GpuDownSampleBuffer> & GetCbDownSampleData() { return m_GpuDownSampleBuffer; }
 
-	UINT GetWindowWidth() const { return m_WindowWidth; }
-	UINT GetWindowHeight() const { return m_WindowHeight; }
+	UINT GetWindowWidth() const		{ return m_WindowWidth; }
+	UINT GetWindowHeight() const	{ return m_WindowHeight; }
 
 private:
 	void Render(const std::shared_ptr<RenderInfo>& renderer);
@@ -121,7 +121,12 @@ private:
 
 	DirectX::XMMATRIX m_TargetViewProjectionMatrix;
 	DirectX::BoundingFrustum m_CullFrustum;
-
+	UINT m_DrawFlag = 0;
+	UINT m_WindowWidth = 0;
+	UINT m_WindowHeight = 0;
+	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	
 	ConstantBuffer<GpuObjectBuffer> m_GpuObjectBuffer;
 	ConstantBuffer<GpuBoneBuffer> m_GpuBoneBuffer;
 	ConstantBuffer<GpuSceneBuffer> m_GpuSceneBuffer;
@@ -131,25 +136,15 @@ private:
 	ConstantBuffer<GpuSpotLightBuffer> m_GpuSpotLight;
 	ConstantBuffer<GpuAmbientLightBuffer> m_GpuAmbientLightBuffer;
 	ConstantBuffer<GpuFurBuffer> m_GpuFurDataBuffer;
+	
 	std::shared_ptr<Model> m_QuadWindowModel;
-	std::shared_ptr<ComputeShader> m_BlurShader;
-	std::shared_ptr<ComputeShader> m_UpSampleShader;
-	std::shared_ptr<ComputeShader> m_DownSampleShader;
+	std::shared_ptr<Skybox> m_Skybox;
 
-	std::weak_ptr<SharedMaterial> m_DefaultMaterial;
 	std::weak_ptr<Texture> m_RandomTexture;
 	std::weak_ptr<Texture> m_DitheringTexture;
 	std::weak_ptr<Texture> m_IblBrdfTexture;
 	std::weak_ptr<Texture> m_FurOpacityTexture;
 
-	UINT m_WindowWidth = 0;
-	UINT m_WindowHeight = 0;
-	const float m_BackgroundColor[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	const float m_BlendFactors[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	UINT m_DrawFlag = 0;
-
-
-	std::shared_ptr<Skybox> m_Skybox;
 	std::shared_ptr<VertexShader> m_PostProcesVshader;
 	std::shared_ptr<PixelShader> m_ShadowMapPshader;
 	std::shared_ptr<PixelShader> m_SsaoShader;
@@ -157,4 +152,7 @@ private:
 	std::shared_ptr<PixelShader> m_BloomShader;
 	std::shared_ptr<PixelShader> m_ToneMappingShader;
 	std::shared_ptr<PixelShader> m_GammaCorrectionShader;
+	std::shared_ptr<ComputeShader> m_BlurShader;
+	std::shared_ptr<ComputeShader> m_UpSampleShader;
+	std::shared_ptr<ComputeShader> m_DownSampleShader;
 };
