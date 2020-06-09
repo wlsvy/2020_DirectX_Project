@@ -1,7 +1,10 @@
 #include "Timer.h"
 
+using namespace std::chrono;
+using Clock = high_resolution_clock;
+
 Timer::Timer() {
-	m_StartTime = std::chrono::high_resolution_clock::now();
+	m_StartTime = Clock::now();
 }
 
 void Timer::Stop() {
@@ -11,8 +14,8 @@ void Timer::Stop() {
 void Timer::Start() {
 	if (!m_IsRunning) 
 	{
-		m_StartTime = std::chrono::high_resolution_clock::now();
-		m_PrevTick = std::chrono::high_resolution_clock::now();
+		m_StartTime = Clock::now();
+		m_PrevTick = Clock::now();
 		m_IsRunning = true;
 	}
 }
@@ -23,9 +26,9 @@ void Timer::Tick() {
 		return;
 	}
 
-	auto now = std::chrono::high_resolution_clock::now();
-	m_Time = std::chrono::duration<float>(now - m_StartTime).count();
-	m_DeltaTime = std::chrono::duration<float>(now - m_PrevTick).count();
+	auto now = Clock::now();
+	m_Time = duration<float>(now - m_StartTime).count();
+	m_DeltaTime = duration<float>(now - m_PrevTick).count();
 	m_PrevTick = now;
 }
 

@@ -5,6 +5,6 @@ public:
 	Uncopyable(const Uncopyable&) = delete;
 	Uncopyable& operator=(const Uncopyable&) = delete;
 protected:
-	Uncopyable() {}
-	virtual ~Uncopyable() {}
+	Uncopyable() = default;
+	virtual ~Uncopyable() = default;
 };

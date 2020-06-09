@@ -52,28 +52,23 @@ struct TextureBindTypes {
 		Random = 31,
 		Dithering,
 		SpecularBRDF,
-
-		Max
 	};
 };
 
 struct DrawFlag {
 	enum {
 		None = 0,
-		Apply_ObjectVertexShader = 1,
-		Apply_ObjectPixelShader = 1 << 1,
-		Apply_ObjectGeometryShader = 1 << 2,
-		Apply_SkinnedMeshBone = 1 << 3,
-		Apply_MaterialTexture = 1 << 4,
-		Apply_ViewFrustumCulling = 1 << 5,
-		All = (1 << 30) - 1
+		Apply_ObjectVertexShader =		1,
+		Apply_ObjectPixelShader =		1 << 1,
+		Apply_ObjectGeometryShader =	1 << 2,
+		Apply_SkinnedMeshBone =			1 << 3,
+		Apply_MaterialTexture =			1 << 4,
+		Apply_ViewFrustumCulling =		1 << 5,
+		All =							(1 << 30) - 1
 	};
 };
 
 class Graphics : public DX11Resources {
-
-#pragma region 함수가 많아서 잠시 가립니다
-
 public:
 	bool Initialize(HWND hwnd, UINT width, UINT height);
 	void RenderGizmo(const std::shared_ptr<RenderInfo>& renderInfo);
@@ -108,7 +103,6 @@ public:
 	UINT GetWindowWidth() const { return m_WindowWidth; }
 	UINT GetWindowHeight() const { return m_WindowHeight; }
 
-#pragma endregion
 private:
 	void Render(const std::shared_ptr<RenderInfo>& renderer);
 	void RenderMesh

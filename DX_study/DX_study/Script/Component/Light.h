@@ -2,7 +2,6 @@
 #include "Component.h"
 #include "RenderInfo.h"
 #include "../Util/Math.h"
-#include <Queue>
 #include <wrl/client.h>
 
 struct ID3D11RenderTargetView;

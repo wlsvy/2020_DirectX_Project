@@ -1,6 +1,5 @@
 #include "Graphics.h"
 
-#include "../Engine/Ui.h"
 #include "Model.h"
 #include "Shaders.h"
 #include "Skybox.h"
@@ -8,8 +7,7 @@
 #include "AnimationClip.h"
 #include "Material.h"
 #include "DebugDraw.h"
-#include "../../Util/Time.h"
-#include "../../Util/Math.h"
+#include "../Engine/Ui.h"
 #include "../Engine/Engine.h"
 #include "../Engine/Ui.h"
 #include "../Engine/Profiler.h"
@@ -17,6 +15,8 @@
 #include "../Core/GameObject.h"
 #include "../Core/ImportHelper.h"
 #include "../Core/Scene.h"
+#include "../../Util/Time.h"
+#include "../../Util/Math.h"
 #include "../../Component/Transform.h"
 #include "../../Component/RenderInfo.h"
 #include "../../Component/Animator.h"
@@ -645,6 +645,8 @@ void Graphics::Pass_ShadowMap(const std::shared_ptr<LightBase> & light)
 
 void Graphics::Pass_EditorUI()
 {
+	ScopedProfilingSample("Pass Test");
+	
 	Profiler::SampleBegin("Pass_EditorUI");
 
 	auto light = Core::Find<GameObject>("Light")->GetComponent<SpotLight>();
