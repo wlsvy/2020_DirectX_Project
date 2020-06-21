@@ -116,7 +116,7 @@ void Transform::SetLookAtPos(DirectX::XMFLOAT3 lookAtPos)
 	}
 	if (lookAtPos.z > 0) yaw += DirectX::XM_PI;
 
-	this->SetRotation(pitch, yaw, 0.0f);
+	this->SetRotation(pitch * Math::Rad2Deg, yaw * Math::Rad2Deg, 0.0f);
 }
 
 void Transform::UpdateDirectionVectors(const DirectX::XMMATRIX & rotationMat) {

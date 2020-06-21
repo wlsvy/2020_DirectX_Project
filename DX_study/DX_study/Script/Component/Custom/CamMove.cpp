@@ -39,4 +39,8 @@ void CamMove::Update()
 	if (Input::GetKey('Z')) {
 		tf.translate(0.0f, -speed * dt, 0.0f);
 	}
+	if (Input::GetKey('B')) {
+		auto& gtf = Core::Find<GameObject>("Ground")->GetTransform();
+		tf.SetLookAtPos(gtf.position);
+	}
 }
