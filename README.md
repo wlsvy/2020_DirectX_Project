@@ -13,8 +13,6 @@ DirectX를 활용해서 기초적인 렌더링 시스템, ECS(Entity-Component S
 - CPU side Frustum Culling
 - Shadow Mapping / PCF(Percentge Closer Filtering)
 - Skeletal Animation
-- Fur Shader
-- Physics Based Rendering
 - Component System
 
 ## ScreenShot
