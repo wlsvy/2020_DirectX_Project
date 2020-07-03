@@ -138,13 +138,70 @@
 
 ## 조명
 
+<details>
+  <summary>접기/펼치기</summary>
+
+#### [조명 연산 알고리즘Illumination models](https://en.wikipedia.org/wiki/Shading#Flat_shading) 과 조합해서 사용할 수 있는 밝기값 보간 방식
+
 - `Flat shading` : 개별 삼각형에 대해 밝기값을 계산합니다.
   - 연산이 빠릅니다. 그러나 삼각형이 각진 부분 혹은 코너 부분에 있어서는 음양이 부드럽게 표현되지 않습니다.
-  - specular light를 표현하는데 있어 좋지 못합니다. 직접적으로 반사되는 폴리곤은 면 전체가 밝게 빛나며 음영이 부드럽게 이어지지 않는 특징 때문에 자연스러운 연출이 되지 않습니다.
-- `Gouraud shading` : 삼각형의 각 정점에서 조명값을 정하고 계산된 색상을 삼각형 표면 전체로 보간
-  -
+  - specular light를 표현하는데 있어 좋지 못합니다. 직접적으로 반사되는 폴리곤은 면 전체가 똑같은 밝기로 빛나며 음영이 부드럽게 이어지지 않는 특징 때문에 자연스러운 연출이 되지 않습니다.
+  - 또한 조명이 해당 폴리곤에 적당한 각도로 비추지 않는다면 specular lighting 요소는 아예 표현되지 않을 수도 있습니다.
+- `Gouraud shading` : 삼각형의 각 정점에서 조명값을 정하고 계산된 색상을 삼각형 표면 전체로 보간합니다.
+  - 정점의 조명값을 보간하는 특징 탓에 밝기가 부정확할 수 있습니다. (특히 specular lighting)
+  - T 형태로 인접한 폴리곤의 경우 시각적으로 부자연스럽게 보일 수 있습니다.
+  - 마하 밴드mach band 현상이 나타날 수 있습니다.
+    - 두 개의 면이 만나는 경계선 부근에서 어두운 면은 더 어두워지고, 밝은 면은 더 밝게 보이는 일종의 착시 현상. 인간의 시각인식 체계 특징상 윤곽선을 추적하려는 경향에 의해 나타납니다.
+- `Phong shading` : 각 정점에 저장된 법선을 이용하여 삼각형에 해당되는 각 픽셀의 법선 벡터를 보간합니다. 그 후 픽셀에 대해서 보간된 법선 벡터값을 활용해 밝기를 연산합니다.
+  - 픽셀별 조명처리는 고러드gouraud 셰이딩 방식과 플랫flat 셰이딩 방식과 비교해서 연산이 복잡하고 비용이 많이 발생합니다.
+  - 정반사광specular lighting을 가장 정확하게 표현할 수 있습니다.
+
+#### 난반사Diffuse 관련
+- 거친 표면의 성질 표현, 물리적 실제감 표현, 빛과 물체 표면과의 상호관계와 연관되어 있습니다.
+- 광자가 난반사가 일어나는 표면에 도착하면 순간적으로 그 표면에 흡수됩니다.(주로 거친rough 표면에서 발생합니다) 광원으로부터 나온 광자의 색상과 물질의 색상에 따라서 광자가 완전히 흡수될 수도 있고, 임의의 방향으로 반사될 수도 있습니다. 난반사 성분은 시야 독립적입니다.(view - independent)
+
+- [Lambert 법칙](https://en.wikipedia.org/wiki/Lambertian_reflectance) : 난반사만 일어날 수 있는 (완전히 거친) 표면에 반사된 빛을 계산하는 방법입니다.
+
+#### 정반사specular 관련
+- 하이라이트 생성함으로써 표면이 반짝거리도록 보이게 하고 굴곡을 보여주며 광원의 방향과 위치를 알게 해줍니다.
+- 물리적 의미 : 광택 있는 표면에서 입사되는 광자가 반사 방향으로 튕겨져 나가는 원리입니다.
+
+- [phong reflection](https://en.wikipedia.org/wiki/Phong_reflection_model) : 조명의 반사 벡터와 시야 벡터를 내적한 성분을 활용해 정반사 성분을 구합니다.
+- [blinn - phong reflection](https://en.wikipedia.org/wiki/Blinn%E2%80%93Phong_reflection_model) : halfway vector(조명 방향 벡터와 시야 방향 벡터의 중간값 벡터)를 활용해 정반사 성분을 구합니다.
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Blinn_phong_comparison.png/600px-Blinn_phong_comparison.png)
+- phong 방식이 정반사광을 원형으로 나타낸다면, blinn phong 방식은 보다 타원형으로 나타냅니다. 강이나 바다에 반사되는 햇빛이 완벽한 원형의 모습을 유지하기보다는 수직방향으로 좀더 늘어져 보이는 것을 떠올리시면 됩니다.
+- 조명이 굉장히 멀리 있는 경우(ex : Directional Light) 이면서 정사영orthographic/isometric 카메라를 활용하고 있을 때, halfway vector는 고정된 값으로 연산할 수 있기 때문에 phong 방식 보다 blinn-phong 방식이 더 빠를 수 있습니다.
+
+</details>
 
 ## 주변광 차폐(SSAO Screen Space Ambient Occlusion)
+
+<details>
+  <summary>접기/펼치기</summary>
+- 주변광 차폐(ambient occlusion) 방식은 물체 표면의 특정한 부분이 노출되어 있다면 밝게, 둘러싸여져 있다면 그 부분은 주변광을 덜 받는 것으로 가정하고 보다 어둡게 표현하는 기법입니다.
+  - 주름 혹은 방 가장자리의 모서리 부분을 예시로 생각하시면 됩니다. 
+  - SSAO는 screen space내의 정보를 활용해 매우 정확하지는 않지만 보다 가벼운 연산으로 주변광 차폐값의 근사치를 구하는 방법입니다.
+
+![](http://farm5.static.flickr.com/4026/4639752338_7a574740e9.jpg)
+
+- 지연 렌더링 deferred rendering 환경에서는 쉽게 구현할 수 있습니다. screen space에 픽셀에는 렌더링 된 물체들의 위치/노말 벡터 정보가 저장되어 있다고 가정하겠습니다.
+- `이웃한 픽셀의 위치 벡터 - 현재 연산하는 픽셀의 위치 벡터` 와 `현재 연산하는 픽셀의 노말 벡터`를 내적한 성분을 활용하면 됩니다. 내적값을 통해 두 벡터 사이의 각도를 알 수 있으며 해당값은 인접한 픽셀에 렌더링된 물체가 현재 픽셀을 얼마나 둘러싸는지(깊이 depth 차이가 얼마인지) 나타냅니다.
+
+![](http://farm5.static.flickr.com/4054/4639143389_42b13c5ef6.jpg)
+![](http://farm5.static.flickr.com/4030/4639143415_444cde1085.jpg)
+- 벡터를 이용한 연산은 꽤 그럴듯한 결과를 보여줍니다. 하지만 이외에도 depth 버퍼를 활용하여 깊이값을 비교하는 방식을 떠올릴 수 있습니다.
+  - 구현이 간편하고 더 빠른 연산이 가능해보이지만 문제점이 있는데 스스로를 가리는 현상self occlusion 과 모서리 주변 부분이 밝아지는 헤일로halo 현상이 나타난다는 것입니다.
+  
+- SSAO 방식은 빠르고 화면에 동적으로 움직이는 객체가 많을 때 효과적일 수 있습니다. 지연렌더링을 기반으로 하고 있다면 구현하기도 쉽습니다. 하지만 SSAO가 가지고 있는 단점도 역시 잘 고려해야 할 것이며 적절한 상황에 맞게 기법을 적용해야 할 것입니다.
+  - 숨겨진 기하geometry 물체들, 특히 절두체 바깥의 물체들은 연산 과정에서 제외합니다.
+  - 샘플링sampling(여기서는 몇 개의 인접한 픽셀과 비교하는지) 에 따라 성능 차이가 발생합니다.
+  - 결과가 지저분할 수(noisy) 있습니다. 가우시안 블러와 같은 추가적인 작업이 필요할 수 있습니다.
+
+#### Reference
+- [Game Dev](https://www.gamedev.net/tutorials/programming/graphics/a-simple-and-practical-approach-to-ssao-r2753/)
+
+</details>
 
 ## PostProcess 효과
 
@@ -154,8 +211,3 @@
 
 ## Skeletal Animation
 
-## Component System
-
-## 기타
-
-## 학습 내용
