@@ -230,6 +230,9 @@
 
 - 블러 이미지를 결과물에 적용할 때는 `Additive blending`을 적용해야 합니다. 블렌딩 방식이 혹시나 기존의 색상을 대체하는 방식이라면 역시 결과물의 빛 발산 효과가 제대로 나타나지 않을 것입니다.
 
+### Gamma Correction
+
+### Tone Mapping
 
 #### Reference
 - [wiki](https://en.wikipedia.org/wiki/Video_post-processing)
