@@ -222,6 +222,7 @@
 ![bilinear downsampling](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/blurring/bilinear-downsampling.png)
 
 - 블러 효과를 적용할 때 다수의 픽셀들의 평균 색상값을 구하려 할 경우, 연산하는 픽셀의 수가 많다면 연산 비용이 증가합니다. 이를 피하기 위해 우선 다운 샘플링downsampling 을 활용하는 방법이 있습니다.
+  - 이때 박스 샘플링(box sampling) 방식을 이용할 수 있습니다.
 
 ![](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/creating-bloom/additive-blurring.png)
 
