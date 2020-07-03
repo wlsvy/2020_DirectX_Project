@@ -109,7 +109,7 @@
 
 </details>
 
-
+<!--
 ## DirectX 11 api 활용
 
 <details>
@@ -135,6 +135,8 @@
 등을 배울 수 있었습니다.
 
 </details>
+
+-->
 
 ## 조명
 
@@ -179,9 +181,11 @@
 
 <details>
   <summary>접기/펼치기</summary>
-- 주변광 차폐(ambient occlusion) 방식은 물체 표면의 특정한 부분이 노출되어 있다면 밝게, 둘러싸여져 있다면 그 부분은 주변광을 덜 받는 것으로 가정하고 보다 어둡게 표현하는 기법입니다.
-  - 주름 혹은 방 가장자리의 모서리 부분을 예시로 생각하시면 됩니다. 
-  - SSAO는 screen space내의 정보를 활용해 매우 정확하지는 않지만 보다 가벼운 연산으로 주변광 차폐값의 근사치를 구하는 방법입니다.
+  
+  
+- `주변광 차폐(ambient occlusion)` 방식은 물체 표면의 특정한 부분이 노출되어 있다면 밝게, 둘러싸여져 있다면 그 부분은 주변광을 덜 받는 것으로 가정하고 보다 어둡게 표현하는 기법입니다.
+  - 주름 혹은 방 가장자리의 모서리 부분을 예시로 생각하시면 됩니다.
+  - SSAO는 screen space내의 정보를 활용해 정확하지는 않지만 보다 가벼운 연산으로 주변광 차폐값의 근사치를 구하는 방법입니다.
 
 ![](http://farm5.static.flickr.com/4026/4639752338_7a574740e9.jpg)
 
@@ -205,9 +209,50 @@
 
 ## PostProcess 효과
 
+<details>
+  <summary>접기/펼치기</summary>
+  
+- 3D 렌더링에서 `후처리 효과(Post Processing)` 은 렌더링 결과물을 곧바로 화면에 출력하기 전 일종의 필터 역할을 하는 효과들을 적용하는 방식일 일컫습니다.
+
+### Bloom
+
+- `블룸(bloom)` 효과는 화면의 밝은 영역의 경계에서 빛이 발산되는 것 같은 효과를 주는 기법입니다.
+  - 블룸 이펙트는 기존 이미지를 블러blurr 처리하여 구현할 수 있습니다. 블룸bloom 이펙트를 구현하기 이전에는 블러 처리가 먼저 이루어져야 합니다.
+  
+![bilinear downsampling](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/blurring/bilinear-downsampling.png)
+
+- 블러 효과를 적용할 때 다수의 픽셀들의 평균 색상값을 구하려 할 경우, 연산하는 픽셀의 수가 많다면 연산 비용이 증가합니다. 이를 피하기 위해 우선 다운 샘플링downsampling 을 활용하는 방법이 있습니다.
+
+![](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/creating-bloom/additive-blurring.png)
+
+- 여러 단계의 다운 샘플링을 거친 이미지를 기존의 화면에 적용시켜야 할 것입니다. 단순히 다수의 다운 샘플링을 거친 이미지 하나 만을 적용한다면 예상보다 균등하게 흐릿해져 제대로 된 빛 발산 효과가 나타나지 않을 것입니다. 다운 샘플링을 거친 중간 단계의 이미지들 까지 중첩시켜서 적용해야 합니다. 
+
+- 블러 이미지를 결과물에 적용할 때는 `Additive blending`을 적용해야 합니다. 블렌딩 방식이 혹시나 기존의 색상을 대체하는 방식이라면 역시 결과물의 빛 발산 효과가 제대로 나타나지 않을 것입니다.
+
+
+#### Reference
+- [wiki](https://en.wikipedia.org/wiki/Video_post-processing)
+- [bloom](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/)
+
+</details>
+
 ## Cpu Side Frustum Culling
+
+<details>
+  <summary>접기/펼치기</summary>
+  
+</details>
 
 ## Shadow Mapping
 
+<details>
+  <summary>접기/펼치기</summary>
+  
+</details>
+
 ## Skeletal Animation
 
+<details>
+  <summary>접기/펼치기</summary>
+  
+</details>
