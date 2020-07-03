@@ -16,6 +16,11 @@
 ### 렌더링 기술이 어떻게 응용되는지 알아보기 위해 실제 사용되는 렌더링 기법을 직접 구현했습니다.
 - 렌더링 파이프라인의 각 단계는 그 자체로 많은 응용 가능성을 가지고 있습니다. 이 부분을 적극적으로 활용하는 것은 그래픽스 지식을 쌓는데 큰 도움이 될 것이라 생각했습니다. 
 
+- 포워드 렌더링(forward rendering)과 지연 렌더링(deferred rendering) 중 저는 지연 렌더링을 기반으로 렌더링 시스템을 구축하기로 결정하였습니다. 포워드 렌더링은 한 단계의 pass를 거쳐 물체를 곧장 최종 결과물로 렌더링하는 반면, 지연 렌더링은 렌더링하는 과정을 나누어 물체를 두 단계 이상의 pass를 거치게 합니다. 첫 pass 에서는 물체의 정보(위치, 노말벡터 등)를 렌더타겟(G-buffer)에 저장하고, 통합된 물체들의 정보를 최종 pass를 통해 결과 화면을 렌더링한다는 점에서 지연시켜(deferred) 렌더링한다고 칭합니다. 지연 렌더링은 포워드 렌더링과 비교해 각종 장단점이 존재하지만, 렌더링하는 물체의 정보를 저장한다는 점은 추후 SSAO 같은 기법들을 구현할 때 분명 유리한 점이라 생각하였습니다. 
+  - 저는 지연렌더링을 바탕으로 아래와 같은 렌더링 기법들을 구현하였습니다.
+  
+- 지연 렌더링을 기반으로 한 다양한 기법들을 구현하면서 저는 게임의 화면을 표현할 때 어떤 과정들이 존재하고 그 원리에 대해 이해해가면서 그래픽스 프로그래밍 실력을 향상시켰습니다.
+
 ### Unity 엔진에서 사용되는 GameObject - Component 관계를 모티브로 게임동작 구조를 구현했습니다.
 - GameObject 의 행동과 특성들을 정의하는 방식은 크게 두 가지 방법이 있습니다. GameObject를 상속받는 새로운 클래스 작성하여 정적으로 클래스의 기능을 명시하는 것과 GameObject의 특성을 나타내는 Component 클래스를 만들어 GameObject의 멤버로 포함시키는 방법이 그것입니다.
 
@@ -107,7 +112,37 @@
 
 ## DirectX 11 api 활용
 
+<details>
+  <summary>접기/펼치기</summary>
+
+처음 DirectX 11 와 렌더링 이론에 대해 공부할 때는 
+
+- ‘DirectX 11을 이용한 3D 게임 프로그래밍 입문’ / 프랭크 D. 루나 
+- 'Real Time Rendering’ /   Tomas Akenine-Moller 외
+- Jpres 의 [C++ DirectX 11 Tutorial](https://www.youtube.com/watch?v=gQIG77PfLgo&list=PLcacUGyBsOIBlGyQQWzp6D1Xn6ZENx9Y2) 유튜브 튜토리얼
+
+을 참고하였습니다.
+
+- 렌더링 파이프라인 기본 이론
+- D3D11Device/SwapChain 을 포함한 각종 DirectX 자원을 초기화/다루는 방법
+- Rasterizer/Sampler/Blend/DepthStencil State 등을 통해 렌더링 파이프라인을 활용하는 방법
+- Vertex/Indice/Constant Buffer의 의미와 수행하는 역할
+- Texture와 FBX 모델을 임포트하는 방법
+- Vertex / Pixel shader 활용 방법
+- Camera 클래스를 구현해 화면상에 3D model을 띄우는 방법
+- 조명(Lightint)을 이용해 모델의 밝기를 표현하는 방법
+
+등을 배울 수 있었습니다.
+
+</details>
+
 ## 조명
+
+- `Flat shading` : 개별 삼각형에 대해 밝기값을 계산합니다.
+  - 연산이 빠릅니다. 그러나 삼각형이 각진 부분 혹은 코너 부분에 있어서는 음양이 부드럽게 표현되지 않습니다.
+  - specular light를 표현하는데 있어 좋지 못합니다. 직접적으로 반사되는 폴리곤은 면 전체가 밝게 빛나며 음영이 부드럽게 이어지지 않는 특징 때문에 자연스러운 연출이 되지 않습니다.
+- `Gouraud shading` : 삼각형의 각 정점에서 조명값을 정하고 계산된 색상을 삼각형 표면 전체로 보간
+  -
 
 ## 주변광 차폐(SSAO Screen Space Ambient Occlusion)
 
