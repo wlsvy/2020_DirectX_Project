@@ -39,7 +39,13 @@
 
 ![Scene Diagram](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/Scene.png)
 
+---
 
+* 3D 그래픽스 이론 상, 렌더링 모델의 좌표 변환(Coordinate Transform)을 연산할 때, **부모 좌표계를 기반으로 자식의 좌표를 연산**하는 것이 일반적입니다.
+
+* gameObject 객체의 위치정보를 저장하는 transform 구조를 설계할 때, Scene 클래스 안에 root 에 해당하는 Transform 을 가지게 하고 root의 자식으로 gameObject의 transform을 붙여나가는 tree 방식으로 구성하였습니다.
+
+---
 
 
 #### Reference
@@ -55,9 +61,20 @@
 <details>
   <summary>접기/펼치기</summary>
 
-![UpdateAfter](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/UpdateAfter.png)
-![HeapMemory](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/HeapMemory.png)
 ![UpdatePrev](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/UpdatePrev.png)
+
+* 초기 Engine의 업데이트 방식을 구상할 때, gameObject가 포함하는 Component들을 순환하는 방식으로는 위의 다이어그램처럼 Engine의 Update() 호출이 전파되면서 모든 Component를 Update시키는 방식을 활용했습니다. 위 방식은 몇 가지 문제점이 있었습니다.
+  - 모든 Component 가 프레임마다 Update 되어야 할 필요는 없습니다. 더 나아가 Component 파생 타입에 따라 다른 특징을 가지기 때문에 활용방식에도 차이가 있어야 했습니다. 
+  - Component의 Update 순서가 GameObject 의 Update 순서에 의존합니다. 오브젝트 렌더링, 애니메이션 연산, 그 외 특정 컴포넌트 Update 등 다양한 기능이 체계없이 동작할 때 의도치 않은 결과를 발생시킬 수 있었습니다.
+
+
+![HeapMemory](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/HeapMemory.png)
+![UpdateAfter](https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/UpdateAfter.png)
+
+* 이전의 문제를 해결하고자 Pool 클래스에 Component들을 종류별로 할당시켰습니다.
+  - 타입별로 Component가 분류되기 때문에, Engine 에서는 Component를 종류에 따라 적합한 방식으로 다룰 수 있게 되었습니다.
+  - 또한 Update 순서에 있어서도 타입별로 호출 순서를 체계화 시킬 수 있었습니다.
+
 
 </details>
 
