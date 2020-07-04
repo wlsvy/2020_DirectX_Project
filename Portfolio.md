@@ -299,6 +299,10 @@ void main()
 <details>
   <summary>접기/펼치기</summary>
   
+- 카메라의 절두체의 바깥에 위치한 오브젝트는 렌더링 대상에서 제외하는 작업입니다. gpu의 작업량을 줄일 수 있습니다.
+
+[절두체 선별 알고리즘 참고](http://www.lighthouse3d.com/tutorials/view-frustum-culling/)
+  
 </details>
 
 ## Shadow Mapping
@@ -306,11 +310,47 @@ void main()
 <details>
   <summary>접기/펼치기</summary>
   
+![](https://learnopengl.com/img/advanced-lighting/shadow_mapping_theory_spaces.png)
+
+- 쉐도우 맵핑 방식은 특정 픽셀에 대해서, 조명의 관점에서 해당 픽셀이 보이는지를 확인하며 만약 보이지 않는다면 그림자가 지는 것으로 판단하는 방식입니다.
+  - 카메라 관점과 조명 관점의 z-depth 값을 비교해서 결과를 구합니다. (조명 관점의 깊이값이 더 작다면 그림자가 지는 것)
+  - 쉐도우 맵 텍스쳐 : 조명 관점의 시야에서 깊이값이 렌더링된 텍스쳐입니다.
+  
+![](https://learnopengl.com/img/advanced-lighting/shadow_mapping_zoom.png)
+![](https://learnopengl.com/img/advanced-lighting/shadow_mapping_soft_shadows.png)
+
+- 그림자의 계단현상을 해결하기 위한 방법으로는 대표적으로 PCF(Percentage Closer Filtering) 방식이 있습니다.
+  - 연산하는 픽셀과 주변 픽셀의 그림자 결과값의 평균을 내서 가장자리의 그림자를 부드럽게 표현하는 방식입니다.
+  
+- 쉐도우 맵핑 방식의 가장 두드러지는 단점은 쉐도우 맵 텍스쳐의 해상도가 곧 그림자 표현의 퀄리티로 이어진다는 것입니다. 가장자리의 그림자를 확인하면 보통 계단현상이 나타나는 것을 확인할 수 있습니다. 메모리와 성능의 한계상 쉐도우 맵 텍스쳐의 크기를 무한정 늘릴 수도 없는 노릇입니다.
+  - 텍스쳐 크기로 인한 한계점을 우회하는 방법으로는 casacade shadow map, Trapezoidal Shadow Map 방식이 존재합니다.
+  - 쉐도우 맵 텍스쳐를 응용하여 퀄리티를 높이는 방법으로는 Percentage Closer Filtering, Variance Shadow maps 방식이 있습니다.
+
+##### Reference
+- [wiki](https://en.wikipedia.org/wiki/Shadow_mapping)
+- [Learn OpenGL](https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping)
+
 </details>
 
 ## Skeletal Animation
 
 <details>
   <summary>접기/펼치기</summary>
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Sintel-hand_%28cropped%29.png/330px-Sintel-hand_%28cropped%29.png)
+
+- Skeletal animation 과 rigging 방식에서는 3d 모델을 두 가지 방식으로 표현합니다.
+  - 메쉬mesh : 3d 모델을 렌더링할 때 표현되는 모델의 표면 정보입니다.
+  - 본bone : 모델의 각 부분들이 계층적으로 연결된 구조를 나타내는 정보입니다. (마치 사람의 골격구조 처럼)
   
+![](http://ogldev.atspace.co.uk/www/tutorial38/vertex.jpg)
+- 메쉬에 포함되는 각 정점vertex들은 본에 대해서 가중치를 가집니다. 이 가중치에 따라서 본이 움직일 때, 정점들 역시 가중치 만큼 영향을 받습니다.
+
+- 각 본들은 독립적으로 움직일 수 있고, 애니메이션들은 각 정점들에 대해서 어떻게 움직여야 할지 하나하나 지정하는 대신 더 적은 수의 본들에 대해서만 작업하면 되는 장점이 있습니다.
+- 대신 skeletal animation은 근육의 수축/팽창과 같은 움직임을 표현하는데는 한계점을 가집니다.
+
+###### Reference
+- [wiki](https://en.wikipedia.org/wiki/Skeletal_animation)
+- [openGlDev](http://ogldev.atspace.co.uk/www/tutorial38/tutorial38.html)
+
 </details>
