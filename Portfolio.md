@@ -230,13 +230,67 @@
 
 - 블러 이미지를 결과물에 적용할 때는 `Additive blending`을 적용해야 합니다. 블렌딩 방식이 혹시나 기존의 색상을 대체하는 방식이라면 역시 결과물의 빛 발산 효과가 제대로 나타나지 않을 것입니다.
 
-### Gamma Correction
+### 감마 보정Gamma Correction
+
+- 감마(gamma)라는 개념 사이에는 엔지니어 사이에도 개념 차이가 존재하며 이에 따른 혼란도 적지 않다고 한다. 적당히 '입력값에 대한 비선형적 출력 특성의 결정 요인' 정도로 이해하면 좋을 것 같다.
+
+![](https://dthumb-phinf.pstatic.net/?src=%22http%3A%2F%2Fwww.monitor4u.co.kr%2Flesson%2FContentImg%2FGamma_Tour_01_sRGB-550.png%22&type=m10000_10000)
+
+- 실제로 감마보정은 영상 처리 분야에서 생각보다 세분화된 단계로 적용된다.
+
+감마보정의 주요 목적은
+- 인간의 시야가 색상을 인식할 때 비선형적인 방식으로 인식합니다. 이때 밝은 색조보다는 어두운 색조의 대해서 더 민감하게 인식하는 경향이 있다. 일반적인 선형 색상으로 화면을 표시하려 한다면, 어두운 부분의 밝기가 변할 때 부드럽게 느껴지지 않고 단절되어 보이는 현상(posterization)이 발생합니다. 따라서 주어진 정보표현량의 한계 안에서 최적의 화질을 보여주기 위해선 비선형적으로 부호화하여 어두운 부분을 더 자세히 표현할 필요가 있습니다.
+- CRT 음극선상의 특징상 비선형적으로 색상을 표현하기 때문에 원본의 색상을 정상적으로 나타내기 위해 소프트웨어 적으로 보정을 적용하는 이유도 있다고 하지만 주된 이유는 아니라고 합니다. 입력 전류를 조정함으로써 이 부분은 소프트웨어 측 보정 없이 해결할 수 있다고 합니다.
+  - 하기야 디스플레이 장치 종류에 따라 보정값 수치가 바뀔 수 있는데 그 부분을 소프트웨어 측에서 책임지는 것은 올바른 해법이 아닌 것 같습니다.
+
+[출처](https://ko.wikipedia.org/wiki/%EA%B0%90%EB%A7%88_%EB%B3%B4%EC%A0%95), [출처2](https://en.wikipedia.org/wiki/Gamma_correction)
+
+```c++
+void main()
+{
+    // do super fancy lighting in linear space
+    [...]
+    // apply gamma correction
+    float gamma = 2.2;
+    FragColor.rgb = pow(fragColor.rgb, vec3(1.0/gamma));
+}
+```
+[감마 보정 예시 OpenGL](https://learnopengl.com/Advanced-Lighting/Gamma-Correction)
 
 ### Tone Mapping
+
+- HDR(high dynamic range) : 폭넓은 범위(색상으로 출력하는 0~1 범위를 넘어선)의 색상을 표현하는 방식입니다. 디지털 색상을 출력할 때, 색상의 최대 범위를 넘어선 값을 단순히 하얀색으로 표현하지 않으며(혹은 최소 범위 보다도 작은 값을 검은색으로 표현하는 등) 노출exposure 값을 통해  
+
+- 톤 맵핑(Tone Mapping)은 HDR 색상을 제한된 범위의 색상(LDR low dynamic range)으로 변환시키는 방법입니다. HDR 이미지를 그대로 출력한다면 디스플레이 장치가 표현할 수 있는 색상 범위를 넘어선 값은 제대로 표현하지 못하는 문제를 해결합니다.
+  - 톤 맵핑의 목적은 디스플레이 장치가 제한된 밝기만을 표현할 수 있을 때, 실제 장면이 자연스럽게 화면상에 표시될 수 있도록 하는 것입니다.
+  - 카메라가 빛에 노출되는 정도exposure 값을 조정하여 hdr 색상 표현 범위를 ldr 범위에 맞게 조정할 수 있습니다.
+    - 사람의 눈을 예시로 들면, 어두운 밤에는 exposure 를 높여 눈이 더 많은 빛을 받아들이게 합니다. 이를 통해 어두운 영역을 상대적으로 밝게 인식할 수 있습니다.
+    - 반대로 밝은 낮에는 exposure를 높여 눈이 빛을 덜 받아들게 합니다. 결과적으로 밝은 영역을 상대적으로 어둡게 인식하게 됩니다.
+  
+![](https://learnopengl.com/img/advanced-lighting/hdr_exposure.png)
+  
+```c++
+uniform float exposure;
+
+void main()
+{             
+    const float gamma = 2.2;
+    vec3 hdrColor = texture(hdrBuffer, TexCoords).rgb;
+  
+    // exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * exposure);
+    // gamma correction 
+    mapped = pow(mapped, vec3(1.0 / gamma));
+  
+    FragColor = vec4(mapped, 1.0);
+}  
+```
+[코드 출처](https://learnopengl.com/Advanced-Lighting/HDR)
 
 #### Reference
 - [wiki](https://en.wikipedia.org/wiki/Video_post-processing)
 - [bloom](https://catlikecoding.com/unity/tutorials/advanced-rendering/bloom/)
+- [감마 보정](https://blog.naver.com/psy2993/90081371916)
 
 </details>
 
