@@ -1,5 +1,5 @@
 
-# DirectX11 개인 프로젝트 진행사항
+# DirectX11 개인 프로젝트
 
 #### 프로젝트 소개는 [여기](https://github.com/wlsvy/2020_DirectX_Project)에서 확인하실 수 있습니다.
 #### 프로젝트를 진행하면서 공부한 내용은 [여기](https://github.com/wlsvy/TIL/edit/master/Document/Graphics/2020_DirectX_Project.md)에 정리하였습니다.
