@@ -14,6 +14,7 @@ DirectX를 활용해서 기초적인 렌더링 시스템, ECS(Entity-Component S
 - Shadow Mapping / PCF(Percentge Closer Filtering)
 - Skeletal Animation
 - Component System 
+
 [진행사항 정리](https://github.com/wlsvy/2020_DirectX_Project/blob/master/ProjectResult.md)
 
 ## ScreenShot
