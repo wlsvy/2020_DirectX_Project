@@ -7,6 +7,7 @@
 #include "../Core/InternalHelper.h"
 #include "../Engine/Ui.h"
 #include "../Engine/AdapterReader.h"
+#include <algorithm>
 
 class Mesh : public Object {
 	MANAGED_OBJECT(Mesh)

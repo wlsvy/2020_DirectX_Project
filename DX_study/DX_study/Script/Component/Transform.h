@@ -85,15 +85,15 @@ private:
 	DirectX::XMVECTOR CalculateLossyScale() const;
 
 	union {
-		DirectX::XMFLOAT3 m_GlobalPosition;
+		DirectX::XMFLOAT3 m_GlobalPosition = DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f);
 		DirectX::XMVECTOR m_GlobalPositionVec;
 	};
 	union {
-		DirectX::XMFLOAT4 m_GlobalQuaternion;
+		DirectX::XMFLOAT4 m_GlobalQuaternion = DirectX::XMFLOAT4(0.0f, 0.0f, 0.0f, 1.0f);
 		DirectX::XMVECTOR m_GlobalQuaternionVec;
 	};
 	union {
-		DirectX::XMFLOAT3 m_GlobalLossyScale;
+		DirectX::XMFLOAT3 m_GlobalLossyScale = DirectX::XMFLOAT3(1.0f, 1.0f, 1.0f);
 		DirectX::XMVECTOR m_GlobalLossyScaleVec;
 	};
 
