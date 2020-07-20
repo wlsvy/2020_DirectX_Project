@@ -106,3 +106,39 @@
 
 
 </details>
+
+## Source Code
+
+<details>
+  <summary>접기/펼치기</summary>
+
+- Engine : 엔진의 기본 작동을 관리하는 클래스
+
+> [haeder](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Engine/Engine.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Engine/Engine.cpp)
+
+- App : 프로그램 진입점(main) 및, 엔진 초기화 및 업데이트
+
+> [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/App.cpp)
+
+- DX11Resources : DirectX 11의 자원을 관리
+
+> [header](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Engine/DX11Resources.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Engine/DX11Resources.cpp)
+
+- Graphics : DirectX11 자원을 활용해 오브젝트를 렌더링하는 클래스
+
+> [header](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Graphics/Graphics.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Graphics/Graphics.cpp)
+
+- Object : GameObject와 Component 등 게임 내 활용되는 객체들의 기본 클래스. ObjectPool<T> 을 통해 관리되며,  MANAGED_OBJECT 는 ObjectPool<T>에서  어떤 타입(T)으로 관리 될지 명시
+  
+> [header](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Core/Object.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Core/Object.cpp)
+  
+- GameObject : 게임 내 씬(Scene) 상에 존재하는 기본 오브젝트. 게임 오브젝트는 다수의 컴포넌트(Component)와 Transform, RenderInfo 를 포함.
+
+> [header](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Core/GameObject.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Internal/Core/GameObject.cpp)
+
+- Component : GameObject의 멤버로 포함되며 GameObject가 가지는 특성과 행동을 정의.
+
+> [header](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Component/Component.h) [cpp](https://github.com/wlsvy/2020_DirectX_Project/blob/master/DX_study/DX_study/Script/Component/Component.cpp)
+
+
+</details>
