@@ -1,5 +1,6 @@
+# DirectX 11 Project Portfolio
 
-# 2020_DirectX_Project
+> ### 프로젝트 진행사항과 결과를 정리한 페이지입니다. 
 
 2020년 4학년 대학교 졸업 작품 프로젝트. 
 
