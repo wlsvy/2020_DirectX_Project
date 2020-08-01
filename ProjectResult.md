@@ -1,8 +1,37 @@
 
-# DirectX11 개인 프로젝트
+# 2020_DirectX_Project
 
-#### 프로젝트 소개는 [여기](https://github.com/wlsvy/2020_DirectX_Project)에서 확인하실 수 있습니다.
+2020년 4학년 대학교 졸업 작품 프로젝트. 
+
+DirectX를 활용한 렌더링 시스템과 기초적인 게임 구동 로직을 갖춘 엔진을 개발합니다.
+
+'게임은 어떻게 동작하는 것인가' 에 대한 궁금증을 풀기 위해 진행하였습니다.
+
+## Feature
+- DirectX 11 Backend
+- Light System
+- SSAO(Screen Space Ambient Occlusion)
+- PostProcess(Tone Map, Bloom, Gamma Correction)
+- CPU side Frustum Culling
+- Shadow Mapping / PCF(Percentge Closer Filtering)
+- Skeletal Animation
+- Component System 
+
+## ScreenShot
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/AnimationBlending.gif"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/ezgif-7-5df44fa34356.gif"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/Screenshot0.png"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/SSAO.png"/>
+<img width="512" src="https://github.com/wlsvy/2020_DirectX_Project/blob/master/Image/screenshot1.png"/>
+
+## Dependencies
+- [Dear ImGui](https://github.com/ocornut/imgui)
+- [Assimp](https://github.com/assimp/assimp)
+- [DirectXTK](https://github.com/Microsoft/DirectXTK)
+
 #### 프로젝트를 진행하면서 공부한 내용은 [여기](https://github.com/wlsvy/TIL/blob/master/Document/Graphics/2020_DirectX_Project.md)에 정리하였습니다.
+
+# 프로젝트 결과
 
 ### 게임의 실시간 렌더링 기술과 DirectX 렌더링 파이프라인에 대해 공부했습니다.
 - 렌더링 파이프라인은 3차원 모델을 2차원의 이미지로 표현하기 위한 단계적인 동작과정을 뜻합니다. DirectX 는 gpu에 접근해 프로그래머에게 그래픽스 처리 작업을 위해 필요한 api를 제공하며, 프로그래머는 쉐이더(Shader) hlsl 파일을 작성해 렌더링 파이프라인의 각 단계마다 동작과정을 명시합니다. 
